@@ -10,6 +10,12 @@ function note_engine() {
     max_distance_from_home: 10  // Max distance from middle C to allow notes
   };
 
+  // Prepare to play a song by loading its MIDI data into memory
+  _public.loadSong = function (midi_data) {
+    // Load the raw MIDI data into memory
+    _private.midi_data = midi_data;
+  };
+
   // Returns all notes that should appear within the next `duration` seconds
   _public.getNotes = function (duration, params) {
     var upcoming_notes = [];
