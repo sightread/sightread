@@ -1,3 +1,4 @@
+
 function load_file_into_memory (event) {
 
   // Guarantee File APIs are supported before we try to use them
@@ -29,13 +30,12 @@ function load_file_into_memory (event) {
   var reader = new FileReader();
   reader.onload = (function (song_file) {
     return function (e) {
-      contents = e.target.result.readAsBinaryString();
+      ret = MidiFile( e.target.result );
+      document.getElementById('list').innerHTML = ret.header;
     };
   })(song);
 
-  // Block until we actually have song contents, then return
-  // #todo deadmans switch to avoid infinite loop
-  while (contents == null);
-
-  return contents;
+  reader.readAsBinaryString(song);
 }
+
+document.getElementById('file').addEventListener('change', load_file_into_memory, false);
