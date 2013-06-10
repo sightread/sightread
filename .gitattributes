@@ -1,0 +1,3 @@
+public/generated/**/*.json linguist-generated=true
+src/manifest.json linguist-generated=true
+*-mp3.js binary
