@@ -6,7 +6,7 @@
     "jsx": "react",
     "sourceMap": true,
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["dom", "dom.iterable", "esnext", "es2019"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -19,5 +19,5 @@
     "noEmit": true
   },
   "include": ["src"],
-  "exclude": ["src/JZ.tsx"]
+  "exclude": ["src/utils.ts"]
 }
