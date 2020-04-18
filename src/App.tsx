@@ -11,13 +11,14 @@ function formatNote(note: any, height: number) {
   const keyNumber = 12 * note.pitch.octave + step[note.pitch.step]
   return { noteLength, posY, keyNumber }
 }
+const xml = parseMusicXML()
 
 function App() {
   const { width, height } = useWindowSize()
   const [notes, setNotes]: any = useState()
 
   useEffect(() => {
-    parseMusicXML().then((d) => {
+    xml.then((d) => {
       ;(window as any).parsed = d
       setNotes(d)
     })
