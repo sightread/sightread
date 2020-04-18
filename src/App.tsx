@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
 import { useWindowSize } from './hooks/utils'
 import { parseMusicXML } from './utils'
@@ -10,6 +10,7 @@ const xml = parseMusicXML()
 function App() {
   const { width, height } = useWindowSize()
   const [notes, setNotes]: any = useState({ duration: 0, staffs: {} })
+  const [time, setTime]: any = useState(-2)
 
   useEffect(() => {
     xml.then((d) => {
@@ -17,14 +18,21 @@ function App() {
     })
   }, [])
 
+  useEffect(() => {
+    let t = time
+    const handle = setInterval(() => {
+      t += 0.1
+      setTime(t)
+      return () => clearInterval(handle)
+    }, 100)
+  }, [time])
+
   return (
     <div className="App">
-      <div>
-        <SongBoard width={width} screenHeight={height} song={notes} />
-      </div>
-      <div style={{ position: 'fixed', bottom: 0 }}>
+      <SongBoard width={width} screenHeight={height} song={notes} time={time} />
+      {/* <div style={{ position: 'fixed', bottom: 0 }}>
         <PianoRoll width={width} />
-      </div>
+      </div> */}
     </div>
   )
 }
@@ -67,26 +75,40 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-function SongBoard({ width, screenHeight, song }: any) {
+function SongBoard({ width, screenHeight, song, time }: any) {
+  const scrollRef = useCallback(
+    (node) => {
+      if (node !== null) {
+        node.scrollTop = (song.duration - time) * 40
+      }
+    },
+    [screenHeight, song, time],
+  )
+
   const notes = Object.values(song.staffs)
     .map((x: any) => x.notes)
     .flat(Infinity)
   const pianoKeysArray = getKeyPositions(width)
   const height = song.duration * 40 + screenHeight
   return (
-    <div style={{ position: 'relative', width: width, height: height }}>
-      {notes.map((note: any) => {
-        const key = pianoKeysArray[note.noteValue]
-        return (
-          <SongNote
-            noteLength={note.duration * 40}
-            width={key.width}
-            posX={key.left}
-            posY={note.time * 40 + screenHeight}
-            note={note}
-          />
-        )
-      })}
+    <div
+      ref={scrollRef}
+      style={{ position: 'absolute', height: screenHeight, overflow: 'hidden', width: '100%' }}
+    >
+      <div style={{ position: 'absolute', height }}>
+        {notes.map((note: any) => {
+          const key = pianoKeysArray[note.noteValue]
+          return (
+            <SongNote
+              noteLength={note.duration * 40}
+              width={key.width}
+              posX={key.left}
+              posY={note.time * 40}
+              note={note}
+            />
+          )
+        })}
+      </div>
     </div>
   )
 }
