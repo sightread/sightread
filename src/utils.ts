@@ -5,7 +5,7 @@ export async function parseMusicXML() {
    * - Handle non Trebl/Bass clefs
    */
 
-  const txt = await (await fetch('/music/got.xml')).text()
+  const txt = await (await fetch(process.env.PUBLIC_URL + '/music/GoT.xml')).text()
   const xml = new DOMParser().parseFromString(txt, 'application/xml')
   const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL, nodeFilter)
 
