@@ -42,10 +42,6 @@ export async function parseMusicXML() {
       // TODO: - is there proper handling of `<chord/>`s ?
       if (!isChord) {
         currTime += duration
-      } else {
-        if (duration === 6 && staff == '2') {
-          console.error(curr.innerHTML)
-        }
       }
     } else if (curr.tagName === 'backup') {
       const duration = Number(curr.querySelector('duration')?.textContent?.trim())
