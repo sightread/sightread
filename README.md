@@ -1,6 +1,6 @@
 # sightread
 
-Synthesia clone.
+Synthesia clone. See [here](https://sightread.now.sh/).
 
 ## Available Scripts
 
