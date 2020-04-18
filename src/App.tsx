@@ -133,7 +133,7 @@ function SongNote({ noteLength, width, posX, posY }: any) {
 }
 
 function PianoRoll({ width }: any) {
-  const blackNotes = [1, 4, 6, 9, 11]
+  // const blackNotes = [1, 4, 6, 9, 11]
   const notes = getKeyPositions(width).map((noteConfig: any) => (
     <PianoNote
       left={noteConfig.left}

@@ -1,4 +1,3 @@
-const gotXmlUrl = '%PUBLIC_URL%/music/GoT.xml'
 export async function parseMusicXML() {
   /*
    * TODO:
