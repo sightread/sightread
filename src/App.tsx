@@ -1,24 +1,55 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
 import { useWindowSize } from './hooks/utils'
 import { parseMusicXML } from './utils'
 
+const step: any = { A: 0, B: 1, C: 2, D: 3, E: 4, F: 5, G: 6 }
+
+function formatNote(note: any, height: number) {
+  const noteLength = note.duration
+  const posY = note.time * 100 + height
+  const keyNumber = 12 * note.pitch.octave + step[note.pitch.step]
+  return { noteLength, posY, keyNumber }
+}
+
 function App() {
   const { width, height } = useWindowSize()
-  const sheetMusic = {
-    songLength: 10,
-    notes: [
-      { noteLength: 2, keyNumber: 10, posY: 300 },
-      { noteLength: 2, keyNumber: 50, posY: 200 },
-      { noteLength: 4, keyNumber: 25, posY: 500 },
-      { noteLength: 4, keyNumber: 80, posY: 100 },
-      { noteLength: 4, keyNumber: 5, posY: 150 },
-      { noteLength: 4, keyNumber: 32, posY: 800 },
-    ],
+  const [notes, setNotes]: any = useState()
+
+  useEffect(() => {
+    parseMusicXML().then((d) => {
+      ;(window as any).parsed = d
+      setNotes(d)
+    })
+  }, [])
+
+  // const sheetMusic = {
+  //   songLength: 10,
+  //   notes: [
+  //     { noteLength: 2, keyNumber: 10, posY: 300 },
+  //     { noteLength: 2, keyNumber: 50, posY: 200 },
+  //     { noteLength: 4, keyNumber: 25, posY: 500 },
+  //     { noteLength: 4, keyNumber: 80, posY: 600 },
+  //     { noteLength: 4, keyNumber: 5, posY: 150 },
+  //     { noteLength: 4, keyNumber: 32, posY: 800 },
+  //   ],
+  // }
+  const getSongConfig = () => {
+    if (!notes) {
+      return { songLength: 0, notes: [] }
+    }
+    const leftNotes = notes.staffs['1'].notes
+    const rightNotes = notes.staffs['2'].notes
+    let songLength = 0
+    const parsedNotes = [...leftNotes, ...rightNotes].map((note) => {
+      songLength += note.duration
+      return formatNote(note, height)
+    })
+    return { songLength, notes: parsedNotes }
   }
   return (
     <div className="App">
-      <SongBoard width={width} screenHeight={height} song={sheetMusic} />
+      <SongBoard width={width} screenHeight={height} song={getSongConfig()} />
       <div style={{ position: 'fixed', bottom: 0 }}>
         <PianoRoll width={width} />
       </div>
@@ -65,16 +96,16 @@ function getKeyPositions(width: any) {
 }
 
 function SongBoard({ width, screenHeight, song }: any) {
-  const heightPerSecond = 20
+  // console.log('song config', song)
   const pianoKeysArray = getKeyPositions(width)
-  const height = song.songLength * heightPerSecond + screenHeight
+  const height = song.songLength * 40 + screenHeight
   return (
     <div style={{ position: 'relative', width: width, height: height }}>
       {song.notes.map((note: any) => {
         const key = pianoKeysArray[note.keyNumber]
         return (
           <SongNote
-            noteLength={note.noteLength * heightPerSecond}
+            noteLength={note.noteLength * 50}
             width={key.width}
             posX={key.left}
             posY={note.posY}
@@ -136,9 +167,5 @@ function PianoNote({ left, width, color, height }: any) {
     ></div>
   )
 }
-
-parseMusicXML().then((d) => {
-  ;(window as any).parsed = d
-})
 
 export default App
