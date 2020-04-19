@@ -11,7 +11,7 @@ class Player {
   lastIntervalFiredTime = 0
   notes: Array<any> = []
   playing: Array<any> = []
-  synth = new Synth()
+  synth = new WebAudioFontSynth()
 
   constructor(song: any) {
     this.song = song
@@ -65,6 +65,46 @@ class Player {
   seek() {}
 }
 
+export class WebAudioFontSynth {
+  audioContext = new AudioContext()
+  tone = (window as any)._tone_0000_JCLive_sf2_file
+  player: any = null
+  playing: Map<number, any> = new Map()
+
+  constructor() {
+    this.player = new (window as any).WebAudioFontPlayer()
+    this.player.loader.decodeAfterLoading(this.audioContext, '_tone_0000_JCLive_sf2_file')
+  }
+
+  playNoteValue(noteValue: number) {
+    this.stopNoteValue(noteValue)
+
+    // Pitch has to be from 0-127.
+    // D4 = 2+12*4 (they seem to not count octave 0 which only has 2 notes).
+    // So pitch is noteValue + 2
+    let pitch = noteValue + 2
+    const envelope = this.player.queueWaveTable(
+      this.audioContext,
+      this.audioContext.destination,
+      this.tone,
+      0,
+      pitch,
+      /* duration */ 123456789,
+      1,
+    )
+
+    this.playing.set(noteValue, envelope)
+  }
+
+  stopNoteValue(noteValue: number) {
+    if (this.playing.get(noteValue)) {
+      this.playing.get(noteValue).cancel()
+      this.playing.delete(noteValue)
+    }
+  }
+}
+;(window as any).synth = new WebAudioFontSynth()
+
 export class Synth {
   masterGainNode = audioContext.createGain()
   oscilattors: Map<number, OscillatorNode> = new Map()
@@ -73,7 +113,6 @@ export class Synth {
   }
 
   playNoteValue(noteValue: number) {
-    console.error(`playing note: ${noteValue}`)
     this.playNote(getNoteFrequencies(noteValue))
   }
 
@@ -81,7 +120,6 @@ export class Synth {
     if (!this.oscilattors.has(getNoteFrequencies(noteValue))) {
       return
     }
-    console.error(`stopping note: ${noteValue}`)
     this.stopNote(getNoteFrequencies(noteValue))
   }
 

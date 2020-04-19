@@ -3,12 +3,12 @@ import React, { useState, useEffect, useCallback } from 'react'
 import './App.css'
 import { useWindowSize } from './hooks/utils'
 import { parseMusicXML } from './utils'
-import Player, { Synth } from './player'
+import Player, { WebAudioFontSynth } from './player'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
 const xml = parseMusicXML()
-const synth = new Synth()
+const synth = new WebAudioFontSynth()
 let player: any
 
 function App() {
