@@ -19,5 +19,5 @@
     "noEmit": true
   },
   "include": ["src"],
-  "exclude": ["src/utils.ts"]
+  "exclude": []
 }

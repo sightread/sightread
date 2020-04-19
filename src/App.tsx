@@ -1,38 +1,53 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import './player'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import './App.css'
 import { useWindowSize } from './hooks/utils'
 import { parseMusicXML } from './utils'
+import Player, { WebAudioFontSynth } from './player'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
 const xml = parseMusicXML()
+const synth = new WebAudioFontSynth()
+let player: any
 
 function App() {
   const { width, height } = useWindowSize()
   const [notes, setNotes]: any = useState({ duration: 0, staffs: {} })
-  const [time, setTime]: any = useState(-2)
+  const [playing, setPlaying] = useState(false)
 
   useEffect(() => {
     xml.then((d) => {
       setNotes(d)
+      player = new Player(d)
     })
   }, [])
 
-  useEffect(() => {
-    let t = time
-    const handle = setInterval(() => {
-      t += 0.1
-      setTime(t)
-      return () => clearInterval(handle)
-    }, 100)
-  }, [time])
-
   return (
     <div className="App">
-      <SongBoard width={width} screenHeight={height} song={notes} time={time} />
-      {/* <div style={{ position: 'fixed', bottom: 0 }}>
-        <PianoRoll width={width} />
-      </div> */}
+      {notes && (
+        <button
+          onClick={() => {
+            player.play()
+            setPlaying(true)
+          }}
+          style={{ position: 'fixed', top: 10, left: 10, zIndex: 2 }}
+        >
+          Play
+        </button>
+      )}
+      <SongBoard width={width} screenHeight={height} song={notes} playing={playing} />
+      <div style={{ position: 'fixed', bottom: 0 }}>
+        <PianoRoll
+          width={width}
+          onSelectNote={(noteValue: any) => {
+            synth.playNoteValue(noteValue)
+          }}
+          onDeselectNote={(noteValue: any) => {
+            synth.stopNoteValue(noteValue)
+          }}
+        />
+      </div>
     </div>
   )
 }
@@ -75,36 +90,52 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-function SongBoard({ width, screenHeight, song, time }: any) {
-  const scrollRef = useCallback(
-    (node) => {
-      if (node !== null) {
-        node.scrollTop = (song.duration - time) * 40
-      }
-    },
-    [screenHeight, song, time],
-  )
+function SongBoard({ width, screenHeight, song, playing }: any) {
+  const height = song.duration * 40 + screenHeight
+  const scrollRef = useRef(null)
+  useEffect(() => {
+    if (scrollRef.current === null) {
+      return
+    }
+
+    const node = scrollRef.current as any
+    if (playing) {
+      const duration = (366 / 185) * 60 * 1000
+      console.error(duration, height)
+      node.animate([{ bottom: '0px' }, { bottom: `-${height}px` }], {
+        duration,
+      })
+    } else {
+      node.scrollTop = (song.duration - 0) /* time*/ * 40
+    }
+  }, [song, playing, height])
 
   const notes = Object.values(song.staffs)
     .map((x: any) => x.notes)
     .flat(Infinity)
   const pianoKeysArray = getKeyPositions(width)
-  const height = song.duration * 40 + screenHeight
   return (
-    <div
-      ref={scrollRef}
-      style={{ position: 'absolute', height: screenHeight, overflow: 'hidden', width: '100%' }}
-    >
-      <div style={{ position: 'absolute', height }}>
-        {notes.map((note: any) => {
+    <div style={{ position: 'fixed', overflow: 'hidden', height: screenHeight, width }}>
+      <div
+        ref={scrollRef}
+        style={{
+          position: 'absolute',
+          height,
+          overflow: 'hidden',
+          width: '100%',
+          bottom: 0,
+        }}
+      >
+        {notes.map((note: any, i) => {
           const key = pianoKeysArray[note.noteValue]
           return (
             <SongNote
               noteLength={note.duration * 40}
               width={key.width}
               posX={key.left}
-              posY={note.time * 40}
+              posY={note.time * 40 + 240}
               note={note}
+              key={i}
             />
           )
         })}
@@ -132,15 +163,17 @@ function SongNote({ note, noteLength, width, posX, posY }: any) {
   )
 }
 
-function PianoRoll({ width }: any) {
+function PianoRoll({ width, onSelectNote, onDeselectNote }: any) {
   // const blackNotes = [1, 4, 6, 9, 11]
-  const notes = getKeyPositions(width).map((noteConfig: any, i: any) => (
+  const notes = getKeyPositions(width).map((note: any, i: any) => (
     <PianoNote
-      left={noteConfig.left}
-      width={noteConfig.width}
-      height={noteConfig.height}
-      color={noteConfig.color}
+      left={note.left}
+      width={note.width}
+      height={note.height}
+      color={note.color}
       key={i}
+      onSelect={() => onSelectNote(i)}
+      onDeselect={() => onDeselectNote(i)}
     />
   ))
   const whiteWidth = width / 52 // 52 white keys in a keyboard.
@@ -153,7 +186,11 @@ function PianoRoll({ width }: any) {
   return <div style={{ position: 'relative', width, height }}>{notes}</div>
 }
 
-function PianoNote({ left, width, color, height }: any) {
+let isMouseDown = false
+window.addEventListener('mousedown', () => (isMouseDown = true))
+window.addEventListener('mouseup', () => (isMouseDown = false))
+
+function PianoNote({ left, width, color, height, onSelect, onDeselect }: any) {
   return (
     <div
       style={{
@@ -165,7 +202,12 @@ function PianoNote({ left, width, color, height }: any) {
         height,
         backgroundColor: color,
         zIndex: color === 'white' ? 0 : 1,
+        userSelect: 'none',
       }}
+      onMouseDown={onSelect}
+      onMouseUp={onDeselect}
+      onMouseLeave={onDeselect}
+      onMouseEnter={() => isMouseDown && onSelect()}
     ></div>
   )
 }
