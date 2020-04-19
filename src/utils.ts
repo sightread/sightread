@@ -56,7 +56,6 @@ export async function parseMusicXML() {
       const duration = Number(curr.querySelector('duration')?.textContent?.trim())
       currTime += duration
     } else if (curr.tagName === 'measure') {
-      console.error(curr)
       measures.push({ time: currTime, number: Number(curr.getAttribute('number')) })
     } else if (curr.tagName === 'key') {
       const fifth = Number(curr.querySelector('fifths')?.textContent?.trim())

@@ -1,5 +1,5 @@
 import './player'
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './App.css'
 import { useWindowSize } from './hooks/utils'
 import { parseMusicXML } from './utils'
@@ -112,7 +112,7 @@ function SongBoard({ width, screenHeight, song, playing }: any) {
     } else {
       // node.scrollTop = (song.duration - 0) /* time*/ * 40 + getKeyboardHeight(width)
     }
-  }, [song, playing, height])
+  }, [song, playing, height, screenHeight])
 
   const notes = Object.values(song.staffs)
     .map((x: any) => x.notes)
