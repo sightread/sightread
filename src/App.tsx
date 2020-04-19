@@ -1,5 +1,5 @@
 import './player'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import './App.css'
 import { useWindowSize } from './hooks/utils'
 import { parseMusicXML } from './utils'
@@ -14,6 +14,7 @@ let player: any
 function App() {
   const { width, height } = useWindowSize()
   const [notes, setNotes]: any = useState({ duration: 0, staffs: {} })
+  const [playing, setPlaying] = useState(false)
 
   useEffect(() => {
     xml.then((d) => {
@@ -24,8 +25,18 @@ function App() {
 
   return (
     <div className="App">
-      {/* <SongBoard width={width} screenHeight={height} song={notes} time={-1} /> */}
-      {notes && <button onClick={() => player.play()}>Play</button>}
+      {notes && (
+        <button
+          onClick={() => {
+            player.play()
+            setPlaying(true)
+          }}
+          style={{ position: 'fixed', top: 10, left: 10, zIndex: 2 }}
+        >
+          Play
+        </button>
+      )}
+      <SongBoard width={width} screenHeight={height} song={notes} playing={playing} />
       <div style={{ position: 'fixed', bottom: 0 }}>
         <PianoRoll
           width={width}
@@ -79,27 +90,42 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-function SongBoard({ width, screenHeight, song, time }: any) {
-  const scrollRef = useCallback(
-    (node) => {
-      if (node !== null) {
-        node.scrollTop = (song.duration - time) * 40
-      }
-    },
-    [song, time],
-  )
+function SongBoard({ width, screenHeight, song, playing }: any) {
+  const height = song.duration * 40 + screenHeight
+  const scrollRef = useRef(null)
+  useEffect(() => {
+    if (scrollRef.current === null) {
+      return
+    }
+
+    const node = scrollRef.current as any
+    if (playing) {
+      const duration = (366 / 185) * 60 * 1000
+      console.error(duration, height)
+      node.animate([{ bottom: '0px' }, { bottom: `-${height}px` }], {
+        duration,
+      })
+    } else {
+      node.scrollTop = (song.duration - 0) /* time*/ * 40
+    }
+  }, [song, playing, height])
 
   const notes = Object.values(song.staffs)
     .map((x: any) => x.notes)
     .flat(Infinity)
   const pianoKeysArray = getKeyPositions(width)
-  const height = song.duration * 40 + screenHeight
   return (
-    <div
-      ref={scrollRef}
-      style={{ position: 'absolute', height: screenHeight, overflow: 'hidden', width: '100%' }}
-    >
-      <div style={{ position: 'absolute', height }}>
+    <div style={{ position: 'fixed', overflow: 'hidden', height: screenHeight, width }}>
+      <div
+        ref={scrollRef}
+        style={{
+          position: 'absolute',
+          height,
+          overflow: 'hidden',
+          width: '100%',
+          bottom: 0,
+        }}
+      >
         {notes.map((note: any, i) => {
           const key = pianoKeysArray[note.noteValue]
           return (
@@ -107,7 +133,7 @@ function SongBoard({ width, screenHeight, song, time }: any) {
               noteLength={note.duration * 40}
               width={key.width}
               posX={key.left}
-              posY={note.time * 40}
+              posY={note.time * 40 + 240}
               note={note}
               key={i}
             />
