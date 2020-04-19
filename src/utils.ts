@@ -88,7 +88,7 @@ function getNoteValue(step: string, octave: number, fifth: number) {
     octave++
   }
 
-  return (octave - 1) * 12 + stepValues[step] + offset
+  return octave * 12 + stepValues[step] + offset
 }
 
 function getSharps(fifth: number) {

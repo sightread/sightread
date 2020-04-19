@@ -1,38 +1,42 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import './player'
+import React, { useState, useEffect, useCallback } from 'react'
 import './App.css'
 import { useWindowSize } from './hooks/utils'
 import { parseMusicXML } from './utils'
+import Player, { Synth } from './player'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
 const xml = parseMusicXML()
+const synth = new Synth()
+let player: any
 
 function App() {
   const { width, height } = useWindowSize()
   const [notes, setNotes]: any = useState({ duration: 0, staffs: {} })
-  const [time, setTime]: any = useState(-2)
 
   useEffect(() => {
     xml.then((d) => {
       setNotes(d)
+      player = new Player(d)
     })
   }, [])
 
-  useEffect(() => {
-    let t = time
-    const handle = setInterval(() => {
-      t += 0.1
-      setTime(t)
-      return () => clearInterval(handle)
-    }, 100)
-  }, [time])
-
   return (
     <div className="App">
-      <SongBoard width={width} screenHeight={height} song={notes} time={time} />
-      {/* <div style={{ position: 'fixed', bottom: 0 }}>
-        <PianoRoll width={width} />
-      </div> */}
+      {/* <SongBoard width={width} screenHeight={height} song={notes} time={-1} /> */}
+      {notes && <button onClick={() => player.play()}>Play</button>}
+      <div style={{ position: 'fixed', bottom: 0 }}>
+        <PianoRoll
+          width={width}
+          onSelectNote={(noteValue: any) => {
+            synth.playNoteValue(noteValue)
+          }}
+          onDeselectNote={(noteValue: any) => {
+            synth.stopNoteValue(noteValue)
+          }}
+        />
+      </div>
     </div>
   )
 }
@@ -82,7 +86,7 @@ function SongBoard({ width, screenHeight, song, time }: any) {
         node.scrollTop = (song.duration - time) * 40
       }
     },
-    [screenHeight, song, time],
+    [song, time],
   )
 
   const notes = Object.values(song.staffs)
@@ -96,7 +100,7 @@ function SongBoard({ width, screenHeight, song, time }: any) {
       style={{ position: 'absolute', height: screenHeight, overflow: 'hidden', width: '100%' }}
     >
       <div style={{ position: 'absolute', height }}>
-        {notes.map((note: any) => {
+        {notes.map((note: any, i) => {
           const key = pianoKeysArray[note.noteValue]
           return (
             <SongNote
@@ -105,6 +109,7 @@ function SongBoard({ width, screenHeight, song, time }: any) {
               posX={key.left}
               posY={note.time * 40}
               note={note}
+              key={i}
             />
           )
         })}
@@ -132,15 +137,17 @@ function SongNote({ note, noteLength, width, posX, posY }: any) {
   )
 }
 
-function PianoRoll({ width }: any) {
+function PianoRoll({ width, onSelectNote, onDeselectNote }: any) {
   // const blackNotes = [1, 4, 6, 9, 11]
-  const notes = getKeyPositions(width).map((noteConfig: any, i: any) => (
+  const notes = getKeyPositions(width).map((note: any, i: any) => (
     <PianoNote
-      left={noteConfig.left}
-      width={noteConfig.width}
-      height={noteConfig.height}
-      color={noteConfig.color}
+      left={note.left}
+      width={note.width}
+      height={note.height}
+      color={note.color}
       key={i}
+      onSelect={() => onSelectNote(i)}
+      onDeselect={() => onDeselectNote(i)}
     />
   ))
   const whiteWidth = width / 52 // 52 white keys in a keyboard.
@@ -153,7 +160,11 @@ function PianoRoll({ width }: any) {
   return <div style={{ position: 'relative', width, height }}>{notes}</div>
 }
 
-function PianoNote({ left, width, color, height }: any) {
+let isMouseDown = false
+window.addEventListener('mousedown', () => (isMouseDown = true))
+window.addEventListener('mouseup', () => (isMouseDown = false))
+
+function PianoNote({ left, width, color, height, onSelect, onDeselect }: any) {
   return (
     <div
       style={{
@@ -165,7 +176,12 @@ function PianoNote({ left, width, color, height }: any) {
         height,
         backgroundColor: color,
         zIndex: color === 'white' ? 0 : 1,
+        userSelect: 'none',
       }}
+      onMouseDown={onSelect}
+      onMouseUp={onDeselect}
+      onMouseLeave={onDeselect}
+      onMouseEnter={() => isMouseDown && onSelect()}
     ></div>
   )
 }
