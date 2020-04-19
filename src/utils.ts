@@ -38,6 +38,7 @@ export async function parseMusicXML() {
         duration,
         time,
         noteValue: getNoteValue(step, octave, currKey.fifth),
+        staff: Number(staff),
       }
       if (accidental) {
         note.accidental = accidental

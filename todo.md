@@ -1,4 +1,4 @@
 - [x] make the piano
 - [x] make all the notes for a song
-- [ ] be able to play a song (just audio)
-- [ ] play all the notes of a song
+- [x] be able to play a song (just audio)
+- [x] play all the notes of a song

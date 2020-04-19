@@ -13,13 +13,13 @@ class Player {
   lastIntervalFiredTime = 0
   notes: Array<any> = []
   playing: Array<any> = []
-  synth = new WebAudioFontSynth()
+  synth: WebAudioFontSynth
 
   constructor(song: any) {
+    this.synth = new WebAudioFontSynth()
     this.song = song
     this.notes = Object.values(song.staffs)
-      .map((x: any) => x.notes)
-      .flat(Infinity)
+      .flatMap((x: any) => x.notes)
       .sort((note1, note2) => note1.time - note2.time)
     if (song.bpm) {
       this.bpm = song.bpm
@@ -27,16 +27,15 @@ class Player {
   }
 
   play() {
+    // If at the end of the song, then reset.
+    if (this.currentIndex >= this.notes.length) {
+      this.stop()
+    }
+
     if (!this.playInterval) {
       this.lastIntervalFiredTime = performance.now()
       this.playInterval = setInterval(() => this.play(), 16)
-    }
-
-    if (this.currentIndex > this.notes.length) {
-      clearInterval(this.playInterval)
-      this.currentSongTime = 0
-      this.currentIndex = 0
-      this.playing = []
+      this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue))
     }
 
     let dt = performance.now() - this.lastIntervalFiredTime
@@ -61,9 +60,32 @@ class Player {
 
   pause() {
     clearInterval(this.playInterval)
+    this.playInterval = null
+    this.playing.forEach((note) => {
+      this.synth.stopNoteValue(note.noteValue)
+    })
+  }
+
+  stop() {
+    this.pause()
+    this.currentSongTime = 0
+    this.currentIndex = 0
     this.playing = []
   }
-  seek() {}
+
+  seek(beat: number) {
+    this.currentSongTime = beat
+    this.playing = this.notes.filter((note) => {
+      return note.time < this.currentSongTime && note.time + note.duration > this.currentSongTime
+    })
+    this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
+  }
+
+  getPressedKeys() {
+    let ret: any = {}
+    this.playing.forEach((note) => (ret[note.noteValue] = note))
+    return ret
+  }
 }
 
 export class WebAudioFontSynth {
@@ -104,7 +126,6 @@ export class WebAudioFontSynth {
     }
   }
 }
-;(window as any).synth = new WebAudioFontSynth()
 
 export class Synth {
   masterGainNode = audioContext.createGain()
