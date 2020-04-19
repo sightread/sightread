@@ -72,6 +72,10 @@ function createNoteObject(whiteNotes: any, whiteWidth: any, height: any, type: a
   }
 }
 
+function getKeyboardHeight(width: number) {
+  const whiteWidth = width / 52
+  return (220 / 30) * whiteWidth
+}
 function getKeyPositions(width: any) {
   const whiteWidth = width / 52
   const height = (220 / 30) * whiteWidth
@@ -100,13 +104,13 @@ function SongBoard({ width, screenHeight, song, playing }: any) {
 
     const node = scrollRef.current as any
     if (playing) {
-      const duration = (366 / 185) * 60 * 1000
-      console.error(duration, height)
-      node.animate([{ bottom: '0px' }, { bottom: `-${height}px` }], {
+      const bpm = 180
+      const duration = (song.duration / bpm) * 60 * 1000
+      node.animate([{ bottom: '0px' }, { bottom: `-${height - screenHeight}px` }], {
         duration,
       })
     } else {
-      node.scrollTop = (song.duration - 0) /* time*/ * 40
+      // node.scrollTop = (song.duration - 0) /* time*/ * 40 + getKeyboardHeight(width)
     }
   }, [song, playing, height])
 
@@ -133,7 +137,7 @@ function SongBoard({ width, screenHeight, song, playing }: any) {
               noteLength={note.duration * 40}
               width={key.width}
               posX={key.left}
-              posY={note.time * 40 + 240}
+              posY={note.time * 40 + getKeyboardHeight(width)}
               note={note}
               key={i}
             />

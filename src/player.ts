@@ -6,7 +6,7 @@ let audioContext = new AudioContext()
 // That means: 366 / 2.3333
 class Player {
   song: any
-  bpm: number = 185
+  bpm: number = 180
   playInterval: any = null
   currentSongTime = 0
   currentIndex = 0

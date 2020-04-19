@@ -8,6 +8,7 @@ export async function parseMusicXML() {
   const txt = await (await fetch(process.env.PUBLIC_URL + '/music/GoT.xml')).text()
   const xml = new DOMParser().parseFromString(txt, 'application/xml')
   const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL, nodeFilter)
+  ;(window as any).xml = xml
 
   let currTime = 0
   let totalDuration = 0
@@ -20,8 +21,10 @@ export async function parseMusicXML() {
       let number = Number(curr.getAttribute('number'))
       staffs[number] = staffs[number] || {}
       staffs[number].clef = { sign: curr.querySelector('sign')?.textContent }
+    } else if (curr.tagName === 'note' && curr.querySelector('rest')) {
+      const duration = Number(curr.querySelector('duration')?.textContent?.trim())
+      currTime += duration
     } else if (curr.tagName === 'note') {
-      const isRest = !!curr.querySelector('rest')
       const step = curr.querySelector('step')?.textContent?.trim() ?? ''
       const octave = Number(curr.querySelector('octave')?.textContent?.trim())
       const duration = Number(curr.querySelector('duration')?.textContent?.trim())
@@ -30,10 +33,6 @@ export async function parseMusicXML() {
       const isChord = !!curr.querySelector('chord')
       let time = isChord ? staffs[staff].notes[staffs[staff].notes.length - 1].time : currTime
 
-      if (isRest) {
-        currTime += duration
-        break
-      }
       let note: any = {
         pitch: { step, octave },
         duration,
@@ -57,6 +56,7 @@ export async function parseMusicXML() {
       const duration = Number(curr.querySelector('duration')?.textContent?.trim())
       currTime += duration
     } else if (curr.tagName === 'measure') {
+      console.error(curr)
       measures.push({ time: currTime, number: Number(curr.getAttribute('number')) })
     } else if (curr.tagName === 'key') {
       const fifth = Number(curr.querySelector('fifths')?.textContent?.trim())
