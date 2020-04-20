@@ -16,6 +16,7 @@ class Player {
   playing: Array<any> = []
   synth = new WebAudioFontSynth()
   volume = 1
+  handlers: any = {}
 
   setSong(song: any) {
     this.song = song
@@ -25,13 +26,19 @@ class Player {
     if (song.bpm) {
       this.bpm = song.bpm
     }
+    ;(this as any).onChange?.({})
   }
 
   setVolume(vol: number) {
+    if (vol === 0) {
+      this.stopAllSounds()
+    }
     this.volume = vol
   }
 
   play() {
+    let pressedChanged = false
+
     // If at the end of the song, then reset.
     if (this.currentIndex >= this.notes.length) {
       this.stop()
@@ -42,12 +49,13 @@ class Player {
       this.playInterval = setInterval(() => this.play(), 16)
       // continue playing everything we were in the middle of, but at a lower vol
       this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, this.volume / 2))
+      pressedChanged = this.playing.length > 0
     }
 
     let dt = performance.now() - this.lastIntervalFiredTime
     this.lastIntervalFiredTime = performance.now()
     this.currentSongTime += (dt / 1000 / 60) * this.bpm
-    if (this.song.measures[this.currentMeasure + 1] < this.currentSongTime) {
+    if (this.song.measures[this.currentMeasure + 1]?.time < this.currentSongTime) {
       this.currentMeasure++
     }
 
@@ -55,6 +63,7 @@ class Player {
       if (note.time + note.duration > this.currentSongTime) {
         return true
       }
+      pressedChanged = true
       this.synth.stopNoteValue(note.noteValue)
       return false
     })
@@ -64,6 +73,11 @@ class Player {
       this.synth.playNoteValue(note.noteValue, this.volume)
       this.playing.push(note)
       this.currentIndex++
+      pressedChanged = true
+    }
+
+    if (pressedChanged) {
+      ;(this as any).onChange?.({})
     }
   }
 
@@ -71,12 +85,16 @@ class Player {
     return this.currentMeasure
   }
 
-  pause() {
-    clearInterval(this.playInterval)
-    this.playInterval = null
+  stopAllSounds() {
     this.playing.forEach((note) => {
       this.synth.stopNoteValue(note.noteValue)
     })
+  }
+
+  pause() {
+    clearInterval(this.playInterval)
+    this.stopAllSounds()
+    this.playInterval = null
   }
 
   stop() {
@@ -86,12 +104,21 @@ class Player {
     this.playing = []
   }
 
-  seek(beat: number) {
-    this.currentSongTime = beat
+  seek(measure: number) {
+    if (!this.song.measures[measure]) {
+      throw new Error(`Could not find measure: ${measure}`)
+    }
+    this.stopAllSounds()
+    this.currentSongTime = this.song.measures[measure].time
     this.playing = this.notes.filter((note) => {
-      return note.time < this.currentSongTime && note.time + note.duration > this.currentSongTime
+      return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
     })
+    if (!!this.playInterval) {
+      this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue), this.volume / 2)
+    }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
+    this.currentMeasure = measure
+    ;(this as any)?.onChange({})
   }
 
   getPressedKeys() {
