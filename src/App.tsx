@@ -216,7 +216,7 @@ function getKeyPositions(width: any) {
 }
 
 function SongBoard({ width, screenHeight, song, playing }: any) {
-  const { player, measure } = usePlayer()
+  const { player, manuallySeekedMeasure } = usePlayer()
   const height = song.duration * 40 + screenHeight
   const scrollRef = useRef(null)
   const animationRef: any = useRef(null)
@@ -231,17 +231,18 @@ function SongBoard({ width, screenHeight, song, playing }: any) {
     const duration = ((song.duration - player.currentSongTime) / bpm) * 60 * 1000
     const end = -(height - screenHeight)
     const start = (player.currentSongTime / song.duration) * end
-    animationRef.current?.cancel?.()
     if (playing) {
       node.style.bottom = "0px"
+      animationRef.current?.cancel?.()
       animationRef.current = node.animate([{ bottom: `${start}px` }, { bottom: `${end}px` }], {
         duration,
       })
     } else {
       animationRef.current?.cancel?.()
+      animationRef.current = null
       node.style.bottom = `${start}px`
     }
-  }, [song, screenHeight, player, height, measure, playing])
+  }, [song, screenHeight, player, height, playing, manuallySeekedMeasure])
 
   const notes = Object.values(song.staffs).flatMap((x: any) => x.notes)
   const pianoKeysArray = getKeyPositions(width)

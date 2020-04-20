@@ -10,6 +10,7 @@ class Player {
   playInterval: any = null
   currentSongTime = 0
   currentMeasure = 0
+  manuallySeekedMeasure = 0
   currentIndex = 0
   lastIntervalFiredTime = 0
   notes: Array<any> = []
@@ -117,7 +118,7 @@ class Player {
       this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue), this.volume / 2)
     }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
-    this.currentMeasure = measure
+    this.currentMeasure = this.manuallySeekedMeasure = measure
     ;(this as any)?.onChange({})
   }
 
