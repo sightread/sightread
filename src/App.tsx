@@ -144,6 +144,8 @@ function RuleLines({ width, height }: any) {
   return <>{getRuleLines()}</>
 }
 
+// TODO: animate filling up the green of current measure
+// TODO support seeking to start of current measure
 function SongScrubBar() {
   const { measure, song, seek } = usePlayer()
   const { width } = useWindowSize()
