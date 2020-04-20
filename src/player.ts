@@ -15,6 +15,7 @@ class Player {
   notes: Array<any> = []
   playing: Array<any> = []
   synth = new WebAudioFontSynth()
+  volume = 1
 
   setSong(song: any) {
     this.song = song
@@ -26,6 +27,10 @@ class Player {
     }
   }
 
+  setVolume(vol: number) {
+    this.volume = vol
+  }
+
   play() {
     // If at the end of the song, then reset.
     if (this.currentIndex >= this.notes.length) {
@@ -35,7 +40,8 @@ class Player {
     if (!this.playInterval) {
       this.lastIntervalFiredTime = performance.now()
       this.playInterval = setInterval(() => this.play(), 16)
-      this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, 0.5))
+      // continue playing everything we were in the middle of, but at a lower vol
+      this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, this.volume / 2))
     }
 
     let dt = performance.now() - this.lastIntervalFiredTime
@@ -55,7 +61,7 @@ class Player {
 
     while (this.notes[this.currentIndex]?.time <= this.currentSongTime) {
       const note = this.notes[this.currentIndex]
-      this.synth.playNoteValue(note.noteValue)
+      this.synth.playNoteValue(note.noteValue, this.volume)
       this.playing.push(note)
       this.currentIndex++
     }
@@ -107,6 +113,10 @@ export class WebAudioFontSynth {
   }
 
   playNoteValue(noteValue: number, velocity: number = 1) {
+    if (velocity === 0) {
+      velocity = 0.001
+    }
+
     this.stopNoteValue(noteValue)
 
     // Pitch has to be from 0-127.

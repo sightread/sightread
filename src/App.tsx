@@ -16,6 +16,7 @@ function App() {
   const { width, height } = useWindowSize()
   const [notes, setNotes]: any = useState({ duration: 0, staffs: {} })
   const [playing, setPlaying] = useState(false)
+  const [soundOff, setSoundOff] = useState(false)
 
   useEffect(() => {
     xml.then((d) => {
@@ -56,7 +57,7 @@ function App() {
           style={{
             display: "flex",
             justifyContent: "space-around",
-            width: 85,
+            width: 160,
             height: 50,
             margin: "0 auto",
             position: "relative",
@@ -65,7 +66,7 @@ function App() {
         >
           <i
             className={playing ? "fa fa-2x fa-pause" : "fa fa-2x fa-play"}
-            style={{ color: "white" }}
+            style={{ color: "white", width: 40 }}
             onClick={() => {
               if (!playing) {
                 player.play()
@@ -78,10 +79,23 @@ function App() {
           ></i>
           <i
             className="fa fa-2x fa-step-backward"
-            style={{ color: "white" }}
+            style={{ color: "white", width: 40 }}
             onClick={() => {
               player.stop()
               setPlaying(false)
+            }}
+          ></i>
+          <i
+            className={soundOff ? "fa fa-2x fa-volume-up" : "fa fa-2x fa-volume-off"}
+            style={{ color: "white", width: 40 }}
+            onClick={() => {
+              if (!soundOff) {
+                player.setVolume(0)
+                setSoundOff(true)
+              } else {
+                player.setVolume(1)
+                setSoundOff(false)
+              }
             }}
           ></i>
         </div>
@@ -262,7 +276,7 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
         width,
         height,
         backgroundColor: color,
-        zIndex: color === "white" ? 0 : 1,
+        zIndex: color === "black" ? 1 : 0,
         userSelect: "none",
       }}
       onMouseDown={() => synth.playNoteValue(noteValue)}
