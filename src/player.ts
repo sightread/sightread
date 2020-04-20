@@ -9,6 +9,7 @@ class Player {
   bpm: number = 180
   playInterval: any = null
   currentSongTime = 0
+  currentMeasure = 0
   currentIndex = 0
   lastIntervalFiredTime = 0
   notes: Array<any> = []
@@ -40,6 +41,9 @@ class Player {
     let dt = performance.now() - this.lastIntervalFiredTime
     this.lastIntervalFiredTime = performance.now()
     this.currentSongTime += (dt / 1000 / 60) * this.bpm
+    if (this.song.measures[this.currentMeasure + 1] < this.currentSongTime) {
+      this.currentMeasure++
+    }
 
     this.playing = this.playing.filter((note) => {
       if (note.time + note.duration > this.currentSongTime) {
@@ -55,6 +59,10 @@ class Player {
       this.playing.push(note)
       this.currentIndex++
     }
+  }
+
+  getMeasure() {
+    return this.currentMeasure
   }
 
   pause() {

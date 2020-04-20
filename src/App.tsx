@@ -1,7 +1,7 @@
 import "./player"
 import React, { useState, useEffect, useRef } from "react"
 import "./App.css"
-import { useWindowSize } from "./hooks/utils"
+import { useWindowSize, usePlayer } from "./hooks/utils"
 import { parseMusicXML } from "./utils"
 import Player, { WebAudioFontSynth } from "./player"
 
@@ -10,6 +10,7 @@ import Player, { WebAudioFontSynth } from "./player"
 const xml = parseMusicXML()
 const synth = new WebAudioFontSynth()
 const player = new Player()
+;(window as any).player = player
 
 function App() {
   const { width, height } = useWindowSize()
@@ -84,12 +85,7 @@ function App() {
             }}
           ></i>
         </div>
-        <div
-          // type="range"
-          // min="0"
-          // max={notes?.measures?.length ?? 0}
-          style={{ width: "100%", height: 30, backgroundColor: "rgb(0,145,0)" }}
-        />
+        <SongScrubBar />
       </div>
       <SongBoard
         width={width}
@@ -103,6 +99,10 @@ function App() {
       </div>
     </div>
   )
+}
+
+function SongScrubBar() {
+  return <div style={{ width: "100%", height: 30, backgroundColor: "rgb(0,145,0)" }} />
 }
 
 function createNoteObject(whiteNotes: any, whiteWidth: any, height: any, type: any) {
@@ -223,16 +223,8 @@ function SongNote({ note, noteLength, width, posX, posY }: any) {
   )
 }
 
-function PianoRoll({ width, player }: any) {
-  const [pressedKeys, setPressedKeys]: any = useState({})
-  useEffect(() => {
-    let handler = setInterval(() => {
-      if (player) {
-        setPressedKeys(player.getPressedKeys())
-      }
-    }, 25)
-    return () => clearInterval(handler)
-  }, [pressedKeys, setPressedKeys, player])
+function PianoRoll({ width }: any) {
+  const { pressedKeys }: any = usePlayer(50)
 
   const getPressedColor = (staff: number) => (staff === 1 ? "#4dd0e1" : "#ef6c00")
   const notes = getKeyPositions(width).map((note: any, i: any) => (
