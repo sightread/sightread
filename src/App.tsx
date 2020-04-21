@@ -1,27 +1,29 @@
 import "./player"
 import React, { useState, useEffect, useRef } from "react"
 import "./App.css"
-import { useWindowSize, usePlayer, useRAFLoop } from "./hooks"
-import { parseMusicXML } from "./utils"
+import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from "./hooks"
+import { parseMusicXML, Song } from "./utils"
 import { WebAudioFontSynth } from "./player"
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
-const xml = parseMusicXML()
 const synth = new WebAudioFontSynth()
 
 function App() {
   const { width, height } = useWindowSize()
-  const [notes, setNotes]: any = useState({ duration: 0, staffs: {} })
+  const [song, setSong]: [Song, Function] = useState({ duration: 0, staffs: {} } as Song)
   const [playing, setPlaying] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
 
   useEffect(() => {
-    xml.then((d) => {
-      player.setSong(d)
-      setNotes(d)
-    })
+    fetch(process.env.PUBLIC_URL + "/music/river-flows-in-you.xml")
+      .then((resp) => resp.text())
+      .then((xml) => {
+        const song = parseMusicXML(xml)
+        player.setSong(song)
+        setSong(song)
+      })
   }, [player])
 
   useEffect(() => {
@@ -98,10 +100,10 @@ function App() {
             }}
           ></i>
         </div>
-        <SongScrubBar />
+        <SongScrubBar song={song} />
       </div>
       <RuleLines width={width} height={height} />
-      <SongBoard width={width} screenHeight={height} song={notes} playing={playing} />
+      <SongBoard width={width} screenHeight={height} song={song} playing={playing} />
       <div style={{ position: "fixed", bottom: 0 }}>
         <PianoRoll width={width} />
       </div>
@@ -146,8 +148,8 @@ function RuleLines({ width, height }: any) {
 
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
-function SongScrubBar() {
-  const { player, song } = usePlayer()
+function SongScrubBar({ song }: { song: Song }) {
+  const { player } = usePlayer()
   const { width } = useWindowSize()
   const numMeasures = song?.measures?.length ?? 0
   const measureWidth = width / numMeasures
@@ -223,7 +225,7 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-function SongBoard({ width, screenHeight, song, playing }: any) {
+function SongBoard({ width, screenHeight, song }: any) {
   const { player } = usePlayer()
   const height = song.duration * 40 + screenHeight
   const scrollRef = useRef(null)
@@ -238,7 +240,7 @@ function SongBoard({ width, screenHeight, song, playing }: any) {
       // const bpm = 180
       // const duration = ((song.duration - player.currentSongTime) / bpm) * 60 * 1000
       const end = -(height - screenHeight)
-      const bottom = (player.currentSongTime / player.song?.duration) * end
+      const bottom = (player.currentSongTime / song?.duration) * end
       node.style.bottom = `${bottom}px`
     }
   }, [height, screenHeight])
@@ -333,8 +335,17 @@ function SongNote({ note, noteLength, width, posX, posY }: any) {
 }
 
 function PianoRoll({ width }: any) {
+  const pressedKeys = usePressedKeys()
+  const getPressedColor = (staff: number) => (staff === 1 ? "#4dd0e1" : "#ef6c00")
   const notes = getKeyPositions(width).map((note: any, i: any) => (
-    <PianoNote left={note.left} width={note.width} height={note.height} noteValue={i} key={i} />
+    <PianoNote
+      left={note.left}
+      width={note.width}
+      height={note.height}
+      color={!!pressedKeys[i] ? getPressedColor(pressedKeys[i].staff) : note.color}
+      noteValue={i}
+      key={i}
+    />
   ))
   const whiteWidth = width / 52 // 52 white keys in a keyboard.
   const height = (220 / 30) * whiteWidth
@@ -351,25 +362,8 @@ window.addEventListener("mousedown", () => (isMouseDown = true))
 window.addEventListener("mouseup", () => (isMouseDown = false))
 
 function PianoNote({ left, width, color, height, noteValue }: any) {
-  const { player } = usePlayer()
-  const getPressedColor = (staff: number) => (staff === 1 ? "#4dd0e1" : "#ef6c00")
-  const divRef: any = useRef(null)
-
-  useRAFLoop(() => {
-    if (!divRef.current) {
-      return
-    }
-    const pressedKeys = player.getPressedKeys()
-    console.error(pressedKeys, noteValue)
-    const backgroundColor = !!pressedKeys[noteValue]
-      ? getPressedColor(pressedKeys[noteValue].staff)
-      : color
-    divRef.current.style["background-color"] = backgroundColor
-  }, [color, player, noteValue])
-
   return (
     <div
-      ref={divRef}
       style={{
         border: "1px solid #292e49",
         position: "absolute",
@@ -377,7 +371,7 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
         left,
         width,
         height,
-        // backgroundColor: '',
+        backgroundColor: color,
         zIndex: color === "black" ? 1 : 0,
         userSelect: "none",
       }}

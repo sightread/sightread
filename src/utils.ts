@@ -1,27 +1,54 @@
-export async function parseMusicXML() {
+export type SongNote = {
+  noteValue: number
+  staff: number
+  duration: number
+  time: number
+  pitch: {
+    step: string
+    octave: number
+  }
+  accidental: number // 1 | -1 | 0
+}
+
+export type Staffs = {
+  [staff: number]: {
+    notes: Array<SongNote>
+    clef: { sign: string }
+  }
+}
+
+export type Measure = {
+  time: number
+  number: number
+}
+
+export type Song = {
+  staffs: Staffs
+  duration: number
+  measures: Array<Measure>
+}
+
+export function parseMusicXML(txt: string): Song {
   /*
    * TODO:
    * - Handle alternative time signatures
    * - Handle non Trebl/Bass clefs
    */
 
-  // const txt = await (await fetch(process.env.PUBLIC_URL + '/music/GoT.xml')).text()
-  const txt = await (await fetch(process.env.PUBLIC_URL + "/music/river-flows-in-you.xml")).text()
   const xml = new DOMParser().parseFromString(txt, "application/xml")
   const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL, nodeFilter)
-  ;(window as any).xml = xml
 
   let currTime = 0
   let totalDuration = 0
-  let curr: HTMLElement | null = walker.currentNode as HTMLElement
+  let curr = walker.currentNode as HTMLElement
   let currKey = { fifth: 0, mode: "major" }
-  let staffs: any = {}
-  let measures: Array<any> = []
+  let staffs: Staffs = {}
+  let measures: Array<Measure> = []
   while (curr) {
     if (curr.tagName === "clef") {
       let number = Number(curr.getAttribute("number"))
       staffs[number] = staffs[number] || {}
-      staffs[number].clef = { sign: curr.querySelector("sign")?.textContent }
+      staffs[number].clef = { sign: curr.querySelector("sign")?.textContent ?? "" }
     } else if (curr.tagName === "note" && curr.querySelector("rest")) {
       const duration = Number(curr.querySelector("duration")?.textContent?.trim())
       currTime += duration
@@ -29,20 +56,18 @@ export async function parseMusicXML() {
       const step = curr.querySelector("step")?.textContent?.trim() ?? ""
       const octave = Number(curr.querySelector("octave")?.textContent?.trim())
       const duration = Number(curr.querySelector("duration")?.textContent?.trim())
-      const staff = curr.querySelector("staff")?.textContent?.trim() ?? ""
-      const accidental = curr.querySelector("accidental")?.textContent?.trim()
+      const staff = Number(curr.querySelector("staff")?.textContent?.trim())
+      const accidental = Number(curr.querySelector("accidental")?.textContent?.trim() ?? 0)
       const isChord = !!curr.querySelector("chord")
       let time = isChord ? staffs[staff].notes[staffs[staff].notes.length - 1].time : currTime
 
-      let note: any = {
+      let note: SongNote = {
         pitch: { step, octave },
         duration,
         time,
         noteValue: getNoteValue(step, octave, currKey.fifth),
-        staff: Number(staff),
-      }
-      if (accidental) {
-        note.accidental = accidental
+        staff,
+        accidental,
       }
 
       staffs[staff].notes = staffs[staff].notes ?? []

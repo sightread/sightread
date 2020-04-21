@@ -27,7 +27,6 @@ class Player {
     if (song.bpm) {
       this.bpm = song.bpm
     }
-    ;(this as any).onChange?.({})
   }
 
   setVolume(vol: number) {
@@ -77,9 +76,9 @@ class Player {
       pressedChanged = true
     }
 
-    // if (pressedChanged) {
-    //   ;(this as any).onChange?.({})
-    // }
+    if (pressedChanged) {
+      ;(this as any).onChange?.({})
+    }
   }
 
   getMeasure() {
@@ -119,6 +118,7 @@ class Player {
     }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentMeasure = this.manuallySeekedMeasure = measure
+    ;(this as any).onChange?.()
   }
 
   getPressedKeys() {
