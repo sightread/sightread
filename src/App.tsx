@@ -1,7 +1,7 @@
 import "./player"
 import React, { useState, useEffect, useRef } from "react"
 import "./App.css"
-import { useWindowSize, usePlayer } from "./hooks"
+import { useWindowSize, usePlayer, useRAFLoop } from "./hooks"
 import { parseMusicXML } from "./utils"
 import { WebAudioFontSynth } from "./player"
 
@@ -147,24 +147,32 @@ function RuleLines({ width, height }: any) {
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
 function SongScrubBar() {
-  const { measure, song, seek } = usePlayer()
+  const { player, song } = usePlayer()
   const { width } = useWindowSize()
   const numMeasures = song?.measures?.length ?? 0
   const measureWidth = width / numMeasures
+  const divRef = useRef(null)
+  useRAFLoop(() => {
+    if (!divRef.current) {
+      return
+    }
+    // ;(divRef.current as any).style["background-color"] =
+    //   i <= player.getCurrentMeasure() ? "rgb(0,145,0)" : "grey"
+  }, [song])
 
   return (
-    <div style={{ display: "flex", width, height: 30 }}>
+    <div style={{ display: "flex", width, height: 30 }} ref={divRef}>
       {Array.from({ length: numMeasures }).map((n, i) => {
         return (
           <div
             style={{
               height: 30,
               width: measureWidth,
-              backgroundColor: i <= measure ? "rgb(0,145,0)" : "grey",
+              backgroundColor: "grey",
               border: "solid #6b6b6b 1px",
             }}
             key={i}
-            onClick={() => seek(i)}
+            onClick={() => player.seek(i)}
           />
         )
       })}
@@ -216,33 +224,24 @@ function getKeyPositions(width: any) {
 }
 
 function SongBoard({ width, screenHeight, song, playing }: any) {
-  const { player, manuallySeekedMeasure } = usePlayer()
+  const { player } = usePlayer()
   const height = song.duration * 40 + screenHeight
   const scrollRef = useRef(null)
-  const animationRef: any = useRef(null)
 
   // TODO: fix bug for rewinding to start of current measure.
-  useEffect(() => {
+  useRAFLoop(() => {
     if (scrollRef.current === null) {
       return
     }
     const node = scrollRef.current as any
-    const bpm = 180
-    const duration = ((song.duration - player.currentSongTime) / bpm) * 60 * 1000
-    const end = -(height - screenHeight)
-    const start = (player.currentSongTime / song.duration) * end
-    if (playing) {
-      node.style.bottom = "0px"
-      animationRef.current?.cancel?.()
-      animationRef.current = node.animate([{ bottom: `${start}px` }, { bottom: `${end}px` }], {
-        duration,
-      })
-    } else {
-      animationRef.current?.cancel?.()
-      animationRef.current = null
-      node.style.bottom = `${start}px`
+    if (node) {
+      // const bpm = 180
+      // const duration = ((song.duration - player.currentSongTime) / bpm) * 60 * 1000
+      const end = -(height - screenHeight)
+      const bottom = (player.currentSongTime / player.song?.duration) * end
+      node.style.bottom = `${bottom}px`
     }
-  }, [song, screenHeight, player, height, playing, manuallySeekedMeasure])
+  }, [height, screenHeight])
 
   const notes = Object.values(song.staffs).flatMap((x: any) => x.notes)
   const pianoKeysArray = getKeyPositions(width)
@@ -334,18 +333,8 @@ function SongNote({ note, noteLength, width, posX, posY }: any) {
 }
 
 function PianoRoll({ width }: any) {
-  const { pressedKeys }: any = usePlayer()
-
-  const getPressedColor = (staff: number) => (staff === 1 ? "#4dd0e1" : "#ef6c00")
   const notes = getKeyPositions(width).map((note: any, i: any) => (
-    <PianoNote
-      left={note.left}
-      width={note.width}
-      height={note.height}
-      color={!!pressedKeys[i] ? getPressedColor(pressedKeys[i].staff) : note.color}
-      noteValue={i}
-      key={i}
-    />
+    <PianoNote left={note.left} width={note.width} height={note.height} noteValue={i} key={i} />
   ))
   const whiteWidth = width / 52 // 52 white keys in a keyboard.
   const height = (220 / 30) * whiteWidth
@@ -362,8 +351,25 @@ window.addEventListener("mousedown", () => (isMouseDown = true))
 window.addEventListener("mouseup", () => (isMouseDown = false))
 
 function PianoNote({ left, width, color, height, noteValue }: any) {
+  const { player } = usePlayer()
+  const getPressedColor = (staff: number) => (staff === 1 ? "#4dd0e1" : "#ef6c00")
+  const divRef: any = useRef(null)
+
+  useRAFLoop(() => {
+    if (!divRef.current) {
+      return
+    }
+    const pressedKeys = player.getPressedKeys()
+    console.error(pressedKeys, noteValue)
+    const backgroundColor = !!pressedKeys[noteValue]
+      ? getPressedColor(pressedKeys[noteValue].staff)
+      : color
+    divRef.current.style["background-color"] = backgroundColor
+  }, [color, player, noteValue])
+
   return (
     <div
+      ref={divRef}
       style={{
         border: "1px solid #292e49",
         position: "absolute",
@@ -371,7 +377,7 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
         left,
         width,
         height,
-        backgroundColor: color,
+        // backgroundColor: '',
         zIndex: color === "black" ? 1 : 0,
         userSelect: "none",
       }}
