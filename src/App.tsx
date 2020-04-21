@@ -2,7 +2,7 @@ import "./player"
 import React, { useState, useEffect, useRef } from "react"
 import "./App.css"
 import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from "./hooks"
-import { parseMusicXML, Song } from "./utils"
+import { parseMusicXML, Song, SongMeasure } from "./utils"
 import { WebAudioFontSynth } from "./player"
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
@@ -11,13 +11,17 @@ const synth = new WebAudioFontSynth()
 
 function App() {
   const { width, height } = useWindowSize()
-  const [song, setSong]: [Song, Function] = useState({ duration: 0, staffs: {} } as Song)
+  const [song, setSong]: [Song, Function] = useState({
+    duration: 0,
+    staffs: {},
+    measures: [],
+  } as Song)
   const [playing, setPlaying] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
 
   useEffect(() => {
-    fetch(process.env.PUBLIC_URL + "/music/river-flows-in-you.xml")
+    fetch(process.env.PUBLIC_URL + "/music/canond-easy.xml")
       .then((resp) => resp.text())
       .then((xml) => {
         const song = parseMusicXML(xml)
@@ -103,7 +107,7 @@ function App() {
         <SongScrubBar song={song} />
       </div>
       <RuleLines width={width} height={height} />
-      <SongBoard width={width} screenHeight={height} song={song} playing={playing} />
+      <SongBoard width={width} screenHeight={height} song={song} />
       <div style={{ position: "fixed", bottom: 0 }}>
         <PianoRoll width={width} />
       </div>
@@ -121,7 +125,7 @@ function RuleLines({ width, height }: any) {
       backgroundColor: "#fff",
     }
     return Array.from({ length: 12 }).map((_n, i) => (
-      <div>
+      <div key={i}>
         <div
           style={
             {
@@ -153,17 +157,28 @@ function SongScrubBar({ song }: { song: Song }) {
   const { width } = useWindowSize()
   const numMeasures = song?.measures?.length ?? 0
   const measureWidth = width / numMeasures
-  const divRef = useRef(null)
+  const divRef = useRef<HTMLDivElement>(null)
   useRAFLoop(() => {
     if (!divRef.current) {
       return
     }
-    // ;(divRef.current as any).style["background-color"] =
-    //   i <= player.getCurrentMeasure() ? "rgb(0,145,0)" : "grey"
-  }, [song])
+    const progress = Math.min(player.currentSongTime / song.duration, 1)
+    divRef.current.style.transform = `translateX(${progress * width}px)`
+  })
 
   return (
-    <div style={{ display: "flex", width, height: 30 }} ref={divRef}>
+    <div style={{ position: "relative", display: "flex", width, height: 30 }}>
+      <div
+        style={{
+          position: "absolute",
+          height: 32,
+          width,
+          pointerEvents: "none",
+          backgroundColor: "rgb(0,145,0)",
+          left: -width,
+        }}
+        ref={divRef}
+      ></div>
       {Array.from({ length: numMeasures }).map((n, i) => {
         return (
           <div
@@ -225,91 +240,89 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-function SongBoard({ width, screenHeight, song }: any) {
+function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
+  const posY = measure.time * 40 + getKeyboardHeight(width)
+  return (
+    <div>
+      <div
+        style={{
+          height: 15,
+          left: 10,
+          bottom: posY + 10,
+          fontSize: 15,
+          color: "white",
+          position: "absolute",
+        }}
+      >
+        {measure.number}
+      </div>
+      <div
+        style={{
+          height: 1,
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          width,
+          left: 0,
+          bottom: posY,
+          position: "absolute",
+        }}
+        key={`measure-${posY}`}
+      ></div>
+    </div>
+  )
+}
+
+function SongBoard({
+  width,
+  screenHeight,
+  song,
+}: {
+  width: number
+  screenHeight: number
+  song: Song
+}) {
   const { player } = usePlayer()
-  const height = song.duration * 40 + screenHeight
-  const scrollRef = useRef(null)
+  const height = song.duration * 40
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   // TODO: fix bug for rewinding to start of current measure.
   useRAFLoop(() => {
     if (scrollRef.current === null) {
       return
     }
-    const node = scrollRef.current as any
+    const node = scrollRef.current
     if (node) {
       // const bpm = 180
       // const duration = ((song.duration - player.currentSongTime) / bpm) * 60 * 1000
-      const end = -(height - screenHeight)
-      const bottom = (player.currentSongTime / song?.duration) * end
-      node.style.bottom = `${bottom}px`
+      const offset = (player.getCurrentSongTime() / song?.duration) * height
+      node.style.transform = `translateY(${offset}px)`
     }
-  }, [height, screenHeight])
+  })
 
+  const measures = song.measures
   const notes = Object.values(song.staffs).flatMap((x: any) => x.notes)
   const pianoKeysArray = getKeyPositions(width)
-  const getMeasures = () => {
-    if (song === undefined || song.measures === undefined) {
-      return <div></div>
-    }
-    return song.measures.map((measure: any, i: number) => {
-      const posY = measure.time * 40 + getKeyboardHeight(width)
-      return (
-        <div>
-          <div
-            style={{
-              height: 15,
-              left: 10,
-              bottom: posY + 10,
-              fontSize: 15,
-              color: "white",
-              position: "absolute",
-            }}
-          >
-            {i}
-          </div>
-          <div
-            style={{
-              height: 1,
-              backgroundColor: "rgba(255, 255, 255, 0.5)",
-              width: width,
-              left: 0,
-              bottom: posY,
-              position: "absolute",
-            }}
-            key={i}
-          ></div>
-        </div>
-      )
-    })
-  }
-  // const measures = song.measures.map((measure: any) => measure.time)
+
   return (
-    <div style={{ position: "fixed", overflow: "hidden", height: screenHeight, width }}>
-      <div
-        ref={scrollRef}
-        style={{
-          position: "absolute",
-          height,
-          overflow: "hidden",
-          width: "100%",
-          bottom: 0,
-        }}
-      >
-        {getMeasures()}
-        {notes.map((note: any, i) => {
-          const key = pianoKeysArray[note.noteValue]
-          return (
-            <SongNote
-              noteLength={note.duration * 40}
-              width={key.width}
-              posX={key.left}
-              posY={note.time * 40 + getKeyboardHeight(width)}
-              note={note}
-              key={i}
-            />
-          )
-        })}
-      </div>
+    <div
+      style={{ position: "fixed", overflow: "hidden", height, width, bottom: 0 }}
+      ref={scrollRef}
+    >
+      {measures.map((measure) => (
+        <Measure measure={measure} width={width} key={measure.number} />
+      ))}
+      {notes.map((note: any, i) => {
+        const key = pianoKeysArray[note.noteValue]
+        return (
+          <SongNote
+            noteLength={note.duration * 40}
+            width={key.width}
+            posX={key.left}
+            posY={note.time * 40 + getKeyboardHeight(width)}
+            note={note}
+            key={i}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -325,13 +338,17 @@ function SongNote({ note, noteLength, width, posX, posY }: any) {
         bottom: posY,
         left: posX,
         textAlign: "center",
-        borderRadius: "15px",
+        borderRadius: "8px",
       }}
       className={className}
     >
       {/* {note.pitch.step},{note.pitch.octave},{note.noteValue} */}
     </div>
   )
+}
+
+function isBlack(noteValue: number) {
+  return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
 }
 
 function PianoRoll({ width }: any) {
@@ -372,8 +389,10 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
         width,
         height,
         backgroundColor: color,
-        zIndex: color === "black" ? 1 : 0,
+        zIndex: isBlack(noteValue) ? 1 : 0,
         userSelect: "none",
+        borderBottomLeftRadius: "8px",
+        borderBottomRightRadius: "8px",
       }}
       onMouseDown={() => synth.playNoteValue(noteValue)}
       onMouseUp={() => synth.stopNoteValue(noteValue)}

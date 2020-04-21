@@ -36,6 +36,19 @@ class Player {
     this.volume = vol
   }
 
+  getCurrentSongTime() {
+    const isPlaying = !!this.playInterval
+    let dt = 0
+    if (isPlaying) {
+      const now = performance.now()
+      dt = now - this.lastIntervalFiredTime
+      this.lastIntervalFiredTime = now
+      this.currentSongTime += (dt / 1000 / 60) * this.bpm
+    }
+
+    return this.currentSongTime
+  }
+
   play() {
     let pressedChanged = false
 

@@ -17,7 +17,7 @@ export type Staffs = {
   }
 }
 
-export type Measure = {
+export type SongMeasure = {
   time: number
   number: number
 }
@@ -25,7 +25,7 @@ export type Measure = {
 export type Song = {
   staffs: Staffs
   duration: number
-  measures: Array<Measure>
+  measures: Array<SongMeasure>
 }
 
 export function parseMusicXML(txt: string): Song {
@@ -43,7 +43,7 @@ export function parseMusicXML(txt: string): Song {
   let curr = walker.currentNode as HTMLElement
   let currKey = { fifth: 0, mode: "major" }
   let staffs: Staffs = {}
-  let measures: Array<Measure> = []
+  let measures: Array<SongMeasure> = []
   while (curr) {
     if (curr.tagName === "clef") {
       let number = Number(curr.getAttribute("number"))
