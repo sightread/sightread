@@ -14,16 +14,17 @@ function App() {
   const [song, setSong]: [Song, Function] = useState({
     duration: 0,
     staffs: {},
-    measures: [],
+    notes: [],
     divisions: 1,
-  } as Song)
+    measures: [],
+  })
   const [playing, setPlaying] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
 
   useEffect(() => {
     // fetch(process.env.PUBLIC_URL + "/music/pirates-carribean-medley.xml")
-    fetch(process.env.PUBLIC_URL + "/music/GoT.xml")
+    fetch(process.env.PUBLIC_URL + "/music/Canon_Rock.xml")
       .then((resp) => resp.text())
       .then((xml) => {
         const song = parseMusicXML(xml)
@@ -283,19 +284,21 @@ function SongBoard({ width, song }: { width: number; screenHeight: number; song:
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // TODO: fix bug for rewinding to start of current measure.
+  let lastoffset = -1
   useRAFLoop(() => {
     if (scrollRef.current === null) {
       return
     }
     const node = scrollRef.current
     if (node) {
-      const offset = (player.getCurrentSongTime() / song?.duration) * height
+      const offset = (player.getTime() / song?.duration) * height
       node.style.transform = `translateY(${offset}px)`
+      console.assert(offset - lastoffset < 4, "offset overstepped bounds " + (offset - lastoffset))
+      lastoffset = offset
     }
   })
 
-  const measures = song.measures
-  const notes = Object.values(song.staffs).flatMap((x: any) => x.notes)
+  const { measures, notes } = song
   const pianoKeysArray = getKeyPositions(width)
 
   return (

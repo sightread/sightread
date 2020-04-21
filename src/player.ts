@@ -1,9 +1,11 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
+import { Song } from "./utils"
+
 let audioContext = new AudioContext()
 
 class Player {
-  song: any
+  song!: Song
   bpm: number = 120 // right now assuming bpm means quarter notes per minute
   playInterval: any = null
   currentSongTime = 0
@@ -17,11 +19,9 @@ class Player {
   volume = 1
   handlers: any = {}
 
-  setSong(song: any) {
+  setSong(song: Song) {
     this.song = song
-    this.notes = Object.values(song.staffs)
-      .flatMap((x: any) => x.notes)
-      .sort((note1, note2) => note1.time - note2.time)
+    this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
     if (song.bpm) {
       this.bpm = song.bpm
     }
@@ -34,8 +34,11 @@ class Player {
     this.volume = vol
   }
 
-  getCurrentSongTime() {
+  getTime() {
     const isPlaying = !!this.playInterval
+
+    let oldTime = this.currentSongTime
+    // this getter also steps the time forward.
     let dt = 0
     if (isPlaying) {
       const now = performance.now()
@@ -59,17 +62,17 @@ class Player {
       this.lastIntervalFiredTime = performance.now()
       this.playInterval = setInterval(() => this.play(), 16)
       // continue playing everything we were in the middle of, but at a lower vol
-      this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, this.volume / 2))
+      this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, this.volume / 4))
       pressedChanged = this.playing.length > 0
     }
-    this.getCurrentSongTime()
+    const time = this.getTime()
 
-    if (this.song.measures[this.currentMeasure + 1]?.time < this.currentSongTime) {
+    if (this.song.measures[this.currentMeasure + 1]?.time < time) {
       this.currentMeasure++
     }
 
     this.playing = this.playing.filter((note) => {
-      if (note.time + note.duration > this.currentSongTime) {
+      if (note.time + note.duration > time) {
         return true
       }
       pressedChanged = true
@@ -77,9 +80,9 @@ class Player {
       return false
     })
 
-    while (this.notes[this.currentIndex]?.time <= this.currentSongTime) {
+    while (this.notes[this.currentIndex]?.time <= time) {
       const note = this.notes[this.currentIndex]
-      this.synth.playNoteValue(note.noteValue, this.volume)
+      this.synth.playNoteValue(note.noteValue, this.volume / 2)
       this.playing.push(note)
       this.currentIndex++
       pressedChanged = true
@@ -148,17 +151,16 @@ export class WebAudioFontSynth {
     this.player.loader.decodeAfterLoading(this.audioContext, "_tone_0000_JCLive_sf2_file")
   }
 
-  playNoteValue(noteValue: number, velocity: number = 1) {
+  playNoteValue(noteValue: number, velocity: number = 0.5) {
     if (velocity === 0) {
       velocity = 0.001
     }
 
     this.stopNoteValue(noteValue)
 
-    // Pitch has to be from 0-127.
-    // D4 = 2+12*4 (they seem to not count octave 0 which only has 2 notes).
-    // So pitch is noteValue + 2
-    let pitch = noteValue + 2
+    // Pitch has to be from 0-127 in midi.
+    // Convert to midi note numbers (see https://en.scratch-wiki.info/wiki/MIDI_Notes)
+    let pitch = noteValue + 10 + 12
     const envelope = this.player.queueWaveTable(
       this.audioContext,
       this.audioContext.destination,

@@ -12,7 +12,6 @@ export type SongNote = {
 
 export type Staffs = {
   [staff: number]: {
-    notes: Array<SongNote>
     clef: { sign: string }
   }
 }
@@ -27,6 +26,8 @@ export type Song = {
   duration: number
   divisions: number
   measures: Array<SongMeasure>
+  notes: Array<SongNote>
+  bpm?: number
 }
 
 export function parseMusicXML(txt: string): Song {
@@ -44,6 +45,7 @@ export function parseMusicXML(txt: string): Song {
   let curr = walker.currentNode as HTMLElement
   let currKey = { fifth: 0, mode: "major" }
   let staffs: Staffs = {}
+  let notes: Array<SongNote> = []
   let measures: Array<SongMeasure> = []
   const divisions = Number(xml.querySelector("divisions")?.textContent)
   while (curr) {
@@ -66,7 +68,7 @@ export function parseMusicXML(txt: string): Song {
       const staff = Number(curr.querySelector("staff")?.textContent?.trim())
       const accidental = Number(curr.querySelector("accidental")?.textContent?.trim() ?? 0)
       const isChord = !!curr.querySelector("chord")
-      let time = isChord ? staffs[staff].notes[staffs[staff].notes.length - 1].time : currTime
+      let time = isChord ? notes[notes.length - 1].time : currTime
 
       let note: SongNote = {
         pitch: { step, octave },
@@ -77,8 +79,7 @@ export function parseMusicXML(txt: string): Song {
         accidental,
       }
 
-      staffs[staff].notes = staffs[staff].notes ?? []
-      ;(staffs[staff].notes as any).push(note)
+      notes.push(note)
       // TODO: - is there proper handling of `<chord/>`s ?
       if (!isChord) {
         currTime += duration
@@ -105,7 +106,7 @@ export function parseMusicXML(txt: string): Song {
     curr = walker.nextNode() as HTMLElement
   }
 
-  return { staffs, duration: totalDuration, measures, divisions }
+  return { staffs, duration: totalDuration, measures, divisions, notes }
 }
 
 const nodeFilter = {
