@@ -2,11 +2,9 @@
 
 let audioContext = new AudioContext()
 
-// GoT duration is 366 Beats. Actual time is 2:20
-// That means: 366 / 2.3333
 class Player {
   song: any
-  bpm: number = 180
+  bpm: number = 120 // right now assuming bpm means quarter notes per minute
   playInterval: any = null
   currentSongTime = 0
   currentMeasure = 0
@@ -43,7 +41,7 @@ class Player {
       const now = performance.now()
       dt = now - this.lastIntervalFiredTime
       this.lastIntervalFiredTime = now
-      this.currentSongTime += (dt / 1000 / 60) * this.bpm
+      this.currentSongTime += (dt / 1000 / 60) * this.bpm * this.song.divisions
     }
 
     return this.currentSongTime
@@ -64,10 +62,8 @@ class Player {
       this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, this.volume / 2))
       pressedChanged = this.playing.length > 0
     }
+    this.getCurrentSongTime()
 
-    let dt = performance.now() - this.lastIntervalFiredTime
-    this.lastIntervalFiredTime = performance.now()
-    this.currentSongTime += (dt / 1000 / 60) * this.bpm
     if (this.song.measures[this.currentMeasure + 1]?.time < this.currentSongTime) {
       this.currentMeasure++
     }

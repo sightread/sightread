@@ -15,13 +15,15 @@ function App() {
     duration: 0,
     staffs: {},
     measures: [],
+    divisions: 1,
   } as Song)
   const [playing, setPlaying] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
 
   useEffect(() => {
-    fetch(process.env.PUBLIC_URL + "/music/canond-easy.xml")
+    // fetch(process.env.PUBLIC_URL + "/music/pirates-carribean-medley.xml")
+    fetch(process.env.PUBLIC_URL + "/music/GoT.xml")
       .then((resp) => resp.text())
       .then((xml) => {
         const song = parseMusicXML(xml)
@@ -240,8 +242,12 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
-  const posY = measure.time * 40 + getKeyboardHeight(width)
+function pixelsPerDuration(song: Song) {
+  return 100 * (1 / song.divisions)
+}
+
+function Measure({ width, measure, song }: { width: number; measure: SongMeasure; song: Song }) {
+  const posY = measure.time * pixelsPerDuration(song) + getKeyboardHeight(width)
   return (
     <div>
       <div
@@ -271,17 +277,9 @@ function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
   )
 }
 
-function SongBoard({
-  width,
-  screenHeight,
-  song,
-}: {
-  width: number
-  screenHeight: number
-  song: Song
-}) {
+function SongBoard({ width, song }: { width: number; screenHeight: number; song: Song }) {
   const { player } = usePlayer()
-  const height = song.duration * 40
+  const height = song.duration * pixelsPerDuration(song)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // TODO: fix bug for rewinding to start of current measure.
@@ -291,8 +289,6 @@ function SongBoard({
     }
     const node = scrollRef.current
     if (node) {
-      // const bpm = 180
-      // const duration = ((song.duration - player.currentSongTime) / bpm) * 60 * 1000
       const offset = (player.getCurrentSongTime() / song?.duration) * height
       node.style.transform = `translateY(${offset}px)`
     }
@@ -308,16 +304,17 @@ function SongBoard({
       ref={scrollRef}
     >
       {measures.map((measure) => (
-        <Measure measure={measure} width={width} key={measure.number} />
+        <Measure measure={measure} width={width} key={measure.number} song={song} />
       ))}
       {notes.map((note: any, i) => {
         const key = pianoKeysArray[note.noteValue]
+        console.assert(key, "key could not be found " + JSON.stringify(note))
         return (
           <SongNote
-            noteLength={note.duration * 40}
+            noteLength={note.duration * pixelsPerDuration(song)}
             width={key.width}
             posX={key.left}
-            posY={note.time * 40 + getKeyboardHeight(width)}
+            posY={note.time * pixelsPerDuration(song) + getKeyboardHeight(width)}
             note={note}
             key={i}
           />

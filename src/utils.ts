@@ -25,6 +25,7 @@ export type SongMeasure = {
 export type Song = {
   staffs: Staffs
   duration: number
+  divisions: number
   measures: Array<SongMeasure>
 }
 
@@ -44,6 +45,7 @@ export function parseMusicXML(txt: string): Song {
   let currKey = { fifth: 0, mode: "major" }
   let staffs: Staffs = {}
   let measures: Array<SongMeasure> = []
+  const divisions = Number(xml.querySelector("divisions")?.textContent)
   while (curr) {
     if (curr.tagName === "clef") {
       let number = Number(curr.getAttribute("number"))
@@ -55,7 +57,12 @@ export function parseMusicXML(txt: string): Song {
     } else if (curr.tagName === "note") {
       const step = curr.querySelector("step")?.textContent?.trim() ?? ""
       const octave = Number(curr.querySelector("octave")?.textContent?.trim())
-      const duration = Number(curr.querySelector("duration")?.textContent?.trim())
+      let duration = Number(curr.querySelector("duration")?.textContent?.trim())
+      if (isNaN(duration)) {
+        // TODO: check for note size and convert to duration.
+        console.error("Error: found a note with no duration.")
+        duration = 0
+      }
       const staff = Number(curr.querySelector("staff")?.textContent?.trim())
       const accidental = Number(curr.querySelector("accidental")?.textContent?.trim() ?? 0)
       const isChord = !!curr.querySelector("chord")
@@ -77,10 +84,15 @@ export function parseMusicXML(txt: string): Song {
         currTime += duration
       }
     } else if (curr.tagName === "backup") {
-      const duration = Number(curr.querySelector("duration")?.textContent?.trim())
+      let duration = Number(curr.querySelector("duration")?.textContent?.trim())
+      console.assert(duration)
       currTime -= duration
     } else if (curr.tagName === "forward") {
-      const duration = Number(curr.querySelector("duration")?.textContent?.trim())
+      let duration = Number(curr.querySelector("duration")?.textContent?.trim())
+      if (isNaN(duration)) {
+        console.error(`note duration!!`, curr.querySelector("duration"))
+        duration = 0
+      }
       currTime += duration
     } else if (curr.tagName === "measure") {
       measures.push({ time: currTime, number: Number(curr.getAttribute("number")) })
@@ -93,7 +105,7 @@ export function parseMusicXML(txt: string): Song {
     curr = walker.nextNode() as HTMLElement
   }
 
-  return { staffs, duration: totalDuration, measures }
+  return { staffs, duration: totalDuration, measures, divisions }
 }
 
 const nodeFilter = {
@@ -106,15 +118,18 @@ const nodeFilter = {
 }
 
 function getNoteValue(step: string, octave: number, fifth: number) {
-  const stepValues: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
+  // const stepValues: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
+  const stepValues: any = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
   const offset = getSharps(fifth)[step] ?? 0
 
-  // Counting octaves starts at the first C. So it turns out C2 comes before A2
-  if (step < "C") {
-    octave++
+  if (octave === 0) {
+    if (step === "A") {
+      return 0
+    }
+    return 1 // 'B';
   }
 
-  return octave * 12 + stepValues[step] + offset
+  return (octave - 1) * 12 + stepValues[step] + offset + 3
 }
 
 function getSharps(fifth: number) {
