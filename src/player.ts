@@ -37,7 +37,6 @@ class Player {
   getTime() {
     const isPlaying = !!this.playInterval
 
-    let oldTime = this.currentSongTime
     // this getter also steps the time forward.
     let dt = 0
     if (isPlaying) {

@@ -1,5 +1,5 @@
 import "./player"
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, useCallback } from "react"
 import "./App.css"
 import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from "./hooks"
 import { parseMusicXML, Song, SongMeasure } from "./utils"
@@ -24,7 +24,8 @@ function App() {
 
   useEffect(() => {
     // fetch(process.env.PUBLIC_URL + "/music/pirates-carribean-medley.xml")
-    fetch(process.env.PUBLIC_URL + "/music/Canon_Rock.xml")
+    fetch(process.env.PUBLIC_URL + "/music/GoT.xml")
+      // fetch(process.env.PUBLIC_URL + "/music/Canon_Rock.xml")
       .then((resp) => resp.text())
       .then((xml) => {
         const song = parseMusicXML(xml)
@@ -170,32 +171,46 @@ function SongScrubBar({ song }: { song: Song }) {
   })
 
   return (
-    <div style={{ position: "relative", display: "flex", width, height: 30 }}>
-      <div
-        style={{
-          position: "absolute",
-          height: 32,
-          width,
-          pointerEvents: "none",
-          backgroundColor: "rgb(0,145,0)",
-          left: -width,
-        }}
-        ref={divRef}
-      ></div>
-      {Array.from({ length: numMeasures }).map((n, i) => {
-        return (
-          <div
-            style={{
-              height: 30,
-              width: measureWidth,
-              backgroundColor: "grey",
-              border: "solid #6b6b6b 1px",
-            }}
-            key={i}
-            onClick={() => player.seek(i)}
-          />
-        )
-      })}
+    <div>
+      <div style={{ position: "relative", display: "flex", width }} className="scrub-bar-container">
+        {Array.from({ length: numMeasures }).map((n, i) => {
+          return (
+            <div
+              style={{
+                height: "100%",
+                width: measureWidth,
+                backgroundColor: "rgba(0, 0, 0, 0)",
+                border: "solid #004d40 1px",
+                zIndex: 2,
+              }}
+              key={i}
+              onClick={() => player.seek(i)}
+            />
+          )
+        })}
+        <div
+          style={{
+            position: "absolute",
+            height: "calc(100% )",
+            width,
+            pointerEvents: "none",
+            backgroundColor: "#009688",
+            left: -width,
+            zIndex: 1,
+          }}
+          className="scrubBar"
+          ref={divRef}
+        ></div>
+        <div
+          style={{
+            position: "absolute",
+            height: "100%",
+            width,
+            backgroundColor: "#b2dfdb",
+            zIndex: 0,
+          }}
+        ></div>
+      </div>
     </div>
   )
 }
@@ -278,13 +293,15 @@ function Measure({ width, measure, song }: { width: number; measure: SongMeasure
   )
 }
 
+const sum = (list: Array<number>) => list.reduce((a, b) => a + b, 0)
+const avg = (list: Array<number>) => sum(list) / list.length
+
 function SongBoard({ width, song }: { width: number; screenHeight: number; song: Song }) {
   const { player } = usePlayer()
   const height = song.duration * pixelsPerDuration(song)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // TODO: fix bug for rewinding to start of current measure.
-  let lastoffset = -1
   useRAFLoop(() => {
     if (scrollRef.current === null) {
       return
@@ -293,17 +310,35 @@ function SongBoard({ width, song }: { width: number; screenHeight: number; song:
     if (node) {
       const offset = (player.getTime() / song?.duration) * height
       node.style.transform = `translateY(${offset}px)`
-      console.assert(offset - lastoffset < 4, "offset overstepped bounds " + (offset - lastoffset))
-      lastoffset = offset
+      // console.assert(offset - lastoffset < 4, "offset overstepped bounds " + (offset - lastoffset))
     }
   })
+  // useRAFLoop(() => {
+  //   if (scrollRef.current === null) {
+  //     return
+  //   }
+  //   const node = scrollRef.current
+  //   if (node) {
+  //     const offset = (player.getTime() / song?.duration) * height
+  //     node.style.bottom = `${-offset}px`
+  //   }
+  // })
 
   const { measures, notes } = song
   const pianoKeysArray = getKeyPositions(width)
 
   return (
     <div
-      style={{ position: "fixed", overflow: "hidden", height, width, bottom: 0 }}
+      style={{
+        position: "fixed",
+        overflow: "hidden",
+        height,
+        width,
+        bottom: 0,
+        // transitionTimingFunction: "linear",
+        // transitionProperty: "transform"
+        // transitionDuration: song.duration + "s",
+      }}
       ref={scrollRef}
     >
       {measures.map((measure) => (
@@ -328,7 +363,8 @@ function SongBoard({ width, song }: { width: number; screenHeight: number; song:
 }
 
 function SongNote({ note, noteLength, width, posX, posY }: any) {
-  const className = note.staff === 1 ? "left-hand" : "right-hand"
+  const keyType = isBlack(note.noteValue) ? "black" : "white"
+  const className = keyType + " " + (note.staff === 1 ? "left-hand" : "right-hand")
   return (
     <div
       style={{
@@ -338,7 +374,7 @@ function SongNote({ note, noteLength, width, posX, posY }: any) {
         bottom: posY,
         left: posX,
         textAlign: "center",
-        borderRadius: "8px",
+        borderRadius: "6px",
       }}
       className={className}
     >
@@ -354,16 +390,36 @@ function isBlack(noteValue: number) {
 function PianoRoll({ width }: any) {
   const pressedKeys = usePressedKeys()
   const getPressedColor = (staff: number) => (staff === 1 ? "#4dd0e1" : "#ef6c00")
-  const notes = getKeyPositions(width).map((note: any, i: any) => (
-    <PianoNote
-      left={note.left}
-      width={note.width}
-      height={note.height}
-      color={!!pressedKeys[i] ? getPressedColor(pressedKeys[i].staff) : note.color}
-      noteValue={i}
-      key={i}
-    />
-  ))
+  const notes = getKeyPositions(width).map((note: any, i: any) => {
+    let color = note.color
+    if (pressedKeys[i]) {
+      let { staff, noteValue } = pressedKeys[i]
+      const hand = staff === 1 ? "left-hand" : "right-hand"
+      if (hand === "left-hand") {
+        if (isBlack(noteValue)) {
+          color = "#2c6e78"
+        } else {
+          color = "#4dd0e1"
+        }
+      } else {
+        if (isBlack(noteValue)) {
+          color = "#c65a00"
+        } else {
+          color = "#ef6c00"
+        }
+      }
+    }
+    return (
+      <PianoNote
+        left={note.left}
+        width={note.width}
+        height={note.height}
+        color={color}
+        noteValue={i}
+        key={i}
+      />
+    )
+  })
   const whiteWidth = width / 52 // 52 white keys in a keyboard.
   const height = (220 / 30) * whiteWidth
   /**
