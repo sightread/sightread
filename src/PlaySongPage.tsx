@@ -4,12 +4,14 @@ import "./App.css"
 import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from "./hooks"
 import { parseMusicXML, Song, SongMeasure } from "./utils"
 import { WebAudioFontSynth } from "./player"
+import { WindowedSongBoard } from "./WindowedSongboard"
+import { useHistory } from "react-router-dom"
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
 const synth = new WebAudioFontSynth()
 
-function App() {
+function App({ selectedSong }: any) {
   const { width, height } = useWindowSize()
   const [song, setSong]: [Song, Function] = useState({
     duration: 0,
@@ -111,7 +113,8 @@ function App() {
         <SongScrubBar song={song} />
       </div>
       <RuleLines width={width} height={height} />
-      <SongBoard width={width} screenHeight={height} song={song} />
+      {song && <WindowedSongBoard song={song} />}
+      {/* <SongBoard width={width} screenHeight={height} song={song} /> */}
       <div style={{ position: "fixed", bottom: 0 }}>
         <PianoRoll width={width} />
       </div>
@@ -151,7 +154,7 @@ function RuleLines({ width, height }: any) {
       </div>
     ))
   }
-  return <>{getRuleLines()}</>
+  return <div id="rule-lines">{getRuleLines()}</div>
 }
 
 // TODO: animate filling up the green of current measure
@@ -310,19 +313,8 @@ function SongBoard({ width, song }: { width: number; screenHeight: number; song:
     if (node) {
       const offset = (player.getTime() / song?.duration) * height
       node.style.transform = `translateY(${offset}px)`
-      // console.assert(offset - lastoffset < 4, "offset overstepped bounds " + (offset - lastoffset))
     }
   })
-  // useRAFLoop(() => {
-  //   if (scrollRef.current === null) {
-  //     return
-  //   }
-  //   const node = scrollRef.current
-  //   if (node) {
-  //     const offset = (player.getTime() / song?.duration) * height
-  //     node.style.bottom = `${-offset}px`
-  //   }
-  // })
 
   const { measures, notes } = song
   const pianoKeysArray = getKeyPositions(width)
@@ -335,9 +327,6 @@ function SongBoard({ width, song }: { width: number; screenHeight: number; song:
         height,
         width,
         bottom: 0,
-        // transitionTimingFunction: "linear",
-        // transitionProperty: "transform"
-        // transitionDuration: song.duration + "s",
       }}
       ref={scrollRef}
     >
@@ -347,6 +336,9 @@ function SongBoard({ width, song }: { width: number; screenHeight: number; song:
       {notes.map((note: any, i) => {
         const key = pianoKeysArray[note.noteValue]
         console.assert(key, "key could not be found " + JSON.stringify(note))
+        if (i > 40) {
+          return <> </>
+        }
         return (
           <SongNote
             noteLength={note.duration * pixelsPerDuration(song)}

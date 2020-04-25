@@ -1,0 +1,65 @@
+section {
+  margin: 50px;
+}
+.searchInput {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  max-width: 300px;
+  background-color: #7c819c;
+}
+.searchInput::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: white;
+  opacity: 1; /* Firefox */
+}
+
+.tableContent::-webkit-scrollbar {
+  width: 10px;
+}
+
+.tableContent::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.tableContent::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+.tableContent {
+  max-height: 60vh;
+  overflow: scroll;
+}
+/* for custom scrollbar for webkit browser*/
+.tableRow {
+  border-bottom: 1px solid white;
+  width: 100%;
+  transition: background-color 0.5s;
+  display: flex;
+}
+.tableRow:hover {
+  cursor: pointer;
+  background-color: #2e304e;
+}
+.tableRow > div {
+  padding: 10px 20px;
+}
+.tableHeader {
+  font-size: calc(12px + 2vw);
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 5px 20px;
+}
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+::-webkit-scrollbar-thumb {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}

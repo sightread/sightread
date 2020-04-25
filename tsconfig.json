@@ -19,5 +19,5 @@
     "noEmit": true
   },
   "include": ["src"],
-  "exclude": []
+  "exclude": ["src\\WindowedSongboard.tsx"]
 }
