@@ -115,9 +115,9 @@ function App({ selectedSong }: any) {
       <RuleLines width={width} height={height} />
       {song && <WindowedSongBoard song={song} />}
       {/* <SongBoard width={width} screenHeight={height} song={song} /> */}
-      <div style={{ position: "fixed", bottom: 0 }}>
+      {/* <div style={{ position: "fixed", bottom: 0 }}>
         <PianoRoll width={width} />
-      </div>
+      </div> */}
     </div>
   )
 }
@@ -169,7 +169,7 @@ function SongScrubBar({ song }: { song: Song }) {
     if (!divRef.current) {
       return
     }
-    const progress = Math.min(player.currentSongTime / song.duration, 1)
+    const progress = Math.min(player.getTime() / song.duration, 1)
     divRef.current.style.transform = `translateX(${progress * width}px)`
   })
 

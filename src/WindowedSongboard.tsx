@@ -62,11 +62,12 @@ export function WindowedSongBoard({ song }: { song: Song }) {
     const totalHeight = duration * pixelsPerDuration(song)
     const offset = player.getTime() * pixelsPerDuration(song)
     outerRef.current.scrollTop = totalHeight - offset - windowSize.height
+    // outerRef.current.scrollTo(0, totalHeight - offset - windowSize.height)
     // innerRef.current.style.transform = `translateY(-${totalHeight - offset - windowSize.height}px)`
   })
 
   // const [startIndex, stopIndex] = getRenderRange(song)
-  const [startIndex, stopIndex] = [1, 92]
+  const [startIndex, stopIndex] = [0, 7]
   // const pianoKeysArray = getKeyPositions(windowSize.width)
   const items = []
   if (positionCache) {
@@ -86,8 +87,8 @@ export function WindowedSongBoard({ song }: { song: Song }) {
     <div
       style={{
         position: "relative",
-        overflow: "hidden",
-        height: windowSize.height, // TODO(rendering extra keyboardHeight vp above.). Make less stupid.
+        overflow: "auto",
+        height: windowSize.height - getKeyboardHeight(windowSize.height), // TODO(rendering extra keyboardHeight vp above.). Make less stupid.
         width: windowSize.width,
       }}
       ref={outerRef}
