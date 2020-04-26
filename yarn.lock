@@ -5644,6 +5644,11 @@ istanbul-reports@^2.2.6:
   dependencies:
     html-escaper "^2.0.0"
 
+jasmid.ts@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/jasmid.ts/-/jasmid.ts-2.1.0.tgz#ee26cd6285fcd3e6e3306ba9434301cb5f109162"
+  integrity sha512-0n8ov/SUY1E6LDxFeEfgdHQPwr03ub/Qd3xD9dkuP5VOb30C1XpPek/CYogl12oe7T/vfsUQIhhcETF7456STw==
+
 jest-changed-files@^24.9.0:
   version "24.9.0"
   resolved "https://registry.yarnpkg.com/jest-changed-files/-/jest-changed-files-24.9.0.tgz#08d8c15eb79a7fa3fc98269bc14b451ee82f8039"
@@ -6587,6 +6592,11 @@ micromatch@^3.1.10, micromatch@^3.1.4:
     regex-not "^1.0.0"
     snapdragon "^0.8.1"
     to-regex "^3.0.2"
+
+midi-parser-js@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/midi-parser-js/-/midi-parser-js-4.0.4.tgz#4b0af504e1fdc78409d27fb17473fbb61eee53cc"
+  integrity sha512-yCCUNemjDET40SPslUbAyi7lClSS+ttcBAWNY337kJouRFsEtIql38Fp4p5xfODkltFvuqHJL9JytnZIrzpJbw==
 
 miller-rabin@^4.0.0:
   version "4.0.1"

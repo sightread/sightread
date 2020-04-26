@@ -1,40 +1,44 @@
-import React, { useState } from "react"
-import "./App.css"
-import "./SelectSong.css"
-import { parseMusicXML, Song } from "./utils"
-import { useHistory } from "react-router-dom"
+import React, { useState } from 'react'
+import './App.css'
+import './SelectSong.css'
+import { parseMusicXML, Song, parseMidi } from './utils'
+import { useHistory } from 'react-router-dom'
 
 const headers = [
-  { label: "Title", id: "title", align: "left" },
+  { label: 'Title', id: 'title', align: 'left' },
   // { label: "Artist", id: "artist" },
   // { label: "difficulty", id: "difficulty" },
 ]
 
 const exampleData = [
   {
-    title: "Fur Elise",
-    location: "/music/3.1.a.Fur_Elise.xml",
+    title: 'Fur Elise',
+    location: '/music/3.1.a.Fur_Elise.xml',
   },
   {
-    title: "Canon rock",
-    location: "/music/Canon_Rock.xml",
+    title: 'Canon rock',
+    location: '/music/Canon_Rock.xml',
   },
   {
-    title: "Game of Thrones theme",
-    location: "/music/GoT.xml",
+    title: 'Game of Thrones theme',
+    location: '/music/GoT.xml',
   },
   {
-    title: "Lose Yourself",
-    location: "/music/lose-yourself.xml",
+    title: 'Lose Yourself',
+    location: '/music/lose-yourself.xml',
   },
   {
-    title: "One Final Effort",
-    location: "/music/Halo-One-Final-Effort-altered.mid",
+    title: 'One Final Effort',
+    location: '/music/one-final-effort.xml',
+  },
+  {
+    title: 'One Final Effort - MIDI',
+    location: '/music/Halo-One-Final-Effort-altered.mid',
   },
 ]
 
 function SelectSong({ handleSelect }: any) {
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState('')
   const history = useHistory()
 
   const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
@@ -47,16 +51,16 @@ function SelectSong({ handleSelect }: any) {
   }
 
   const cellStyle: React.CSSProperties = {
-    textAlign: "left",
-    color: "white",
+    textAlign: 'left',
+    color: 'white',
     width: `${100 / headers.length + 1}%`,
   }
   return (
     <div
       className="SelectSong"
-      style={{ padding: "5vh 5vw", display: "flex", flexDirection: "column" }}
+      style={{ padding: '5vh 5vw', display: 'flex', flexDirection: 'column' }}
     >
-      <div style={{ display: "flex" }}>
+      <div style={{ display: 'flex' }}>
         <span className="tableHeader" style={{ ...cellStyle }}>
           Title
         </span>
@@ -71,7 +75,7 @@ function SelectSong({ handleSelect }: any) {
       <div className="tableContent">
         {exampleData
           .filter((song: any) => {
-            return search === "" || songContainsWord(song, search)
+            return search === '' || songContainsWord(song, search)
           })
           .map((song: any) => {
             return (
@@ -79,13 +83,10 @@ function SelectSong({ handleSelect }: any) {
                 key={song.location}
                 className="tableRow"
                 onClick={() => {
-                  fetch(song.location)
-                    .then((res) => res.text())
-                    .then((xml) => parseMusicXML(xml))
-                    .then((song: Song) => {
-                      handleSelect(song)
-                      history.push("/play")
-                    })
+                  getSong(song.location).then((song: Song) => {
+                    handleSelect(song)
+                    history.push('/play')
+                  })
                 }}
               >
                 {headers.map((header, i) => {
@@ -102,5 +103,14 @@ function SelectSong({ handleSelect }: any) {
       </div>
     </div>
   )
+}
+
+async function getSong(url: string) {
+  if (url.includes('.xml')) {
+    const xml = await (await fetch(url)).text()
+    return parseMusicXML(xml)
+  }
+  const buffer = await (await fetch(url)).arrayBuffer()
+  return parseMidi(buffer)
 }
 export default SelectSong

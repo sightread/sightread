@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@types/react": "^16.9.34",
+    "jasmid.ts": "^2.1.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router": "^5.1.2",
