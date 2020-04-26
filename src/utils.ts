@@ -213,7 +213,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
   let measures = []
   const ticksPerMeasure = ticksPerBeat * (timeSignature.numerator / timeSignature.denominator) * 4
   for (let i = 0; i < currTime / ticksPerMeasure; i++) {
-    measures.push({ number: i, time: (i * ticksPerMeasure) / ticksPerBeat })
+    measures.push({ number: i, time: ((i * ticksPerMeasure) / ticksPerBeat) * 4 })
   }
 
   return {
