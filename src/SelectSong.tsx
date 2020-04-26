@@ -28,10 +28,6 @@ const exampleData = [
     location: '/music/lose-yourself.xml',
   },
   {
-    title: 'One Final Effort',
-    location: '/music/one-final-effort.xml',
-  },
-  {
     title: 'One Final Effort - MIDI',
     location: '/music/Halo-One-Final-Effort-altered.mid',
   },
