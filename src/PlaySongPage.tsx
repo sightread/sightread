@@ -26,8 +26,9 @@ function App({ selectedSong }: any) {
 
   useEffect(() => {
     // fetch(process.env.PUBLIC_URL + "/music/pirates-carribean-medley.xml")
-    fetch(process.env.PUBLIC_URL + "/music/GoT.xml")
-      // fetch(process.env.PUBLIC_URL + "/music/Canon_Rock.xml")
+    // fetch(process.env.PUBLIC_URL + "/music/GoT.xml")
+    // fetch(process.env.PUBLIC_URL + "/music/Canon_Rock.xml")
+    fetch(process.env.PUBLIC_URL + "/music/river-flows-in-you.xml")
       .then((resp) => resp.text())
       .then((xml) => {
         const song = parseMusicXML(xml)
@@ -48,7 +49,7 @@ function App({ selectedSong }: any) {
         }
       }
     }
-    window.addEventListener("keydown", keyboardHandler)
+    window.addEventListener("keydown", keyboardHandler, { passive: true })
     return () => window.removeEventListener("keydown", keyboardHandler)
   }, [playing, player])
 
@@ -113,11 +114,10 @@ function App({ selectedSong }: any) {
         <SongScrubBar song={song} />
       </div>
       <RuleLines width={width} height={height} />
-      {song && <WindowedSongBoard song={song} />}
-      {/* <SongBoard width={width} screenHeight={height} song={song} /> */}
-      {/* <div style={{ position: "fixed", bottom: 0 }}>
+      {song.duration > 0 && <WindowedSongBoard song={song} />}
+      <div style={{ position: "fixed", bottom: 0, height: getKeyboardHeight(width) }}>
         <PianoRoll width={width} />
-      </div> */}
+      </div>
     </div>
   )
 }
@@ -127,7 +127,7 @@ function RuleLines({ width, height }: any) {
   const getRuleLines = () => {
     const baseStyle = {
       position: "fixed",
-      height: height - 30,
+      height,
       width: 1,
       backgroundColor: "#fff",
     }
@@ -243,6 +243,7 @@ function getKeyboardHeight(width: number) {
   const whiteWidth = width / 52
   return (220 / 30) * whiteWidth
 }
+
 function getKeyPositions(width: any) {
   const whiteWidth = width / 52
   const height = (220 / 30) * whiteWidth
@@ -259,120 +260,6 @@ function getKeyPositions(width: any) {
     notes.push(createNoteObject(whiteNotes, whiteWidth, height, "white"))
   }
   return notes
-}
-
-function pixelsPerDuration(song: Song) {
-  return 100 * (1 / song.divisions)
-}
-
-function Measure({ width, measure, song }: { width: number; measure: SongMeasure; song: Song }) {
-  const posY = measure.time * pixelsPerDuration(song) + getKeyboardHeight(width)
-  return (
-    <div>
-      <div
-        style={{
-          height: 15,
-          left: 10,
-          bottom: posY + 10,
-          fontSize: 15,
-          color: "white",
-          position: "absolute",
-        }}
-      >
-        {measure.number}
-      </div>
-      <div
-        style={{
-          height: 1,
-          backgroundColor: "rgba(255, 255, 255, 0.5)",
-          width,
-          left: 0,
-          bottom: posY,
-          position: "absolute",
-        }}
-        key={`measure-${posY}`}
-      ></div>
-    </div>
-  )
-}
-
-const sum = (list: Array<number>) => list.reduce((a, b) => a + b, 0)
-const avg = (list: Array<number>) => sum(list) / list.length
-
-function SongBoard({ width, song }: { width: number; screenHeight: number; song: Song }) {
-  const { player } = usePlayer()
-  const height = song.duration * pixelsPerDuration(song)
-  const scrollRef = useRef<HTMLDivElement>(null)
-
-  // TODO: fix bug for rewinding to start of current measure.
-  useRAFLoop(() => {
-    if (scrollRef.current === null) {
-      return
-    }
-    const node = scrollRef.current
-    if (node) {
-      const offset = (player.getTime() / song?.duration) * height
-      node.style.transform = `translateY(${offset}px)`
-    }
-  })
-
-  const { measures, notes } = song
-  const pianoKeysArray = getKeyPositions(width)
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        overflow: "hidden",
-        height,
-        width,
-        bottom: 0,
-      }}
-      ref={scrollRef}
-    >
-      {measures.map((measure) => (
-        <Measure measure={measure} width={width} key={measure.number} song={song} />
-      ))}
-      {notes.map((note: any, i) => {
-        const key = pianoKeysArray[note.noteValue]
-        console.assert(key, "key could not be found " + JSON.stringify(note))
-        if (i > 40) {
-          return <> </>
-        }
-        return (
-          <SongNote
-            noteLength={note.duration * pixelsPerDuration(song)}
-            width={key.width}
-            posX={key.left}
-            posY={note.time * pixelsPerDuration(song) + getKeyboardHeight(width)}
-            note={note}
-            key={i}
-          />
-        )
-      })}
-    </div>
-  )
-}
-
-function SongNote({ note, noteLength, width, posX, posY }: any) {
-  const keyType = isBlack(note.noteValue) ? "black" : "white"
-  const className = keyType + " " + (note.staff === 1 ? "left-hand" : "right-hand")
-  return (
-    <div
-      style={{
-        height: noteLength,
-        width,
-        position: "absolute",
-        bottom: posY,
-        left: posX,
-        textAlign: "center",
-        borderRadius: "6px",
-      }}
-      className={className}
-    >
-      {/* {note.pitch.step},{note.pitch.octave},{note.noteValue} */}
-    </div>
-  )
 }
 
 function isBlack(noteValue: number) {
@@ -412,19 +299,19 @@ function PianoRoll({ width }: any) {
       />
     )
   })
-  const whiteWidth = width / 52 // 52 white keys in a keyboard.
-  const height = (220 / 30) * whiteWidth
   /**
    *   0  1   2  3  4   5  6   7  8  9   10 11
    *  {A, A#, B, C, C#, D, D#, E, F, F#, G, G#}
    */
 
-  return <div style={{ position: "relative", width, height }}>{notes}</div>
+  return (
+    <div style={{ position: "relative", width, height: getKeyboardHeight(width) }}>{notes}</div>
+  )
 }
 
 let isMouseDown = false
-window.addEventListener("mousedown", () => (isMouseDown = true))
-window.addEventListener("mouseup", () => (isMouseDown = false))
+window.addEventListener("mousedown", () => (isMouseDown = true), { passive: true })
+window.addEventListener("mouseup", () => (isMouseDown = false), { passive: true })
 
 function PianoNote({ left, width, color, height, noteValue }: any) {
   return (

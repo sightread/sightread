@@ -1,6 +1,7 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
 import { Song } from "./utils"
+const AudioContext = window.AudioContext || (window as any).webkitAudioContext
 
 let audioContext = new AudioContext()
 

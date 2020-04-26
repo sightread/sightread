@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect, useContext, useCallback } from "react"
 import Player from "../player"
 import React from "react"
 
@@ -16,7 +16,7 @@ export function useWindowSize() {
       setWindowSize(getSize())
     }
 
-    window.addEventListener("resize", handleResize)
+    window.addEventListener("resize", handleResize, { passive: true })
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
@@ -24,19 +24,41 @@ export function useWindowSize() {
 }
 
 export function useRAFLoop(fn: Function) {
-  useEffect(() => {
-    let handle: any
-    function loop() {
-      fn()
-      handle = requestAnimationFrame(loop)
-    }
+  const requestRef: any = React.useRef()
+  const previousTimeRef: any = React.useRef()
 
-    loop()
-    return () => {
-      cancelAnimationFrame(handle)
-    }
-  }, [fn])
+  const animate = useCallback(
+    (time: number) => {
+      if (previousTimeRef.current !== undefined) {
+        const deltaTime = time - previousTimeRef.current
+        fn(deltaTime)
+      }
+      previousTimeRef.current = time
+      requestRef.current = requestAnimationFrame(animate)
+    },
+    [fn],
+  )
+
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(requestRef.current)
+  }, [animate]) // Make sure the effect runs only once
 }
+
+// export function useRAFLoop(fn: Function) {
+//   useEffect(() => {
+//     let handle: any
+//     function loop() {
+//       fn()
+//       handle = requestAnimationFrame(loop)
+//     }
+
+//     loop()
+//     return () => {
+//       cancelAnimationFrame(handle)
+//     }
+//   }, [fn])
+// }
 
 export const PlayerContext = React.createContext({
   player: (null as unknown) as any,
