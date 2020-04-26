@@ -212,13 +212,12 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
 
   let measures = []
   const ticksPerMeasure = ticksPerBeat * (timeSignature.numerator / timeSignature.denominator) * 4
-  console.error({ ticksPerMeasure, ticksPerBeat, currTime })
   for (let i = 0; i < currTime / ticksPerMeasure; i++) {
-    measures.push({ number: i + 1, time: (i * ticksPerMeasure) / ticksPerBeat })
+    measures.push({ number: i, time: (i * ticksPerMeasure) / ticksPerBeat })
   }
 
   return {
-    duration: currTime,
+    duration: currTime / ticksPerBeat,
     divisions: 4,
     measures: measures,
     notes: notes,
