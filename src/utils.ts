@@ -217,7 +217,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
   }
 
   return {
-    duration: currTime / ticksPerBeat,
+    duration: (currTime / ticksPerBeat) * 4,
     divisions: 4,
     measures: measures,
     notes: notes,
