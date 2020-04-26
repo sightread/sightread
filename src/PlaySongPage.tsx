@@ -249,6 +249,7 @@ function isBlack(noteValue: number) {
   return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
 }
 
+const MemoedPianoNote = React.memo(PianoNote)
 function PianoRoll({ width }: any) {
   const pressedKeys = usePressedKeys()
   const notes = getKeyPositions(width).map((note: any, i: any) => {
@@ -271,7 +272,7 @@ function PianoRoll({ width }: any) {
       }
     }
     return (
-      <PianoNote
+      <MemoedPianoNote
         left={note.left}
         width={note.width}
         height={note.height}
