@@ -1,10 +1,8 @@
 import "./player"
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import "./App.css"
-import { usePlayer, useRAFLoop, usePressedKeys, useWindowSize } from "./hooks"
-import { parseMusicXML, Song, SongMeasure } from "./utils"
-import { WebAudioFontSynth } from "./player"
-import SelectSong from "./SelectSong"
+import { usePlayer, useRAFLoop, useWindowSize } from "./hooks"
+import { Song, SongMeasure } from "./utils"
 
 /**
  * Only display items in the viewport.
@@ -65,7 +63,7 @@ function getNoteLanes(width: any) {
 export function WindowedSongBoard({ song }: { song: Song }) {
   const windowSize = useWindowSize()
   const { player } = usePlayer()
-  const { measures, notes, duration, divisions } = song
+  const { duration } = song
   const outerRef: any = useRef(null)
   const innerRef: any = useRef(null)
   const [itemsCache, setItemsCache]: any = useState(null)
@@ -73,7 +71,7 @@ export function WindowedSongBoard({ song }: { song: Song }) {
 
   useEffect(() => {
     setItemsCache(calculateCache(song, windowSize))
-  }, [song])
+  }, [song, windowSize])
 
   useRAFLoop((dt: number) => {
     if (!outerRef.current || !innerRef.current) {

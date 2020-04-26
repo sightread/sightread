@@ -1,41 +1,24 @@
 import "./player"
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import "./App.css"
 import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from "./hooks"
-import { parseMusicXML, Song, SongMeasure } from "./utils"
+import { Song } from "./utils"
 import { WebAudioFontSynth } from "./player"
 import { WindowedSongBoard } from "./WindowedSongboard"
-import { useHistory } from "react-router-dom"
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
 const synth = new WebAudioFontSynth()
 
-function App({ selectedSong }: any) {
+function App({ song }: any) {
   const { width, height } = useWindowSize()
-  const [song, setSong]: [Song, Function] = useState({
-    duration: 0,
-    staffs: {},
-    notes: [],
-    divisions: 1,
-    measures: [],
-  })
   const [playing, setPlaying] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
 
   useEffect(() => {
-    // fetch(process.env.PUBLIC_URL + "/music/pirates-carribean-medley.xml")
-    // fetch(process.env.PUBLIC_URL + "/music/GoT.xml")
-    // fetch(process.env.PUBLIC_URL + "/music/Canon_Rock.xml")
-    fetch(process.env.PUBLIC_URL + "/music/river-flows-in-you.xml")
-      .then((resp) => resp.text())
-      .then((xml) => {
-        const song = parseMusicXML(xml)
-        player.setSong(song)
-        setSong(song)
-      })
-  }, [player])
+    player.setSong(song)
+  }, [song, player])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -268,7 +251,6 @@ function isBlack(noteValue: number) {
 
 function PianoRoll({ width }: any) {
   const pressedKeys = usePressedKeys()
-  const getPressedColor = (staff: number) => (staff === 1 ? "#4dd0e1" : "#ef6c00")
   const notes = getKeyPositions(width).map((note: any, i: any) => {
     let color = note.color
     if (pressedKeys[i]) {

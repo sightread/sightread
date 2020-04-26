@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState } from "react"
 import "./App.css"
 import "./SelectSong.css"
 import { parseMusicXML, Song } from "./utils"
 import { useHistory } from "react-router-dom"
+
 const headers = [
   { label: "Title", id: "title", align: "left" },
   // { label: "Artist", id: "artist" },
@@ -32,7 +33,7 @@ const exampleData = [
   },
 ]
 
-function SelectSong({ handleSelect, selectedSong }: any) {
+function SelectSong({ handleSelect }: any) {
   const [search, setSearch] = useState("")
   const history = useHistory()
 
@@ -75,6 +76,7 @@ function SelectSong({ handleSelect, selectedSong }: any) {
           .map((song: any) => {
             return (
               <div
+                key={song.location}
                 className="tableRow"
                 onClick={() => {
                   fetch(song.location)
@@ -86,8 +88,12 @@ function SelectSong({ handleSelect, selectedSong }: any) {
                     })
                 }}
               >
-                {headers.map((header) => {
-                  return <div style={{ ...cellStyle }}>{song[header.id]}</div>
+                {headers.map((header, i) => {
+                  return (
+                    <div key={i} style={{ ...cellStyle }}>
+                      {song[header.id]}
+                    </div>
+                  )
                 })}
                 <div style={{ ...cellStyle }}></div>
               </div>

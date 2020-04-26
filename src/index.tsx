@@ -29,11 +29,7 @@ function Root() {
               />
             )}
           />
-          <Route
-            path="/play"
-            exact
-            render={(props) => <App {...props} selectedSong={selectedSong} />}
-          />
+          <Route path="/play" exact render={(props) => <App {...props} song={selectedSong} />} />
         </Router>
       </PlayerProvider>
     </React.StrictMode>
