@@ -60,7 +60,6 @@ function App() {
         <div style={{ position: 'absolute', top: 10, left: 20 }}>
           <i
             className="fa fa-2x fa-arrow-left"
-            style={{ color: 'white' }}
             onClick={() => {
               player.pause()
               window.history.back()
