@@ -160,7 +160,6 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
 
   var bpm = 120
   var ticksPerBeat = parsed.header.ticksPerBeat
-  var channelCount = 16
 
   let currTime = 0
   let openNotes = new Map<number, SongNote>() // notes still "on"
@@ -241,7 +240,7 @@ function getOrderedMidiEvents(parsed: any) {
     var nextEventIndex: any = null
     let nextEventInfo: any
 
-    for (var i = 0; i < trackStates.length; i++) {
+    for (let i = 0; i < trackStates.length; i++) {
       if (
         trackStates[i].ticksToNextEvent != null &&
         (ticksToNextEvent == null || trackStates[i].ticksToNextEvent < ticksToNextEvent)
@@ -262,7 +261,7 @@ function getOrderedMidiEvents(parsed: any) {
       }
       trackStates[nextEventTrack].nextEventIndex += 1
       /* advance timings on all tracks by ticksToNextEvent */
-      for (var i = 0; i < trackStates.length; i++) {
+      for (let i = 0; i < trackStates.length; i++) {
         if (trackStates[i].ticksToNextEvent != null) {
           trackStates[i].ticksToNextEvent -= ticksToNextEvent
         }

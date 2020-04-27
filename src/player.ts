@@ -151,7 +151,7 @@ export class WebAudioFontSynth {
     this.player.loader.decodeAfterLoading(this.audioContext, '_tone_0000_JCLive_sf2_file')
   }
 
-  playNoteValue(noteValue: number, velocity: number = 0.5) {
+  playNoteValue(noteValue: number, velocity: number = 0.1) {
     if (velocity === 0) {
       velocity = 0.001
     }

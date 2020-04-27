@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import './App.css'
 import './SelectSong.css'
-import { parseMusicXML, Song, parseMidi } from './utils'
 import { useHistory } from 'react-router-dom'
 
 const headers = [
@@ -13,27 +12,27 @@ const headers = [
 const exampleData = [
   {
     title: 'Fur Elise',
-    location: '/music/3.1.a.Fur_Elise.xml',
+    location: 'music/3.1.a.Fur_Elise.xml',
   },
   {
     title: 'Canon rock',
-    location: '/music/Canon_Rock.xml',
+    location: 'music/Canon_Rock.xml',
   },
   {
     title: 'Game of Thrones theme',
-    location: '/music/GoT.xml',
+    location: 'music/GoT.xml',
   },
   {
     title: 'Lose Yourself',
-    location: '/music/lose-yourself.xml',
+    location: 'music/lose-yourself.xml',
   },
   {
     title: 'One Final Effort - MIDI',
-    location: '/music/Halo-One-Final-Effort-altered.mid',
+    location: 'music/Halo-One-Final-Effort-altered.mid',
   },
 ]
 
-function SelectSong({ handleSelect }: any) {
+function SelectSong() {
   const [search, setSearch] = useState('')
   const history = useHistory()
 
@@ -79,10 +78,7 @@ function SelectSong({ handleSelect }: any) {
                 key={song.location}
                 className="tableRow"
                 onClick={() => {
-                  getSong(song.location).then((song: Song) => {
-                    handleSelect(song)
-                    history.push('/play')
-                  })
+                  history.push(`/play/${song.location}`)
                 }}
               >
                 {headers.map((header, i) => {
@@ -101,12 +97,4 @@ function SelectSong({ handleSelect }: any) {
   )
 }
 
-async function getSong(url: string) {
-  if (url.includes('.xml')) {
-    const xml = await (await fetch(url)).text()
-    return parseMusicXML(xml)
-  }
-  const buffer = await (await fetch(url)).arrayBuffer()
-  return parseMidi(buffer)
-}
 export default SelectSong

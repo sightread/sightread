@@ -1,28 +1,35 @@
-import "./player"
-import React, { useState, useEffect, useRef } from "react"
-import "./App.css"
-import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from "./hooks"
-import { Song } from "./utils"
-import { WebAudioFontSynth } from "./player"
-import { WindowedSongBoard } from "./WindowedSongboard"
+import './player'
+import React, { useState, useEffect, useRef } from 'react'
+import './App.css'
+import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from './hooks'
+import { Song, parseMusicXML, parseMidi } from './utils'
+import { WebAudioFontSynth } from './player'
+import { WindowedSongBoard } from './WindowedSongboard'
+import { useParams } from 'react-router'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
 const synth = new WebAudioFontSynth()
 
-function App({ song }: any) {
+function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
+  const [song, setSong] = useState<Song | null>(null)
+
+  const { song_location }: any = useParams()
 
   useEffect(() => {
-    player.setSong(song)
-  }, [song, player])
+    getSong(`/music/${song_location}`).then((song: Song) => {
+      setSong(song)
+      player.setSong(song)
+    })
+  }, [song_location, player])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
-      if (evt.code === "Space") {
+      if (evt.code === 'Space') {
         if (playing) {
           player.pause()
           setPlaying(false)
@@ -32,8 +39,8 @@ function App({ song }: any) {
         }
       }
     }
-    window.addEventListener("keydown", keyboardHandler, { passive: true })
-    return () => window.removeEventListener("keydown", keyboardHandler)
+    window.addEventListener('keydown', keyboardHandler, { passive: true })
+    return () => window.removeEventListener('keydown', keyboardHandler)
   }, [playing, player])
 
   return (
@@ -41,27 +48,40 @@ function App({ song }: any) {
       <div
         id="topbar"
         style={{
-          position: "fixed",
+          position: 'fixed',
           height: 50,
           width,
           zIndex: 2,
-          backgroundColor: "rgb(50,50,50)",
+          backgroundColor: 'rgb(50,50,50)',
+          flexDirection: 'row',
+          display: 'flex',
         }}
       >
+        <div style={{ position: 'absolute', top: 10, left: 20 }}>
+          <i
+            className="fa fa-2x fa-arrow-left"
+            style={{ color: 'white' }}
+            onClick={() => {
+              player.pause()
+              window.history.back()
+            }}
+          />
+        </div>
         <div
+          className="nav-buttons"
           style={{
-            display: "flex",
-            justifyContent: "space-around",
+            position: 'absolute',
+            display: 'flex',
+            justifyContent: 'space-around',
             width: 160,
             height: 50,
-            margin: "0 auto",
-            position: "relative",
             top: 10,
+            left: width / 2 - 160 / 2,
           }}
         >
           <i
-            className={playing ? "fa fa-2x fa-pause" : "fa fa-2x fa-play"}
-            style={{ color: "white", width: 40 }}
+            className={playing ? 'fa fa-2x fa-pause' : 'fa fa-2x fa-play'}
+            style={{ width: 30 }}
             onClick={() => {
               if (!playing) {
                 player.play()
@@ -74,15 +94,15 @@ function App({ song }: any) {
           ></i>
           <i
             className="fa fa-2x fa-step-backward"
-            style={{ color: "white", width: 40 }}
+            style={{ width: 30 }}
             onClick={() => {
               player.stop()
               setPlaying(false)
             }}
           ></i>
           <i
-            className={soundOff ? "fa fa-2x fa-volume-off" : "fa fa-2x fa-volume-up"}
-            style={{ color: "white", width: 40 }}
+            className={soundOff ? 'fa fa-2x fa-volume-off' : 'fa fa-2x fa-volume-up'}
+            style={{ width: 30 }}
             onClick={() => {
               if (!soundOff) {
                 player.setVolume(0)
@@ -94,11 +114,11 @@ function App({ song }: any) {
             }}
           ></i>
         </div>
-        <SongScrubBar song={song} />
+        {song && <SongScrubBar song={song} />}
       </div>
       <RuleLines width={width} height={height} />
-      {song.duration > 0 && <WindowedSongBoard song={song} />}
-      <div style={{ position: "fixed", bottom: 0, height: getKeyboardHeight(width) }}>
+      {song && <WindowedSongBoard song={song} />}
+      <div style={{ position: 'fixed', bottom: 0, height: getKeyboardHeight(width) }}>
         <PianoRoll width={width} />
       </div>
     </div>
@@ -109,10 +129,10 @@ function RuleLines({ width, height }: any) {
   const widthOfWhiteKey = width / 52
   const getRuleLines = () => {
     const baseStyle = {
-      position: "fixed",
+      position: 'fixed',
       height,
       width: 1,
-      backgroundColor: "#fff",
+      backgroundColor: '#fff',
     }
     return Array.from({ length: 12 }).map((_n, i) => (
       <div key={i}>
@@ -158,15 +178,18 @@ function SongScrubBar({ song }: { song: Song }) {
 
   return (
     <div>
-      <div style={{ position: "relative", display: "flex", width }} className="scrub-bar-container">
+      <div
+        style={{ position: 'relative', display: 'flex', width, top: '50px' }}
+        className="scrub-bar-container"
+      >
         {Array.from({ length: numMeasures }).map((n, i) => {
           return (
             <div
               style={{
-                height: "100%",
+                height: '100%',
                 width: measureWidth,
-                backgroundColor: "rgba(0, 0, 0, 0)",
-                border: "solid #004d40 1px",
+                backgroundColor: 'rgba(0, 0, 0, 0)',
+                border: 'solid #004d40 1px',
                 zIndex: 2,
               }}
               key={i}
@@ -176,11 +199,11 @@ function SongScrubBar({ song }: { song: Song }) {
         })}
         <div
           style={{
-            position: "absolute",
-            height: "calc(100% )",
+            position: 'absolute',
+            height: 'calc(100% )',
             width,
-            pointerEvents: "none",
-            backgroundColor: "#009688",
+            pointerEvents: 'none',
+            backgroundColor: '#009688',
             left: -width,
             zIndex: 1,
           }}
@@ -189,10 +212,10 @@ function SongScrubBar({ song }: { song: Song }) {
         ></div>
         <div
           style={{
-            position: "absolute",
-            height: "100%",
+            position: 'absolute',
+            height: '100%',
             width,
-            backgroundColor: "#b2dfdb",
+            backgroundColor: '#b2dfdb',
             zIndex: 0,
           }}
         ></div>
@@ -203,22 +226,22 @@ function SongScrubBar({ song }: { song: Song }) {
 
 function createNoteObject(whiteNotes: any, whiteWidth: any, height: any, type: any) {
   switch (type) {
-    case "black":
+    case 'black':
       return {
         left: whiteNotes * whiteWidth - whiteWidth / 4,
         width: whiteWidth / 2,
-        color: "black",
+        color: 'black',
         height: height * (2 / 3),
       }
-    case "white":
+    case 'white':
       return {
         left: whiteNotes * whiteWidth,
         height: height,
         width: whiteWidth,
-        color: "white",
+        color: 'white',
       }
     default:
-      throw Error("Invalid note type")
+      throw Error('Invalid note type')
   }
 }
 
@@ -237,10 +260,10 @@ function getKeyPositions(width: any) {
 
   for (var whiteNotes = 0; whiteNotes < 52; whiteNotes++, totalNotes++) {
     if (blackNotes.includes(totalNotes % 12)) {
-      notes.push(createNoteObject(whiteNotes, whiteWidth, height, "black"))
+      notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'black'))
       totalNotes++
     }
-    notes.push(createNoteObject(whiteNotes, whiteWidth, height, "white"))
+    notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'white'))
   }
   return notes
 }
@@ -256,18 +279,18 @@ function PianoRoll({ width }: any) {
     let color = note.color
     if (pressedKeys[i]) {
       let { staff, noteValue } = pressedKeys[i]
-      const hand = staff === 1 ? "left-hand" : "right-hand"
-      if (hand === "left-hand") {
+      const hand = staff === 1 ? 'left-hand' : 'right-hand'
+      if (hand === 'left-hand') {
         if (isBlack(noteValue)) {
-          color = "#2c6e78"
+          color = '#2c6e78'
         } else {
-          color = "#4dd0e1"
+          color = '#4dd0e1'
         }
       } else {
         if (isBlack(noteValue)) {
-          color = "#c65a00"
+          color = '#c65a00'
         } else {
-          color = "#ef6c00"
+          color = '#ef6c00'
         }
       }
     }
@@ -288,36 +311,60 @@ function PianoRoll({ width }: any) {
    */
 
   return (
-    <div style={{ position: "relative", width, height: getKeyboardHeight(width) }}>{notes}</div>
+    <div style={{ position: 'relative', width, height: getKeyboardHeight(width) }}>{notes}</div>
   )
 }
 
 let isMouseDown = false
-window.addEventListener("mousedown", () => (isMouseDown = true), { passive: true })
-window.addEventListener("mouseup", () => (isMouseDown = false), { passive: true })
+window.addEventListener('mousedown', () => (isMouseDown = true), { passive: true })
+window.addEventListener('mouseup', () => (isMouseDown = false), { passive: true })
 
 function PianoNote({ left, width, color, height, noteValue }: any) {
+  const [userPressed, setUserPressed] = useState(false)
   return (
     <div
       style={{
-        border: "1px solid #292e49",
-        position: "absolute",
+        border: '1px solid #292e49',
+        position: 'absolute',
         top: 0,
         left,
         width,
         height,
-        backgroundColor: color,
+        backgroundColor: userPressed ? 'grey' : color,
         zIndex: isBlack(noteValue) ? 1 : 0,
-        userSelect: "none",
-        borderBottomLeftRadius: "8px",
-        borderBottomRightRadius: "8px",
+        userSelect: 'none',
+        borderBottomLeftRadius: '8px',
+        borderBottomRightRadius: '8px',
       }}
-      onMouseDown={() => synth.playNoteValue(noteValue)}
-      onMouseUp={() => synth.stopNoteValue(noteValue)}
-      onMouseLeave={() => synth.stopNoteValue(noteValue)}
-      onMouseEnter={() => isMouseDown && synth.playNoteValue(noteValue)}
+      onMouseDown={() => {
+        setUserPressed(true)
+        synth.playNoteValue(noteValue)
+      }}
+      onMouseUp={() => {
+        setUserPressed(false)
+        synth.stopNoteValue(noteValue)
+      }}
+      onMouseLeave={() => {
+        setUserPressed(false)
+        synth.stopNoteValue(noteValue)
+      }}
+      onMouseEnter={() => {
+        if (isMouseDown) {
+          setUserPressed(true)
+          synth.playNoteValue(noteValue)
+        }
+      }}
     ></div>
   )
+}
+
+async function getSong(url: string) {
+  if (url.includes('.xml')) {
+    const xml = await (await fetch(url)).text()
+    return parseMusicXML(xml)
+  }
+  const buffer = await (await fetch(url)).arrayBuffer()
+  return parseMidi(buffer)
 }
 
 export default App
