@@ -49,6 +49,10 @@ class Player {
     return this.currentSongTime
   }
 
+  getMeasureForTime(time: number) {
+    return this.song.measures.find((m) => m.time > time) ?? { number: 0 }
+  }
+
   play() {
     let pressedChanged = false
 
@@ -125,7 +129,7 @@ class Player {
       this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue), this.volume / 2)
     }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
-    this.currentMeasure = this.song.measures.findIndex((m) => m.time > time)
+    this.currentMeasure = this.getMeasureForTime(time).number
     this.currentMeasure--
   }
 

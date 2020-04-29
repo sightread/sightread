@@ -170,8 +170,12 @@ function SongScrubBar({ song }: { song: Song }) {
   const { player } = usePlayer()
   const { width } = useWindowSize()
   const [mousePressed, setMousePressed] = useState(false)
+  const [mouseOver, setMouseOver] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
   const currentTimeRef = useRef<HTMLSpanElement>(null)
+  const timeSpanRef = useRef<HTMLSpanElement>(null)
+  const measureSpanRef = useRef<HTMLSpanElement>(null)
+  const toolTipRef = useRef<HTMLDivElement>(null)
 
   useRAFLoop(() => {
     if (!divRef.current) {
@@ -180,8 +184,8 @@ function SongScrubBar({ song }: { song: Song }) {
     const progress = Math.min(player.getTime() / song.duration, 1)
     divRef.current.style.transform = `translateX(${progress * width}px)`
     if (currentTimeRef.current) {
-      const time = player.getTime() / player.bpm
-      currentTimeRef.current.innerText = String(round(time, 1))
+      const time = player.getTime() / player.bpm / song.divisions
+      currentTimeRef.current.innerText = String(formatTime(time * 60))
     }
   })
 
@@ -189,6 +193,18 @@ function SongScrubBar({ song }: { song: Song }) {
     const progress = e.clientX / width
     const songTime = progress * song.duration
     player.seek(songTime)
+  }
+
+  function formatTime(seconds: number) {
+    let min = String(Math.round(seconds / 60))
+    if (min.length === 0) {
+      min = '0' + min
+    }
+    let sec = String(Math.round(seconds % 60))
+    if (sec.length === 0) {
+      sec = '0' + sec
+    }
+    return `${min}:${sec}`
   }
 
   useEffect(() => {
@@ -211,6 +227,18 @@ function SongScrubBar({ song }: { song: Song }) {
         setMousePressed(true)
       }}
       onClick={seekPlayer}
+      onMouseOver={() => setMouseOver(true)}
+      onMouseOut={() => setMouseOver(false)}
+      onMouseMove={(e: React.MouseEvent) => {
+        if (measureSpanRef.current && timeSpanRef.current && toolTipRef.current) {
+          const progress = e.clientX / width
+          const songTime = progress * song.duration
+          const measure = player.getMeasureForTime(songTime)
+          toolTipRef.current.style.left = `${Math.min(width - 200, e.clientX)}px`
+          measureSpanRef.current.innerText = String(measure.number)
+          timeSpanRef.current.innerText = formatTime(songTime / player.bpm / song.divisions)
+        }
+      }}
     >
       <div
         style={{
@@ -234,11 +262,48 @@ function SongScrubBar({ song }: { song: Song }) {
       ></div>
       <span
         ref={currentTimeRef}
-        style={{ position: 'absolute', bottom: 1, left: 10, color: '#242632', fontSize: 12 }}
+        style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 12 }}
       ></span>
-      <span style={{ position: 'absolute', bottom: 1, right: 10, color: '#242632', fontSize: 12 }}>
-        {round(song.duration / player.bpm, 1)}
+      <span style={{ position: 'absolute', bottom: 1, right: 4, color: '#242632', fontSize: 12 }}>
+        {round(song.duration / song.divisions / player.bpm, 1)}
       </span>
+      <div
+        style={{
+          display: mouseOver ? 'flex' : 'none',
+          position: 'absolute',
+          left: 100,
+          top: -45,
+          height: '42px',
+          width: '150px',
+          backgroundColor: 'black',
+        }}
+        ref={toolTipRef}
+      >
+        <span
+          style={{
+            position: 'absolute',
+            top: 12,
+            right: 5,
+            color: 'white',
+            verticalAlign: 'center',
+            fontSize: 12,
+          }}
+        >
+          Time: <span ref={timeSpanRef} style={{ color: 'green' }} />
+        </span>
+        <span
+          style={{
+            position: 'absolute',
+            top: 12,
+            left: 5,
+            color: 'white',
+            verticalAlign: 'center',
+            fontSize: 12,
+          }}
+        >
+          Measure: <span ref={measureSpanRef} style={{ color: 'green' }} />
+        </span>
+      </div>
     </div>
   )
 }
