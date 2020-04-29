@@ -94,7 +94,7 @@ export function WindowedSongBoard({ song }: { song: Song }) {
   }
 
   const [startIndex, stopIndex] = itemsCache.getRenderRange(player.getTime())
-  console.count('WindowedSongBoardRenders')
+  // console.count('WindowedSongBoardRenders')
   return (
     <div
       style={{

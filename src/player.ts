@@ -24,6 +24,8 @@ class Player {
     this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
     if (song.bpm) {
       this.bpm = song.bpm
+    } else {
+      this.bpm = 120
     }
   }
 
@@ -50,7 +52,10 @@ class Player {
   }
 
   getMeasureForTime(time: number) {
-    return this.song.measures.find((m) => m.time > time) ?? { number: 0 }
+    return (
+      this.song.measures.find((m) => m.time > time) ??
+      this.song.measures[this.song.measures.length - 1]
+    )
   }
 
   play() {
@@ -58,7 +63,7 @@ class Player {
 
     // If at the end of the song, then reset.
     if (this.currentIndex >= this.notes.length && this.playing.length === 0) {
-      this.stop()
+      this.pause()
     }
 
     if (!this.playInterval) {
