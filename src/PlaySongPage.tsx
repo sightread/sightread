@@ -181,7 +181,7 @@ function SongScrubBar({ song }: { song: Song }) {
     if (!divRef.current) {
       return
     }
-    const progress = Math.min(player.getTime() / song.duration, 1)
+    const progress = Math.min(player.getTime() / player.getDuration(), 1)
     divRef.current.style.transform = `translateX(${progress * width}px)`
     if (currentTimeRef.current) {
       const time = player.getTime() / player.bpm / song.divisions
@@ -191,7 +191,7 @@ function SongScrubBar({ song }: { song: Song }) {
 
   function seekPlayer(e: { clientX: number }) {
     const progress = Math.max(e.clientX / width, 0)
-    const songTime = progress * song.duration
+    const songTime = progress * player.getDuration()
     player.seek(songTime)
   }
 
@@ -232,7 +232,7 @@ function SongScrubBar({ song }: { song: Song }) {
       onMouseMove={(e: React.MouseEvent) => {
         if (measureSpanRef.current && timeSpanRef.current && toolTipRef.current) {
           const progress = e.clientX / width
-          const songTime = progress * song.duration
+          const songTime = progress * player.getDuration()
           const measure = player.getMeasureForTime(songTime)
           toolTipRef.current.style.left = `${Math.min(width - 200, e.clientX)}px`
           measureSpanRef.current.innerText = String(measure.number)
@@ -265,7 +265,7 @@ function SongScrubBar({ song }: { song: Song }) {
         style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 12 }}
       ></span>
       <span style={{ position: 'absolute', bottom: 1, right: 4, color: '#242632', fontSize: 12 }}>
-        {formatTime((song.duration / song.divisions / player.bpm) * 60)}
+        {formatTime((player.getDuration() / song.divisions / player.bpm) * 60)}
       </span>
       <div
         style={{

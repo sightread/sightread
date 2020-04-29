@@ -18,6 +18,7 @@ class Player {
   synth = new WebAudioFontSynth()
   volume = 1
   handlers: any = {}
+  songDuration = 0
 
   setSong(song: Song) {
     this.song = song
@@ -26,6 +27,10 @@ class Player {
       this.bpm = song.bpm
     } else {
       this.bpm = 120
+    }
+    let duration = 0
+    for (const note of this.notes) {
+      this.songDuration = Math.max(note.time + note.duration, this.songDuration)
     }
   }
 
@@ -59,21 +64,24 @@ class Player {
   }
 
   play() {
+    if (!!this.playInterval) {
+      return
+    }
+
+    this.lastIntervalFiredTime = performance.now()
+    this.playInterval = setInterval(() => this.playLoop_(), 16)
+    // continue playing everything we were in the middle of, but at a lower vol
+    this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, this.volume / 4))
+  }
+
+  playLoop_() {
     let pressedChanged = false
+    const time = this.getTime()
 
     // If at the end of the song, then reset.
     if (this.currentIndex >= this.notes.length && this.playing.length === 0) {
       this.pause()
     }
-
-    if (!this.playInterval) {
-      this.lastIntervalFiredTime = performance.now()
-      this.playInterval = setInterval(() => this.play(), 16)
-      // continue playing everything we were in the middle of, but at a lower vol
-      this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, this.volume / 4))
-      pressedChanged = this.playing.length > 0
-    }
-    const time = this.getTime()
 
     if (this.song.measures[this.currentMeasure + 1]?.time < time) {
       this.currentMeasure++
@@ -113,8 +121,8 @@ class Player {
 
   pause() {
     clearInterval(this.playInterval)
-    this.stopAllSounds()
     this.playInterval = null
+    this.stopAllSounds()
   }
 
   stop() {
@@ -142,6 +150,10 @@ class Player {
     let ret: any = {}
     this.playing.forEach((note) => (ret[note.noteValue] = note))
     return ret
+  }
+
+  getDuration() {
+    return this.songDuration
   }
 }
 
