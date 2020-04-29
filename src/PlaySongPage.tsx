@@ -190,18 +190,18 @@ function SongScrubBar({ song }: { song: Song }) {
   })
 
   function seekPlayer(e: { clientX: number }) {
-    const progress = e.clientX / width
+    const progress = Math.max(e.clientX / width, 0)
     const songTime = progress * song.duration
     player.seek(songTime)
   }
 
   function formatTime(seconds: number) {
-    let min = String(Math.round(seconds / 60))
-    if (min.length === 0) {
+    let min = String(Math.floor(seconds / 60))
+    if (min.length === 1) {
       min = '0' + min
     }
-    let sec = String(Math.round(seconds % 60))
-    if (sec.length === 0) {
+    let sec = String(Math.floor(seconds % 60))
+    if (sec.length === 1) {
       sec = '0' + sec
     }
     return `${min}:${sec}`
@@ -236,7 +236,7 @@ function SongScrubBar({ song }: { song: Song }) {
           const measure = player.getMeasureForTime(songTime)
           toolTipRef.current.style.left = `${Math.min(width - 200, e.clientX)}px`
           measureSpanRef.current.innerText = String(measure.number)
-          timeSpanRef.current.innerText = formatTime(songTime / player.bpm / song.divisions)
+          timeSpanRef.current.innerText = formatTime((songTime / player.bpm / song.divisions) * 60)
         }
       }}
     >
@@ -265,7 +265,7 @@ function SongScrubBar({ song }: { song: Song }) {
         style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 12 }}
       ></span>
       <span style={{ position: 'absolute', bottom: 1, right: 4, color: '#242632', fontSize: 12 }}>
-        {round(song.duration / song.divisions / player.bpm, 1)}
+        {formatTime((song.duration / song.divisions / player.bpm) * 60)}
       </span>
       <div
         style={{
@@ -283,7 +283,7 @@ function SongScrubBar({ song }: { song: Song }) {
           style={{
             position: 'absolute',
             top: 12,
-            right: 5,
+            left: 7,
             color: 'white',
             verticalAlign: 'center',
             fontSize: 12,
@@ -295,7 +295,7 @@ function SongScrubBar({ song }: { song: Song }) {
           style={{
             position: 'absolute',
             top: 12,
-            left: 5,
+            right: 7,
             color: 'white',
             verticalAlign: 'center',
             fontSize: 12,
