@@ -1,13 +1,18 @@
 import './player'
 import React, { useState, useEffect, useRef } from 'react'
 import './App.css'
-import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from './hooks'
+import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys, useMousePressed } from './hooks'
 import { Song, parseMusicXML, parseMidi } from './utils'
 import { WebAudioFontSynth } from './player'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { useParams } from 'react-router'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
+
+function round(value: number, precision: number) {
+  var multiplier = Math.pow(10, precision || 0)
+  return Math.round(value * multiplier) / multiplier
+}
 
 const synth = new WebAudioFontSynth()
 
@@ -164,61 +169,76 @@ function RuleLines({ width, height }: any) {
 function SongScrubBar({ song }: { song: Song }) {
   const { player } = usePlayer()
   const { width } = useWindowSize()
-  const numMeasures = song?.measures?.length ?? 0
-  const measureWidth = width / numMeasures
+  const [mousePressed, setMousePressed] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
+  const currentTimeRef = useRef<HTMLSpanElement>(null)
+
   useRAFLoop(() => {
     if (!divRef.current) {
       return
     }
     const progress = Math.min(player.getTime() / song.duration, 1)
     divRef.current.style.transform = `translateX(${progress * width}px)`
+    if (currentTimeRef.current) {
+      const time = player.getTime() / player.bpm
+      currentTimeRef.current.innerText = String(round(time, 1))
+    }
   })
 
+  function seekPlayer(e: { clientX: number }) {
+    const progress = e.clientX / width
+    const songTime = progress * song.duration
+    player.seek(songTime)
+  }
+
+  useEffect(() => {
+    if (mousePressed) {
+      const handleUp = () => setMousePressed(false)
+      window.addEventListener('mousemove', seekPlayer)
+      window.addEventListener('mouseup', handleUp)
+
+      return () => {
+        window.removeEventListener('mousemove', seekPlayer)
+      }
+    }
+  }, [mousePressed])
+
   return (
-    <div>
+    <div
+      style={{ position: 'relative', display: 'flex', width, top: '50px' }}
+      className="scrub-bar-container"
+      onMouseDown={() => {
+        setMousePressed(true)
+      }}
+      onClick={seekPlayer}
+    >
       <div
-        style={{ position: 'relative', display: 'flex', width, top: '50px' }}
-        className="scrub-bar-container"
-      >
-        {Array.from({ length: numMeasures }).map((n, i) => {
-          return (
-            <div
-              style={{
-                height: '100%',
-                width: measureWidth,
-                backgroundColor: 'rgba(0, 0, 0, 0)',
-                border: 'solid #004d40 1px',
-                zIndex: 2,
-              }}
-              key={i}
-              onClick={() => player.seek(i)}
-            />
-          )
-        })}
-        <div
-          style={{
-            position: 'absolute',
-            height: 'calc(100% )',
-            width,
-            pointerEvents: 'none',
-            backgroundColor: '#009688',
-            left: -width,
-            zIndex: 1,
-          }}
-          className="scrubBar"
-          ref={divRef}
-        ></div>
-        <div
-          style={{
-            position: 'absolute',
-            height: '100%',
-            width,
-            backgroundColor: '#b2dfdb',
-            zIndex: 0,
-          }}
-        ></div>
-      </div>
+        style={{
+          position: 'absolute',
+          height: '100%',
+          width: width,
+          backgroundColor: '#b2dfdb',
+        }}
+      ></div>
+      <div
+        style={{
+          position: 'absolute',
+          height: 'calc(100% )',
+          width: width,
+          pointerEvents: 'none',
+          backgroundColor: '#009688',
+          left: -width,
+        }}
+        className="scrubBar"
+        ref={divRef}
+      ></div>
+      <span
+        ref={currentTimeRef}
+        style={{ position: 'absolute', bottom: 1, left: 10, color: '#242632', fontSize: 12 }}
+      ></span>
+      <span style={{ position: 'absolute', bottom: 1, right: 10, color: '#242632', fontSize: 12 }}>
+        {round(song.duration / player.bpm, 1)}
+      </span>
     </div>
   )
 }

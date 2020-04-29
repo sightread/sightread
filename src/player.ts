@@ -11,7 +11,6 @@ class Player {
   playInterval: any = null
   currentSongTime = 0
   currentMeasure = 0
-  manuallySeekedMeasure = 0
   currentIndex = 0
   lastIntervalFiredTime = 0
   notes: Array<any> = []
@@ -54,7 +53,7 @@ class Player {
     let pressedChanged = false
 
     // If at the end of the song, then reset.
-    if (this.currentIndex >= this.notes.length) {
+    if (this.currentIndex >= this.notes.length && this.playing.length === 0) {
       this.stop()
     }
 
@@ -116,12 +115,9 @@ class Player {
     this.playing = []
   }
 
-  seek(measure: number) {
-    if (!this.song.measures[measure]) {
-      throw new Error(`Could not find measure: ${measure}`)
-    }
+  seek(time: number) {
     this.stopAllSounds()
-    this.currentSongTime = this.song.measures[measure].time
+    this.currentSongTime = time
     this.playing = this.notes.filter((note) => {
       return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
     })
@@ -129,8 +125,8 @@ class Player {
       this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue), this.volume / 2)
     }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
-    this.currentMeasure = this.manuallySeekedMeasure = measure
-    ;(this as any).onChange?.()
+    this.currentMeasure = this.song.measures.findIndex((m) => m.time > time)
+    this.currentMeasure--
   }
 
   getPressedKeys() {

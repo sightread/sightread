@@ -9,3 +9,7 @@ body {
 #topbar > div > i:hover {
   color: #3a68e7;
 }
+
+* {
+  user-select: none;
+}

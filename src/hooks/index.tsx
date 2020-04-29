@@ -1,6 +1,14 @@
-import { useState, useEffect, useContext, useCallback } from "react"
-import Player from "../player"
-import React from "react"
+import { useState, useEffect, useContext, useCallback } from 'react'
+import Player from '../player'
+import React from 'react'
+
+export function useMousePressed() {
+  const [isPressed, setIsPressed] = useState(false)
+  window.addEventListener('mousedown', () => setIsPressed(true))
+  window.addEventListener('mouseup', () => setIsPressed(false))
+
+  return isPressed
+}
 
 export function useWindowSize() {
   function getSize() {
@@ -16,8 +24,8 @@ export function useWindowSize() {
       setWindowSize(getSize())
     }
 
-    window.addEventListener("resize", handleResize, { passive: true })
-    return () => window.removeEventListener("resize", handleResize)
+    window.addEventListener('resize', handleResize, { passive: true })
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   return windowSize
