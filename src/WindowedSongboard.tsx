@@ -78,9 +78,9 @@ export function WindowedSongBoard({ song }: { song: Song }) {
       return
     }
     const now = player.getTime()
-    const offset =
-      getTimeOffset(song, now) - windowSize.height + getKeyboardHeight(windowSize.width)
-    innerRef.current.style.transform = `translateY(-${offset}px)`
+    let offset = getTimeOffset(song, now) - windowSize.height + getKeyboardHeight(windowSize.width)
+    offset *= -1
+    innerRef.current.style.transform = `translateY(${offset}px)`
 
     //  can heavily optimize this part. only do calculations once ever Npx difference.
     const newIndexes = itemsCache.getRenderRange(player.getTime())
