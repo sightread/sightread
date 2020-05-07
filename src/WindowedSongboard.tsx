@@ -1,8 +1,8 @@
-import './player'
-import React, { useState, useEffect, useRef } from 'react'
-import './App.css'
-import { usePlayer, useRAFLoop, useWindowSize } from './hooks'
-import { Song, SongMeasure } from './utils'
+import "./player"
+import React, { useState, useEffect, useRef } from "react"
+import "./App.css"
+import { usePlayer, useRAFLoop, useWindowSize } from "./hooks"
+import { Song, SongMeasure } from "./utils"
 
 /**
  * Only display items in the viewport.
@@ -23,22 +23,22 @@ function getKeyboardHeight(width: number) {
 
 function createNoteObject(whiteNotes: any, whiteWidth: any, height: any, type: any) {
   switch (type) {
-    case 'black':
+    case "black":
       return {
         left: whiteNotes * whiteWidth - whiteWidth / 4,
         width: whiteWidth / 2,
-        color: 'black',
+        color: "black",
         height: height * (2 / 3),
       }
-    case 'white':
+    case "white":
       return {
         left: whiteNotes * whiteWidth,
         height: height,
         width: whiteWidth,
-        color: 'white',
+        color: "white",
       }
     default:
-      throw Error('Invalid note type')
+      throw Error("Invalid note type")
   }
 }
 
@@ -52,10 +52,10 @@ function getNoteLanes(width: any) {
 
   for (var whiteNotes = 0; whiteNotes < 52; whiteNotes++, totalNotes++) {
     if (blackNotes.includes(totalNotes % 12)) {
-      notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'black'))
+      notes.push(createNoteObject(whiteNotes, whiteWidth, height, "black"))
       totalNotes++
     }
-    notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'white'))
+    notes.push(createNoteObject(whiteNotes, whiteWidth, height, "white"))
   }
   return notes
 }
@@ -98,8 +98,8 @@ export function WindowedSongBoard({ song }: { song: Song }) {
   return (
     <div
       style={{
-        position: 'fixed',
-        overflow: 'hidden',
+        position: "fixed",
+        overflow: "hidden",
         height: windowSize.height, // TODO(rendering extra keyboardHeight vp above.). Make less stupid.
         width: windowSize.width,
       }}
@@ -108,8 +108,8 @@ export function WindowedSongBoard({ song }: { song: Song }) {
       <div
         style={{
           height: duration * pixelsPerDuration(song),
-          width: '100%',
-          willChange: 'transform',
+          width: "100%",
+          willChange: "transform",
         }}
         ref={innerRef}
       >
@@ -193,18 +193,18 @@ function isBlack(noteValue: number) {
 }
 
 function SongNote({ note, noteLength, width, posX, offset }: any) {
-  const keyType = isBlack(note.noteValue) ? 'black' : 'white'
-  const className = keyType + ' ' + (note.staff === 1 ? 'left-hand' : 'right-hand')
+  const keyType = isBlack(note.noteValue) ? "black" : "white"
+  const className = keyType + " " + (note.staff === 1 ? "left-hand" : "right-hand")
   return (
     <div
       style={{
         top: offset - noteLength,
-        position: 'absolute',
+        position: "absolute",
         left: posX,
         height: noteLength,
         width,
-        textAlign: 'center',
-        borderRadius: '6px',
+        textAlign: "center",
+        borderRadius: "6px",
       }}
       className={className}
     >
@@ -227,18 +227,18 @@ function Measure({
     <div
       id={`measure-${measure.number}`}
       style={{
-        position: 'absolute',
+        position: "absolute",
         top: offset - height,
       }}
     >
       <div
         style={{
-          position: 'relative',
+          position: "relative",
           height,
           left: 10,
           top: -7,
           fontSize: 15,
-          color: 'white',
+          color: "white",
         }}
       >
         {measure.number}
@@ -246,7 +246,7 @@ function Measure({
       <div
         style={{
           height: 1,
-          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
           width,
         }}
         key={`measure-${measure.number}`}

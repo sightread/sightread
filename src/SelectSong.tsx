@@ -1,39 +1,47 @@
-import React, { useState } from 'react'
-import './App.css'
-import './SelectSong.css'
-import { useHistory } from 'react-router-dom'
+import React, { useState } from "react"
+import "./App.css"
+import "./SelectSong.css"
+import { useHistory } from "react-router-dom"
 
 const headers = [
-  { label: 'Title', id: 'title', align: 'left' },
+  { label: "Title", id: "title", align: "left" },
   // { label: "Artist", id: "artist" },
   // { label: "difficulty", id: "difficulty" },
 ]
 
 const exampleData = [
   {
-    title: 'Fur Elise',
-    location: 'music/3.1.a.Fur_Elise.xml',
+    title: "Fur Elise",
+    location: "music/3.1.a.Fur_Elise.xml",
   },
   {
-    title: 'Canon rock',
-    location: 'music/Canon_Rock.xml',
+    title: "Fur Elise - PIANU Version",
+    location: "music/flat-fur-elise-1-piano.xml",
   },
   {
-    title: 'Game of Thrones theme',
-    location: 'music/GoT.xml',
+    title: "Canon rock",
+    location: "music/Canon_Rock.xml",
   },
   {
-    title: 'Lose Yourself',
-    location: 'music/lose-yourself.xml',
+    title: "Game of Thrones theme",
+    location: "music/GoT.xml",
   },
   {
-    title: 'One Final Effort - MIDI',
-    location: 'music/Halo-One-Final-Effort-altered.mid',
+    title: "Lose Yourself",
+    location: "music/lose-yourself.xml",
+  },
+  {
+    title: "One Final Effort - MIDI",
+    location: "music/Halo-One-Final-Effort-altered.mid",
+  },
+  {
+    title: "Intro, XX",
+    location: "music/xx-intro.mid",
   },
 ]
 
 function SelectSong() {
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState("")
   const history = useHistory()
 
   const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
@@ -46,16 +54,16 @@ function SelectSong() {
   }
 
   const cellStyle: React.CSSProperties = {
-    textAlign: 'left',
-    color: 'white',
+    textAlign: "left",
+    color: "white",
     width: `${100 / headers.length + 1}%`,
   }
   return (
     <div
       className="SelectSong"
-      style={{ padding: '5vh 5vw', display: 'flex', flexDirection: 'column' }}
+      style={{ padding: "5vh 5vw", display: "flex", flexDirection: "column" }}
     >
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: "flex" }}>
         <span className="tableHeader" style={{ ...cellStyle }}>
           Title
         </span>
@@ -70,7 +78,7 @@ function SelectSong() {
       <div className="tableContent">
         {exampleData
           .filter((song: any) => {
-            return search === '' || songContainsWord(song, search)
+            return search === "" || songContainsWord(song, search)
           })
           .map((song: any) => {
             return (
