@@ -29,7 +29,7 @@ export type Song = {
   divisions: number
   measures: Array<SongMeasure>
   notes: Array<SongNote>
-  bpm?: number
+  bpm: number
 }
 
 export function parseMusicXML(txt: string): Song {
@@ -42,6 +42,7 @@ export function parseMusicXML(txt: string): Song {
   const xml = new DOMParser().parseFromString(txt, "application/xml")
   const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL, nodeFilter)
 
+  let bpm = 120
   let currTime = 0
   let totalDuration = 0
   let curr = walker.currentNode as HTMLElement
@@ -114,17 +115,31 @@ export function parseMusicXML(txt: string): Song {
       const fifth = Number(curr.querySelector("fifths")?.textContent?.trim())
       const mode = curr.querySelector("mode")?.textContent?.trim() ?? ""
       currKey = { fifth, mode }
+    } else if (curr.tagName === "sound") {
+      if (curr.hasAttribute("tempo")) {
+        bpm = Number(curr.getAttribute("tempo"))
+      }
     }
     totalDuration = Math.max(totalDuration, currTime)
     curr = walker.nextNode() as HTMLElement
   }
 
-  return { staffs, duration: totalDuration, measures, divisions, notes }
+  return { staffs, duration: totalDuration, measures, divisions, notes, bpm }
 }
 
 const nodeFilter = {
   acceptNode(node: HTMLElement) {
-    const acceptable = ["note", "clef", "measure", "key", "time", "backup", "forward", "meter"]
+    const acceptable = [
+      "note",
+      "clef",
+      "measure",
+      "key",
+      "time",
+      "backup",
+      "forward",
+      "meter",
+      "sound",
+    ]
     return acceptable.some((name) => name === node.tagName)
       ? NodeFilter.FILTER_ACCEPT
       : NodeFilter.FILTER_SKIP

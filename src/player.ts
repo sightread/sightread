@@ -23,15 +23,15 @@ class Player {
   setSong(song: Song) {
     this.song = song
     this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
-    if (song.bpm) {
-      this.bpm = song.bpm
-    } else {
-      this.bpm = 50
-    }
-    let duration = 0
+    this.bpm = song.bpm
+    this.songDuration = 0
+    this.currentIndex = 0
+    this.currentSongTime = 0
+    this.currentMeasure = 0
     for (const note of this.notes) {
       this.songDuration = Math.max(note.time + note.duration, this.songDuration)
     }
+    this.playing.length = 0
   }
 
   setVolume(vol: number) {
