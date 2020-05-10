@@ -84,8 +84,9 @@ export function parseMusicXML(txt: string): Song {
       } else if (accidental === "flat") {
         accidental = -1
       } else {
+        // TODO handle double-sharp and double-flat etc.
         accidental = Number(curr.querySelector("accidental")?.textContent?.trim() ?? 0)
-        console.error("JAKE THIS HAPPENED, THERES AN ACCIDENTAL NUMBER IN THE XML", curr.innerHTML)
+        // console.error("JAKE THIS HAPPENED, THERES AN ACCIDENTAL NUMBER IN THE XML", curr.innerHTML)
       }
       if (curr.querySelector("alter")) {
         accidental = Number(curr.querySelector("alter")?.textContent?.trim()) ?? 0

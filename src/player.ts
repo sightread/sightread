@@ -8,10 +8,10 @@ let audioContext = new AudioContext()
 // TODO: handle changing tempo
 class Player {
   song!: Song
-  bpm: number = 0 // right now assuming bpm means quarter notes per minute
   playInterval: any = null
   currentSongTime = 0
   currentMeasure = 0
+  // right now assuming bpm means quarter notes per minute
   currentBpm = 0
   currentIndex = 0
   lastIntervalFiredTime = 0
@@ -21,12 +21,12 @@ class Player {
   volume = 1
   handlers: any = {}
   songDuration = 0
+  bpmModifier = 1
 
   setSong(song: Song) {
     this.song = song
     this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
     this.currentBpm = 0
-    this.bpm = song.bpms[this.currentBpm]?.bpm ?? 120
     this.songDuration = 0
     this.currentIndex = 0
     this.currentSongTime = 0
@@ -53,10 +53,14 @@ class Player {
       const now = performance.now()
       dt = now - this.lastIntervalFiredTime
       this.lastIntervalFiredTime = now
-      this.currentSongTime += (dt / 1000 / 60) * this.bpm * this.song.divisions
+      this.currentSongTime += (dt / 1000 / 60) * this.getBpm() * this.song.divisions
     }
 
     return this.currentSongTime
+  }
+
+  getBpm() {
+    return this.song.bpms[this.currentBpm].bpm * this.bpmModifier
   }
 
   getBpmIndexForTime(time: number) {
@@ -97,7 +101,6 @@ class Player {
 
     if (this.song.bpms[this.currentBpm + 1]?.time < time) {
       this.currentBpm++
-      this.bpm = this.song.bpms[this.currentBpm].bpm
     }
 
     if (this.song.measures[this.currentMeasure + 1]?.time < time) {
@@ -162,7 +165,6 @@ class Player {
     this.currentMeasure = this.getMeasureForTime(time).number
     this.currentMeasure--
     this.currentBpm = this.getBpmIndexForTime(time)
-    this.bpm = this.song.bpms[this.currentBpm].bpm
   }
 
   /* Convert between songtime and real human time. Includes bpm calculations*/

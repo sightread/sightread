@@ -1,7 +1,7 @@
 import "./player"
 import React, { useState, useEffect, useRef } from "react"
 import "./App.css"
-import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys, useMousePressed } from "./hooks"
+import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from "./hooks"
 import { Song, parseMusicXML, parseMidi } from "./utils"
 import { WebAudioFontSynth } from "./player"
 import { WindowedSongBoard } from "./WindowedSongboard"
@@ -9,16 +9,12 @@ import { useParams } from "react-router"
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
-function round(value: number, precision: number) {
-  var multiplier = Math.pow(10, precision || 0)
-  return Math.round(value * multiplier) / multiplier
-}
-
 const synth = new WebAudioFontSynth()
 
 function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
+  const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
   const [song, setSong] = useState<Song | null>(null)
@@ -84,6 +80,14 @@ function App() {
           }}
         >
           <i
+            className="fa fa-2x fa-step-backward"
+            style={{ width: 30 }}
+            onClick={() => {
+              player.stop()
+              setPlaying(false)
+            }}
+          ></i>
+          <i
             className={playing ? "fa fa-2x fa-pause" : "fa fa-2x fa-play"}
             style={{ width: 30 }}
             onClick={() => {
@@ -97,13 +101,15 @@ function App() {
             }}
           ></i>
           <i
-            className="fa fa-2x fa-step-backward"
+            className="fa fa-2x fa-repeat"
+            aria-hidden="true"
             style={{ width: 30 }}
             onClick={() => {
-              player.stop()
+              setRangeSelecting(true)
               setPlaying(false)
+              player.pause()
             }}
-          ></i>
+          />
           <i
             className={soundOff ? "fa fa-2x fa-volume-off" : "fa fa-2x fa-volume-up"}
             style={{ width: 30 }}
@@ -118,7 +124,7 @@ function App() {
             }}
           ></i>
         </div>
-        {song && <SongScrubBar song={song} />}
+        {song && <SongScrubBar song={song} rangeSelecting={rangeSelecting} />}
       </div>
       <RuleLines width={width} height={height} />
       {song && <WindowedSongBoard song={song} />}
@@ -166,7 +172,7 @@ function RuleLines({ width, height }: any) {
 
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
-function SongScrubBar({ song }: { song: Song }) {
+function SongScrubBar({ song, rangeSelecting }: { song: Song; rangeSelecting: boolean }) {
   const { player } = usePlayer()
   const { width } = useWindowSize()
   const [mousePressed, setMousePressed] = useState(false)
@@ -176,6 +182,7 @@ function SongScrubBar({ song }: { song: Song }) {
   const timeSpanRef = useRef<HTMLSpanElement>(null)
   const measureSpanRef = useRef<HTMLSpanElement>(null)
   const toolTipRef = useRef<HTMLDivElement>(null)
+  const rangeSelection = useRef<null | { start: number; end?: number }>(null)
 
   useRAFLoop(() => {
     if (!divRef.current) {
@@ -209,15 +216,29 @@ function SongScrubBar({ song }: { song: Song }) {
 
   useEffect(() => {
     if (mousePressed) {
-      const handleUp = () => setMousePressed(false)
-      window.addEventListener("mousemove", seekPlayer)
+      const handleUp = () => {
+        setMousePressed(false)
+        if (rangeSelecting) {
+          // player.setRange(rangeSelection.current)
+        }
+      }
+      const handler = (e: MouseEvent) => {
+        const progress = Math.max(e.clientX / width, 0)
+        const songTime = progress * player.getDuration()
+        if (rangeSelecting) {
+          rangeSelection.current = { start: rangeSelection.current?.start ?? 0, end: songTime }
+        } else {
+          player.seek(songTime)
+        }
+      }
+      window.addEventListener("mousemove", handler)
       window.addEventListener("mouseup", handleUp)
 
       return () => {
-        window.removeEventListener("mousemove", seekPlayer)
+        window.removeEventListener("mousemove", handler)
       }
     }
-  }, [mousePressed])
+  }, [mousePressed, rangeSelecting])
 
   return (
     <div
@@ -226,7 +247,15 @@ function SongScrubBar({ song }: { song: Song }) {
       onMouseDown={() => {
         setMousePressed(true)
       }}
-      onClick={seekPlayer}
+      onClick={(e: React.MouseEvent) => {
+        if (!rangeSelecting) {
+          seekPlayer(e)
+          return
+        }
+        const progress = Math.max(e.clientX / width, 0)
+        const songTime = progress * player.getDuration()
+        rangeSelection.current = { start: songTime }
+      }}
       onMouseOver={() => setMouseOver(true)}
       onMouseOut={() => setMouseOver(false)}
       onMouseMove={(e: React.MouseEvent) => {
