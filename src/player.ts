@@ -171,7 +171,7 @@ class Player {
       return 0
     }
     if (this.song.bpms.length === 1) {
-      return this.getDuration() / this.song.bpms[0].bpm / this.song.divisions
+      return (endTime - startTime) / this.song.bpms[0].bpm / this.song.divisions
     }
 
     let startBpmIndex = this.song.bpms.findIndex((bpm) => bpm.time >= startTime)
