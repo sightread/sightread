@@ -1,7 +1,7 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import "./index.css"
-import App from "./PlaySongPage"
+import PlaySongPage from "./PlaySongPage"
 import SelectSong from "./SelectSongPage"
 import * as serviceWorker from "./serviceWorker"
 import { PlayerProvider } from "./hooks/index"
@@ -14,7 +14,7 @@ function Root() {
       <PlayerProvider>
         <Router>
           <Route path="/" exact component={SelectSong} />
-          <Route path="/play/music/:song_location" component={App} />
+          <Route path="/play/music/:song_location" component={PlaySongPage} />
           <Route path="/staff" component={StaffPage} />
         </Router>
       </PlayerProvider>

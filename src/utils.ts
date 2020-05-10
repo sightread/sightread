@@ -10,6 +10,7 @@ export type SongNote = {
     octave: number
   }
   accidental: number // 1 | -1 | 0
+  velocity?: number
 }
 
 export type Staffs = {
@@ -29,7 +30,7 @@ export type Song = {
   divisions: number
   measures: Array<SongMeasure>
   notes: Array<SongNote>
-  bpm: number
+  bpms: Array<{ time: number; bpm: number }>
 }
 
 export function parseMusicXML(txt: string): Song {
@@ -45,12 +46,15 @@ export function parseMusicXML(txt: string): Song {
   let bpm = 120
   let currTime = 0
   let totalDuration = 0
+  let openTies = new Map() // A tie in music is when a note should be held down for multiple notes.
   let curr = walker.currentNode as HTMLElement
   let currKey = { fifth: 0, mode: "major" }
   let staffs: Staffs = {}
   let notes: Array<SongNote> = []
   let measures: Array<SongMeasure> = []
+  const bpms = []
   const divisions = Number(xml.querySelector("divisions")?.textContent)
+  let part = 0
   while (curr) {
     if (curr.tagName === "clef") {
       let number = Number(curr.getAttribute("number"))
@@ -60,6 +64,7 @@ export function parseMusicXML(txt: string): Song {
       const duration = Number(curr.querySelector("duration")?.textContent?.trim())
       currTime += duration
     } else if (curr.tagName === "note") {
+      let tie = curr.querySelector("tie")
       const step = curr.querySelector("step")?.textContent?.trim() ?? ""
       const octave = Number(curr.querySelector("octave")?.textContent?.trim())
       let duration = Number(curr.querySelector("duration")?.textContent?.trim())
@@ -68,32 +73,51 @@ export function parseMusicXML(txt: string): Song {
         console.error("Error: found a note with no duration.")
         duration = 0
       }
-      const staff = Number(curr.querySelector("staff")?.textContent?.trim())
+      const staff = Number(curr.querySelector("staff")?.textContent?.trim()) || part
       let accidental: any = curr.querySelector("accidental")?.textContent?.trim()
-      if (!accidental) {
+      if (!accidental || accidental === "natural") {
+        accidental = 0
       } else if (accidental === "sharp") {
         accidental = 1
       } else if (accidental === "flat") {
         accidental = -1
-      } else if (accidental === "natural") {
-        accidental = 0
       } else {
         accidental = Number(curr.querySelector("accidental")?.textContent?.trim() ?? 0)
         console.error("JAKE THIS HAPPENED, THERES AN ACCIDENTAL NUMBER IN THE XML", curr.innerHTML)
       }
+      if (curr.querySelector("alter")) {
+        accidental = Number(curr.querySelector("alter")?.textContent?.trim()) ?? 0
+      }
       const isChord = !!curr.querySelector("chord")
-      let time = isChord ? notes[notes.length - 1].time : currTime
+      const lastNoteTime = notes.length > 0 ? notes[notes.length - 1].time : 0
+      let time = isChord ? lastNoteTime : currTime
 
+      const noteValue = getNoteValue(step, octave, currKey.fifth, accidental)
       let note: SongNote = {
         pitch: { step, octave },
         duration,
         time,
-        noteValue: getNoteValue(step, octave, currKey.fifth, accidental),
+        noteValue,
         staff,
         accidental,
       }
+      if (tie) {
+        let type = tie.getAttribute("type")
+        if (type === "stop") {
+          if (openTies.has(noteValue)) {
+            openTies.get(noteValue).duration += duration
+            openTies.delete(noteValue)
+          } else {
+            console.warn("could not close tie", curr)
+          }
+        } else {
+          openTies.set(noteValue, note)
+          notes.push(note)
+        }
+      } else {
+        notes.push(note)
+      }
 
-      notes.push(note)
       // TODO: - is there proper handling of `<chord/>`s ?
       if (!isChord) {
         currTime += duration
@@ -110,7 +134,11 @@ export function parseMusicXML(txt: string): Song {
       }
       currTime += duration
     } else if (curr.tagName === "measure") {
-      measures.push({ time: currTime, number: Number(curr.getAttribute("number")) })
+      const number = Number(curr.getAttribute("number"))
+      // Don't add the same measure multiple times for multi-part xml files.
+      if (!measures.find((m) => m.number === number)) {
+        measures.push({ time: currTime, number })
+      }
     } else if (curr.tagName === "key") {
       const fifth = Number(curr.querySelector("fifths")?.textContent?.trim())
       const mode = curr.querySelector("mode")?.textContent?.trim() ?? ""
@@ -118,13 +146,17 @@ export function parseMusicXML(txt: string): Song {
     } else if (curr.tagName === "sound") {
       if (curr.hasAttribute("tempo")) {
         bpm = Number(curr.getAttribute("tempo"))
+        bpms.push({ time: currTime, bpm })
       }
+    } else if (curr.tagName === "part") {
+      currTime = 0
+      part = Number(curr.getAttribute("id")?.slice(1))
     }
     totalDuration = Math.max(totalDuration, currTime)
     curr = walker.nextNode() as HTMLElement
   }
 
-  return { staffs, duration: totalDuration, measures, divisions, notes, bpm }
+  return { staffs, duration: totalDuration, measures, divisions, notes, bpms }
 }
 
 const nodeFilter = {
@@ -139,6 +171,7 @@ const nodeFilter = {
       "forward",
       "meter",
       "sound",
+      "part",
     ]
     return acceptable.some((name) => name === node.tagName)
       ? NodeFilter.FILTER_ACCEPT
@@ -146,10 +179,17 @@ const nodeFilter = {
   },
 }
 
-function getNoteValue(step: string, octave: number, fifth: number, accidental: number = 0) {
+function getNoteValue(
+  step: string,
+  octave: number,
+  fifth: number,
+  accidental: number = 0,
+  alter: number = 0,
+) {
   // const stepValues: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
   const stepValues: any = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
-  const offset = getSharps(fifth)[step] ?? 0
+  // let offset = getSharps(fifth)[step] ?? 0
+  let offset = 0
 
   if (octave === 0) {
     if (step === "A") {
@@ -164,14 +204,14 @@ function getNoteValue(step: string, octave: number, fifth: number, accidental: n
 ;(window as any).getSharps = getSharps
 function getSharps(fifth: number) {
   const cScale = [0, 2, 3, 5, 7, 8, 10]
-  const thisScale = cScale.map((n) => (n + fifth * 7 + 12) % 12)
+  const thisScale = cScale.map((n) => (((n + fifth * 7 + 12) % 12) + 12) % 12)
   thisScale.sort((a, b) => a - b)
 
   const revIndex = ["A", "B", "C", "D", "E", "F", "G"]
   let sharps: any = {}
   let accidentalOffset = fifth > 0 ? 1 : -1
   cScale.forEach((val, i) => {
-    if (val !== thisScale[i]) {
+    if (!thisScale.includes(val)) {
       sharps[revIndex[i]] = accidentalOffset
     }
   })
@@ -186,7 +226,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
   const parsed = parseMidiFile(midiData)
   console.error("midi", { parsed })
 
-  var bpm = 120
+  const bpms: Array<{ time: number; bpm: number }> = []
   var ticksPerBeat = parsed.header.ticksPerBeat
 
   let currTime = 0
@@ -214,7 +254,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         staff: 0,
         pitch: {} as any,
         accidental: 0,
-        // velocity: midiEvent.velocity
+        velocity: midiEvent.velocity,
       }
       openNotes.set(noteValue, note)
       notes.push(note)
@@ -226,7 +266,8 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         openNotes.delete(noteValue)
       }
     } else if (midiEvent.subType === "setTempo") {
-      bpm = 60000000 / midiEvent.microsecondsPerBeat
+      const bpm = 60000000 / midiEvent.microsecondsPerBeat
+      bpms.push({ time: (currTime / ticksPerBeat) * 4, bpm })
     } else if (midiEvent.subType === "timeSignature") {
       timeSignature = midiEvent
     }
@@ -249,7 +290,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     measures: measures,
     notes: notes,
     staffs: {},
-    bpm,
+    bpms,
   }
 }
 

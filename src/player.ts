@@ -5,12 +5,14 @@ const AudioContext = window.AudioContext || (window as any).webkitAudioContext
 
 let audioContext = new AudioContext()
 
+// TODO: handle changing tempo
 class Player {
   song!: Song
   bpm: number = 0 // right now assuming bpm means quarter notes per minute
   playInterval: any = null
   currentSongTime = 0
   currentMeasure = 0
+  currentBpm = 0
   currentIndex = 0
   lastIntervalFiredTime = 0
   notes: Array<any> = []
@@ -23,7 +25,8 @@ class Player {
   setSong(song: Song) {
     this.song = song
     this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
-    this.bpm = song.bpm
+    this.currentBpm = 0
+    this.bpm = song.bpms[this.currentBpm]?.bpm ?? 120
     this.songDuration = 0
     this.currentIndex = 0
     this.currentSongTime = 0
@@ -56,11 +59,20 @@ class Player {
     return this.currentSongTime
   }
 
+  getBpmIndexForTime(time: number) {
+    let index = this.song.bpms.findIndex((m) => m.time > time) - 1
+    if (index < 0) {
+      index = this.song.bpms.length - 1
+    }
+    return index
+  }
+
   getMeasureForTime(time: number) {
-    return (
-      this.song.measures.find((m) => m.time > time) ??
-      this.song.measures[this.song.measures.length - 1]
-    )
+    let index = this.song.measures.findIndex((m) => m.time > time) - 1
+    if (index < 0) {
+      index = this.song.measures.length - 1
+    }
+    return this.song.measures[index]
   }
 
   play() {
@@ -81,6 +93,11 @@ class Player {
     // If at the end of the song, then reset.
     if (this.currentIndex >= this.notes.length && this.playing.length === 0) {
       this.pause()
+    }
+
+    if (this.song.bpms[this.currentBpm + 1]?.time < time) {
+      this.currentBpm++
+      this.bpm = this.song.bpms[this.currentBpm].bpm
     }
 
     if (this.song.measures[this.currentMeasure + 1]?.time < time) {
@@ -144,6 +161,42 @@ class Player {
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentMeasure = this.getMeasureForTime(time).number
     this.currentMeasure--
+    this.currentBpm = this.getBpmIndexForTime(time)
+    this.bpm = this.song.bpms[this.currentBpm].bpm
+  }
+
+  /* Convert between songtime and real human time. Includes bpm calculations*/
+  getRealTimeDuration(startTime: number, endTime: number) {
+    if (!this.song) {
+      return 0
+    }
+    if (this.song.bpms.length === 1) {
+      return this.getDuration() / this.song.bpms[0].bpm / this.song.divisions
+    }
+
+    let startBpmIndex = this.song.bpms.findIndex((bpm) => bpm.time >= startTime)
+    let endBpmIndex = this.song.bpms.findIndex((bpm) => bpm.time >= endTime)
+    if (startBpmIndex === -1) {
+      startBpmIndex = 0
+    }
+    if (endBpmIndex === -1) {
+      endBpmIndex = this.song.bpms.length - 1
+    }
+
+    let realTime = 0
+    while (startBpmIndex < endBpmIndex) {
+      const startSongTime = this.song.bpms[startBpmIndex].time
+      const endSongTime = this.song.bpms[startBpmIndex + 1]?.time
+
+      realTime +=
+        (endSongTime - startSongTime) / this.song.bpms[startBpmIndex].bpm / this.song.divisions
+      startBpmIndex++
+    }
+    realTime +=
+      (endTime - this.song.bpms[startBpmIndex].time) /
+      this.song.bpms[startBpmIndex].bpm /
+      this.song.divisions
+    return realTime
   }
 
   getPressedKeys() {

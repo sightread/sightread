@@ -236,7 +236,8 @@ function SongScrubBar({ song }: { song: Song }) {
           const measure = player.getMeasureForTime(songTime)
           toolTipRef.current.style.left = `${Math.min(width - 200, e.clientX)}px`
           measureSpanRef.current.innerText = String(measure.number)
-          timeSpanRef.current.innerText = formatTime((songTime / player.bpm / song.divisions) * 60)
+          // timeSpanRef.current.innerText = formatTime((songTime / player.bpm / song.divisions) * 60)
+          timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime) * 60)
         }
       }}
     >
@@ -265,7 +266,8 @@ function SongScrubBar({ song }: { song: Song }) {
         style={{ position: "absolute", bottom: 1, left: 4, color: "#242632", fontSize: 12 }}
       ></span>
       <span style={{ position: "absolute", bottom: 1, right: 4, color: "#242632", fontSize: 12 }}>
-        {formatTime((player.getDuration() / song.divisions / player.bpm) * 60)}
+        {formatTime(player.getRealTimeDuration(0, song.duration) * 60)}
+        {/* {formatTime((player.getDuration() / song.divisions / player.bpm) * 60)} */}
       </span>
       <div
         style={{
