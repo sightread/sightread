@@ -184,7 +184,7 @@ function SongScrubBar({ song }: { song: Song }) {
     const progress = Math.min(player.getTime() / player.getDuration(), 1)
     divRef.current.style.transform = `translateX(${progress * width}px)`
     if (currentTimeRef.current) {
-      const time = player.getTime() / player.bpm / song.divisions
+      const time = player.getRealTimeDuration(0, player.getTime())
       currentTimeRef.current.innerText = String(formatTime(time * 60))
     }
   })
