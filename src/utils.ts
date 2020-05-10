@@ -45,8 +45,10 @@ export function parseMusicXML(txt: string): Song {
 
   let bpm = 120
   let currTime = 0
+  let currMeasure = 1
   let totalDuration = 0
   let openTies = new Map() // A tie in music is when a note should be held down for multiple notes.
+  let repeatStart: number = 1
   let curr = walker.currentNode as HTMLElement
   let currKey = { fifth: 0, mode: "major" }
   let staffs: Staffs = {}
@@ -139,6 +141,7 @@ export function parseMusicXML(txt: string): Song {
       if (!measures.find((m) => m.number === number)) {
         measures.push({ time: currTime, number })
       }
+      currMeasure = number
     } else if (curr.tagName === "key") {
       const fifth = Number(curr.querySelector("fifths")?.textContent?.trim())
       const mode = curr.querySelector("mode")?.textContent?.trim() ?? ""
@@ -151,6 +154,20 @@ export function parseMusicXML(txt: string): Song {
     } else if (curr.tagName === "part") {
       currTime = 0
       part = Number(curr.getAttribute("id")?.slice(1))
+    } else if (curr.tagName === "repeat") {
+      // TODO: will repeat multiple part's notes. should only be one part.
+      if (curr.getAttribute("direction") === "backward") {
+        const startMeasure: SongMeasure = measures.find((m) => m.number === repeatStart)!
+        const repeatNotes = notes.slice(notes.findIndex((note) => note.time >= startMeasure.time))
+        const dt = currTime - startMeasure.time
+        for (let note of repeatNotes) {
+          const newNote = { ...note, time: note.time + dt }
+          notes.push(newNote)
+        }
+        currTime += dt
+      } else if (curr.getAttribute("direction") === "forward") {
+        repeatStart = currMeasure
+      }
     }
     totalDuration = Math.max(totalDuration, currTime)
     curr = walker.nextNode() as HTMLElement
@@ -172,6 +189,7 @@ const nodeFilter = {
       "meter",
       "sound",
       "part",
+      "repeat",
     ]
     return acceptable.some((name) => name === node.tagName)
       ? NodeFilter.FILTER_ACCEPT
