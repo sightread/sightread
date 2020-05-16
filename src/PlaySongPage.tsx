@@ -314,7 +314,7 @@ function SongScrubBar({
           const progress = e.clientX / width
           const songTime = progress * player.getDuration()
           const measure = player.getMeasureForTime(songTime)
-          toolTipRef.current.style.left = `${Math.min(width - 200, e.clientX)}px`
+          toolTipRef.current.style.left = `${Math.min(width - 150, e.clientX + 10)}px`
           measureSpanRef.current.innerText = String(measure.number)
           // timeSpanRef.current.innerText = formatTime((songTime / player.bpm / song.divisions) * 60)
           timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime) * 60)
