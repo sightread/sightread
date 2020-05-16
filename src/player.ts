@@ -1,6 +1,6 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { Song } from "./utils"
+import { Song, SongNote } from "./utils"
 const AudioContext = window.AudioContext || (window as any).webkitAudioContext
 
 let audioContext = new AudioContext()
@@ -9,7 +9,6 @@ class Player {
   song!: Song
   playInterval: any = null
   currentSongTime = 0
-  currentMeasure = 0
   // right now assuming bpm means quarter notes per minute
   currentBpm = 0
   currentIndex = 0
@@ -21,6 +20,8 @@ class Player {
   handlers: any = {}
   songDuration = 0
   bpmModifier = 1
+  range: null | [number, number] = null
+  hand = "both"
 
   setSong(song: Song) {
     this.song = song
@@ -29,7 +30,6 @@ class Player {
     this.songDuration = 0
     this.currentIndex = 0
     this.currentSongTime = 0
-    this.currentMeasure = 0
     for (const note of this.notes) {
       this.songDuration = Math.max(note.time + note.duration, this.songDuration)
     }
@@ -44,22 +44,17 @@ class Player {
   }
 
   getTime() {
-    const isPlaying = !!this.playInterval
-
-    // this getter also steps the time forward.
-    let dt = 0
-    if (isPlaying) {
-      const now = performance.now()
-      dt = now - this.lastIntervalFiredTime
-      this.lastIntervalFiredTime = now
-      this.currentSongTime += (dt / 1000 / 60) * this.getBpm() * this.song.divisions
-    }
-
+    this.playLoop_()
     return this.currentSongTime
   }
 
   getBpm() {
     return this.song.bpms[this.currentBpm].bpm * this.bpmModifier
+  }
+
+  setHand(hand: any) {
+    this.hand = hand
+    ;(this as any).onChange?.({})
   }
 
   getBpmIndexForTime(time: number) {
@@ -86,24 +81,52 @@ class Player {
     this.lastIntervalFiredTime = performance.now()
     this.playInterval = setInterval(() => this.playLoop_(), 16)
     // continue playing everything we were in the middle of, but at a lower vol
-    this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue, this.volume / 4))
+    this.playing.forEach((note) => this.playNoteValue(note, this.volume / 4))
+  }
+
+  playNoteValue(note: SongNote, vol: number) {
+    if ((this.hand === "left" && note.staff === 2) || (this.hand === "right" && note.staff === 1)) {
+      return
+    }
+    this.synth.playNoteValue(note.noteValue, vol)
+  }
+
+  updateTime_() {
+    const isPlaying = !!this.playInterval
+
+    // this getter also steps the time forward.
+    let dt = 0
+    if (isPlaying) {
+      const now = performance.now()
+      dt = now - this.lastIntervalFiredTime
+      this.lastIntervalFiredTime = now
+      this.currentSongTime += (dt / 1000 / 60) * this.getBpm() * this.song.divisions
+    }
+
+    return this.currentSongTime
   }
 
   playLoop_() {
     let pressedChanged = false
-    const time = this.getTime()
+    const prevTime = this.currentSongTime
+    const time = this.updateTime_()
 
     // If at the end of the song, then reset.
     if (this.currentIndex >= this.notes.length && this.playing.length === 0) {
       this.pause()
     }
 
-    if (this.song.bpms[this.currentBpm + 1]?.time < time) {
-      this.currentBpm++
+    // If a range is selected and you just got past it then zoom back
+    if (this.range) {
+      let [start, stop] = this.range
+      if (prevTime <= stop && stop <= time) {
+        this.seek(start)
+        return
+      }
     }
 
-    if (this.song.measures[this.currentMeasure + 1]?.time < time) {
-      this.currentMeasure++
+    if (this.song.bpms[this.currentBpm + 1]?.time < time) {
+      this.currentBpm++
     }
 
     this.playing = this.playing.filter((note) => {
@@ -115,9 +138,9 @@ class Player {
       return false
     })
 
-    while (this.notes[this.currentIndex]?.time <= time) {
+    while (this.notes[this.currentIndex]?.time < time) {
       const note = this.notes[this.currentIndex]
-      this.synth.playNoteValue(note.noteValue, this.volume / 2)
+      this.playNoteValue(note, this.volume / 2)
       this.playing.push(note)
       this.currentIndex++
       pressedChanged = true
@@ -126,10 +149,6 @@ class Player {
     if (pressedChanged) {
       ;(this as any).onChange?.({})
     }
-  }
-
-  getMeasure() {
-    return this.currentMeasure
   }
 
   stopAllSounds() {
@@ -158,11 +177,9 @@ class Player {
       return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
     })
     if (!!this.playInterval) {
-      this.playing.forEach((note) => this.synth.playNoteValue(note.noteValue), this.volume / 2)
+      this.playing.forEach((note) => this.playNoteValue(note, this.volume / 2))
     }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
-    this.currentMeasure = this.getMeasureForTime(time).number
-    this.currentMeasure--
     this.currentBpm = this.getBpmIndexForTime(time)
   }
 
@@ -202,7 +219,15 @@ class Player {
 
   getPressedKeys() {
     let ret: any = {}
-    this.playing.forEach((note) => (ret[note.noteValue] = note))
+    this.playing.forEach((note) => {
+      if (
+        (this.hand === "left" && note.staff === 2) ||
+        (this.hand === "right" && note.staff === 1)
+      ) {
+        return
+      }
+      ret[note.noteValue] = note
+    })
     return ret
   }
 
@@ -210,8 +235,14 @@ class Player {
     return this.songDuration
   }
 
-  setRange({ start, end }: { start: number; end: number }) {
-    console.error({ start, end })
+  setRange(range: { start: number; end: number } | null) {
+    if (range === null) {
+      this.range = range
+      return
+    }
+
+    const { start, end } = range
+    this.range = [Math.min(start, end), Math.max(start, end)]
   }
 }
 

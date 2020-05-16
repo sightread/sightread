@@ -60,7 +60,7 @@ function getNoteLanes(width: any) {
   return notes
 }
 
-export function WindowedSongBoard({ song }: { song: Song }) {
+export function WindowedSongBoard({ song, hand }: { song: Song; hand: string }) {
   const windowSize = useWindowSize()
   const { player } = usePlayer()
   const { duration } = song
@@ -83,7 +83,7 @@ export function WindowedSongBoard({ song }: { song: Song }) {
     innerRef.current.style.transform = `translateY(${offset}px)`
 
     //  can heavily optimize this part. only do calculations once ever Npx difference.
-    const newIndexes = itemsCache.getRenderRange(player.getTime())
+    const newIndexes = itemsCache.getRenderRange(player.getTime(), hand)
     if (startAndStopIndex[0] !== newIndexes[0] || startAndStopIndex[1] !== newIndexes[1]) {
       setIndexes(newIndexes)
     }
@@ -93,7 +93,20 @@ export function WindowedSongBoard({ song }: { song: Song }) {
     return <> </>
   }
 
-  const [startIndex, stopIndex] = itemsCache.getRenderRange(player.getTime())
+  const [startIndex, stopIndex] = itemsCache.getRenderRange(player.getTime(), hand)
+  const getHandItems = () => {
+    switch (hand) {
+      case "both":
+        return itemsCache.hands.items
+      case "left":
+        return itemsCache.hands.leftItems
+      case "right":
+        return itemsCache.hands.rightItems
+      default:
+        console.error("should not get here in getHandItems()")
+        return []
+    }
+  }
   // console.count('WindowedSongBoardRenders')
   return (
     <div
@@ -113,7 +126,7 @@ export function WindowedSongBoard({ song }: { song: Song }) {
         }}
         ref={innerRef}
       >
-        {itemsCache.items.slice(startIndex, stopIndex)}
+        {getHandItems().slice(startIndex, stopIndex)}
       </div>
     </div>
   )
@@ -128,6 +141,8 @@ function calculateCache(song: Song, windowSize: any): any {
 
   const positions = new Map()
   const items: JSX.Element[] = []
+  const leftItems: JSX.Element[] = []
+  const rightItems: JSX.Element[] = []
 
   song.measures.forEach((m) => {
     const offset = getTimeOffset(song, m.time)
@@ -136,6 +151,8 @@ function calculateCache(song: Song, windowSize: any): any {
     )
     positions.set(item, { start: offset, end: offset - 15 })
     items.push(item)
+    leftItems.push(item)
+    rightItems.push(item)
   })
 
   const lanes = getNoteLanes(windowWidth)
@@ -155,37 +172,61 @@ function calculateCache(song: Song, windowSize: any): any {
     )
     positions.set(item, { start: offset, end: getTimeOffset(song, note.time + note.duration) })
     items.push(item)
+    if (note.staff === 1) {
+      leftItems.push(item)
+    } else {
+      rightItems.push(item)
+    }
   })
 
   items.sort((item1: any, item2: any) => -(positions.get(item1).start - positions.get(item2).start))
+  leftItems.sort(
+    (item1: any, item2: any) => -(positions.get(item1).start - positions.get(item2).start),
+  )
+  rightItems.sort(
+    (item1: any, item2: any) => -(positions.get(item1).start - positions.get(item2).start),
+  )
+  function getHandItems() {}
 
-  function getRenderRange(time: number) {
+  function getRenderRange(time: number, hand: string) {
     const viewportBottom = getTimeOffset(song, time)
     // always have an extra half viewport overscanned in the scan direction
     const viewportTop = viewportBottom - windowHeight * 1.5
 
-    let firstIndex = 0
-    for (let i = 1; i < items.length; i++) {
-      const position = positions.get(items[i])
-      if (position.end <= viewportBottom) {
-        firstIndex = i
-        break
+    function getRangeForHand(handArray: JSX.Element[]) {
+      let firstIndex = 0
+      for (let i = 1; i < handArray.length; i++) {
+        const position = positions.get(handArray[i])
+        if (position.end <= viewportBottom) {
+          firstIndex = i
+          break
+        }
       }
-    }
 
-    let lastIndex = items.length - 1
-    for (let i = lastIndex - 1; i > 0; i--) {
-      const position = positions.get(items[i])
-      if (position.start >= viewportTop) {
-        lastIndex = i
-        break
+      let lastIndex = handArray.length - 1
+      for (let i = lastIndex - 1; i > 0; i--) {
+        const position = positions.get(handArray[i])
+        if (position.start >= viewportTop) {
+          lastIndex = i
+          break
+        }
       }
-    }
 
-    return [firstIndex, lastIndex]
+      return [firstIndex, lastIndex]
+    }
+    switch (hand) {
+      case "both":
+        return getRangeForHand(items)
+      case "left":
+        return getRangeForHand(leftItems)
+      case "right":
+        return getRangeForHand(rightItems)
+      default:
+        console.error("should not get here in get render range")
+    }
   }
-
-  return { items, positions, getRenderRange }
+  const hands = { items, leftItems, rightItems }
+  return { hands, positions, getRenderRange }
 }
 
 function isBlack(noteValue: number) {

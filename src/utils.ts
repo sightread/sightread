@@ -43,7 +43,6 @@ export function parseMusicXML(txt: string): Song {
   const xml = new DOMParser().parseFromString(txt, "application/xml")
   const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL, nodeFilter)
 
-  let bpm = 120
   let currTime = 0
   let currMeasure = 1
   let totalDuration = 0
@@ -149,7 +148,7 @@ export function parseMusicXML(txt: string): Song {
       currKey = { fifth, mode }
     } else if (curr.tagName === "sound") {
       if (curr.hasAttribute("tempo")) {
-        bpm = Number(curr.getAttribute("tempo"))
+        const bpm = Number(curr.getAttribute("tempo"))
         bpms.push({ time: currTime, bpm })
       }
     } else if (curr.tagName === "part") {
@@ -172,6 +171,10 @@ export function parseMusicXML(txt: string): Song {
     }
     totalDuration = Math.max(totalDuration, currTime)
     curr = walker.nextNode() as HTMLElement
+  }
+
+  if (bpms.length === 0) {
+    bpms.push({ time: 0, bpm: 120 })
   }
 
   return { staffs, duration: totalDuration, measures, divisions, notes, bpms }
