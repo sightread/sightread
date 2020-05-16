@@ -143,7 +143,22 @@ function App() {
           ></i>
         </div>
         <div style={{ position: "absolute", top: 10, right: 20 }}>
-          <i style={{ width: 30 }} className="fa fa-hand-paper-o" onClick={handleHand}></i>
+          {hand === "both" && (
+            <div className="super-hands" onClick={handleHand} style={{ width: 40 }}>
+              <i style={{ transform: "rotateY(180deg)" }} className="fa fa-hand-paper-o"></i>
+              <i style={{}} className="fa fa-hand-paper-o"></i>
+            </div>
+          )}
+          {hand === "left" && (
+            <i style={{ width: 40 }} className="fa fa-2x fa-hand-paper-o" onClick={handleHand}></i>
+          )}
+          {hand === "right" && (
+            <i
+              style={{ transform: "rotateY(180deg)", width: 40 }}
+              className="fa fa-2x fa-hand-paper-o"
+              onClick={handleHand}
+            ></i>
+          )}
         </div>
         {song && (
           <SongScrubBar

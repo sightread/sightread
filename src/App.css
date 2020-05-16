@@ -13,3 +13,12 @@ body {
 * {
   user-select: none;
 }
+
+.super-hands {
+  color: white;
+  cursor: pointer;
+  transition: color 0.1s;
+}
+.super-hands:hover {
+  color: #3a68e7;
+}
