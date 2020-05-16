@@ -103,7 +103,7 @@ function App() {
           <i
             className="fa fa-2x fa-repeat"
             aria-hidden="true"
-            style={{ width: 30 }}
+            style={{ width: 30, color: rangeSelecting ? "red" : "white" }}
             onClick={() => {
               setRangeSelecting(true)
               setPlaying(false)
@@ -124,7 +124,13 @@ function App() {
             }}
           ></i>
         </div>
-        {song && <SongScrubBar song={song} rangeSelecting={rangeSelecting} />}
+        {song && (
+          <SongScrubBar
+            song={song}
+            rangeSelecting={rangeSelecting}
+            setRangeSelecting={setRangeSelecting}
+          />
+        )}
       </div>
       <RuleLines width={width} height={height} />
       {song && <WindowedSongBoard song={song} />}
@@ -172,7 +178,15 @@ function RuleLines({ width, height }: any) {
 
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
-function SongScrubBar({ song, rangeSelecting }: { song: Song; rangeSelecting: boolean }) {
+function SongScrubBar({
+  song,
+  rangeSelecting,
+  setRangeSelecting,
+}: {
+  song: Song
+  rangeSelecting: boolean
+  setRangeSelecting: any
+}) {
   const { player } = usePlayer()
   const { width } = useWindowSize()
   const [mousePressed, setMousePressed] = useState(false)
@@ -219,7 +233,9 @@ function SongScrubBar({ song, rangeSelecting }: { song: Song; rangeSelecting: bo
       const handleUp = () => {
         setMousePressed(false)
         if (rangeSelecting) {
-          // player.setRange(rangeSelection.current)
+          const { start, end } = rangeSelection.current!
+          player.setRange({ start, end: end ?? 0 })
+          setRangeSelecting(false)
         }
       }
       const handler = (e: MouseEvent) => {

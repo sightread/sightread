@@ -5,7 +5,6 @@ const AudioContext = window.AudioContext || (window as any).webkitAudioContext
 
 let audioContext = new AudioContext()
 
-// TODO: handle changing tempo
 class Player {
   song!: Song
   playInterval: any = null
@@ -80,7 +79,7 @@ class Player {
   }
 
   play() {
-    if (!!this.playInterval) {
+    if (this.playInterval) {
       return
     }
 
@@ -209,6 +208,10 @@ class Player {
 
   getDuration() {
     return this.songDuration
+  }
+
+  setRange({ start, end }: { start: number; end: number }) {
+    console.error({ start, end })
   }
 }
 
