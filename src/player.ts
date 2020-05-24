@@ -30,6 +30,7 @@ class Player {
     this.songDuration = 0
     this.currentIndex = 0
     this.currentSongTime = 0
+    this.bpmModifier = 1
     for (const note of this.notes) {
       this.songDuration = Math.max(note.time + note.duration, this.songDuration)
     }
@@ -49,7 +50,19 @@ class Player {
   }
 
   getBpm() {
-    return this.song.bpms[this.currentBpm].bpm * this.bpmModifier
+    return this.song?.bpms[this.currentBpm].bpm * this.bpmModifier
+  }
+
+  increaseBpm() {
+    this.bpmModifier += 0.05
+  }
+
+  decreaseBpm() {
+    this.bpmModifier -= 0.05
+  }
+
+  getBpmModifier() {
+    return this.bpmModifier
   }
 
   setHand(hand: any) {

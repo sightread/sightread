@@ -1,12 +1,12 @@
 body {
   background-color: #242632;
 }
-#topbar > div > i {
+#topbar i {
   color: white;
   cursor: pointer;
   transition: color 0.1s;
 }
-#topbar > div > i:hover {
+#topbar i:hover {
   color: #3a68e7;
 }
 

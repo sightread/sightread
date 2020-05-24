@@ -16,7 +16,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "downlevelIteration": true
   },
   "include": ["src"],
   "exclude": ["src\\WindowedSongboard.tsx"]

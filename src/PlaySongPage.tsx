@@ -91,7 +91,7 @@ function App() {
             position: "absolute",
             display: "flex",
             justifyContent: "space-around",
-            width: 160,
+            width: 300,
             height: 50,
             top: 10,
             left: width / 2 - 160 / 2,
@@ -140,7 +140,8 @@ function App() {
                 setSoundOff(false)
               }
             }}
-          ></i>
+          />
+          <BpmDisplay />
         </div>
         <div style={{ position: "absolute", top: 10, right: 20 }}>
           {hand === "both" && (
@@ -173,6 +174,36 @@ function App() {
       <div style={{ position: "fixed", bottom: 0, height: getKeyboardHeight(width) }}>
         <PianoRoll width={width} />
       </div>
+    </div>
+  )
+}
+
+function BpmDisplay() {
+  const { player } = usePlayer()
+  const bpmRef = useRef<HTMLSpanElement>(null)
+  const percentRef = useRef<HTMLSpanElement>(null)
+
+  useRAFLoop(() => {
+    if (!bpmRef.current || !percentRef.current) {
+      return
+    }
+
+    bpmRef.current.textContent = Math.floor(player.getBpm()) + " BPM"
+    percentRef.current.textContent = Math.floor(player.getBpmModifier() * 100) + "%"
+  })
+
+  return (
+    <div style={{ width: 120, display: "flex" }} onClick={() => {}}>
+      <i style={{ width: 30 }} className="fa fa-2x fa-minus" onClick={() => player.decreaseBpm()} />
+      <div style={{ display: "flex", flexDirection: "column", color: "white", width: 70 }}>
+        <span style={{ fontSize: 18, marginLeft: 5, marginRight: 5 }} ref={percentRef}>
+          100 %
+        </span>
+        <span style={{ fontSize: 12, marginLeft: 5, marginRight: 5 }} ref={bpmRef}>
+          {player.getBpm()} BPM
+        </span>
+      </div>
+      <i style={{ width: 30 }} className="fa fa-2x fa-plus" onClick={() => player.increaseBpm()} />
     </div>
   )
 }

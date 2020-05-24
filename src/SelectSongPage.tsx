@@ -12,10 +12,6 @@ const headers = [
 const exampleData = [
   {
     title: "Fur Elise",
-    location: "music/3.1.a.Fur_Elise.xml",
-  },
-  {
-    title: "Fur Elise - PIANU Version",
     location: "music/flat-fur-elise-1-piano.xml",
   },
   {
@@ -49,10 +45,6 @@ const exampleData = [
   {
     title: "Fireflies.xml",
     location: "music/fireflies.xml",
-  },
-  {
-    title: "Fireflies.mid",
-    location: "music/fireflies.mid",
   },
   {
     title: "The Office",
