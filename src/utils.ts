@@ -94,7 +94,7 @@ export function parseMusicXML(txt: string): Song {
       const lastNoteTime = notes.length > 0 ? notes[notes.length - 1].time : 0
       let time = isChord ? lastNoteTime : currTime
 
-      const noteValue = getNoteValue(step, octave, currKey.fifth, accidental)
+      const noteValue = getNoteValue(step, octave, accidental)
       let note: SongNote = {
         pitch: { step, octave },
         duration,
@@ -201,13 +201,7 @@ const nodeFilter = {
   },
 }
 
-function getNoteValue(
-  step: string,
-  octave: number,
-  fifth: number,
-  accidental: number = 0,
-  alter: number = 0,
-) {
+export function getNoteValue(step: string, octave: number, accidental: number = 0) {
   // const stepValues: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
   const stepValues: any = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
   // let offset = getSharps(fifth)[step] ?? 0

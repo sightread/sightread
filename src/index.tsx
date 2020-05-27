@@ -4,20 +4,24 @@ import "./index.css"
 import PlaySongPage from "./PlaySongPage"
 import SelectSong from "./SelectSongPage"
 import * as serviceWorker from "./serviceWorker"
-import { PlayerProvider } from "./hooks/index"
+import { PlayerProvider, SongPressedKeysProvider, UserPressedKeysProvider } from "./hooks/index"
 import { BrowserRouter as Router, Route } from "react-router-dom"
 import { StaffPage } from "./StaffPage"
 
 function Root() {
   return (
     <React.StrictMode>
-      <PlayerProvider>
-        <Router>
-          <Route path="/" exact component={SelectSong} />
-          <Route path="/play/music/:song_location" component={PlaySongPage} />
-          <Route path="/staff" component={StaffPage} />
-        </Router>
-      </PlayerProvider>
+      <UserPressedKeysProvider>
+        <SongPressedKeysProvider>
+          <PlayerProvider>
+            <Router>
+              <Route path="/" exact component={SelectSong} />
+              <Route path="/play/music/:song_location" component={PlaySongPage} />
+              <Route path="/staff" component={StaffPage} />
+            </Router>
+          </PlayerProvider>
+        </SongPressedKeysProvider>
+      </UserPressedKeysProvider>
     </React.StrictMode>
   )
 }

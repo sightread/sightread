@@ -1,11 +1,13 @@
-import { useState, useEffect, useContext, useCallback } from 'react'
-import Player from '../player'
-import React from 'react'
+import { useState, useEffect, useContext, useCallback } from "react"
+import Player from "../player"
+import React from "react"
+import { SongNote } from "../utils"
+import midi from "../midi"
 
 export function useMousePressed() {
   const [isPressed, setIsPressed] = useState(false)
-  window.addEventListener('mousedown', () => setIsPressed(true))
-  window.addEventListener('mouseup', () => setIsPressed(false))
+  window.addEventListener("mousedown", () => setIsPressed(true))
+  window.addEventListener("mouseup", () => setIsPressed(false))
 
   return isPressed
 }
@@ -24,8 +26,8 @@ export function useWindowSize() {
       setWindowSize(getSize())
     }
 
-    window.addEventListener('resize', handleResize, { passive: true })
-    return () => window.removeEventListener('resize', handleResize)
+    window.addEventListener("resize", handleResize, { passive: true })
+    return () => window.removeEventListener("resize", handleResize)
   }, [])
 
   return windowSize
@@ -72,15 +74,52 @@ export const PlayerContext = React.createContext({
   player: (null as unknown) as any,
 })
 
+const UserPressedKeysContext = React.createContext<Set<number>>(new Set())
+export function UserPressedKeysProvider({ children }: any) {
+  const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set())
+
+  useEffect(() => {
+    midi.subscribe(setPressedKeys)
+    return () => {
+      midi.unsubscribe(setPressedKeys)
+    }
+  }, [])
+
+  return (
+    <UserPressedKeysContext.Provider value={pressedKeys}>
+      {children}
+    </UserPressedKeysContext.Provider>
+  )
+}
+
+const SongPressedKeysContext = React.createContext<{ [noteValue: number]: SongNote }>({})
+export function SongPressedKeysProvider({ children }: any) {
+  const [pressedKeys, setPressedKeys] = useState<{ [noteValue: number]: SongNote }>({})
+
+  useEffect(() => {
+    player.subscribe(setPressedKeys)
+    return () => {
+      player.unsubscribe(setPressedKeys)
+    }
+  }, [])
+
+  return (
+    <SongPressedKeysContext.Provider value={pressedKeys}>
+      {children}
+    </SongPressedKeysContext.Provider>
+  )
+}
+
 export function usePlayer(): { player: Player } {
   return useContext(PlayerContext)
 }
 
-export function usePressedKeys(): { [key: number]: any } {
-  const [pressedKeys, setPressedKeys] = useState({})
-  const { player } = usePlayer()
-  ;(player as any).onChange = () => setPressedKeys(player.getPressedKeys())
-  return pressedKeys
+export function useSongPressedKeys() {
+  return useContext(SongPressedKeysContext)
+}
+
+export function useUserPressedKeys() {
+  return useContext(UserPressedKeysContext)
 }
 
 const player = new Player()

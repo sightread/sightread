@@ -1,9 +1,15 @@
 import "./player"
 import React, { useState, useEffect, useRef } from "react"
 import "./App.css"
-import { useWindowSize, usePlayer, useRAFLoop, usePressedKeys } from "./hooks"
+import {
+  useWindowSize,
+  usePlayer,
+  useRAFLoop,
+  useSongPressedKeys,
+  useUserPressedKeys,
+} from "./hooks"
 import { Song, parseMusicXML, parseMidi } from "./utils"
-import { WebAudioFontSynth } from "./player"
+import { WebAudioFontSynth } from "./synth"
 import { WindowedSongBoard } from "./WindowedSongboard"
 import { useParams } from "react-router"
 
@@ -140,6 +146,12 @@ function App() {
                 setSoundOff(false)
               }
             }}
+          />
+          <i
+            className="fa fa-2x fa-clock-o"
+            aria-hidden="true"
+            style={{ width: 30 }}
+            onClick={() => player.setWait(!player.wait)}
           />
           <BpmDisplay />
         </div>
@@ -496,10 +508,10 @@ function isBlack(noteValue: number) {
 
 const MemoedPianoNote = React.memo(PianoNote)
 function PianoRoll({ width }: any) {
-  const pressedKeys = usePressedKeys()
+  const pressedKeys: any = useSongPressedKeys()
   const notes = getKeyPositions(width).map((note: any, i: any) => {
     let color = note.color
-    if (pressedKeys[i]) {
+    if (i in pressedKeys) {
       let { staff, noteValue } = pressedKeys[i]
       const hand = staff === 1 ? "left-hand" : "right-hand"
       if (hand === "left-hand") {
@@ -543,6 +555,8 @@ window.addEventListener("mouseup", () => (isMouseDown = false), { passive: true 
 
 function PianoNote({ left, width, color, height, noteValue }: any) {
   const [userPressed, setUserPressed] = useState(false)
+  const midiKeys: Set<number> = useUserPressedKeys()
+  let pressed = userPressed || midiKeys.has(noteValue)
   return (
     <div
       style={{
@@ -552,7 +566,7 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
         left,
         width,
         height,
-        backgroundColor: userPressed ? "grey" : color,
+        backgroundColor: pressed ? "grey" : color,
         zIndex: isBlack(noteValue) ? 1 : 0,
         userSelect: "none",
         borderBottomLeftRadius: "8px",
