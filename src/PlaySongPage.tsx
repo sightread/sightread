@@ -555,7 +555,7 @@ window.addEventListener("mouseup", () => (isMouseDown = false), { passive: true 
 
 function PianoNote({ left, width, color, height, noteValue }: any) {
   const [userPressed, setUserPressed] = useState(false)
-  const midiKeys: Set<number> = useUserPressedKeys()
+  const midiKeys: Set<number> = new Set(useUserPressedKeys().keys())
   let pressed = userPressed || midiKeys.has(noteValue)
   return (
     <div

@@ -49,7 +49,6 @@ export function parseMusicXML(txt: string): Song {
   let openTies = new Map() // A tie in music is when a note should be held down for multiple notes.
   let repeatStart: number = 1
   let curr = walker.currentNode as HTMLElement
-  let currKey = { fifth: 0, mode: "major" }
   let staffs: Staffs = {}
   let notes: Array<SongNote> = []
   let measures: Array<SongMeasure> = []
@@ -145,7 +144,6 @@ export function parseMusicXML(txt: string): Song {
     } else if (curr.tagName === "key") {
       const fifth = Number(curr.querySelector("fifths")?.textContent?.trim())
       const mode = curr.querySelector("mode")?.textContent?.trim() ?? ""
-      currKey = { fifth, mode }
     } else if (curr.tagName === "sound") {
       if (curr.hasAttribute("tempo")) {
         const bpm = Number(curr.getAttribute("tempo"))
@@ -263,11 +261,15 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         note.duration = currTime - note.time
         openNotes.delete(noteValue)
       }
+      let staff = parsed.header.formatType === 0 ? 0 : orderedEvent.track
+      if (parsed.tracks.length === 3) {
+        staff--
+      }
       const note: SongNote = {
         time: currTime,
         duration: 0,
         noteValue,
-        staff: 0,
+        staff,
         pitch: {} as any,
         accidental: 0,
         velocity: midiEvent.velocity,

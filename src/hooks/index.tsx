@@ -74,9 +74,9 @@ export const PlayerContext = React.createContext({
   player: (null as unknown) as any,
 })
 
-const UserPressedKeysContext = React.createContext<Set<number>>(new Set())
+const UserPressedKeysContext = React.createContext<Map<number, number>>(new Map())
 export function UserPressedKeysProvider({ children }: any) {
-  const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set())
+  const [pressedKeys, setPressedKeys] = useState<Map<number, number>>(new Map())
 
   useEffect(() => {
     midi.subscribe(setPressedKeys)

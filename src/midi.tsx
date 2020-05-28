@@ -55,9 +55,9 @@ const qwertyStepConfig: { [key: string]: { step: string; alter?: number } } = {
   p: { step: "G", alter: 1 },
 }
 
-class MidiStateProvider {
+class MidiState {
   octave = 4
-  pressedNotes = new Set<number>()
+  pressedNotes = new Map<number, number>()
   synth: any = new WebAudioFontSynth()
   listeners: Array<Function> = []
 
@@ -96,12 +96,12 @@ class MidiStateProvider {
     }
   }
 
-  getPressedNotes(): Set<number> {
+  getPressedNotes(): Map<number, number> {
     return this.pressedNotes
   }
 
   press(noteValue: number) {
-    this.pressedNotes.add(noteValue)
+    this.pressedNotes.set(noteValue, Date.now())
     this.synth.playNoteValue(noteValue)
     this.notify()
   }
@@ -113,7 +113,7 @@ class MidiStateProvider {
   }
 
   notify() {
-    const clone = new Set(this.pressedNotes)
+    const clone = new Map(this.pressedNotes)
     this.listeners.forEach((fn) => fn(clone))
   }
 
@@ -127,7 +127,7 @@ class MidiStateProvider {
   }
 }
 
-const provider = new MidiStateProvider()
+const provider = new MidiState()
 
 function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
   const msg: MidiEvent | null = parseMidiMessage(e)

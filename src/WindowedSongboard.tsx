@@ -186,7 +186,6 @@ function calculateCache(song: Song, windowSize: any): any {
   rightItems.sort(
     (item1: any, item2: any) => -(positions.get(item1).start - positions.get(item2).start),
   )
-  function getHandItems() {}
 
   function getRenderRange(time: number, hand: string) {
     const viewportBottom = getTimeOffset(song, time)
@@ -250,6 +249,7 @@ function SongNote({ note, noteLength, width, posX, offset }: any) {
       className={className}
     >
       {/* {note.pitch.step},{note.pitch.octave},{note.noteValue} */}
+      {note.pitch.step}
     </div>
   )
 }

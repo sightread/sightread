@@ -23,6 +23,7 @@ class Player {
   hand = "both"
   listeners: Array<Function> = []
   wait = false
+  lastPressedKeys = new Map<number, number>()
 
   setWait(wait: boolean) {
     this.wait = wait
@@ -159,7 +160,7 @@ class Player {
       if (note.time + note.duration > time) {
         return true
       }
-      this.stopNoteValues([note.noteValue])
+      this.stopNoteValues([note])
       return false
     })
 
@@ -171,13 +172,17 @@ class Player {
       }
 
       if (this.wait) {
-        if (!midi.getPressedNotes().has(note.noteValue)) {
+        if (
+          !midi.getPressedNotes().has(note.noteValue) ||
+          midi.getPressedNotes().get(note.noteValue) === this.lastPressedKeys.get(note.noteValue)
+        ) {
           this.currentSongTime = note.time
           return
         }
+        this.lastPressedKeys.set(note.noteValue, midi.getPressedNotes().get(note.noteValue)!)
       }
-      this.playNoteValue(note, this.volume / 2)
       this.playing.push(note)
+      this.playNoteValue(note, this.volume / 2)
       this.currentIndex++
     }
   }
