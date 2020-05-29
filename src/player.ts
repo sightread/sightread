@@ -24,6 +24,7 @@ class Player {
   listeners: Array<Function> = []
   wait = false
   lastPressedKeys = new Map<number, number>()
+  dirty = false
 
   setWait(wait: boolean) {
     this.wait = wait
@@ -50,8 +51,13 @@ class Player {
   }
 
   getTime() {
-    this.playLoop_()
-    return this.currentSongTime
+    if (!this.playInterval) {
+      return this.currentSongTime
+    }
+
+    const now = performance.now()
+    const dt = now - this.lastIntervalFiredTime
+    return this.currentSongTime + (dt / 1000 / 60) * this.getBpm() * this.song.divisions
   }
 
   getBpm() {
@@ -99,6 +105,7 @@ class Player {
     this.playInterval = setInterval(() => this.playLoop_(), 16)
     // continue playing everything we were in the middle of, but at a lower vol
     this.playing.forEach((note) => this.playNoteValue(note, this.volume / 4))
+    this.notify()
   }
 
   isActive(note: SongNote) {
@@ -110,14 +117,17 @@ class Player {
 
   playNoteValue(note: SongNote, vol: number) {
     this.synth.playNoteValue(note.noteValue, vol)
-    this.notify()
+    this.dirty = true
   }
 
   stopNoteValues(notes: Array<SongNote>) {
+    if (notes.length === 0) {
+      return
+    }
     for (let note of notes) {
       this.synth.stopNoteValue(note.noteValue)
     }
-    this.notify()
+    this.dirty = true
   }
 
   updateTime_() {
@@ -155,14 +165,9 @@ class Player {
     if (this.song.bpms[this.currentBpm + 1]?.time < time) {
       this.currentBpm++
     }
-
-    this.playing = this.playing.filter((note) => {
-      if (note.time + note.duration > time) {
-        return true
-      }
-      this.stopNoteValues([note])
-      return false
-    })
+    const stillPlaying = (n: SongNote) => n.time + n.duration > time
+    this.stopNoteValues(this.playing.filter((n) => !stillPlaying(n)))
+    this.playing = this.playing.filter(stillPlaying)
 
     while (this.notes[this.currentIndex]?.time < time) {
       const note = this.notes[this.currentIndex]
@@ -185,10 +190,12 @@ class Player {
       this.playNoteValue(note, this.volume / 2)
       this.currentIndex++
     }
+    this.notify()
   }
 
   stopAllSounds() {
     this.stopNoteValues(this.playing)
+    this.notify()
   }
 
   pause() {
@@ -215,6 +222,7 @@ class Player {
     }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentBpm = this.getBpmIndexForTime(time)
+    this.notify()
   }
 
   /* Convert between songtime and real human time. Includes bpm calculations*/
@@ -227,11 +235,11 @@ class Player {
     }
 
     let startBpmIndex = this.song.bpms.findIndex((bpm) => bpm.time >= startTime)
-    let endBpmIndex = this.song.bpms.findIndex((bpm) => bpm.time >= endTime)
+    let endBpmIndex = this.song.bpms.findIndex((bpm) => bpm.time >= endTime) - 1
     if (startBpmIndex === -1) {
       startBpmIndex = 0
     }
-    if (endBpmIndex === -1) {
+    if (endBpmIndex < 0) {
       endBpmIndex = this.song.bpms.length - 1
     }
 
@@ -248,6 +256,7 @@ class Player {
       (endTime - this.song.bpms[startBpmIndex].time) /
       this.song.bpms[startBpmIndex].bpm /
       this.song.divisions
+
     return realTime
   }
 
@@ -285,6 +294,10 @@ class Player {
     this.listeners.slice(i, 1)
   }
   notify() {
+    if (!this.dirty) {
+      return
+    }
+    this.dirty = false
     this.listeners.forEach((fn) => fn(this.getPressedKeys()))
   }
 }

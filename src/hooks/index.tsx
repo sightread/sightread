@@ -55,21 +55,6 @@ export function useRAFLoop(fn: Function) {
   }, [animate]) // Make sure the effect runs only once
 }
 
-// export function useRAFLoop(fn: Function) {
-//   useEffect(() => {
-//     let handle: any
-//     function loop() {
-//       fn()
-//       handle = requestAnimationFrame(loop)
-//     }
-
-//     loop()
-//     return () => {
-//       cancelAnimationFrame(handle)
-//     }
-//   }, [fn])
-// }
-
 export const PlayerContext = React.createContext({
   player: (null as unknown) as any,
 })

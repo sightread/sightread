@@ -374,7 +374,6 @@ function SongScrubBar({
           const measure = player.getMeasureForTime(songTime)
           toolTipRef.current.style.left = `${Math.min(width - 150, e.clientX + 10)}px`
           measureSpanRef.current.innerText = String(measure.number)
-          // timeSpanRef.current.innerText = formatTime((songTime / player.bpm / song.divisions) * 60)
           timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime) * 60)
         }
       }}
@@ -555,7 +554,7 @@ window.addEventListener("mouseup", () => (isMouseDown = false), { passive: true 
 
 function PianoNote({ left, width, color, height, noteValue }: any) {
   const [userPressed, setUserPressed] = useState(false)
-  const midiKeys: Set<number> = new Set(useUserPressedKeys().keys())
+  const midiKeys: Map<number, number> = useUserPressedKeys()
   let pressed = userPressed || midiKeys.has(noteValue)
   return (
     <div
