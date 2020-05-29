@@ -20,6 +20,7 @@ const synth = new WebAudioFontSynth()
 function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
+  const [waiting, setWaiting] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
@@ -150,8 +151,11 @@ function App() {
           <i
             className="fa fa-2x fa-clock-o"
             aria-hidden="true"
-            style={{ width: 30 }}
-            onClick={() => player.setWait(!player.wait)}
+            style={{ width: 30, color: waiting ? "red" : undefined }}
+            onClick={() => {
+              setWaiting(!waiting)
+              player.setWait(!waiting)
+            }}
           />
           <BpmDisplay />
         </div>

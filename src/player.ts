@@ -54,6 +54,16 @@ class Player {
     if (!this.playInterval) {
       return this.currentSongTime
     }
+    if (this.wait) {
+      const nextNote = this.song.notes[this.currentIndex]
+      const isntPressed =
+        !midi.getPressedNotes().has(nextNote.noteValue) ||
+        midi.getPressedNotes().get(nextNote.noteValue) ===
+          this.lastPressedKeys.get(nextNote.noteValue)
+      if (isntPressed) {
+        return this.currentSongTime
+      }
+    }
 
     const now = performance.now()
     const dt = now - this.lastIntervalFiredTime
