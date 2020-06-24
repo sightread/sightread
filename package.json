@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^7.1.2",
     "@types/react-router": "^5.1.5",
     "@types/react-router-dom": "^5.1.4",
+    "@types/vexflow": "^1.2.36",
     "@types/webmidi": "^2.0.4"
   },
   "dependencies": {
@@ -18,7 +19,8 @@
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "vexflow": "^3.0.9"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1488,6 +1488,11 @@
     "@types/testing-library__dom" "*"
     pretty-format "^25.1.0"
 
+"@types/vexflow@^1.2.36":
+  version "1.2.36"
+  resolved "https://registry.yarnpkg.com/@types/vexflow/-/vexflow-1.2.36.tgz#563af838352ede5db48e3822fa77afbdc5cfeca1"
+  integrity sha512-tW5U7oy3dRwpH6sB1YK2Usjlqiux8EA1HNXYi+7ShR5tM57967i3oqNRRVLwjEsx6kpXa9v5t/tPELxjWCbPEw==
+
 "@types/webmidi@^2.0.4":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@types/webmidi/-/webmidi-2.0.4.tgz#d1bb7287d59cc350333d225ce8b3ad4e54c5e6da"
@@ -10322,6 +10327,11 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+vexflow@^3.0.9:
+  version "3.0.9"
+  resolved "https://registry.yarnpkg.com/vexflow/-/vexflow-3.0.9.tgz#85bc89ae5224670d3837d0b34c521b9e69abc89c"
+  integrity sha512-JzDUC3SZvyRxvALv0UrlgCJSH7WzNSShNjXK0rTWqDJscCcytrTWLT3LYtsDvby8qbszdaD708xOe9D79FLTFA==
 
 vm-browserify@^1.0.1:
   version "1.1.2"

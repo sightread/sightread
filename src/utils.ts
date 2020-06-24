@@ -215,6 +215,27 @@ export function getNoteValue(step: string, octave: number, accidental: number = 
   return (octave - 1) * 12 + stepValues[step] + offset + 3 + accidental
 }
 
+export function getPitch(noteValue: number): { octave: number; step: string; alter: number } {
+  const map: any = {
+    0: { step: "C", alter: 0 },
+    1: { step: "C", alter: 1 },
+    2: { step: "D", alter: 0 },
+    3: { step: "D", alter: 1 },
+    4: { step: "E", alter: 0 },
+    5: { step: "F", alter: 0 },
+    6: { step: "F", alter: 1 },
+    7: { step: "G", alter: 0 },
+    8: { step: "G", alter: 1 },
+    9: { step: "A", alter: 0 },
+    10: { step: "A", alter: 1 },
+    11: { step: "B", alter: 0 },
+  }
+  noteValue = noteValue + 1
+  const { step, alter } = map[noteValue % 12]
+
+  return { octave: noteValue / 12 + 1, step, alter }
+}
+
 ;(window as any).getSharps = getSharps
 function getSharps(fifth: number) {
   const cScale = [0, 2, 3, 5, 7, 8, 10]
@@ -270,7 +291,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         duration: 0,
         noteValue,
         staff,
-        pitch: {} as any,
+        pitch: getPitch(noteValue),
         accidental: 0,
         velocity: midiEvent.velocity,
       }
