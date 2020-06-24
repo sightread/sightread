@@ -262,9 +262,9 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         openNotes.delete(noteValue)
       }
       let staff = parsed.header.formatType === 0 ? 0 : orderedEvent.track
-      if (parsed.tracks.length === 3) {
-        staff--
-      }
+      // if (parsed.tracks.length === 3) {
+      //   // staff--
+      // }
       const note: SongNote = {
         time: currTime,
         duration: 0,
