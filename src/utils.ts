@@ -231,9 +231,9 @@ export function getPitch(noteValue: number): { octave: number; step: string; alt
     11: { step: "B", alter: 0 },
   }
   noteValue = noteValue + 1
-  const { step, alter } = map[noteValue % 12]
+  const { step, alter } = map[(noteValue - 3) % 12]
 
-  return { octave: noteValue / 12 + 1, step, alter }
+  return { octave: Math.floor(noteValue / 12) + 2, step, alter }
 }
 
 ;(window as any).getSharps = getSharps

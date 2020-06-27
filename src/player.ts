@@ -55,7 +55,7 @@ class Player {
       return this.currentSongTime
     }
     const nextNote = this.song.notes[this.currentIndex]
-    if (this.wait && this.isActive(nextNote)) {
+    if (this.wait /* && this.isActive(nextNote) */) {
       const isntPressed =
         !midi.getPressedNotes().has(nextNote.noteValue) ||
         midi.getPressedNotes().get(nextNote.noteValue) ===
@@ -118,12 +118,12 @@ class Player {
     this.notify()
   }
 
-  isActive(note: SongNote) {
-    return !(
-      (this.hand === "left" && note.staff === 2) ||
-      (this.hand === "right" && note.staff === 1)
-    )
-  }
+  // isActive(note: SongNote) {
+  //   return !(
+  //     (this.hand === "left" && note.staff === 2) ||
+  //     (this.hand === "right" && note.staff === 1)
+  //   )
+  // }
 
   playNoteValue(note: SongNote, vol: number) {
     this.synth.playNoteValue(note.noteValue, vol)
@@ -181,10 +181,10 @@ class Player {
 
     while (this.notes[this.currentIndex]?.time < time) {
       const note = this.notes[this.currentIndex]
-      if (!this.isActive(note)) {
-        this.currentIndex++
-        continue
-      }
+      // if (!this.isActive(note)) {
+      //   this.currentIndex++
+      //   continue
+      // }
 
       if (this.wait) {
         if (
@@ -273,9 +273,9 @@ class Player {
   getPressedKeys() {
     let ret: any = {}
     for (let note of this.playing) {
-      if (!this.isActive(note)) {
-        continue
-      }
+      // if (!this.isActive(note)) {
+      //   continue
+      // }
       ret[note.noteValue] = note
     }
 

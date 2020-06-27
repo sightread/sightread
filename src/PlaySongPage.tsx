@@ -12,15 +12,18 @@ import { Song, parseMusicXML, parseMidi } from "./utils"
 import { WebAudioFontSynth } from "./synth"
 import { WindowedSongBoard } from "./WindowedSongboard"
 import { useParams } from "react-router"
+import { WindowedStaffBoard } from "./StaffPage"
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
 const synth = new WebAudioFontSynth()
+type viz = "falling-notes" | "sheet"
 
 function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
   const [waiting, setWaiting] = useState(false)
+  const [viz, setViz] = useState<viz>("sheet")
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
@@ -157,6 +160,18 @@ function App() {
               player.setWait(!waiting)
             }}
           />
+          <i
+            className="fa fa-2x fa-music"
+            aria-hidden="true"
+            style={{ width: 30, color: viz === "sheet" ? "red" : undefined }}
+            onClick={() => {
+              if (viz === "sheet") {
+                setViz("falling-notes")
+              } else {
+                setViz("sheet")
+              }
+            }}
+          />
           <BpmDisplay />
         </div>
         <div style={{ position: "absolute", top: 10, right: 20 }}>
@@ -185,8 +200,17 @@ function App() {
           />
         )}
       </div>
-      <RuleLines width={width} height={height} />
-      {song && <WindowedSongBoard song={song} hand={hand} />}
+      {viz === "falling-notes" && song && (
+        <>
+          <RuleLines width={width} height={height} />
+          <WindowedSongBoard song={song} hand={hand} />
+        </>
+      )}
+      {viz === "sheet" && song && (
+        <>
+          <WindowedStaffBoard song={song} />
+        </>
+      )}
       <div style={{ position: "fixed", bottom: 0, height: getKeyboardHeight(width) }}>
         <PianoRoll width={width} />
       </div>

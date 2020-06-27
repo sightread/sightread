@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 // import ReactDOM from "react-dom"
 import Vex from "vexflow"
 import { Song, parseMusicXML, parseMidi, getNoteValue } from "./utils"
-import { usePlayer, useWindowSize } from "./hooks"
+import { usePlayer, useWindowSize, useRAFLoop } from "./hooks"
 
 const VF = Vex.Flow
 
@@ -24,31 +24,35 @@ export function StaffPage() {
   }
   return (
     <div style={{ width: "40000px", backgroundColor: "white" }} className="staffPage">
-      <SongStaff song={song} />
+      <WindowedStaffBoard song={song} />
     </div>
   )
 }
 
-function SongStaff({ song }: { song: Song }) {
-  const { width } = useWindowSize()
+export function WindowedStaffBoard({ song }: { song: Song }) {
+  const windowSize = useWindowSize()
   const divRef = useRef<HTMLDivElement>(null)
+  const outerRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<any>(null)
+  const width = song.duration * 30
+  const { player } = usePlayer()
+
   useEffect(() => {
     if (!divRef) {
       return
     }
 
     // Create an SVG renderer and attach it to the DIV element named "vf".
-    const div = document.getElementById("vf")
     const renderer = new VF.Renderer(divRef.current as any, VF.Renderer.Backends.SVG)
 
     // Configure the rendering context.
-    renderer.resize(40000, 300)
+    renderer.resize(40000, 250)
     const context = renderer.getContext()
     context.setFont("Arial", 10).setBackgroundFillStyle("#eed")
 
     // Create a stave of width 400 at position 10, 40 on the canvas.
-    const staveRight = new VF.Stave(10, 40, 40000)
-    const staveLeft = new VF.Stave(10, 130, 40000)
+    const staveRight = new VF.Stave(10, 20, width)
+    const staveLeft = new VF.Stave(10, 110, width)
 
     // Add a clef and time signature.
     staveRight.addClef("treble").addTimeSignature("4/4")
@@ -58,10 +62,10 @@ function SongStaff({ song }: { song: Song }) {
     staveRight.setContext(context).draw()
     staveLeft.setContext(context).draw()
 
-    let firstNote = song.notes[0]
+    const notesGroup = context.openGroup()
     let vexNotes = song.notes.map((note) => {
       var tickContext = new VF.TickContext()
-      tickContext.preFormat().setX((note.time - firstNote.time) * 30)
+      tickContext.preFormat().setX(50 + note.time * 30)
       let vexNote
       let keys = [`${note.pitch.step.toLowerCase()}/${note.pitch.octave}`]
       if (note.staff == 2) {
@@ -76,9 +80,49 @@ function SongStaff({ song }: { song: Song }) {
       vexNote.draw()
       return vexNote
     })
+    context.closeGroup()
     vexNotes.forEach((vexNote) => {})
+    innerRef.current = notesGroup as HTMLDivElement
   }, [divRef])
-  return <div ref={divRef}> </div>
+
+  useRAFLoop((dt: number) => {
+    if (!outerRef.current || !innerRef.current) {
+      return
+    }
+    const now = player.getTime()
+    let offset = now * 30
+    innerRef.current.style.transform = `translateX(${-offset}px)`
+  })
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        overflow: "hidden",
+        height: windowSize.height,
+        width: windowSize.width,
+      }}
+      ref={outerRef}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: song.duration * 30,
+        }}
+        // ref={innerRef}
+      >
+        <div
+          ref={divRef}
+          style={{
+            position: "absolute",
+            top: "50%",
+            transform: "translateY(-50%)",
+            backgroundColor: "white",
+          }}
+        ></div>
+      </div>
+    </div>
+  )
 }
 
 async function getSong(url: string) {
