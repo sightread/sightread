@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 // import ReactDOM from "react-dom"
 import Vex from "vexflow"
-import { Song, parseMusicXML, parseMidi, getNoteValue } from "./utils"
+import { Song, parseMusicXML, parseMidi, getNoteValue, STAFF } from "./utils"
 import { usePlayer, useWindowSize, useRAFLoop } from "./hooks"
 
 const VF = Vex.Flow
@@ -46,7 +46,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
     const renderer = new VF.Renderer(divRef.current as any, VF.Renderer.Backends.SVG)
 
     // Configure the rendering context.
-    renderer.resize(40000, 250)
+    renderer.resize(width, 250)
     const context = renderer.getContext()
     context.setFont("Arial", 10).setBackgroundFillStyle("#eed")
 
@@ -55,8 +55,9 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
     const staveLeft = new VF.Stave(10, 110, width)
 
     // Add a clef and time signature.
-    staveRight.addClef("treble").addTimeSignature("4/4")
-    staveLeft.addClef("bass").addTimeSignature("4/4")
+    const timeSignature = `${song.timeSignature.numerator}/${song.timeSignature.denominator}`
+    staveRight.addClef("treble").addTimeSignature(timeSignature)
+    staveLeft.addClef("bass").addTimeSignature(timeSignature)
 
     // Connect it to the rendering context and draw!
     staveRight.setContext(context).draw()
@@ -64,11 +65,17 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
 
     const notesGroup = context.openGroup()
     let vexNotes = song.notes.map((note) => {
+      let accidental = ""
+      if (note.accidental === 1) {
+        accidental = "#"
+      } else if (note.accidental === -1) {
+        accidental = "b"
+      }
+
       var tickContext = new VF.TickContext()
-      tickContext.preFormat().setX(50 + note.time * 30)
       let vexNote
-      let keys = [`${note.pitch.step.toLowerCase()}/${note.pitch.octave}`]
-      if (note.staff == 2) {
+      let keys = [`${note.pitch.step.toLowerCase()}${accidental}/${note.pitch.octave}`]
+      if (note.staff === STAFF.trebl) {
         vexNote = new VF.StaveNote({ clef: "treble", keys, duration: "4" })
         vexNote.setStave(staveRight)
       } else {
@@ -76,12 +83,16 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
         vexNote.setStave(staveLeft)
       }
       vexNote.setContext(context)
+      if (accidental) {
+        vexNote.addAccidental(0, new VF.Accidental(accidental))
+      }
       tickContext.addTickable(vexNote)
+      tickContext.preFormat().setX(50 + note.time * 30)
       vexNote.draw()
       return vexNote
     })
     context.closeGroup()
-    vexNotes.forEach((vexNote) => {})
+    ;(notesGroup as any).style.overflow = "hidden"
     innerRef.current = notesGroup as HTMLDivElement
   }, [divRef])
 

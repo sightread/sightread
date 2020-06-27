@@ -1,5 +1,10 @@
 import { parseMidiFile, MidiEvent } from "jasmid.ts"
 
+export const STAFF = {
+  trebl: 1,
+  bass: 2,
+}
+
 export type SongNote = {
   noteValue: number
   staff: number
@@ -31,6 +36,7 @@ export type Song = {
   measures: Array<SongMeasure>
   notes: Array<SongNote>
   bpms: Array<{ time: number; bpm: number }>
+  timeSignature: { numerator: number; denominator: number }
 }
 
 export function parseMusicXML(txt: string): Song {
@@ -55,6 +61,7 @@ export function parseMusicXML(txt: string): Song {
   const bpms = []
   const divisions = Number(xml.querySelector("divisions")?.textContent)
   let part = 0
+  const timeSignature = { numerator: 4, denominator: 4 }
   while (curr) {
     if (curr.tagName === "clef") {
       let number = Number(curr.getAttribute("number"))
@@ -73,7 +80,7 @@ export function parseMusicXML(txt: string): Song {
         console.error("Error: found a note with no duration.")
         duration = 0
       }
-      const staff = Number(curr.querySelector("staff")?.textContent?.trim()) || part
+      let staff = Number(curr.querySelector("staff")?.textContent?.trim()) ?? part
       let accidental: any = curr.querySelector("accidental")?.textContent?.trim()
       if (!accidental || accidental === "natural") {
         accidental = 0
@@ -152,6 +159,9 @@ export function parseMusicXML(txt: string): Song {
     } else if (curr.tagName === "part") {
       currTime = 0
       part = Number(curr.getAttribute("id")?.slice(1))
+    } else if (curr.tagName === "time") {
+      timeSignature.numerator = Number(curr.querySelector("beats")?.textContent) ?? 4
+      timeSignature.denominator = Number(curr.querySelector("beat-type")?.textContent) ?? 4
     } else if (curr.tagName === "repeat") {
       // TODO: will repeat multiple part's notes. should only be one part.
       if (curr.getAttribute("direction") === "backward") {
@@ -175,7 +185,15 @@ export function parseMusicXML(txt: string): Song {
     bpms.push({ time: 0, bpm: 120 })
   }
 
-  return { staffs, duration: totalDuration, measures, divisions, notes, bpms }
+  return {
+    staffs,
+    duration: totalDuration,
+    measures,
+    divisions,
+    notes,
+    bpms,
+    timeSignature,
+  }
 }
 
 const nodeFilter = {
@@ -330,6 +348,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     notes: notes,
     staffs: {},
     bpms,
+    timeSignature,
   }
 }
 
