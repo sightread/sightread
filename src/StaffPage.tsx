@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react"
 import Vex from "vexflow"
 import { Song, parseMusicXML, parseMidi, getNoteValue, STAFF } from "./utils"
 import { usePlayer, useWindowSize, useRAFLoop } from "./hooks"
+import { ReactComponent } from "*.svg"
 
 const VF = Vex.Flow
 
@@ -36,6 +37,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
   const innerRef = useRef<any>(null)
   const width = song.duration * 30
   const { player } = usePlayer()
+  const getXPos = (time: number) => time * 30 + 50
 
   useEffect(() => {
     if (!divRef) {
@@ -59,18 +61,25 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
     staveRight.addClef("treble").addTimeSignature(timeSignature)
     staveLeft.addClef("bass").addTimeSignature(timeSignature)
 
-    // Connect it to the rendering context and draw!
     staveRight.setContext(context).draw()
     staveLeft.setContext(context).draw()
+    // new VF.StaveConnector(staveLeft, staveRight)
+    //   .setType(VF.StaveConnector.type.BOLD_DOUBLE_LEFT)
+    //   .setContext(context)
+    //   .draw()
+
+    const hider = context.openGroup()
+    context.closeGroup()
+    console.log(hider)
 
     const notesGroup = context.openGroup()
-    let vexNotes = song.notes.map((note) => {
-      let accidental = ""
-      if (note.accidental === 1) {
-        accidental = "#"
-      } else if (note.accidental === -1) {
-        accidental = "b"
-      }
+    song.measures.forEach((measure) => {
+      staveRight.drawVerticalBar(getXPos(measure.time) + 65)
+      staveLeft.drawVerticalBar(getXPos(measure.time) + 65)
+    })
+    song.notes.forEach((note) => {
+      const accidental: string =
+        ({ "-2": "bb", "-1": "b", "1": "#", "2": "##" } as any)[note.accidental] ?? ""
 
       var tickContext = new VF.TickContext()
       let vexNote
@@ -87,12 +96,10 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
         vexNote.addAccidental(0, new VF.Accidental(accidental))
       }
       tickContext.addTickable(vexNote)
-      tickContext.preFormat().setX(50 + note.time * 30)
+      tickContext.preFormat().setX(getXPos(note.time))
       vexNote.draw()
-      return vexNote
     })
     context.closeGroup()
-    ;(notesGroup as any).style.overflow = "hidden"
     innerRef.current = notesGroup as HTMLDivElement
   }, [divRef])
 
@@ -118,7 +125,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
       <div
         style={{
           height: "100%",
-          width: song.duration * 30,
+          width,
         }}
         // ref={innerRef}
       >
@@ -130,7 +137,18 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
             transform: "translateY(-50%)",
             backgroundColor: "white",
           }}
-        ></div>
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 50,
+              left: 124,
+              width: 5,
+              height: 150,
+              backgroundColor: "red",
+            }}
+          ></div>
+        </div>
       </div>
     </div>
   )
