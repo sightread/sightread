@@ -16,6 +16,8 @@ export type SongNote = {
   }
   accidental: number // 1 | -1 | 0
   velocity?: number
+  noteType: string // 4 = quarter, 1 = whole, etc.
+  wallDuration: number
 }
 
 export type Staffs = {
@@ -99,7 +101,22 @@ export function parseMusicXML(txt: string): Song {
       const isChord = !!curr.querySelector("chord")
       const lastNoteTime = notes.length > 0 ? notes[notes.length - 1].time : 0
       let time = isChord ? lastNoteTime : currTime
-
+      const noteConversionMap: any = {
+        "16th": "16",
+        eighth: "8",
+        quarter: "4",
+        third: "3",
+        half: "2",
+        whole: "1",
+      }
+      const bpm = bpms[bpms.length - 1]?.bpm ?? 120;
+      const wallDuration = (1/ (bpm/ 60)) * (duration/divisions) 
+      // divisions  , bpm, duration ; 
+      // | beats  |                      =  | beats |   *  |    1   | =     1 
+      // | minute | * (60)ms/minute         |  s    |      |  beats |       s 
+      // bpm / (60) == quarter beats per second
+      // (duration/divisions) =  number of quarter beats
+      // (1 / (bpm/60)) * duration/divisions = seconds
       const noteValue = getNoteValue(step, octave, accidental)
       let note: SongNote = {
         pitch: { step, octave },
@@ -108,6 +125,8 @@ export function parseMusicXML(txt: string): Song {
         noteValue,
         staff,
         accidental,
+        noteType: noteConversionMap[curr.querySelector("type")?.textContent ?? ""] ?? "4",
+        wallDuration
       }
       if (tie) {
         let type = tie.getAttribute("type")
@@ -251,7 +270,7 @@ export function getPitch(noteValue: number): { octave: number; step: string; alt
   noteValue = noteValue + 1
   const { step, alter } = map[(noteValue - 3) % 12]
 
-  return { octave: Math.floor(noteValue / 12) + 2, step, alter }
+  return { octave: Math.floor(noteValue / 12) + 1, step, alter }
 }
 
 ;(window as any).getSharps = getSharps
@@ -300,7 +319,21 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         note.duration = currTime - note.time
         openNotes.delete(noteValue)
       }
-      let staff = parsed.header.formatType === 0 ? 0 : orderedEvent.track
+      let staff = parsed.header.formatType === 0 ? 2 : orderedEvent.track
+      if (parsed.tracks.length === 3) {
+        if (staff === 1) {
+          staff = STAFF.bass
+        } else if (staff === 2) {
+          staff = STAFF.trebl
+        }
+      } else if (parsed.tracks.length === 2) {
+        if (staff === 0) {
+          staff = STAFF.trebl
+        } else {
+          staff = STAFF.bass
+        }
+      }
+
       // if (parsed.tracks.length === 3) {
       //   // staff--
       // }
@@ -312,6 +345,8 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         pitch: getPitch(noteValue),
         accidental: 0,
         velocity: midiEvent.velocity,
+        noteType: "4",
+        wallDuration: Math.random()
       }
       openNotes.set(noteValue, note)
       notes.push(note)

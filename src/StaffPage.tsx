@@ -24,7 +24,7 @@ export function StaffPage() {
     return <span> Loading...</span>
   }
   return (
-    <div style={{ width: "40000px", backgroundColor: "white" }} className="staffPage">
+    <div style={{ width: "100%", backgroundColor: "white" }} className="staffPage">
       <WindowedStaffBoard song={song} />
     </div>
   )
@@ -35,9 +35,10 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
   const divRef = useRef<HTMLDivElement>(null)
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<any>(null)
-  const width = song.duration * 30
+  const width = song.duration * 40
   const { player } = usePlayer()
-  const getXPos = (time: number) => time * 30 + 50
+  // time + bpm is not normalized w.r.t to wall clock. should do this for a reasonable experience.
+  const getXPos = (time: number) => time * 40 + 50
 
   useEffect(() => {
     if (!divRef) {
@@ -63,6 +64,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
 
     staveRight.setContext(context).draw()
     staveLeft.setContext(context).draw()
+    // TODO: figure out how to draw connector
     // new VF.StaveConnector(staveLeft, staveRight)
     //   .setType(VF.StaveConnector.type.BOLD_DOUBLE_LEFT)
     //   .setContext(context)
@@ -84,11 +86,16 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
       var tickContext = new VF.TickContext()
       let vexNote
       let keys = [`${note.pitch.step.toLowerCase()}${accidental}/${note.pitch.octave}`]
+      // estimate duration!  how? tbd.
       if (note.staff === STAFF.trebl) {
-        vexNote = new VF.StaveNote({ clef: "treble", keys, duration: "4" })
+        vexNote = new VF.StaveNote({
+          clef: "treble",
+          keys,
+          duration: note.noteType,
+        })
         vexNote.setStave(staveRight)
       } else {
-        vexNote = new VF.StaveNote({ clef: "bass", keys, duration: "4" })
+        vexNote = new VF.StaveNote({ clef: "bass", keys, duration: note.noteType })
         vexNote.setStave(staveLeft)
       }
       vexNote.setContext(context)
@@ -108,7 +115,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
       return
     }
     const now = player.getTime()
-    let offset = now * 30
+    let offset = getXPos(now) - 50
     innerRef.current.style.transform = `translateX(${-offset}px)`
   })
 

@@ -9,6 +9,8 @@ const headers = [
 ]
 
 const data = [
+  "Fur_Elise.mid",
+  "Fur_Elise.xml",
   "3.1.a.Fur_Elise.xml",
   "Abba - Dancing Queen.mid",
   "Abba - The Winner Takes It All - EASY.mid",
