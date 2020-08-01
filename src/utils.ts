@@ -34,7 +34,6 @@ export type SongMeasure = {
 export type Song = {
   staffs: Staffs
   duration: number
-  divisions: number
   measures: Array<SongMeasure>
   notes: Array<SongNote>
   bpms: Array<{ time: number; bpm: number }>
@@ -210,7 +209,6 @@ export function parseMusicXML(txt: string): Song {
     staffs,
     duration: totalDuration,
     measures,
-    divisions,
     notes,
     bpms,
     timeSignature,
@@ -312,6 +310,11 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     ticksPerBeat * (timeSignature.numerator / timeSignature.denominator) * 4
 
   function calcWallDuration(ticks: number): number {
+    // (tick / tpb) --> n beats  * bpm / 60 -->  (ticks *60 ) / (tpb * bpm)
+    // beats per minute, ticks per beat, ticks  --> seconds
+    // 1/b/m = m/b     min    * 60s  = s/b / t/b* t = s              ===>  tpb * tics = beats /bpm = minutes * 60     ticks  * 60 * (   beats   | minutes )
+    //                beats     min                                 ===> (tpb / tics) * 60)/bpm = seconds                              (  ticks | beats)
+
     const bpm = bpms[bpms.length - 1]?.bpm || 120
     return (ticks * 60) / (ticksPerBeat * bpm)
   }
@@ -321,7 +324,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     let midiEvent: MidiEvent = orderedEvent.event
     currTick += orderedEvent.ticksToEvent
     currTime += calcWallDuration(orderedEvent.ticksToEvent)
-    if (currTick - lastMeasureTickedAt > ticksPerMeasure()) {
+    if (currTick - lastMeasureTickedAt >= ticksPerMeasure()) {
       lastMeasureTickedAt = currTick
       measures.push({ time: currTime, number: measures.length + 1 })
     }
@@ -367,11 +370,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
       const noteValue = midiEvent.note - 21
       if (openNotes.has(noteValue)) {
         const note = openNotes.get(noteValue)!
-        note.duration = currTime - note.time // (tick / tpb) --> n beats  * bpm / 60 -->  (ticks *60 ) / (tpb * bpm)
-        // beats per minute, ticks per beat, ticks  --> seconds
-        // 1/b/m = m/b     min    * 60s  = s/b / t/b* t = s              ===>  tpb * tics = beats /bpm = minutes * 60     ticks  * 60 * (   beats   | minutes )
-        //                beats     min                                 ===> (tpb / tics) * 60)/bpm = seconds                              (  ticks | beats)
-        const bpm = bpms[bpms.length - 1]?.bpm || 120
+        note.duration = currTime - note.time
         openNotes.delete(noteValue)
       }
     } else if (midiEvent.subType === 'setTempo') {
@@ -381,15 +380,13 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
       timeSignature = midiEvent
     }
   }
-
-  notes.forEach((n) => {
-    n.time = (n.time / ticksPerBeat) * 4
-    n.duration = (n.duration / ticksPerBeat) * 4
-  })
+  let duration = 0
+  for (let n of notes) {
+    duration = Math.max(duration, n.time + n.duration)
+  }
 
   return {
-    duration: (currTime / ticksPerBeat) * 4,
-    divisions: 4,
+    duration: currTime,
     measures: measures,
     notes: notes,
     staffs: {},
