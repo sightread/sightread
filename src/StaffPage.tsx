@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from 'react'
 // import ReactDOM from "react-dom"
-import Vex from "vexflow"
-import { Song, parseMusicXML, parseMidi, getNoteValue, STAFF } from "./utils"
-import { usePlayer, useWindowSize, useRAFLoop } from "./hooks"
-import { ReactComponent } from "*.svg"
+import Vex from 'vexflow'
+import { Song, parseMusicXML, parseMidi, getNoteValue, STAFF } from './utils'
+import { usePlayer, useWindowSize, useRAFLoop } from './hooks'
+import { ReactComponent } from '*.svg'
 
 const VF = Vex.Flow
 
@@ -24,21 +24,23 @@ export function StaffPage() {
     return <span> Loading...</span>
   }
   return (
-    <div style={{ width: "100%", backgroundColor: "white" }} className="staffPage">
+    <div style={{ width: '100%', backgroundColor: 'white' }} className="staffPage">
       <WindowedStaffBoard song={song} />
     </div>
   )
 }
+
+const PIXELS_PER_SECOND = 300
 
 export function WindowedStaffBoard({ song }: { song: Song }) {
   const windowSize = useWindowSize()
   const divRef = useRef<HTMLDivElement>(null)
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<any>(null)
-  const width = song.duration * 40
+  const width = song.duration * PIXELS_PER_SECOND
   const { player } = usePlayer()
   // time + bpm is not normalized w.r.t to wall clock. should do this for a reasonable experience.
-  const getXPos = (time: number) => time * 40 + 50
+  const getXPos = (time: number) => time * PIXELS_PER_SECOND + 50
 
   useEffect(() => {
     if (!divRef) {
@@ -51,7 +53,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
     // Configure the rendering context.
     renderer.resize(width, 250)
     const context = renderer.getContext()
-    context.setFont("Arial", 10).setBackgroundFillStyle("#eed")
+    context.setFont('Arial', 10).setBackgroundFillStyle('#eed')
 
     // Create a stave of width 400 at position 10, 40 on the canvas.
     const staveRight = new VF.Stave(10, 20, width)
@@ -59,8 +61,8 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
 
     // Add a clef and time signature.
     const timeSignature = `${song.timeSignature.numerator}/${song.timeSignature.denominator}`
-    staveRight.addClef("treble").addTimeSignature(timeSignature)
-    staveLeft.addClef("bass").addTimeSignature(timeSignature)
+    staveRight.addClef('treble').addTimeSignature(timeSignature)
+    staveLeft.addClef('bass').addTimeSignature(timeSignature)
 
     staveRight.setContext(context).draw()
     staveLeft.setContext(context).draw()
@@ -81,7 +83,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
     })
     song.notes.forEach((note) => {
       const accidental: string =
-        ({ "-2": "bb", "-1": "b", "1": "#", "2": "##" } as any)[note.accidental] ?? ""
+        ({ '-2': 'bb', '-1': 'b', '1': '#', '2': '##' } as any)[note.accidental] ?? ''
 
       var tickContext = new VF.TickContext()
       let vexNote
@@ -89,13 +91,13 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
       // estimate duration!  how? tbd.
       if (note.staff === STAFF.trebl) {
         vexNote = new VF.StaveNote({
-          clef: "treble",
+          clef: 'treble',
           keys,
           duration: note.noteType,
         })
         vexNote.setStave(staveRight)
       } else {
-        vexNote = new VF.StaveNote({ clef: "bass", keys, duration: note.noteType })
+        vexNote = new VF.StaveNote({ clef: 'bass', keys, duration: note.noteType })
         vexNote.setStave(staveLeft)
       }
       vexNote.setContext(context)
@@ -122,8 +124,8 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
   return (
     <div
       style={{
-        position: "fixed",
-        overflow: "hidden",
+        position: 'fixed',
+        overflow: 'hidden',
         height: windowSize.height,
         width: windowSize.width,
       }}
@@ -131,7 +133,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
     >
       <div
         style={{
-          height: "100%",
+          height: '100%',
           width,
         }}
         // ref={innerRef}
@@ -139,20 +141,20 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
         <div
           ref={divRef}
           style={{
-            position: "absolute",
-            top: "50%",
-            transform: "translateY(-50%)",
-            backgroundColor: "white",
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            backgroundColor: 'white',
           }}
         >
           <div
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: 50,
               left: 124,
               width: 5,
               height: 150,
-              backgroundColor: "red",
+              backgroundColor: 'red',
             }}
           ></div>
         </div>
@@ -162,7 +164,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
 }
 
 async function getSong(url: string) {
-  if (url.includes(".xml")) {
+  if (url.includes('.xml')) {
     const xml = await (await fetch(url)).text()
     return parseMusicXML(xml)
   }

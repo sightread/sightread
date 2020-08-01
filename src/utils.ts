@@ -67,12 +67,24 @@ export function parseMusicXML(txt: string): Song {
   const timeSignature = { numerator: 4, denominator: 4 }
   let currStaff = STAFF.trebl
 
-  function calcWallDuration(duration: number): number {
+  function stepTime(duration: number): void {
+    currTime = +(currTime + calcWallDuration(duration)).toFixed(2)
+  }
+  function calcWallDuration(duration: number, time: number = currTime): number {
     // Must calculate the current bpm based on currTime, because various things may change
     // currTime backwards or forwards (part changes, or repeats etc.)
-    const bpmIndex = bpms.findIndex((bpm) => bpm.time > currTime) - 1
+
+    // CALC LOGIC thx zohdi
+    // divisions  , bpm, duration ;
+    // | beats  |                      =  | beats |   *  |    1   | =     1
+    // | minute | * (60)ms/minute         |  s    |      |  beats |       s
+    // bpm / (60) == quarter beats per second
+    // (duration/divisions) =  number of quarter beats
+    // (1 / (bpm/60)) * duration/divisions = seconds
+    const bpmIndex = bpms.findIndex((bpm) => bpm.time > time) - 1
     const bpm = (bpmIndex < 0 ? bpms[bpms.length - 1] : bpms[bpmIndex])?.bpm ?? 120
-    return (1 / (bpm / 60)) * (duration / divisions)
+    const val = (1 / (bpm / 60)) * (duration / divisions)
+    return +val.toFixed(2)
   }
 
   while (curr) {
@@ -88,7 +100,7 @@ export function parseMusicXML(txt: string): Song {
       staffs[number].clef = { sign }
     } else if (curr.tagName === 'note' && curr.querySelector('rest')) {
       const duration: number = Number(curr.querySelector('duration')?.textContent?.trim())
-      currTime += calcWallDuration(duration)
+      stepTime(duration)
     } else if (curr.tagName === 'note') {
       let tie = curr.querySelector('tie')
       const step = curr.querySelector('step')?.textContent?.trim() ?? ''
@@ -115,7 +127,8 @@ export function parseMusicXML(txt: string): Song {
         accidental = Number(curr.querySelector('alter')?.textContent?.trim()) ?? 0
       }
       const isChord = !!curr.querySelector('chord')
-      const lastNoteTime = notes.length > 0 ? notes[notes.length - 1].time : 0
+      let lastNoteTime = notes.length > 0 ? notes[notes.length - 1]?.time : 0
+
       let time = isChord ? lastNoteTime : currTime
       const noteConversionMap: any = {
         '16th': '16',
@@ -125,16 +138,10 @@ export function parseMusicXML(txt: string): Song {
         half: '2',
         whole: '1',
       }
-      // divisions  , bpm, duration ;
-      // | beats  |                      =  | beats |   *  |    1   | =     1
-      // | minute | * (60)ms/minute         |  s    |      |  beats |       s
-      // bpm / (60) == quarter beats per second
-      // (duration/divisions) =  number of quarter beats
-      // (1 / (bpm/60)) * duration/divisions = seconds
       const noteValue = getNoteValue(step, octave, accidental)
       let note: SongNote = {
         pitch: { step, octave },
-        duration: calcWallDuration(duration),
+        duration: calcWallDuration(duration, time),
         time,
         noteValue,
         staff,
@@ -143,10 +150,20 @@ export function parseMusicXML(txt: string): Song {
       }
       if (tie) {
         let type = tie.getAttribute('type')
+        const hasTwoTies = curr.querySelectorAll('tie').length > 1
+        if (currMeasure === 16 || currMeasure === 17 || currMeasure === 18 || currMeasure === 19) {
+          console.error(lastNoteTime, note, isChord)
+        }
         if (type === 'stop') {
           if (openTies.has(noteValue)) {
             openTies.get(noteValue).duration += note.duration
-            openTies.delete(noteValue)
+            // Only end it if the tie doesnt' have a next part as well.
+            const i = notes.findIndex((n) => n === openTies.get(noteValue))
+            notes.splice(i, 1)
+            notes.push(openTies.get(noteValue))
+            if (!hasTwoTies) {
+              openTies.delete(noteValue)
+            }
           } else {
             console.warn('could not close tie', curr)
           }
@@ -160,7 +177,7 @@ export function parseMusicXML(txt: string): Song {
 
       // TODO: - is there proper handling of `<chord/>`s ?
       if (!isChord) {
-        currTime += calcWallDuration(duration)
+        stepTime(duration)
       }
     } else if (curr.tagName === 'backup') {
       let duration = Number(curr.querySelector('duration')?.textContent?.trim())
@@ -171,12 +188,16 @@ export function parseMusicXML(txt: string): Song {
         console.error(`note duration!!`, curr.querySelector('duration'))
         duration = 0
       }
-      currTime += calcWallDuration(duration)
+      stepTime(duration)
     } else if (curr.tagName === 'measure') {
       const number = Number(curr.getAttribute('number'))
       // Don't add the same measure multiple times for multi-part xml files.
       if (!measures.find((m) => m.number === number)) {
         measures.push({ time: currTime, number })
+      } else {
+        const m = measures.find((m) => m.number === number)
+        // TODO: wtffff why are the left and right hand times off.
+        currTime = m?.time as any
       }
       currMeasure = number
     } else if (curr.tagName === 'key') {
@@ -203,17 +224,13 @@ export function parseMusicXML(txt: string): Song {
           const newNote = { ...note, time: note.time + dt }
           notes.push(newNote)
         }
-        currTime += dt
+        currTime = +(currTime + dt).toFixed(2)
       } else if (curr.getAttribute('direction') === 'forward') {
         repeatStart = currMeasure
       }
     }
     totalDuration = Math.max(totalDuration, currTime)
     curr = walker.nextNode() as HTMLElement
-  }
-
-  if (bpms.length === 0) {
-    bpms.push({ time: 0, bpm: 120 })
   }
 
   return {

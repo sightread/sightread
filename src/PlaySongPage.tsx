@@ -543,15 +543,15 @@ function PianoRoll({ width }: any) {
       const hand = staff === STAFF.bass ? 'left-hand' : 'right-hand'
       if (hand === 'left-hand') {
         if (isBlack(noteValue)) {
-          color = '#2c6e78'
-        } else {
-          color = '#4dd0e1'
-        }
-      } else {
-        if (isBlack(noteValue)) {
           color = '#c65a00'
         } else {
           color = '#ef6c00'
+        }
+      } else {
+        if (isBlack(noteValue)) {
+          color = '#2c6e78'
+        } else {
+          color = '#4dd0e1'
         }
       }
     }
