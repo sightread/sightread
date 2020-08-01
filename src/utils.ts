@@ -65,6 +65,7 @@ export function parseMusicXML(txt: string): Song {
   const divisions = Number(xml.querySelector('divisions')?.textContent)
   let part = 0
   const timeSignature = { numerator: 4, denominator: 4 }
+  let currStaff = STAFF.trebl
 
   function calcWallDuration(duration: number): number {
     // Must calculate the current bpm based on currTime, because various things may change
@@ -76,9 +77,15 @@ export function parseMusicXML(txt: string): Song {
 
   while (curr) {
     if (curr.tagName === 'clef') {
+      const sign = curr.querySelector('sign')?.textContent ?? 'F'
+      if (sign === 'F') {
+        currStaff = STAFF.bass
+      } else if (sign === 'G') {
+        currStaff = STAFF.trebl
+      }
       let number = Number(curr.getAttribute('number'))
       staffs[number] = staffs[number] || {}
-      staffs[number].clef = { sign: curr.querySelector('sign')?.textContent ?? '' }
+      staffs[number].clef = { sign }
     } else if (curr.tagName === 'note' && curr.querySelector('rest')) {
       const duration: number = Number(curr.querySelector('duration')?.textContent?.trim())
       currTime += calcWallDuration(duration)
@@ -92,7 +99,7 @@ export function parseMusicXML(txt: string): Song {
         console.error('Error: found a note with no duration.')
         duration = 0
       }
-      let staff = Number(curr.querySelector('staff')?.textContent?.trim()) ?? part
+      let staff = currStaff
       let accidental: any = curr.querySelector('accidental')?.textContent?.trim()
       if (!accidental || accidental === 'natural') {
         accidental = 0

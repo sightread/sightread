@@ -12,7 +12,7 @@ import { Song, SongMeasure } from './utils'
  * 2. Based on that, figure out which should be displayed on screen
  */
 
-const PIXELS_PER_SECOND = 150
+const PIXELS_PER_SECOND = 300
 
 function getKeyboardHeight(width: number) {
   const whiteWidth = width / 52
