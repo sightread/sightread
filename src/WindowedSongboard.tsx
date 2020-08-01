@@ -1,8 +1,8 @@
-import "./player"
-import React, { useState, useEffect, useRef } from "react"
-import "./App.css"
-import { usePlayer, useRAFLoop, useWindowSize } from "./hooks"
-import { Song, SongMeasure } from "./utils"
+import './player'
+import React, { useState, useEffect, useRef } from 'react'
+import './App.css'
+import { usePlayer, useRAFLoop, useWindowSize } from './hooks'
+import { Song, SongMeasure } from './utils'
 
 /**
  * Only display items in the viewport.
@@ -12,9 +12,7 @@ import { Song, SongMeasure } from "./utils"
  * 2. Based on that, figure out which should be displayed on screen
  */
 
-function pixelsPerDuration(song: Song) {
-  return 100 * (1 / song.divisions)
-}
+const PIXELS_PER_SECOND = 150
 
 function getKeyboardHeight(width: number) {
   const whiteWidth = width / 52
@@ -23,22 +21,22 @@ function getKeyboardHeight(width: number) {
 
 function createNoteObject(whiteNotes: any, whiteWidth: any, height: any, type: any) {
   switch (type) {
-    case "black":
+    case 'black':
       return {
         left: whiteNotes * whiteWidth - whiteWidth / 4,
         width: whiteWidth / 2,
-        color: "black",
+        color: 'black',
         height: height * (2 / 3),
       }
-    case "white":
+    case 'white':
       return {
         left: whiteNotes * whiteWidth,
         height: height,
         width: whiteWidth,
-        color: "white",
+        color: 'white',
       }
     default:
-      throw Error("Invalid note type")
+      throw Error('Invalid note type')
   }
 }
 
@@ -52,10 +50,10 @@ function getNoteLanes(width: any) {
 
   for (var whiteNotes = 0; whiteNotes < 52; whiteNotes++, totalNotes++) {
     if (blackNotes.includes(totalNotes % 12)) {
-      notes.push(createNoteObject(whiteNotes, whiteWidth, height, "black"))
+      notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'black'))
       totalNotes++
     }
-    notes.push(createNoteObject(whiteNotes, whiteWidth, height, "white"))
+    notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'white'))
   }
   return notes
 }
@@ -63,7 +61,6 @@ function getNoteLanes(width: any) {
 export function WindowedSongBoard({ song, hand }: { song: Song; hand: string }) {
   const windowSize = useWindowSize()
   const { player } = usePlayer()
-  const { duration } = song
   const outerRef: any = useRef(null)
   const innerRef: any = useRef(null)
   const [itemsCache, setItemsCache]: any = useState(null)
@@ -96,14 +93,14 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: string }) 
   const [startIndex, stopIndex] = itemsCache.getRenderRange(player.getTime(), hand)
   const getHandItems = () => {
     switch (hand) {
-      case "both":
+      case 'both':
         return itemsCache.hands.items
-      case "left":
+      case 'left':
         return itemsCache.hands.leftItems
-      case "right":
+      case 'right':
         return itemsCache.hands.rightItems
       default:
-        console.error("should not get here in getHandItems()")
+        console.error('should not get here in getHandItems()')
         return []
     }
   }
@@ -111,8 +108,8 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: string }) 
   return (
     <div
       style={{
-        position: "fixed",
-        overflow: "hidden",
+        position: 'fixed',
+        overflow: 'hidden',
         height: windowSize.height, // TODO(rendering extra keyboardHeight vp above.). Make less stupid.
         width: windowSize.width,
       }}
@@ -120,9 +117,9 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: string }) 
     >
       <div
         style={{
-          height: duration * pixelsPerDuration(song),
-          width: "100%",
-          willChange: "transform",
+          height: song.duration * PIXELS_PER_SECOND,
+          width: '100%',
+          willChange: 'transform',
         }}
         ref={innerRef}
       >
@@ -132,8 +129,8 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: string }) 
   )
 }
 function getTimeOffset(song: Song, time: number) {
-  const totalHeight = song.duration * pixelsPerDuration(song)
-  return totalHeight - time * pixelsPerDuration(song)
+  const totalHeight = song.duration * PIXELS_PER_SECOND
+  return totalHeight - time * PIXELS_PER_SECOND
 }
 
 function calculateCache(song: Song, windowSize: any): any {
@@ -163,7 +160,7 @@ function calculateCache(song: Song, windowSize: any): any {
     const item: JSX.Element = (
       <SongNote
         // noteLength={note.duration * pixelsPerDuration(song)}
-        noteLength={150 * note.wallDuration}
+        noteLength={PIXELS_PER_SECOND * note.duration}
         width={lane.width}
         posX={lane.left}
         offset={offset}
@@ -171,7 +168,10 @@ function calculateCache(song: Song, windowSize: any): any {
         key={`songnote-${note.time}-${note.noteValue}-${i}`}
       />
     )
-    positions.set(item, { start: offset, end: getTimeOffset(song, note.time + note.duration) })
+    positions.set(item, {
+      start: offset,
+      end: getTimeOffset(song, note.time + note.duration),
+    })
     items.push(item)
     if (note.staff === 1) {
       leftItems.push(item)
@@ -215,14 +215,14 @@ function calculateCache(song: Song, windowSize: any): any {
       return [firstIndex, lastIndex]
     }
     switch (hand) {
-      case "both":
+      case 'both':
         return getRangeForHand(items)
-      case "left":
+      case 'left':
         return getRangeForHand(leftItems)
-      case "right":
+      case 'right':
         return getRangeForHand(rightItems)
       default:
-        console.error("should not get here in get render range")
+        console.error('should not get here in get render range')
     }
   }
   const hands = { items, leftItems, rightItems }
@@ -234,22 +234,21 @@ function isBlack(noteValue: number) {
 }
 
 function SongNote({ note, noteLength, width, posX, offset }: any) {
-  const keyType = isBlack(note.noteValue) ? "black" : "white"
-  const className = keyType + " " + (note.staff === 1 ? "left-hand" : "right-hand")
+  const keyType = isBlack(note.noteValue) ? 'black' : 'white'
+  const className = keyType + ' ' + (note.staff === 1 ? 'left-hand' : 'right-hand')
   return (
     <div
       style={{
         top: offset - noteLength,
-        position: "absolute",
+        position: 'absolute',
         left: posX,
         height: noteLength,
         width,
-        textAlign: "center",
-        borderRadius: "6px",
+        textAlign: 'center',
+        borderRadius: '6px',
       }}
       className={className}
     >
-      {/* {note.pitch.step},{note.pitch.octave},{note.noteValue} */}
       {note.pitch.step}
     </div>
   )
@@ -269,18 +268,18 @@ function Measure({
     <div
       id={`measure-${measure.number}`}
       style={{
-        position: "absolute",
+        position: 'absolute',
         top: offset - height,
       }}
     >
       <div
         style={{
-          position: "relative",
+          position: 'relative',
           height,
           left: 10,
           top: -7,
           fontSize: 15,
-          color: "white",
+          color: 'white',
         }}
       >
         {measure.number}
@@ -288,7 +287,7 @@ function Measure({
       <div
         style={{
           height: 1,
-          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backgroundColor: 'rgba(255, 255, 255, 0.5)',
           width,
         }}
         key={`measure-${measure.number}`}

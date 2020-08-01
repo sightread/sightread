@@ -5,11 +5,12 @@ export const STAFF = {
   bass: 2,
 }
 
+type Seconds = number
 export type SongNote = {
   noteValue: number
   staff: number
-  duration: number
   time: number
+  duration: number
   pitch: {
     step: string
     octave: number
@@ -17,7 +18,6 @@ export type SongNote = {
   accidental: number // 1 | -1 | 0
   velocity?: number
   noteType: string // 4 = quarter, 1 = whole, etc.
-  wallDuration: number
 }
 
 export type Staffs = {
@@ -60,18 +60,24 @@ export function parseMusicXML(txt: string): Song {
   let staffs: Staffs = {}
   let notes: Array<SongNote> = []
   let measures: Array<SongMeasure> = []
-  const bpms = []
+  const bpms: Array<{ time: number; bpm: number }> = []
   const divisions = Number(xml.querySelector('divisions')?.textContent)
   let part = 0
   const timeSignature = { numerator: 4, denominator: 4 }
+
+  function calcWallDuration(duration: number): number {
+    const bpm = bpms[bpms.length - 1]?.bpm ?? 120
+    return (1 / (bpm / 60)) * (duration / divisions)
+  }
+
   while (curr) {
     if (curr.tagName === 'clef') {
       let number = Number(curr.getAttribute('number'))
       staffs[number] = staffs[number] || {}
       staffs[number].clef = { sign: curr.querySelector('sign')?.textContent ?? '' }
     } else if (curr.tagName === 'note' && curr.querySelector('rest')) {
-      const duration = Number(curr.querySelector('duration')?.textContent?.trim())
-      currTime += duration
+      const duration: number = Number(curr.querySelector('duration')?.textContent?.trim())
+      currTime += calcWallDuration(duration)
     } else if (curr.tagName === 'note') {
       let tie = curr.querySelector('tie')
       const step = curr.querySelector('step')?.textContent?.trim() ?? ''
@@ -109,8 +115,6 @@ export function parseMusicXML(txt: string): Song {
         half: '2',
         whole: '1',
       }
-      const bpm = bpms[bpms.length - 1]?.bpm ?? 120
-      const wallDuration = (1 / (bpm / 60)) * (duration / divisions)
       // divisions  , bpm, duration ;
       // | beats  |                      =  | beats |   *  |    1   | =     1
       // | minute | * (60)ms/minute         |  s    |      |  beats |       s
@@ -120,13 +124,12 @@ export function parseMusicXML(txt: string): Song {
       const noteValue = getNoteValue(step, octave, accidental)
       let note: SongNote = {
         pitch: { step, octave },
-        duration,
+        duration: calcWallDuration(duration),
         time,
         noteValue,
         staff,
         accidental,
         noteType: noteConversionMap[curr.querySelector('type')?.textContent ?? ''] ?? '4',
-        wallDuration,
       }
       if (tie) {
         let type = tie.getAttribute('type')
@@ -147,19 +150,18 @@ export function parseMusicXML(txt: string): Song {
 
       // TODO: - is there proper handling of `<chord/>`s ?
       if (!isChord) {
-        currTime += duration
+        currTime += calcWallDuration(duration)
       }
     } else if (curr.tagName === 'backup') {
       let duration = Number(curr.querySelector('duration')?.textContent?.trim())
-      console.assert(duration)
-      currTime -= duration
+      currTime -= calcWallDuration(duration)
     } else if (curr.tagName === 'forward') {
       let duration = Number(curr.querySelector('duration')?.textContent?.trim())
       if (isNaN(duration)) {
         console.error(`note duration!!`, curr.querySelector('duration'))
         duration = 0
       }
-      currTime += duration
+      currTime += calcWallDuration(duration)
     } else if (curr.tagName === 'measure') {
       const number = Number(curr.getAttribute('number'))
       // Don't add the same measure multiple times for multi-part xml files.
@@ -237,9 +239,7 @@ const nodeFilter = {
 }
 
 export function getNoteValue(step: string, octave: number, accidental: number = 0) {
-  // const stepValues: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
   const stepValues: any = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
-  // let offset = getSharps(fifth)[step] ?? 0
   let offset = 0
 
   if (octave === 0) {
@@ -302,21 +302,35 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
   var ticksPerBeat = parsed.header.ticksPerBeat
 
   let currTime = 0
+  let currTick = 0
   let openNotes = new Map<number, SongNote>() // notes still "on"
   let notes: SongNote[] = []
+  let measures: SongMeasure[] = []
+  let lastMeasureTickedAt = -Infinity
   let timeSignature = { numerator: 4, denominator: 4 }
-  // let keySignature = {}
+  const ticksPerMeasure = () =>
+    ticksPerBeat * (timeSignature.numerator / timeSignature.denominator) * 4
+
+  function calcWallDuration(ticks: number): number {
+    const bpm = bpms[bpms.length - 1]?.bpm || 120
+    return (ticks * 60) / (ticksPerBeat * bpm)
+  }
 
   const orderedEvents = getOrderedMidiEvents(parsed)
   for (let orderedEvent of orderedEvents) {
     let midiEvent: MidiEvent = orderedEvent.event
-    currTime += orderedEvent.ticksToEvent
+    currTick += orderedEvent.ticksToEvent
+    currTime += calcWallDuration(orderedEvent.ticksToEvent)
+    if (currTick - lastMeasureTickedAt > ticksPerMeasure()) {
+      lastMeasureTickedAt = currTick
+      measures.push({ time: currTime, number: measures.length + 1 })
+    }
 
     if (midiEvent.subType === 'noteOn') {
       const noteValue = midiEvent.note - 21 // convert to noteValue
       if (openNotes.has(noteValue)) {
         const note = openNotes.get(noteValue)!
-        note.duration = currTime - note.time
+        note.duration = calcWallDuration(note.duration)
         openNotes.delete(noteValue)
       }
       let staff = parsed.header.formatType === 0 ? 2 : orderedEvent.track
@@ -340,7 +354,6 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
       const note: SongNote = {
         time: currTime,
         duration: 0,
-        wallDuration: 0,
         noteValue,
         staff,
         pitch: getPitch(noteValue),
@@ -359,12 +372,11 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         // 1/b/m = m/b     min    * 60s  = s/b / t/b* t = s              ===>  tpb * tics = beats /bpm = minutes * 60     ticks  * 60 * (   beats   | minutes )
         //                beats     min                                 ===> (tpb / tics) * 60)/bpm = seconds                              (  ticks | beats)
         const bpm = bpms[bpms.length - 1]?.bpm || 120
-        note.wallDuration = (note.duration * 60) / (ticksPerBeat * bpm)
         openNotes.delete(noteValue)
       }
     } else if (midiEvent.subType === 'setTempo') {
       const bpm = 60000000 / midiEvent.microsecondsPerBeat
-      bpms.push({ time: (currTime / ticksPerBeat) * 4, bpm })
+      bpms.push({ time: currTime, bpm })
     } else if (midiEvent.subType === 'timeSignature') {
       timeSignature = midiEvent
     }
@@ -374,12 +386,6 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     n.time = (n.time / ticksPerBeat) * 4
     n.duration = (n.duration / ticksPerBeat) * 4
   })
-
-  let measures = []
-  const ticksPerMeasure = ticksPerBeat * (timeSignature.numerator / timeSignature.denominator) * 4
-  for (let i = 0; i < currTime / ticksPerMeasure; i++) {
-    measures.push({ number: i, time: ((i * ticksPerMeasure) / ticksPerBeat) * 4 })
-  }
 
   return {
     duration: (currTime / ticksPerBeat) * 4,

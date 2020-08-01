@@ -1,8 +1,8 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { Song, SongNote } from "./utils"
-import { WebAudioFontSynth } from "./synth"
-import midi from "./midi"
+import { Song, SongNote } from './utils'
+import { WebAudioFontSynth } from './synth'
+import midi from './midi'
 
 class Player {
   song!: Song
@@ -17,10 +17,9 @@ class Player {
   synth = new WebAudioFontSynth()
   volume = 1
   handlers: any = {}
-  songDuration = 0
   bpmModifier = 1
   range: null | [number, number] = null
-  hand = "both"
+  hand = 'both'
   listeners: Array<Function> = []
   wait = false
   lastPressedKeys = new Map<number, number>()
@@ -33,13 +32,9 @@ class Player {
     this.song = song
     this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
     this.currentBpm = 0
-    this.songDuration = 0
     this.currentIndex = 0
     this.currentSongTime = 0
     this.bpmModifier = 1
-    for (const note of this.notes) {
-      this.songDuration = Math.max(note.time + note.duration, this.songDuration)
-    }
     this.playing.length = 0
   }
 
@@ -67,8 +62,10 @@ class Player {
 
     const now = performance.now()
     const dt = now - this.lastIntervalFiredTime
-    return this.currentSongTime + (dt / 1000 / 60) * this.getBpm() * this.song.divisions
+    return this.currentSongTime + dt / 1000
   }
+  // ms * |___1s___|
+  //      | 1000ms |
 
   getBpm() {
     return this.song?.bpms[this.currentBpm].bpm * this.bpmModifier
@@ -91,9 +88,9 @@ class Player {
   }
 
   getBpmIndexForTime(time: number) {
-    let index = this.song.bpms.findIndex((m) => m.time > time) - 1
+    const index = this.song.bpms.findIndex((m) => m.time > time) - 1
     if (index < 0) {
-      index = this.song.bpms.length - 1
+      return this.song.bpms.length - 1
     }
     return index
   }
@@ -148,7 +145,7 @@ class Player {
       const now = performance.now()
       dt = now - this.lastIntervalFiredTime
       this.lastIntervalFiredTime = now
-      this.currentSongTime += (dt / 1000 / 60) * this.getBpm() * this.song.divisions
+      this.currentSongTime += dt / 1000
     }
 
     return this.currentSongTime
@@ -236,38 +233,8 @@ class Player {
   }
 
   /* Convert between songtime and real human time. Includes bpm calculations*/
-  getRealTimeDuration(startTime: number, endTime: number) {
-    if (!this.song) {
-      return 0
-    }
-    if (this.song.bpms.length === 1) {
-      return (endTime - startTime) / this.song.bpms[0].bpm / this.song.divisions
-    }
-
-    let startBpmIndex = this.song.bpms.findIndex((bpm) => bpm.time >= startTime)
-    let endBpmIndex = this.song.bpms.findIndex((bpm) => bpm.time >= endTime) - 1
-    if (startBpmIndex === -1) {
-      startBpmIndex = 0
-    }
-    if (endBpmIndex < 0) {
-      endBpmIndex = this.song.bpms.length - 1
-    }
-
-    let realTime = 0
-    while (startBpmIndex < endBpmIndex) {
-      const startSongTime = this.song.bpms[startBpmIndex].time
-      const endSongTime = this.song.bpms[startBpmIndex + 1]?.time
-
-      realTime +=
-        (endSongTime - startSongTime) / this.song.bpms[startBpmIndex].bpm / this.song.divisions
-      startBpmIndex++
-    }
-    realTime +=
-      (endTime - this.song.bpms[startBpmIndex].time) /
-      this.song.bpms[startBpmIndex].bpm /
-      this.song.divisions
-
-    return realTime
+  getRealTimeDuration(starttime: number, endtime: number) {
+    return endtime - starttime
   }
 
   getPressedKeys() {
@@ -283,7 +250,7 @@ class Player {
   }
 
   getDuration() {
-    return this.songDuration
+    return this.song?.duration ?? 0
   }
 
   setRange(range: { start: number; end: number } | null) {
