@@ -162,7 +162,8 @@ function calculateCache(song: Song, windowSize: any): any {
     const offset = getTimeOffset(song, note.time)
     const item: JSX.Element = (
       <SongNote
-        noteLength={note.duration * pixelsPerDuration(song)}
+        // noteLength={note.duration * pixelsPerDuration(song)}
+        noteLength={150 * note.wallDuration}
         width={lane.width}
         posX={lane.left}
         offset={offset}
