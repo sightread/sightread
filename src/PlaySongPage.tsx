@@ -8,7 +8,7 @@ import {
   useSongPressedKeys,
   useUserPressedKeys,
 } from './hooks'
-import { Song, parseMusicXML, parseMidi } from './utils'
+import { Song, parseMusicXML, parseMidi, STAFF } from './utils'
 import { WebAudioFontSynth } from './synth'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { useParams } from 'react-router'
@@ -540,7 +540,7 @@ function PianoRoll({ width }: any) {
     let color = note.color
     if (i in pressedKeys) {
       let { staff, noteValue } = pressedKeys[i]
-      const hand = staff === 1 ? 'left-hand' : 'right-hand'
+      const hand = staff === STAFF.bass ? 'left-hand' : 'right-hand'
       if (hand === 'left-hand') {
         if (isBlack(noteValue)) {
           color = '#2c6e78'

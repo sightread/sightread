@@ -143,7 +143,7 @@ class Player {
     let dt = 0
     if (isPlaying) {
       const now = performance.now()
-      dt = now - this.lastIntervalFiredTime
+      dt = (now - this.lastIntervalFiredTime) * this.bpmModifier
       this.lastIntervalFiredTime = now
       this.currentSongTime += dt / 1000
     }
