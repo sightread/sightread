@@ -1,4 +1,4 @@
-import { parseMidiFile, MidiEvent } from "jasmid.ts"
+import { parseMidiFile, MidiEvent } from 'jasmid.ts'
 
 export const STAFF = {
   trebl: 1,
@@ -48,7 +48,7 @@ export function parseMusicXML(txt: string): Song {
    * - Handle non Trebl/Bass clefs
    */
 
-  const xml = new DOMParser().parseFromString(txt, "application/xml")
+  const xml = new DOMParser().parseFromString(txt, 'application/xml')
   const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL, nodeFilter)
 
   let currTime = 0
@@ -61,59 +61,59 @@ export function parseMusicXML(txt: string): Song {
   let notes: Array<SongNote> = []
   let measures: Array<SongMeasure> = []
   const bpms = []
-  const divisions = Number(xml.querySelector("divisions")?.textContent)
+  const divisions = Number(xml.querySelector('divisions')?.textContent)
   let part = 0
   const timeSignature = { numerator: 4, denominator: 4 }
   while (curr) {
-    if (curr.tagName === "clef") {
-      let number = Number(curr.getAttribute("number"))
+    if (curr.tagName === 'clef') {
+      let number = Number(curr.getAttribute('number'))
       staffs[number] = staffs[number] || {}
-      staffs[number].clef = { sign: curr.querySelector("sign")?.textContent ?? "" }
-    } else if (curr.tagName === "note" && curr.querySelector("rest")) {
-      const duration = Number(curr.querySelector("duration")?.textContent?.trim())
+      staffs[number].clef = { sign: curr.querySelector('sign')?.textContent ?? '' }
+    } else if (curr.tagName === 'note' && curr.querySelector('rest')) {
+      const duration = Number(curr.querySelector('duration')?.textContent?.trim())
       currTime += duration
-    } else if (curr.tagName === "note") {
-      let tie = curr.querySelector("tie")
-      const step = curr.querySelector("step")?.textContent?.trim() ?? ""
-      const octave = Number(curr.querySelector("octave")?.textContent?.trim())
-      let duration = Number(curr.querySelector("duration")?.textContent?.trim())
+    } else if (curr.tagName === 'note') {
+      let tie = curr.querySelector('tie')
+      const step = curr.querySelector('step')?.textContent?.trim() ?? ''
+      const octave = Number(curr.querySelector('octave')?.textContent?.trim())
+      let duration = Number(curr.querySelector('duration')?.textContent?.trim())
       if (isNaN(duration)) {
         // TODO: check for note size and convert to duration.
-        console.error("Error: found a note with no duration.")
+        console.error('Error: found a note with no duration.')
         duration = 0
       }
-      let staff = Number(curr.querySelector("staff")?.textContent?.trim()) ?? part
-      let accidental: any = curr.querySelector("accidental")?.textContent?.trim()
-      if (!accidental || accidental === "natural") {
+      let staff = Number(curr.querySelector('staff')?.textContent?.trim()) ?? part
+      let accidental: any = curr.querySelector('accidental')?.textContent?.trim()
+      if (!accidental || accidental === 'natural') {
         accidental = 0
-      } else if (accidental === "sharp") {
+      } else if (accidental === 'sharp') {
         accidental = 1
-      } else if (accidental === "flat") {
+      } else if (accidental === 'flat') {
         accidental = -1
       } else {
         // TODO handle double-sharp and double-flat etc.
-        accidental = Number(curr.querySelector("accidental")?.textContent?.trim() ?? 0)
+        accidental = Number(curr.querySelector('accidental')?.textContent?.trim() ?? 0)
         // console.error("JAKE THIS HAPPENED, THERES AN ACCIDENTAL NUMBER IN THE XML", curr.innerHTML)
       }
-      if (curr.querySelector("alter")) {
-        accidental = Number(curr.querySelector("alter")?.textContent?.trim()) ?? 0
+      if (curr.querySelector('alter')) {
+        accidental = Number(curr.querySelector('alter')?.textContent?.trim()) ?? 0
       }
-      const isChord = !!curr.querySelector("chord")
+      const isChord = !!curr.querySelector('chord')
       const lastNoteTime = notes.length > 0 ? notes[notes.length - 1].time : 0
       let time = isChord ? lastNoteTime : currTime
       const noteConversionMap: any = {
-        "16th": "16",
-        eighth: "8",
-        quarter: "4",
-        third: "3",
-        half: "2",
-        whole: "1",
+        '16th': '16',
+        eighth: '8',
+        quarter: '4',
+        third: '3',
+        half: '2',
+        whole: '1',
       }
-      const bpm = bpms[bpms.length - 1]?.bpm ?? 120;
-      const wallDuration = (1/ (bpm/ 60)) * (duration/divisions) 
-      // divisions  , bpm, duration ; 
-      // | beats  |                      =  | beats |   *  |    1   | =     1 
-      // | minute | * (60)ms/minute         |  s    |      |  beats |       s 
+      const bpm = bpms[bpms.length - 1]?.bpm ?? 120
+      const wallDuration = (1 / (bpm / 60)) * (duration / divisions)
+      // divisions  , bpm, duration ;
+      // | beats  |                      =  | beats |   *  |    1   | =     1
+      // | minute | * (60)ms/minute         |  s    |      |  beats |       s
       // bpm / (60) == quarter beats per second
       // (duration/divisions) =  number of quarter beats
       // (1 / (bpm/60)) * duration/divisions = seconds
@@ -125,17 +125,17 @@ export function parseMusicXML(txt: string): Song {
         noteValue,
         staff,
         accidental,
-        noteType: noteConversionMap[curr.querySelector("type")?.textContent ?? ""] ?? "4",
-        wallDuration
+        noteType: noteConversionMap[curr.querySelector('type')?.textContent ?? ''] ?? '4',
+        wallDuration,
       }
       if (tie) {
-        let type = tie.getAttribute("type")
-        if (type === "stop") {
+        let type = tie.getAttribute('type')
+        if (type === 'stop') {
           if (openTies.has(noteValue)) {
             openTies.get(noteValue).duration += duration
             openTies.delete(noteValue)
           } else {
-            console.warn("could not close tie", curr)
+            console.warn('could not close tie', curr)
           }
         } else {
           openTies.set(noteValue, note)
@@ -149,41 +149,41 @@ export function parseMusicXML(txt: string): Song {
       if (!isChord) {
         currTime += duration
       }
-    } else if (curr.tagName === "backup") {
-      let duration = Number(curr.querySelector("duration")?.textContent?.trim())
+    } else if (curr.tagName === 'backup') {
+      let duration = Number(curr.querySelector('duration')?.textContent?.trim())
       console.assert(duration)
       currTime -= duration
-    } else if (curr.tagName === "forward") {
-      let duration = Number(curr.querySelector("duration")?.textContent?.trim())
+    } else if (curr.tagName === 'forward') {
+      let duration = Number(curr.querySelector('duration')?.textContent?.trim())
       if (isNaN(duration)) {
-        console.error(`note duration!!`, curr.querySelector("duration"))
+        console.error(`note duration!!`, curr.querySelector('duration'))
         duration = 0
       }
       currTime += duration
-    } else if (curr.tagName === "measure") {
-      const number = Number(curr.getAttribute("number"))
+    } else if (curr.tagName === 'measure') {
+      const number = Number(curr.getAttribute('number'))
       // Don't add the same measure multiple times for multi-part xml files.
       if (!measures.find((m) => m.number === number)) {
         measures.push({ time: currTime, number })
       }
       currMeasure = number
-    } else if (curr.tagName === "key") {
-      const fifth = Number(curr.querySelector("fifths")?.textContent?.trim())
-      const mode = curr.querySelector("mode")?.textContent?.trim() ?? ""
-    } else if (curr.tagName === "sound") {
-      if (curr.hasAttribute("tempo")) {
-        const bpm = Number(curr.getAttribute("tempo"))
+    } else if (curr.tagName === 'key') {
+      const fifth = Number(curr.querySelector('fifths')?.textContent?.trim())
+      const mode = curr.querySelector('mode')?.textContent?.trim() ?? ''
+    } else if (curr.tagName === 'sound') {
+      if (curr.hasAttribute('tempo')) {
+        const bpm = Number(curr.getAttribute('tempo'))
         bpms.push({ time: currTime, bpm })
       }
-    } else if (curr.tagName === "part") {
+    } else if (curr.tagName === 'part') {
       currTime = 0
-      part = Number(curr.getAttribute("id")?.slice(1))
-    } else if (curr.tagName === "time") {
-      timeSignature.numerator = Number(curr.querySelector("beats")?.textContent) ?? 4
-      timeSignature.denominator = Number(curr.querySelector("beat-type")?.textContent) ?? 4
-    } else if (curr.tagName === "repeat") {
+      part = Number(curr.getAttribute('id')?.slice(1))
+    } else if (curr.tagName === 'time') {
+      timeSignature.numerator = Number(curr.querySelector('beats')?.textContent) ?? 4
+      timeSignature.denominator = Number(curr.querySelector('beat-type')?.textContent) ?? 4
+    } else if (curr.tagName === 'repeat') {
       // TODO: will repeat multiple part's notes. should only be one part.
-      if (curr.getAttribute("direction") === "backward") {
+      if (curr.getAttribute('direction') === 'backward') {
         const startMeasure: SongMeasure = measures.find((m) => m.number === repeatStart)!
         const repeatNotes = notes.slice(notes.findIndex((note) => note.time >= startMeasure.time))
         const dt = currTime - startMeasure.time
@@ -192,7 +192,7 @@ export function parseMusicXML(txt: string): Song {
           notes.push(newNote)
         }
         currTime += dt
-      } else if (curr.getAttribute("direction") === "forward") {
+      } else if (curr.getAttribute('direction') === 'forward') {
         repeatStart = currMeasure
       }
     }
@@ -218,17 +218,17 @@ export function parseMusicXML(txt: string): Song {
 const nodeFilter = {
   acceptNode(node: HTMLElement) {
     const acceptable = [
-      "note",
-      "clef",
-      "measure",
-      "key",
-      "time",
-      "backup",
-      "forward",
-      "meter",
-      "sound",
-      "part",
-      "repeat",
+      'note',
+      'clef',
+      'measure',
+      'key',
+      'time',
+      'backup',
+      'forward',
+      'meter',
+      'sound',
+      'part',
+      'repeat',
     ]
     return acceptable.some((name) => name === node.tagName)
       ? NodeFilter.FILTER_ACCEPT
@@ -243,7 +243,7 @@ export function getNoteValue(step: string, octave: number, accidental: number = 
   let offset = 0
 
   if (octave === 0) {
-    if (step === "A") {
+    if (step === 'A') {
       return 0
     }
     return 1 // 'B';
@@ -254,20 +254,20 @@ export function getNoteValue(step: string, octave: number, accidental: number = 
 
 export function getPitch(noteValue: number): { octave: number; step: string; alter: number } {
   const map: any = {
-    0: { step: "C", alter: 0 },
-    1: { step: "C", alter: 1 },
-    2: { step: "D", alter: 0 },
-    3: { step: "D", alter: 1 },
-    4: { step: "E", alter: 0 },
-    5: { step: "F", alter: 0 },
-    6: { step: "F", alter: 1 },
-    7: { step: "G", alter: 0 },
-    8: { step: "G", alter: 1 },
-    9: { step: "A", alter: 0 },
-    10: { step: "A", alter: 1 },
-    11: { step: "B", alter: 0 },
+    0: { step: 'C', alter: 0 },
+    1: { step: 'C', alter: 1 },
+    2: { step: 'D', alter: 0 },
+    3: { step: 'D', alter: 1 },
+    4: { step: 'E', alter: 0 },
+    5: { step: 'F', alter: 0 },
+    6: { step: 'F', alter: 1 },
+    7: { step: 'G', alter: 0 },
+    8: { step: 'G', alter: 1 },
+    9: { step: 'A', alter: 0 },
+    10: { step: 'A', alter: 1 },
+    11: { step: 'B', alter: 0 },
   }
-  noteValue = noteValue + 1
+  //noteValue = noteValue + 1 // TODO: figure out why this is here
   const { step, alter } = map[(noteValue - 3) % 12]
 
   return { octave: Math.floor(noteValue / 12) + 1, step, alter }
@@ -279,7 +279,7 @@ function getSharps(fifth: number) {
   const thisScale = cScale.map((n) => (((n + fifth * 7 + 12) % 12) + 12) % 12)
   thisScale.sort((a, b) => a - b)
 
-  const revIndex = ["A", "B", "C", "D", "E", "F", "G"]
+  const revIndex = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
   let sharps: any = {}
   let accidentalOffset = fifth > 0 ? 1 : -1
   cScale.forEach((val, i) => {
@@ -296,7 +296,7 @@ function getSharps(fifth: number) {
 // TODO: write own parser
 export function parseMidi(midiData: ArrayBufferLike): Song {
   const parsed = parseMidiFile(midiData)
-  console.error("midi", { parsed })
+  console.error('midi', { parsed })
 
   const bpms: Array<{ time: number; bpm: number }> = []
   var ticksPerBeat = parsed.header.ticksPerBeat
@@ -312,7 +312,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     let midiEvent: MidiEvent = orderedEvent.event
     currTime += orderedEvent.ticksToEvent
 
-    if (midiEvent.subType === "noteOn") {
+    if (midiEvent.subType === 'noteOn') {
       const noteValue = midiEvent.note - 21 // convert to noteValue
       if (openNotes.has(noteValue)) {
         const note = openNotes.get(noteValue)!
@@ -340,27 +340,32 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
       const note: SongNote = {
         time: currTime,
         duration: 0,
+        wallDuration: 0,
         noteValue,
         staff,
         pitch: getPitch(noteValue),
         accidental: 0,
         velocity: midiEvent.velocity,
-        noteType: "4",
-        wallDuration: Math.random()
+        noteType: '4',
       }
       openNotes.set(noteValue, note)
       notes.push(note)
-    } else if (midiEvent.subType === "noteOff") {
+    } else if (midiEvent.subType === 'noteOff') {
       const noteValue = midiEvent.note - 21
       if (openNotes.has(noteValue)) {
         const note = openNotes.get(noteValue)!
-        note.duration = currTime - note.time
+        note.duration = currTime - note.time // (tick / tpb) --> n beats  * bpm / 60 -->  (ticks *60 ) / (tpb * bpm)
+        // beats per minute, ticks per beat, ticks  --> seconds
+        // 1/b/m = m/b     min    * 60s  = s/b / t/b* t = s              ===>  tpb * tics = beats /bpm = minutes * 60     ticks  * 60 * (   beats   | minutes )
+        //                beats     min                                 ===> (tpb / tics) * 60)/bpm = seconds                              (  ticks | beats)
+        const bpm = bpms[bpms.length - 1]?.bpm || 120
+        note.wallDuration = (note.duration * 60) / (ticksPerBeat * bpm)
         openNotes.delete(noteValue)
       }
-    } else if (midiEvent.subType === "setTempo") {
+    } else if (midiEvent.subType === 'setTempo') {
       const bpm = 60000000 / midiEvent.microsecondsPerBeat
       bpms.push({ time: (currTime / ticksPerBeat) * 4, bpm })
-    } else if (midiEvent.subType === "timeSignature") {
+    } else if (midiEvent.subType === 'timeSignature') {
       timeSignature = midiEvent
     }
   }
