@@ -204,7 +204,7 @@ function calculateCache(song: Song, windowSize: any): any {
       }
 
       let lastIndex = handArray.length - 1
-      for (let i = lastIndex - 1; i > 0; i--) {
+      for (let i = lastIndex; i > 0; i--) {
         const position = positions.get(handArray[i])
         if (position.start >= viewportTop) {
           lastIndex = i

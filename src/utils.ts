@@ -31,12 +31,14 @@ export type SongMeasure = {
   number: number
 }
 
+type Bpm = { time: number; bpm: number }
+
 export type Song = {
   staffs: Staffs
   duration: number
   measures: Array<SongMeasure>
   notes: Array<SongNote>
-  bpms: Array<{ time: number; bpm: number }>
+  bpms: Array<Bpm>
   timeSignature: { numerator: number; denominator: number }
 }
 
@@ -59,13 +61,16 @@ export function parseMusicXML(txt: string): Song {
   let staffs: Staffs = {}
   let notes: Array<SongNote> = []
   let measures: Array<SongMeasure> = []
-  const bpms: Array<{ time: number; bpm: number }> = []
+  const bpms: Array<Bpm> = []
   const divisions = Number(xml.querySelector('divisions')?.textContent)
   let part = 0
   const timeSignature = { numerator: 4, denominator: 4 }
 
   function calcWallDuration(duration: number): number {
-    const bpm = bpms[bpms.length - 1]?.bpm ?? 120
+    // Must calculate the current bpm based on currTime, because various things may change
+    // currTime backwards or forwards (part changes, or repeats etc.)
+    const bpmIndex = bpms.findIndex((bpm) => bpm.time > currTime) - 1
+    const bpm = (bpmIndex < 0 ? bpms[bpms.length - 1] : bpms[bpmIndex])?.bpm ?? 120
     return (1 / (bpm / 60)) * (duration / divisions)
   }
 
@@ -98,7 +103,6 @@ export function parseMusicXML(txt: string): Song {
       } else {
         // TODO handle double-sharp and double-flat etc.
         accidental = Number(curr.querySelector('accidental')?.textContent?.trim() ?? 0)
-        // console.error("JAKE THIS HAPPENED, THERES AN ACCIDENTAL NUMBER IN THE XML", curr.innerHTML)
       }
       if (curr.querySelector('alter')) {
         accidental = Number(curr.querySelector('alter')?.textContent?.trim()) ?? 0
@@ -134,7 +138,7 @@ export function parseMusicXML(txt: string): Song {
         let type = tie.getAttribute('type')
         if (type === 'stop') {
           if (openTies.has(noteValue)) {
-            openTies.get(noteValue).duration += duration
+            openTies.get(noteValue).duration += note.duration
             openTies.delete(noteValue)
           } else {
             console.warn('could not close tie', curr)
@@ -296,7 +300,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
   const parsed = parseMidiFile(midiData)
   console.error('midi', { parsed })
 
-  const bpms: Array<{ time: number; bpm: number }> = []
+  const bpms: Array<Bpm> = []
   var ticksPerBeat = parsed.header.ticksPerBeat
 
   let currTime = 0
@@ -351,9 +355,6 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         }
       }
 
-      // if (parsed.tracks.length === 3) {
-      //   // staff--
-      // }
       const note: SongNote = {
         time: currTime,
         duration: 0,

@@ -156,7 +156,7 @@ class Player {
     const time = this.updateTime_()
 
     // If at the end of the song, then reset.
-    if (this.currentIndex >= this.notes.length && this.playing.length === 0) {
+    if (this.currentSongTime >= this.getDuration()) {
       this.pause()
     }
 
