@@ -68,7 +68,8 @@ class Player {
   //      | 1000ms |
 
   getBpm() {
-    return this.song?.bpms[this.currentBpm].bpm * this.bpmModifier
+    const currBpm = this.song?.bpms[this.currentBpm]?.bpm ?? 120
+    return currBpm * this.bpmModifier
   }
 
   increaseBpm() {

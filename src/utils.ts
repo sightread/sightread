@@ -55,7 +55,7 @@ export function parseMusicXML(txt: string): Song {
   let currTime = 0
   let currMeasure = 1
   let totalDuration = 0
-  let openTies = new Map() // A tie in music is when a note should be held down for multiple notes.
+  let openTies = new Map() // A tie in music is when a note should be held down even after crossing a measure.
   let repeatStart: number = 1
   let curr = walker.currentNode as HTMLElement
   let staffs: Staffs = {}
@@ -111,7 +111,8 @@ export function parseMusicXML(txt: string): Song {
         console.error('Error: found a note with no duration.')
         duration = 0
       }
-      let staff = currStaff
+      let noteStaff = Number(curr.querySelector('staff')?.textContent?.trim())
+      let staff = noteStaff ? noteStaff : currStaff
       let accidental: any = curr.querySelector('accidental')?.textContent?.trim()
       if (!accidental || accidental === 'natural') {
         accidental = 0
@@ -151,9 +152,6 @@ export function parseMusicXML(txt: string): Song {
       if (tie) {
         let type = tie.getAttribute('type')
         const hasTwoTies = curr.querySelectorAll('tie').length > 1
-        if (currMeasure === 16 || currMeasure === 17 || currMeasure === 18 || currMeasure === 19) {
-          console.error(lastNoteTime, note, isChord)
-        }
         if (type === 'stop') {
           if (openTies.has(noteValue)) {
             openTies.get(noteValue).duration += note.duration
