@@ -243,15 +243,13 @@ function BpmDisplay() {
   })
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }} onClick={() => {}}>
+    <div
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 110 }}
+    >
       <i style={{ fontSize: 24 }} className="fas fa-minus" onClick={() => player.decreaseBpm()} />
-      <div style={{ display: 'flex', flexDirection: 'column', color: 'white', width: 70 }}>
-        <span style={{ fontSize: 24 }} ref={percentRef}>
-          100 %
-        </span>
-        <span style={{ fontSize: 16 }} ref={bpmRef}>
-          {player.getBpm()} BPM
-        </span>
+      <div style={{ display: 'flex', flexDirection: 'column', color: 'white' }}>
+        <span style={{ fontSize: 24 }} ref={percentRef} />
+        <span style={{ fontSize: 16 }} ref={bpmRef} />
       </div>
       <i style={{ fontSize: 24 }} className="fas fa-plus" onClick={() => player.increaseBpm()} />
     </div>
