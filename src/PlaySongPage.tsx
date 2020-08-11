@@ -83,17 +83,17 @@ function App() {
           zIndex: 2,
           backgroundColor: 'black',
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
-          <i
-            className="fas fa-arrow-left"
-            style={{fontSize: 30, position: 'relative', left: 15}}
-            onClick={() => {
-              player.pause()
-              window.history.back()
-            }}
-          />
+        <i
+          className="fas fa-arrow-left"
+          style={{ fontSize: 30, position: 'relative', left: 15 }}
+          onClick={() => {
+            player.pause()
+            window.history.back()
+          }}
+        />
         <div
           className="nav-buttons"
           style={{
@@ -106,7 +106,7 @@ function App() {
             width: 225,
           }}
         >
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className="fas fa-step-backward"
             style={{ fontSize: 24 }}
@@ -114,8 +114,8 @@ function App() {
               player.stop()
               setPlaying(false)
             }}
-         />
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          />
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className={playing ? 'fas fa-pause' : 'fas fa-play'}
             style={{ fontSize: 24 }}
@@ -129,17 +129,31 @@ function App() {
               }
             }}
           ></i>
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <BpmDisplay />
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
         </div>
-        <div style={{ display: 'flex', marginLeft: 'auto', alignItems: 'center', minWidth: 250, marginRight: 20 }}>
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+        <div
+          style={{
+            display: 'flex',
+            marginLeft: 'auto',
+            alignItems: 'center',
+            minWidth: 250,
+            marginRight: 20,
+          }}
+        >
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <div className="super-hands" onClick={handleHand} style={{ fontSize: 24 }}>
-            <i style={{ transform: 'rotateY(180deg)', color: hand === 'left' ? 'red' : undefined }} className="fas fa-hand-paper"></i>
-            <i style={{color: hand === 'right' ? 'red' : undefined}} className="fas fa-hand-paper"></i>
+            <i
+              style={{ transform: 'rotateY(180deg)', color: hand === 'left' ? 'red' : undefined }}
+              className="fas fa-hand-paper"
+            ></i>
+            <i
+              style={{ color: hand === 'right' ? 'red' : undefined }}
+              className="fas fa-hand-paper"
+            ></i>
           </div>
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className="fas fa-clock"
             aria-hidden="true"
@@ -149,7 +163,7 @@ function App() {
               player.setWait(!waiting)
             }}
           />
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className="fas fa-history"
             aria-hidden="true"
@@ -160,7 +174,7 @@ function App() {
               player.pause()
             }}
           />
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className="fas fa-music"
             aria-hidden="true"
@@ -173,7 +187,7 @@ function App() {
               }
             }}
           />
-          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className={soundOff ? 'fas fa-volume-off' : 'fas fa-volume-up'}
             style={{ fontSize: 24 }}
@@ -229,13 +243,13 @@ function BpmDisplay() {
   })
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center'}} onClick={() => {}}>
+    <div style={{ display: 'flex', alignItems: 'center' }} onClick={() => {}}>
       <i style={{ fontSize: 24 }} className="fas fa-minus" onClick={() => player.decreaseBpm()} />
-      <div style={{ display: 'flex', flexDirection: 'column', color: 'white', width: 70}}>
-        <span style={{ fontSize: 24, marginLeft: 5, marginRight: 5 }} ref={percentRef}>
+      <div style={{ display: 'flex', flexDirection: 'column', color: 'white', width: 70 }}>
+        <span style={{ fontSize: 24 }} ref={percentRef}>
           100 %
         </span>
-        <span style={{ fontSize: 16, marginLeft: 5, marginRight: 5 }} ref={bpmRef}>
+        <span style={{ fontSize: 16 }} ref={bpmRef}>
           {player.getBpm()} BPM
         </span>
       </div>
