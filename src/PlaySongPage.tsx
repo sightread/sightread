@@ -78,46 +78,47 @@ function App() {
         id="topbar"
         style={{
           position: 'fixed',
-          height: 50,
+          height: 55,
           width,
           zIndex: 2,
-          backgroundColor: 'rgb(50,50,50)',
-          flexDirection: 'row',
+          backgroundColor: 'black',
           display: 'flex',
+          alignItems: 'center'
         }}
       >
-        <div style={{ position: 'absolute', top: 10, left: 20 }}>
           <i
-            className="fa fa-2x fa-arrow-left"
+            className="fas fa-arrow-left"
+            style={{fontSize: 30, position: 'relative', left: 15}}
             onClick={() => {
               player.pause()
               window.history.back()
             }}
           />
-        </div>
         <div
           className="nav-buttons"
           style={{
             position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            alignItems: 'center',
             display: 'flex',
             justifyContent: 'space-around',
-            width: 300,
-            height: 50,
-            top: 10,
-            left: width / 2 - 160 / 2,
+            width: 225,
           }}
         >
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
           <i
-            className="fa fa-2x fa-step-backward"
-            style={{ width: 30 }}
+            className="fas fa-step-backward"
+            style={{ fontSize: 24 }}
             onClick={() => {
               player.stop()
               setPlaying(false)
             }}
-          ></i>
+         />
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
           <i
-            className={playing ? 'fa fa-2x fa-pause' : 'fa fa-2x fa-play'}
-            style={{ width: 30 }}
+            className={playing ? 'fas fa-pause' : 'fas fa-play'}
+            style={{ fontSize: 24 }}
             onClick={() => {
               if (!playing) {
                 player.play()
@@ -128,19 +129,54 @@ function App() {
               }
             }}
           ></i>
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <BpmDisplay />
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+        </div>
+        <div style={{ display: 'flex', marginLeft: 'auto', alignItems: 'center', minWidth: 250, marginRight: 20 }}>
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <div className="super-hands" onClick={handleHand} style={{ fontSize: 24 }}>
+            <i style={{ transform: 'rotateY(180deg)', color: hand === 'left' ? 'red' : undefined }} className="fas fa-hand-paper"></i>
+            <i style={{color: hand === 'right' ? 'red' : undefined}} className="fas fa-hand-paper"></i>
+          </div>
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
           <i
-            className="fa fa-2x fa-repeat"
+            className="fas fa-clock"
             aria-hidden="true"
-            style={{ width: 30, color: rangeSelecting ? 'red' : undefined }}
+            style={{ fontSize: 24, color: waiting ? 'red' : undefined }}
+            onClick={() => {
+              setWaiting(!waiting)
+              player.setWait(!waiting)
+            }}
+          />
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <i
+            className="fas fa-history"
+            aria-hidden="true"
+            style={{ fontSize: 24, color: rangeSelecting ? 'red' : undefined }}
             onClick={() => {
               setRangeSelecting(!rangeSelecting)
               setPlaying(false)
               player.pause()
             }}
           />
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
           <i
-            className={soundOff ? 'fa fa-2x fa-volume-off' : 'fa fa-2x fa-volume-up'}
-            style={{ width: 30 }}
+            className="fas fa-music"
+            aria-hidden="true"
+            style={{ color: viz === 'sheet' ? 'red' : undefined, fontSize: 24 }}
+            onClick={() => {
+              if (viz === 'sheet') {
+                setViz('falling-notes')
+              } else {
+                setViz('sheet')
+              }
+            }}
+          />
+          <hr style={{width: 1, height: 40, backgroundColor: 'white', border: 'none'}}/>
+          <i
+            className={soundOff ? 'fas fa-volume-off' : 'fas fa-volume-up'}
+            style={{ fontSize: 24 }}
             onClick={() => {
               if (!soundOff) {
                 player.setVolume(0)
@@ -151,46 +187,6 @@ function App() {
               }
             }}
           />
-          <i
-            className="fa fa-2x fa-clock-o"
-            aria-hidden="true"
-            style={{ width: 30, color: waiting ? 'red' : undefined }}
-            onClick={() => {
-              setWaiting(!waiting)
-              player.setWait(!waiting)
-            }}
-          />
-          <i
-            className="fa fa-2x fa-music"
-            aria-hidden="true"
-            style={{ width: 30, color: viz === 'sheet' ? 'red' : undefined }}
-            onClick={() => {
-              if (viz === 'sheet') {
-                setViz('falling-notes')
-              } else {
-                setViz('sheet')
-              }
-            }}
-          />
-          <BpmDisplay />
-        </div>
-        <div style={{ position: 'absolute', top: 10, right: 20 }}>
-          {hand === 'both' && (
-            <div className="super-hands" onClick={handleHand} style={{ width: 40 }}>
-              <i style={{ transform: 'rotateY(180deg)' }} className="fa fa-hand-paper-o"></i>
-              <i style={{}} className="fa fa-hand-paper-o"></i>
-            </div>
-          )}
-          {hand === 'left' && (
-            <i style={{ width: 40 }} className="fa fa-2x fa-hand-paper-o" onClick={handleHand}></i>
-          )}
-          {hand === 'right' && (
-            <i
-              style={{ transform: 'rotateY(180deg)', width: 40 }}
-              className="fa fa-2x fa-hand-paper-o"
-              onClick={handleHand}
-            ></i>
-          )}
         </div>
         {song && (
           <SongScrubBar
@@ -233,17 +229,17 @@ function BpmDisplay() {
   })
 
   return (
-    <div style={{ width: 120, display: 'flex' }} onClick={() => {}}>
-      <i style={{ width: 30 }} className="fa fa-2x fa-minus" onClick={() => player.decreaseBpm()} />
-      <div style={{ display: 'flex', flexDirection: 'column', color: 'white', width: 70 }}>
-        <span style={{ fontSize: 18, marginLeft: 5, marginRight: 5 }} ref={percentRef}>
+    <div style={{ display: 'flex', alignItems: 'center'}} onClick={() => {}}>
+      <i style={{ fontSize: 24 }} className="fas fa-minus" onClick={() => player.decreaseBpm()} />
+      <div style={{ display: 'flex', flexDirection: 'column', color: 'white', width: 70}}>
+        <span style={{ fontSize: 24, marginLeft: 5, marginRight: 5 }} ref={percentRef}>
           100 %
         </span>
-        <span style={{ fontSize: 12, marginLeft: 5, marginRight: 5 }} ref={bpmRef}>
+        <span style={{ fontSize: 16, marginLeft: 5, marginRight: 5 }} ref={bpmRef}>
           {player.getBpm()} BPM
         </span>
       </div>
-      <i style={{ width: 30 }} className="fa fa-2x fa-plus" onClick={() => player.increaseBpm()} />
+      <i style={{ fontSize: 24 }} className="fas fa-plus" onClick={() => player.increaseBpm()} />
     </div>
   )
 }
@@ -264,7 +260,7 @@ function RuleLines({ width, height }: any) {
             {
               ...baseStyle,
               left: widthOfWhiteKey * i * 7 + 5 * widthOfWhiteKey,
-              opacity: 0.3,
+              opacity: 0.15,
             } as any
           }
         ></div>
@@ -272,7 +268,7 @@ function RuleLines({ width, height }: any) {
           style={
             {
               ...baseStyle,
-              opacity: 0.4,
+              opacity: 0.3,
               left: widthOfWhiteKey * i * 7 + 2 * widthOfWhiteKey,
             } as any
           }
@@ -380,7 +376,7 @@ function SongScrubBar({
 
   return (
     <div
-      style={{ position: 'relative', display: 'flex', width, top: '50px' }}
+      style={{ position: 'absolute', display: 'flex', width, top: '55px' }}
       className="scrub-bar-container"
       onMouseDown={(e) => {
         setMousePressed(true)
@@ -411,7 +407,7 @@ function SongScrubBar({
           position: 'absolute',
           height: '100%',
           width: width,
-          backgroundColor: '#b2dfdb',
+          backgroundColor: '#B0B0B0',
         }}
       ></div>
       <div
@@ -420,7 +416,7 @@ function SongScrubBar({
           height: 'calc(100% )',
           width: width,
           pointerEvents: 'none',
-          backgroundColor: '#009688',
+          backgroundColor: 'white',
           left: -width,
         }}
         className="scrubBar"
@@ -428,9 +424,9 @@ function SongScrubBar({
       ></div>
       <span
         ref={currentTimeRef}
-        style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 12 }}
+        style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 20 }}
       ></span>
-      <span style={{ position: 'absolute', bottom: 1, right: 4, color: '#242632', fontSize: 12 }}>
+      <span style={{ position: 'absolute', bottom: 1, right: 4, color: '#242632', fontSize: 20 }}>
         {formatTime(player.getRealTimeDuration(0, song.duration))}
       </span>
       <div

@@ -287,7 +287,7 @@ function Measure({
       <div
         style={{
           height: 1,
-          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          backgroundColor: '#C5C5C5',
           width,
         }}
         key={`measure-${measure.number}`}

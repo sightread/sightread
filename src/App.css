@@ -1,5 +1,5 @@
 body {
-  background-color: #242632;
+  background-color: #2E2E2E;
 }
 #topbar i {
   color: white;
@@ -19,6 +19,6 @@ body {
   cursor: pointer;
   transition: color 0.1s;
 }
-.super-hands:hover {
-  color: #3a68e7;
+.super-hands:hover i {
+  color: #3a68e7 !important;
 }
