@@ -29,7 +29,6 @@ function App() {
   const { player } = usePlayer()
   const [song, setSong] = useState<Song | null>(null)
   const [hand, setHand] = useState('both')
-  const { song_location }: any = useParams()
 
   const handleHand = () => {
     switch (hand) {
@@ -49,12 +48,14 @@ function App() {
   useEffect(() => {
     player.setHand(hand)
   }, [hand])
+
+  const songLocation = window.location.pathname.substring(6)
   useEffect(() => {
-    getSong(`/music/${song_location}`).then((song: Song) => {
+    getSong(`/${songLocation}`).then((song: Song) => {
       setSong(song)
       player.setSong(song)
     })
-  }, [song_location, player])
+  }, [songLocation, player])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {

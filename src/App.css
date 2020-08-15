@@ -22,3 +22,8 @@ body {
 .super-hands:hover i {
   color: #3a68e7 !important;
 }
+
+.SelectSongPage__song:hover {
+  background-color: rgba(235, 27, 27, 0.5);
+  cursor: pointer;
+}
