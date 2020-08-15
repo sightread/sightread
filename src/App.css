@@ -27,3 +27,11 @@ body {
   background-color: rgba(235, 27, 27, 0.5);
   cursor: pointer;
 }
+
+/* .SelectSongPage__song::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  border-bottom: #d9d5ec solid 1px;
+} */

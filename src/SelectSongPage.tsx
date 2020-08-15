@@ -81,6 +81,8 @@ function SelectSongPage() {
                 color: '#AE0101',
                 backgroundColor: '#F1F1F1',
                 flexShrink: 0,
+                borderBottom: '#d9d5ec solid 1px',
+                zIndex: 1,
               }}
             >
               <span style={{ paddingLeft: 30, width: '25%' }}>TITLE</span>
@@ -92,11 +94,13 @@ function SelectSongPage() {
               <div
                 onDoubleClick={() => history.push(`/play/${song.file}`)}
                 style={{
+                  position: 'relative',
                   height: 35,
                   fontSize: 14,
                   display: 'flex',
                   alignItems: 'center',
                   flexShrink: 0,
+                  borderBottom: '#d9d5ec solid 1px',
                 }}
                 className="SelectSongPage__song"
               >
