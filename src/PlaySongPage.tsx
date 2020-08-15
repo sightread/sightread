@@ -11,8 +11,8 @@ import {
 import { Song, parseMusicXML, parseMidi, STAFF } from './utils'
 import { WebAudioFontSynth } from './synth'
 import { WindowedSongBoard } from './WindowedSongboard'
-import { useParams } from 'react-router'
 import { WindowedStaffBoard } from './StaffPage'
+import midiKeyboard from './midi'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
@@ -55,6 +55,11 @@ function App() {
       setSong(song)
       player.setSong(song)
     })
+    midiKeyboard.virtualKeyboard = true
+
+    return function cleanup() {
+      midiKeyboard.virtualKeyboard = false
+    }
   }, [songLocation, player])
 
   useEffect(() => {

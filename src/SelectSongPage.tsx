@@ -8,13 +8,15 @@ import { useWindowSize } from './hooks'
 function SelectSongPage() {
   const { width, height } = useWindowSize()
   const history = useHistory()
-  const [search, saveSearch] = useState()
+  const [search, saveSearch] = useState('')
 
-  const songContainsWord = (songData: any, searchWord: string) => {
-    return Object.values(songData).some((value: any) =>
-      value.toLowerCase().includes(searchWord.toLowerCase()),
-    )
-  }
+  const filteredSongs = songs.filter(
+    (song) =>
+      search === '' ||
+      song.artist.toUpperCase().includes(search.toUpperCase()) ||
+      song.name.toUpperCase().includes(search.toUpperCase()),
+  )
+
   return (
     <>
       <div
@@ -63,8 +65,6 @@ function SelectSongPage() {
               flexDirection: 'column',
               width: '100%',
               maxHeight: 500,
-              overflowY: 'scroll',
-              overflowX: 'hidden',
               backgroundColor: '#FFF',
               boxShadow: `0px 0px 5px rgba(0, 0, 0, 0.2)`,
               borderRadius: 5,
@@ -90,26 +90,33 @@ function SelectSongPage() {
               <span style={{ width: '25%' }}>DIFFICULTY</span>
               <span style={{ width: '25%' }}>LENGTH</span>
             </div>
-            {songs.map((song) => (
-              <div
-                onDoubleClick={() => history.push(`/play/${song.file}`)}
-                style={{
-                  position: 'relative',
-                  height: 35,
-                  fontSize: 14,
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexShrink: 0,
-                  borderBottom: '#d9d5ec solid 1px',
-                }}
-                className="SelectSongPage__song"
-              >
-                <span style={{ paddingLeft: 30, width: '25%' }}>{song.name}</span>
-                <span style={{ width: '25%' }}>{song.artist}</span>
-                <span style={{ width: '25%' }}>{song.difficulty}</span>
-                <span style={{ width: '25%' }}>0:00</span>
-              </div>
-            ))}
+            <div
+              style={{
+                overflowY: 'scroll',
+                overflowX: 'hidden',
+              }}
+            >
+              {filteredSongs.map((song) => (
+                <div
+                  onDoubleClick={() => history.push(`/play/${song.file}`)}
+                  style={{
+                    position: 'relative',
+                    height: 35,
+                    fontSize: 14,
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexShrink: 0,
+                    borderBottom: '#d9d5ec solid 1px',
+                  }}
+                  className="SelectSongPage__song"
+                >
+                  <span style={{ paddingLeft: 30, width: '25%' }}>{song.name}</span>
+                  <span style={{ width: '25%' }}>{song.artist}</span>
+                  <span style={{ width: '25%' }}>{song.difficulty}</span>
+                  <span style={{ width: '25%' }}>0:00</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -126,7 +133,7 @@ function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
     <div style={{ position: 'relative', height: 32, width: 300 }}>
       <input
         type="search"
-        onClick={(e: any) => onSearch(e.target.value)}
+        onChange={(e: any) => onSearch(e.target.value)}
         style={{
           position: 'absolute',
           width: '100%',
