@@ -318,7 +318,7 @@ function getSharps(fifth: number) {
 ;(window as any).getNoteValue = getNoteValue
 
 // TODO: write own parser
-export function parseMidi(midiData: ArrayBufferLike): Song {
+export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
   const parsed = parseMidiFile(midiData)
   console.error('midi', { parsed })
 
@@ -345,7 +345,23 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     return (ticks * 60) / (ticksPerBeat * bpm)
   }
 
-  const orderedEvents = getOrderedMidiEvents(parsed)
+  let orderedEvents = getOrderedMidiEvents(parsed)
+  let onlyStudentTrack =
+    isTeachMid &&
+    orderedEvents.find((event) => {
+      return event.event.subType === 'trackName' && event.event.text === 'Student'
+    })?.track
+  let lhStudentTrack =
+    isTeachMid &&
+    orderedEvents.find((event) => {
+      return event.event.subType === 'trackName' && event.event.text?.trim() === 'L.H. Student'
+    })?.track
+  let rhStudentTrack =
+    isTeachMid &&
+    orderedEvents.find((event) => {
+      return event.event.subType === 'trackName' && event.event.text?.trim() === 'R.H. Student'
+    })?.track
+
   for (let orderedEvent of orderedEvents) {
     let midiEvent: MidiEvent = orderedEvent.event
     currTick += orderedEvent.ticksToEvent
@@ -353,6 +369,15 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     if (currTick - lastMeasureTickedAt >= ticksPerMeasure()) {
       lastMeasureTickedAt = currTick
       measures.push({ time: currTime, number: measures.length + 1 })
+    }
+
+    if (
+      (onlyStudentTrack || lhStudentTrack || rhStudentTrack) &&
+      orderedEvent.track !== onlyStudentTrack &&
+      orderedEvent.track !== lhStudentTrack &&
+      orderedEvent.track !== rhStudentTrack
+    ) {
+      continue
     }
 
     if (midiEvent.subType === 'noteOn') {

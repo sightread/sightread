@@ -5,17 +5,37 @@ import { useHistory } from 'react-router-dom'
 import { songs, lessons } from './songdata'
 import { useWindowSize } from './hooks'
 
+// TODO: make lessons / songs at diff urls
 function SelectSongPage() {
   const { width, height } = useWindowSize()
   const history = useHistory()
   const [search, saveSearch] = useState('')
+  const [selected, setSelected] = useState<'songs' | 'lessons'>('songs')
 
-  const filteredSongs = songs.filter(
-    (song) =>
-      search === '' ||
-      song.artist.toUpperCase().includes(search.toUpperCase()) ||
-      song.name.toUpperCase().includes(search.toUpperCase()),
-  )
+  let toDisplay: any = []
+  if (selected === 'songs') {
+    toDisplay = songs.filter(
+      (song) =>
+        search === '' ||
+        song.artist.toUpperCase().includes(search.toUpperCase()) ||
+        song.name.toUpperCase().includes(search.toUpperCase()),
+    )
+  } else {
+    toDisplay = lessons.filter(
+      (lesson) => search === '' || lesson.name.toUpperCase().includes(search.toUpperCase()),
+    )
+  }
+
+  const selectedStyle = {
+    color: '#AE0101',
+    marginBottom: -3, // -3 -2 + 1 === 0
+    paddingBottom: 2,
+    borderBottom: '#AE0101 solid 1px',
+  }
+
+  const unselectedStyle = {
+    cursor: 'pointer',
+  }
 
   return (
     <>
@@ -39,7 +59,16 @@ function SelectSongPage() {
           width: '100vw',
         }}
       >
-        <div style={{ position: 'relative', left: 50, width: 'calc(100% - 100px)' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            height: 'calc(100% - 60px)',
+            left: 50,
+            width: 'calc(100% - 100px)',
+          }}
+        >
           <h2 style={{ fontSize: 36, marginTop: 8, marginBottom: 30 }}>Learn</h2>
 
           <div
@@ -52,8 +81,18 @@ function SelectSongPage() {
               justifyContent: 'space-between',
             }}
           >
-            <span style={{ color: '#AE0101', textDecoration: 'underline' }}>Songs</span>{' '}
-            <span>Lessons</span>
+            <span
+              onClick={() => setSelected('songs')}
+              style={selected === 'songs' ? selectedStyle : unselectedStyle}
+            >
+              Songs
+            </span>
+            <span
+              onClick={() => setSelected('lessons')}
+              style={selected === 'lessons' ? selectedStyle : unselectedStyle}
+            >
+              Lessons
+            </span>
           </div>
           <Sizer height={20} />
           <SearchBox onSearch={saveSearch} />
@@ -64,7 +103,7 @@ function SelectSongPage() {
               display: 'flex',
               flexDirection: 'column',
               width: '100%',
-              maxHeight: 500,
+              flexGrow: 1,
               backgroundColor: '#FFF',
               boxShadow: `0px 0px 5px rgba(0, 0, 0, 0.2)`,
               borderRadius: 5,
@@ -77,6 +116,7 @@ function SelectSongPage() {
                 display: 'flex',
                 alignItems: 'center',
                 height: 30,
+                boxSizing: 'border-box',
                 fontWeight: 600,
                 color: '#AE0101',
                 backgroundColor: '#F1F1F1',
@@ -85,22 +125,38 @@ function SelectSongPage() {
                 zIndex: 1,
               }}
             >
-              <span style={{ paddingLeft: 30, width: '25%' }}>TITLE</span>
-              <span style={{ width: '25%' }}>ARTIST</span>
-              <span style={{ width: '25%' }}>DIFFICULTY</span>
-              <span style={{ width: '25%' }}>LENGTH</span>
+              {selected === 'songs' && (
+                <>
+                  <span style={{ paddingLeft: 30, width: '25%' }}>TITLE</span>
+                  <span style={{ width: '25%' }}>ARTIST</span>
+                  <span style={{ width: '25%' }}>DIFFICULTY</span>
+                  <span style={{ width: '25%' }}>LENGTH</span>
+                </>
+              )}
+              {selected === 'lessons' && (
+                <>
+                  <span style={{ paddingLeft: 30, width: '15%' }}>LESSON</span>
+                  <span style={{ width: '50%' }}>TITLE</span>
+                  <span style={{ width: '33%' }}>DIFFICULTY</span>
+                </>
+              )}
             </div>
             <div
               style={{
-                overflowY: 'scroll',
+                overflowY: 'auto',
                 overflowX: 'hidden',
+                position: 'absolute',
+                top: 30,
+                height: 'calc(100% - 30px)',
+                width: '100%',
               }}
             >
-              {filteredSongs.map((song) => (
+              {toDisplay.map((song: any) => (
                 <div
                   onDoubleClick={() => history.push(`/play/${song.file}`)}
                   style={{
                     position: 'relative',
+                    boxSizing: 'border-box',
                     height: 35,
                     fontSize: 14,
                     display: 'flex',
@@ -110,10 +166,21 @@ function SelectSongPage() {
                   }}
                   className="SelectSongPage__song"
                 >
-                  <span style={{ paddingLeft: 30, width: '25%' }}>{song.name}</span>
-                  <span style={{ width: '25%' }}>{song.artist}</span>
-                  <span style={{ width: '25%' }}>{song.difficulty}</span>
-                  <span style={{ width: '25%' }}>0:00</span>
+                  {selected === 'songs' && (
+                    <>
+                      <span style={{ paddingLeft: 30, width: '25%' }}>{song.name}</span>
+                      <span style={{ width: '25%' }}>{song.artist}</span>
+                      <span style={{ width: '25%' }}>{song.difficulty}</span>
+                      <span style={{ width: '25%' }}>0:00</span>
+                    </>
+                  )}
+                  {selected === 'lessons' && (
+                    <>
+                      <span style={{ paddingLeft: 30, width: '15%' }}>{song.lesson}</span>
+                      <span style={{ width: '50%' }}>{song.name}</span>
+                      <span style={{ width: '33%' }}>{'Easy'}</span>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

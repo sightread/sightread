@@ -604,7 +604,11 @@ export const lessons = [
     file: 'Handels_WATER_music.MID',
     name: 'Handels WATER music',
   },
-].map((elem) => ({ ...elem, file: 'music/lessons/teachmid' + elem.file }))
+].map((elem) => ({
+  ...elem,
+  file:
+    'music/lessons/teachmid/l' + `${(elem.lesson < 10 ? '0' : '') + elem.lesson}` + '/' + elem.file,
+}))
 
 export const songs = [
   {
