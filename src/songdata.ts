@@ -649,13 +649,13 @@ export const songs = [
   },
   {
     file: 'Alan Walker - On My Way.mid',
-    name: 'On My Way.mid',
+    name: 'On My Way',
     artist: 'Alan Walker',
     difficulty: 'Easy',
   },
   {
     file: 'Alan Walker - The Spectre.mid',
-    name: 'The Spectre.mid',
+    name: 'The Spectre',
     artist: 'Alan Walker',
     difficulty: 'Easy',
   },

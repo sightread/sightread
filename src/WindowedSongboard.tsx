@@ -1,6 +1,5 @@
 import './player'
 import React, { useState, useEffect, useRef } from 'react'
-import './App.css'
 import { usePlayer, useRAFLoop, useWindowSize } from './hooks'
 import { Song, SongMeasure } from './utils'
 
@@ -12,7 +11,7 @@ import { Song, SongMeasure } from './utils'
  * 2. Based on that, figure out which should be displayed on screen
  */
 
-const PIXELS_PER_SECOND = 300
+const PIXELS_PER_SECOND = 150
 
 function getKeyboardHeight(width: number) {
   const whiteWidth = width / 52

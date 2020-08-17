@@ -1,6 +1,5 @@
 import './player'
 import React, { useState, useEffect, useRef } from 'react'
-import './App.css'
 import {
   useWindowSize,
   usePlayer,
@@ -394,8 +393,7 @@ function SongScrubBar({
 
   return (
     <div
-      style={{ position: 'absolute', display: 'flex', width, top: '55px' }}
-      className="scrub-bar-container"
+      style={{ position: 'absolute', display: 'flex', width, top: '55px', height: 40 }}
       onMouseDown={(e) => {
         setMousePressed(true)
         if (!rangeSelecting) {

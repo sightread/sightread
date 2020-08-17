@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import './App.css'
 import './SelectSong.css'
 import { useHistory } from 'react-router-dom'
 import { songs, lessons } from './songdata'
@@ -8,18 +7,23 @@ import { useWindowSize } from './hooks'
 // TODO: make lessons / songs at diff urls
 function SelectSongPage() {
   const { width, height } = useWindowSize()
+  const [sortCol, setSortCol] = useState<number>(0)
   const history = useHistory()
   const [search, saveSearch] = useState('')
-  const [selected, setSelected] = useState<'songs' | 'lessons'>('songs')
+  const selected = window.location.pathname.includes('lesson') ? 'lessons' : 'songs'
 
   let toDisplay: any = []
   if (selected === 'songs') {
-    toDisplay = songs.filter(
-      (song) =>
-        search === '' ||
-        song.artist.toUpperCase().includes(search.toUpperCase()) ||
-        song.name.toUpperCase().includes(search.toUpperCase()),
-    )
+    const cols = ['name', 'artist', 'difficulty', 'length']
+    const field: string = cols[sortCol]
+    toDisplay = songs
+      .filter(
+        (song) =>
+          search === '' ||
+          song.artist.toUpperCase().includes(search.toUpperCase()) ||
+          song.name.toUpperCase().includes(search.toUpperCase()),
+      )
+      .sort((a: any, b: any) => a[field]?.localeCompare(b[field]))
   } else {
     toDisplay = lessons.filter(
       (lesson) => search === '' || lesson.name.toUpperCase().includes(search.toUpperCase()),
@@ -48,8 +52,26 @@ function SelectSongPage() {
           backgroundColor: 'black',
           display: 'flex',
           alignItems: 'center',
+          color: 'white',
         }}
-      ></div>
+      >
+        <span style={{ fontWeight: 500, fontSize: 24, marginLeft: 50 }}>SIGHTREAD</span>
+        <div
+          style={{
+            fontSize: 16,
+            paddingLeft: 60,
+            width: 350,
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>Home</span>
+          <span>Free Play</span>
+          <span>Learn</span>
+          <span>About</span>
+        </div>
+        <span style={{ marginLeft: 'auto', marginRight: 50 }}>Log in / Sign up</span>
+      </div>
       <div
         style={{
           display: 'flex',
@@ -69,7 +91,7 @@ function SelectSongPage() {
             width: 'calc(100% - 100px)',
           }}
         >
-          <h2 style={{ fontSize: 36, marginTop: 8, marginBottom: 30 }}>Learn</h2>
+          <h2 style={{ fontSize: 36, margin: '16px 0' }}>Learn</h2>
 
           <div
             style={{
@@ -82,13 +104,13 @@ function SelectSongPage() {
             }}
           >
             <span
-              onClick={() => setSelected('songs')}
+              onClick={() => history.push('/')}
               style={selected === 'songs' ? selectedStyle : unselectedStyle}
             >
               Songs
             </span>
             <span
-              onClick={() => setSelected('lessons')}
+              onClick={() => history.push('/learn/lessons')}
               style={selected === 'lessons' ? selectedStyle : unselectedStyle}
             >
               Lessons
@@ -110,6 +132,7 @@ function SelectSongPage() {
             }}
           >
             <div
+              className="table_header"
               style={{
                 position: 'sticky',
                 top: 0,
@@ -127,10 +150,38 @@ function SelectSongPage() {
             >
               {selected === 'songs' && (
                 <>
-                  <span style={{ paddingLeft: 30, width: '25%' }}>TITLE</span>
-                  <span style={{ width: '25%' }}>ARTIST</span>
-                  <span style={{ width: '25%' }}>DIFFICULTY</span>
-                  <span style={{ width: '25%' }}>LENGTH</span>
+                  <div style={{ paddingLeft: 30, width: '25%' }}>
+                    <span
+                      onClick={() => setSortCol(0)}
+                      className={sortCol === 0 ? 'activeSortHeader' : ''}
+                    >
+                      TITLE
+                    </span>
+                  </div>
+                  <div style={{ width: '25%' }}>
+                    <span
+                      onClick={() => setSortCol(1)}
+                      className={sortCol === 1 ? 'activeSortHeader' : ''}
+                    >
+                      ARTIST
+                    </span>
+                  </div>
+                  <div style={{ width: '25%' }}>
+                    <span
+                      onClick={() => setSortCol(2)}
+                      className={sortCol === 2 ? 'activeSortHeader' : ''}
+                    >
+                      DIFFICULTY
+                    </span>
+                  </div>
+                  <div style={{ width: '25%' }}>
+                    <span
+                      onClick={() => setSortCol(3)}
+                      className={sortCol === 3 ? 'activeSortHeader' : ''}
+                    >
+                      LENGTH
+                    </span>
+                  </div>
                 </>
               )}
               {selected === 'lessons' && (
@@ -165,6 +216,7 @@ function SelectSongPage() {
                     borderBottom: '#d9d5ec solid 1px',
                   }}
                   className="SelectSongPage__song"
+                  key={song.file}
                 >
                   {selected === 'songs' && (
                     <>
