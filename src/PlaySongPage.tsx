@@ -22,7 +22,7 @@ function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
   const [waiting, setWaiting] = useState(false)
-  const [viz, setViz] = useState<viz>('falling-notes')
+  const [viz, setViz] = useState<viz>('sheet')
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
@@ -216,19 +216,27 @@ function App() {
         )}
       </div>
       {viz === 'falling-notes' && song && (
-        <>
+        <div
+          style={{ backgroundColor: '#2e2e2e', display: 'fixed', width: '100vw', height: '100vh' }}
+        >
           <RuleLines width={width} height={height} />
           <WindowedSongBoard song={song} hand={hand} />
-        </>
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              height: getKeyboardHeight(width),
+            }}
+          >
+            <PianoRoll width={width} />
+          </div>
+        </div>
       )}
       {viz === 'sheet' && song && (
         <>
           <WindowedStaffBoard song={song} />
         </>
       )}
-      <div style={{ position: 'fixed', bottom: 0, height: getKeyboardHeight(width) }}>
-        <PianoRoll width={width} />
-      </div>
     </div>
   )
 }
@@ -393,7 +401,14 @@ function SongScrubBar({
 
   return (
     <div
-      style={{ position: 'absolute', display: 'flex', width, top: '55px', height: 40 }}
+      style={{
+        position: 'absolute',
+        display: 'flex',
+        width,
+        top: '55px',
+        height: 40,
+        borderBottom: 'black solid 1px',
+      }}
       onMouseDown={(e) => {
         setMousePressed(true)
         if (!rangeSelecting) {

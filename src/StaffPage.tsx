@@ -1,24 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react'
-// import ReactDOM from "react-dom"
-import Vex from 'vexflow'
 import { Song, parseMusicXML, parseMidi, getNoteValue, STAFF } from './utils'
 import { usePlayer, useWindowSize, useRAFLoop } from './hooks'
-import { ReactComponent } from '*.svg'
 
-const VF = Vex.Flow
+import FClefSVG from './FClef.svg'
+import GClefSVG from './GClef.svg'
 
 export function StaffPage() {
   const [song, setSong] = useState<Song | null>(null)
   const { player } = usePlayer()
 
+  const songLocation = window.location.pathname.substring(6)
   useEffect(() => {
-    getSong(`/music/Piano%20Hero%20015%20-%20Fort%20Minor%20-%20Remember%20The%20Name.mid`).then(
-      (song: Song) => {
-        setSong(song)
-        player.setSong(song)
-      },
-    )
-  }, [player])
+    getSong(`/${songLocation}`).then((song: Song) => {
+      setSong(song)
+      player.setSong(song)
+    })
+
+    return function cleanup() {}
+  }, [songLocation, player])
 
   if (!song) {
     return <span> Loading...</span>
@@ -42,76 +41,6 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
   // time + bpm is not normalized w.r.t to wall clock. should do this for a reasonable experience.
   const getXPos = (time: number) => time * PIXELS_PER_SECOND + 50
 
-  useEffect(() => {
-    if (!divRef) {
-      return
-    }
-
-    // Create an SVG renderer and attach it to the DIV element named "vf".
-    const renderer = new VF.Renderer(divRef.current as any, VF.Renderer.Backends.SVG)
-
-    // Configure the rendering context.
-    renderer.resize(width, 250)
-    const context = renderer.getContext()
-    context.setFont('Arial', 10).setBackgroundFillStyle('#eed')
-
-    // Create a stave of width 400 at position 10, 40 on the canvas.
-    const staveRight = new VF.Stave(10, 20, width)
-    const staveLeft = new VF.Stave(10, 110, width)
-
-    // Add a clef and time signature.
-    const timeSignature = `${song.timeSignature.numerator}/${song.timeSignature.denominator}`
-    staveRight.addClef('treble').addTimeSignature(timeSignature)
-    staveLeft.addClef('bass').addTimeSignature(timeSignature)
-
-    staveRight.setContext(context).draw()
-    staveLeft.setContext(context).draw()
-    // TODO: figure out how to draw connector
-    // new VF.StaveConnector(staveLeft, staveRight)
-    //   .setType(VF.StaveConnector.type.BOLD_DOUBLE_LEFT)
-    //   .setContext(context)
-    //   .draw()
-
-    const hider = context.openGroup()
-    context.closeGroup()
-    console.log(hider)
-
-    const notesGroup = context.openGroup()
-    song.measures.forEach((measure) => {
-      staveRight.drawVerticalBar(getXPos(measure.time) + 65)
-      staveLeft.drawVerticalBar(getXPos(measure.time) + 65)
-    })
-    song.notes.forEach((note) => {
-      const accidental: string =
-        ({ '-2': 'bb', '-1': 'b', '1': '#', '2': '##' } as any)[note.accidental] ?? ''
-
-      var tickContext = new VF.TickContext()
-      let vexNote
-      let keys = [`${note.pitch.step.toLowerCase()}${accidental}/${note.pitch.octave}`]
-      // estimate duration!  how? tbd.
-      if (note.staff === STAFF.trebl) {
-        vexNote = new VF.StaveNote({
-          clef: 'treble',
-          keys,
-          duration: note.noteType,
-        })
-        vexNote.setStave(staveRight)
-      } else {
-        vexNote = new VF.StaveNote({ clef: 'bass', keys, duration: note.noteType })
-        vexNote.setStave(staveLeft)
-      }
-      vexNote.setContext(context)
-      if (accidental) {
-        vexNote.addAccidental(0, new VF.Accidental(accidental))
-      }
-      tickContext.addTickable(vexNote)
-      tickContext.preFormat().setX(getXPos(note.time))
-      vexNote.draw()
-    })
-    context.closeGroup()
-    innerRef.current = notesGroup as HTMLDivElement
-  }, [divRef])
-
   useRAFLoop((dt: number) => {
     if (!outerRef.current || !innerRef.current) {
       return
@@ -131,36 +60,83 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
       }}
       ref={outerRef}
     >
-      <div
-        style={{
-          height: '100%',
-          width,
-        }}
-        // ref={innerRef}
-      >
+      <div style={{ height: '100%', width }}>
         <div
           ref={divRef}
           style={{
             position: 'absolute',
             top: '50%',
             transform: 'translateY(-50%)',
+            width: '100vw',
             backgroundColor: 'white',
           }}
         >
+          <Stave width={'calc(100% - 100px)'} height={100} staff="trebl" />
+          <Sizer height={70} />
+          <Stave width={'calc(100% - 100px)'} height={100} staff="bass" />
           <div
             style={{
               position: 'absolute',
-              top: 50,
-              left: 124,
-              width: 5,
-              height: 150,
-              backgroundColor: 'red',
+              top: -50,
+              left: 200,
+              width: 7,
+              height: 375,
+              backgroundColor: '#B91919',
             }}
-          ></div>
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: -50,
+              left: 188,
+              width: 30,
+              height: 375,
+              backgroundColor: 'rgba(185,25,25,0.21)',
+            }}
+          />
         </div>
       </div>
     </div>
   )
+}
+
+// Make a staffz
+function Stave({ width, height, staff }: any) {
+  const clefImgSrc = staff === 'trebl' ? GClefSVG : FClefSVG
+  const clefStyle =
+    staff === 'trebl' ? { height: 160, top: -20, left: -5 } : { height: 80, top: 2, left: 10 }
+
+  function Line() {
+    return (
+      <hr
+        style={{ width: '100%', height: 2, backgroundColor: 'black', border: 'none', margin: 0 }}
+      />
+    )
+  }
+  return (
+    <div style={{ position: 'relative', width, height, margin: '0 auto' }}>
+      <div style={{ position: 'absolute', left: 0, width: 2, height, backgroundColor: 'black' }} />
+      <img style={{ position: 'absolute', ...clefStyle }} src={clefImgSrc} />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          height,
+        }}
+      >
+        <Line />
+        <Line />
+        <Line />
+        <Line />
+        <Line />
+      </div>
+    </div>
+  )
+}
+
+function Sizer({ height, width }: { height?: number; width?: number }) {
+  return <div style={{ width, height }} />
 }
 
 async function getSong(url: string) {
