@@ -23,16 +23,16 @@ body {
 }
 
 .left-hand.white {
-  background-color: #4dd0e1;
-}
-.left-hand.black {
-  background-color: #2c6e78;
-}
-.right-hand.white {
   background-color: #ef6c00;
 }
-.right-hand.black {
+.left-hand.black {
   background-color: #c65a00;
+}
+.right-hand.white {
+  background-color: #4dd0e1;
+}
+.right-hand.black {
+  background-color: #2c6e78;
 }
 
 .activeSortHeader {
