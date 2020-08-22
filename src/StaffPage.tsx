@@ -30,6 +30,9 @@ export function StaffPage() {
 }
 
 const PIXELS_PER_SECOND = 300
+function getXPos(time: number) {
+  return time * PIXELS_PER_SECOND
+}
 
 export function WindowedStaffBoard({ song }: { song: Song }) {
   const windowSize = useWindowSize()
@@ -38,16 +41,17 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
   const innerRef = useRef<any>(null)
   const width = song.duration * PIXELS_PER_SECOND
   const { player } = usePlayer()
-  // time + bpm is not normalized w.r.t to wall clock. should do this for a reasonable experience.
-  const getXPos = (time: number) => time * PIXELS_PER_SECOND + 50
+  const s1Ref = useRef<any>()
+  const s2Ref = useRef<any>()
 
   useRAFLoop((dt: number) => {
-    if (!outerRef.current || !innerRef.current) {
+    if (!s1Ref.current || !s2Ref.current) {
       return
     }
     const now = player.getTime()
-    let offset = getXPos(now) - 50
-    innerRef.current.style.transform = `translateX(${-offset}px)`
+    let offset = getXPos(now)
+    s1Ref.current.style.transform = `translateX(${-offset}px)`
+    s2Ref.current.style.transform = `translateX(${-offset}px)`
   })
 
   return (
@@ -71,9 +75,21 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
             backgroundColor: 'white',
           }}
         >
-          <Stave width={'calc(100% - 100px)'} height={100} staff={STAFF.trebl} song={song} />
+          <Stave
+            width={'calc(100% - 100px)'}
+            height={100}
+            staff={STAFF.trebl}
+            song={song}
+            refz={s1Ref}
+          />
           <Sizer height={70} />
-          <Stave width={'calc(100% - 100px)'} height={100} staff={STAFF.bass} song={song} />
+          <Stave
+            width={'calc(100% - 100px)'}
+            height={100}
+            staff={STAFF.bass}
+            song={song}
+            refz={s2Ref}
+          />
           <div
             style={{
               position: 'absolute',
@@ -145,11 +161,13 @@ function Stave({
   height,
   staff,
   song,
+  refz,
 }: {
   width: number | string
   height: number
   staff: typeof STAFF.trebl | typeof STAFF.bass
   song: Song
+  refz: any
 }) {
   const notes = song.notes.filter((n) => n.staff === staff)
   const clefImgSrc = staff === STAFF.trebl ? GClefSVG : FClefSVG
@@ -163,7 +181,7 @@ function Stave({
           position: 'absolute',
           top,
           width: '100%',
-          height: 2.1,
+          height: 2.5,
           backgroundColor: 'black',
         }}
       />
@@ -185,7 +203,7 @@ function Stave({
         <div
           style={{
             position: 'absolute',
-            left: note.time * 100 + 180,
+            left: 152 + getXPos(note.time),
             top: top + 2,
             transform: 'translateY(-50%)',
           }}
@@ -195,8 +213,8 @@ function Stave({
         <div
           style={{
             position: 'absolute',
-            left: note.time * 100 + 190,
-            width: note.duration * 100,
+            left: 152 + getXPos(note.time) + 10,
+            width: note.duration * PIXELS_PER_SECOND,
             top: top + 1,
             height: 15,
             backgroundColor: 'rgba(0,0,0,0.51)',
@@ -209,7 +227,7 @@ function Stave({
   const lines = staff === STAFF.trebl ? TREBL_LINES : BASS_LINES
   return (
     <div style={{ position: 'relative', width, height, margin: '0 auto' }}>
-      <div style={{ position: 'absolute' }}>
+      <div style={{ position: 'absolute' }} ref={refz}>
         {notes.map((n) => (
           <Note note={n} />
         ))}
