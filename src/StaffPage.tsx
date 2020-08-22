@@ -100,6 +100,11 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
   )
 }
 
+// TODO:
+// - notes
+// - measures
+// - scalability of Grand Staff.
+
 // Make a staffz
 function Stave({ width, height, staff }: any) {
   const clefImgSrc = staff === 'trebl' ? GClefSVG : FClefSVG
