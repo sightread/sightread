@@ -214,7 +214,7 @@ function Stave({
           style={{
             position: 'absolute',
             left: 152 + getXPos(note.time) + 10,
-            width: note.duration * PIXELS_PER_SECOND,
+            width: note.duration * PIXELS_PER_SECOND - 10,
             top: top + 1,
             height: 15,
             backgroundColor: 'rgba(0,0,0,0.51)',
