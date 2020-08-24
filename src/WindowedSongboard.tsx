@@ -1,7 +1,7 @@
 import './player'
 import React, { useMemo } from 'react'
 import { usePlayer, useWindowSize } from './hooks'
-import { Song, SongMeasure, SongNote } from './utils'
+import { Song, SongMeasure, SongNote, STAFF } from './utils'
 import { Virtualized } from './Virtualized'
 
 /**
@@ -94,6 +94,15 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: 'both' | '
   }
   const getCurrentOffset = () => player.getTime() * PIXELS_PER_SECOND
 
+  function itemFilter(item: SongMeasure | SongNote) {
+    return (
+      hand === 'both' ||
+      item.type === 'measure' ||
+      (item.type === 'note' && item.staff === STAFF.bass && hand === 'left') ||
+      (item.type === 'note' && item.staff === STAFF.trebl && hand === 'right')
+    )
+  }
+
   return (
     <div
       style={{ position: 'fixed', bottom: getKeyboardHeight(windowSize.width), height: '100vh' }}
@@ -103,6 +112,7 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: 'both' | '
         renderItem={renderItem}
         getItemOffsets={getItemOffsets}
         getCurrentOffset={getCurrentOffset}
+        itemFilter={itemFilter}
       />
     </div>
   )
@@ -114,7 +124,7 @@ function isBlack(noteValue: number) {
 
 function FallingNote({ note, noteLength, width, posX }: any) {
   const keyType = isBlack(note.noteValue) ? 'black' : 'white'
-  const className = keyType + ' ' + (note.staff === 1 ? 'left-hand' : 'right-hand')
+  const className = keyType + ' ' + (note.staff === STAFF.bass ? 'left-hand' : 'right-hand')
   return (
     <div
       style={{

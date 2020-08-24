@@ -12,6 +12,7 @@ export function Virtualized({
   getItemOffsets,
   getCurrentOffset,
   direction,
+  itemFilter = () => true,
 }: any) {
   const outerRef: any = useRef(null)
   const innerRef: any = useRef(null)
@@ -21,7 +22,7 @@ export function Virtualized({
     let itms = [...items]
     itms.sort((i1, i2) => getItemOffsets(i1).start - getItemOffsets(i2).start)
     return itms
-  }, [])
+  }, [items, getItemOffsets])
 
   const [[startIndex, stopIndex], setIndexes] = useState<any>(getRenderRange())
   const height = useMemo(() => {
@@ -35,11 +36,13 @@ export function Virtualized({
   const renderedItems = useMemo(() => {
     sortedItems.sort((i1, i2) => getItemOffsets(i1).start - getItemOffsets(i2).start)
     return sortedItems.map((item, i) => {
-      return (
+      let renderedItem = (
         <div style={{ position: 'absolute', bottom: getItemOffsets(item).start }} key={i}>
           {renderItem(item, i)}
         </div>
       )
+
+      return { renderedItem, item }
     })
   }, [sortedItems, renderItem, getItemOffsets])
 
@@ -69,7 +72,6 @@ export function Virtualized({
     }
 
     return [firstIndex, lastIndex]
-    // return [0, items.length - 1]
   }
 
   useRAFLoop((dt: number) => {
@@ -96,7 +98,10 @@ export function Virtualized({
       ref={outerRef}
     >
       <div style={{ height, width: '100%' }} ref={innerRef}>
-        {renderedItems.slice(startIndex, stopIndex)}
+        {renderedItems
+          .slice(startIndex, stopIndex)
+          .filter((rItem) => itemFilter(rItem.item))
+          .map((rItem) => rItem.renderedItem)}
       </div>
     </div>
   )
