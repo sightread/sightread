@@ -116,13 +116,6 @@ class Player {
     this.notify()
   }
 
-  // isActive(note: SongNote) {
-  //   return !(
-  //     (this.hand === "left" && note.staff === 2) ||
-  //     (this.hand === "right" && note.staff === 1)
-  //   )
-  // }
-
   playNoteValue(note: SongNote, vol: number) {
     this.synth.playNoteValue(note.noteValue, vol)
     this.dirty = true

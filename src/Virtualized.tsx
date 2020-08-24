@@ -36,7 +36,7 @@ export function Virtualized({
     sortedItems.sort((i1, i2) => getItemOffsets(i1).start - getItemOffsets(i2).start)
     return sortedItems.map((item, i) => {
       return (
-        <div style={{ position: 'absolute', bottom: getItemOffsets(item).start }}>
+        <div style={{ position: 'absolute', bottom: getItemOffsets(item).start }} key={i}>
           {renderItem(item, i)}
         </div>
       )

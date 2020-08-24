@@ -1,7 +1,8 @@
 import './player'
-import React, { useState, useEffect, useRef, useMemo } from 'react'
-import { usePlayer, useRAFLoop, useWindowSize } from './hooks'
-import { Song, SongMeasure, STAFF, SongNote } from './utils'
+import React, { useMemo } from 'react'
+import { usePlayer, useWindowSize } from './hooks'
+import { Song, SongMeasure, SongNote } from './utils'
+import { Virtualized } from './Virtualized'
 
 /**
  * Only display items in the viewport.
@@ -88,7 +89,7 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: 'both' | '
     if (item.type === 'note') {
       return { start, end: start + item.duration * PIXELS_PER_SECOND }
     } else {
-      return { start, end: start + 10 }
+      return { start, end: start }
     }
   }
   const getCurrentOffset = () => player.getTime() * PIXELS_PER_SECOND
@@ -132,13 +133,11 @@ function FallingNote({ note, noteLength, width, posX }: any) {
 }
 
 function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
-  const height = 15
   return (
     <div id={`measure-${measure.number}`}>
       <div
         style={{
           position: 'relative',
-          height,
           left: 10,
           top: -7,
           fontSize: 15,
@@ -147,14 +146,7 @@ function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
       >
         {measure.number}
       </div>
-      <div
-        style={{
-          height: 1,
-          backgroundColor: '#C5C5C5',
-          width,
-        }}
-        key={`measure-${measure.number}`}
-      ></div>
+      <div style={{ width, height: 1, backgroundColor: '#C5C5C5' }}></div>
     </div>
   )
 }
