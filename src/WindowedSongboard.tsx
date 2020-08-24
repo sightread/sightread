@@ -1,7 +1,7 @@
 import './player'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { usePlayer, useRAFLoop, useWindowSize } from './hooks'
-import { Song, SongMeasure } from './utils'
+import { Song, SongMeasure, STAFF, SongNote } from './utils'
 
 /**
  * Only display items in the viewport.
@@ -57,189 +57,67 @@ function getNoteLanes(width: any) {
   return notes
 }
 
-export function WindowedSongBoard({ song, hand }: { song: Song; hand: string }) {
+export function WindowedSongBoard({ song, hand }: { song: Song; hand: 'both' | 'left' | 'right' }) {
   const windowSize = useWindowSize()
   const { player } = usePlayer()
-  const outerRef: any = useRef(null)
-  const innerRef: any = useRef(null)
-  const [itemsCache, setItemsCache]: any = useState(null)
-  const [startAndStopIndex, setIndexes] = useState([0, 0])
+  const items: Array<SongMeasure | SongNote> = useMemo(() => {
+    return [...song.measures, ...song.notes]
+  }, [song, hand])
+  const lanes = useMemo(() => getNoteLanes(windowSize.width), [windowSize])
 
-  useEffect(() => {
-    setItemsCache(calculateCache(song, windowSize))
-  }, [song, windowSize])
-
-  useRAFLoop((dt: number) => {
-    if (!outerRef.current || !innerRef.current) {
-      return
-    }
-    const now = player.getTime()
-    let offset = getTimeOffset(song, now) - windowSize.height + getKeyboardHeight(windowSize.width)
-    offset *= -1
-    innerRef.current.style.transform = `translateY(${offset}px)`
-
-    //  can heavily optimize this part. only do calculations once ever Npx difference.
-    const newIndexes = itemsCache.getRenderRange(player.getTime(), hand)
-    if (startAndStopIndex[0] !== newIndexes[0] || startAndStopIndex[1] !== newIndexes[1]) {
-      setIndexes(newIndexes)
-    }
-  })
-
-  if (!itemsCache) {
-    return <> </>
-  }
-
-  const [startIndex, stopIndex] = itemsCache.getRenderRange(player.getTime(), hand)
-  const getHandItems = () => {
-    switch (hand) {
-      case 'both':
-        return itemsCache.hands.items
-      case 'left':
-        return itemsCache.hands.leftItems
-      case 'right':
-        return itemsCache.hands.rightItems
-      default:
-        console.error('should not get here in getHandItems()')
-        return []
+  const renderItem = (item: SongMeasure | SongNote, i: number) => {
+    if (item.type === 'measure') {
+      return <Measure measure={item} width={windowSize.width} key={`measure-${item.number}`} />
+    } else {
+      const note = item
+      const lane = lanes[note.noteValue]
+      return (
+        <FallingNote
+          noteLength={PIXELS_PER_SECOND * note.duration}
+          width={lane.width}
+          posX={lane.left}
+          note={note}
+          key={`songnote-${note.time}-${note.noteValue}-${i}`}
+        />
+      )
     }
   }
-  // console.count('WindowedSongBoardRenders')
+
+  function getItemOffsets(item: SongNote | SongMeasure) {
+    const start = item.time * PIXELS_PER_SECOND
+    if (item.type === 'note') {
+      return { start, end: start + item.duration * PIXELS_PER_SECOND }
+    } else {
+      return { start, end: start + 10 }
+    }
+  }
+  const getCurrentOffset = () => player.getTime() * PIXELS_PER_SECOND
+
   return (
     <div
-      style={{
-        position: 'fixed',
-        overflow: 'hidden',
-        height: windowSize.height, // TODO(rendering extra keyboardHeight vp above.). Make less stupid.
-        width: windowSize.width,
-      }}
-      ref={outerRef}
+      style={{ position: 'fixed', bottom: getKeyboardHeight(windowSize.width), height: '100vh' }}
     >
-      <div
-        style={{
-          height: song.duration * PIXELS_PER_SECOND,
-          width: '100%',
-          willChange: 'transform',
-        }}
-        ref={innerRef}
-      >
-        {getHandItems().slice(startIndex, stopIndex)}
-      </div>
+      <Virtualized
+        items={items}
+        renderItem={renderItem}
+        getItemOffsets={getItemOffsets}
+        getCurrentOffset={getCurrentOffset}
+      />
     </div>
   )
-}
-function getTimeOffset(song: Song, time: number) {
-  const totalHeight = song.duration * PIXELS_PER_SECOND
-  return totalHeight - time * PIXELS_PER_SECOND
-}
-
-function calculateCache(song: Song, windowSize: any): any {
-  const { width: windowWidth, height: windowHeight } = windowSize
-
-  const positions = new Map()
-  const items: JSX.Element[] = []
-  const leftItems: JSX.Element[] = []
-  const rightItems: JSX.Element[] = []
-
-  song.measures.forEach((m) => {
-    const offset = getTimeOffset(song, m.time)
-    const item = (
-      <Measure measure={m} width={windowWidth} key={`measure-${m.number}`} offset={offset} />
-    )
-    positions.set(item, { start: offset, end: offset - 15 })
-    items.push(item)
-    leftItems.push(item)
-    rightItems.push(item)
-  })
-
-  const lanes = getNoteLanes(windowWidth)
-
-  song.notes.forEach((note, i) => {
-    const lane = lanes[note.noteValue]
-    const offset = getTimeOffset(song, note.time)
-    const item: JSX.Element = (
-      <SongNote
-        // noteLength={note.duration * pixelsPerDuration(song)}
-        noteLength={PIXELS_PER_SECOND * note.duration}
-        width={lane.width}
-        posX={lane.left}
-        offset={offset}
-        note={note}
-        key={`songnote-${note.time}-${note.noteValue}-${i}`}
-      />
-    )
-    positions.set(item, {
-      start: offset,
-      end: getTimeOffset(song, note.time + note.duration),
-    })
-    items.push(item)
-    if (note.staff === 1) {
-      leftItems.push(item)
-    } else {
-      rightItems.push(item)
-    }
-  })
-
-  items.sort((item1: any, item2: any) => -(positions.get(item1).start - positions.get(item2).start))
-  leftItems.sort(
-    (item1: any, item2: any) => -(positions.get(item1).start - positions.get(item2).start),
-  )
-  rightItems.sort(
-    (item1: any, item2: any) => -(positions.get(item1).start - positions.get(item2).start),
-  )
-
-  function getRenderRange(time: number, hand: string) {
-    const viewportBottom = getTimeOffset(song, time)
-    // always have an extra half viewport overscanned in the scan direction
-    const viewportTop = viewportBottom - windowHeight * 1.5
-
-    function getRangeForHand(handArray: JSX.Element[]) {
-      let firstIndex = 0
-      for (let i = 1; i < handArray.length; i++) {
-        const position = positions.get(handArray[i])
-        if (position.end <= viewportBottom) {
-          firstIndex = i
-          break
-        }
-      }
-
-      let lastIndex = handArray.length - 1
-      for (let i = lastIndex; i > 0; i--) {
-        const position = positions.get(handArray[i])
-        if (position.start >= viewportTop) {
-          lastIndex = i
-          break
-        }
-      }
-
-      return [firstIndex, lastIndex]
-    }
-    switch (hand) {
-      case 'both':
-        return getRangeForHand(items)
-      case 'left':
-        return getRangeForHand(leftItems)
-      case 'right':
-        return getRangeForHand(rightItems)
-      default:
-        console.error('should not get here in get render range')
-    }
-  }
-  const hands = { items, leftItems, rightItems }
-  return { hands, positions, getRenderRange }
 }
 
 function isBlack(noteValue: number) {
   return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
 }
 
-function SongNote({ note, noteLength, width, posX, offset }: any) {
+function FallingNote({ note, noteLength, width, posX }: any) {
   const keyType = isBlack(note.noteValue) ? 'black' : 'white'
   const className = keyType + ' ' + (note.staff === 1 ? 'left-hand' : 'right-hand')
   return (
     <div
       style={{
-        top: offset - noteLength,
-        position: 'absolute',
+        position: 'relative',
         left: posX,
         height: noteLength,
         width,
@@ -248,29 +126,15 @@ function SongNote({ note, noteLength, width, posX, offset }: any) {
       }}
       className={className}
     >
-      {note.pitch.step}
+      {/* {note.pitch.step} */}
     </div>
   )
 }
 
-function Measure({
-  width,
-  measure,
-  offset,
-}: {
-  width: number
-  measure: SongMeasure
-  offset: number
-}) {
+function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
   const height = 15
   return (
-    <div
-      id={`measure-${measure.number}`}
-      style={{
-        position: 'absolute',
-        top: offset - height,
-      }}
-    >
+    <div id={`measure-${measure.number}`}>
       <div
         style={{
           position: 'relative',

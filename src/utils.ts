@@ -7,6 +7,7 @@ export const STAFF = {
 
 type Seconds = number
 export type SongNote = {
+  type: 'note'
   noteValue: number
   staff: number
   time: number
@@ -27,6 +28,7 @@ export type Staffs = {
 }
 
 export type SongMeasure = {
+  type: 'measure'
   time: number
   number: number
 }
@@ -141,6 +143,7 @@ export function parseMusicXML(txt: string): Song {
       }
       const noteValue = getNoteValue(step, octave, accidental)
       let note: SongNote = {
+        type: 'note',
         pitch: { step, octave },
         duration: calcWallDuration(duration, time),
         time,
@@ -191,7 +194,7 @@ export function parseMusicXML(txt: string): Song {
       const number = Number(curr.getAttribute('number'))
       // Don't add the same measure multiple times for multi-part xml files.
       if (!measures.find((m) => m.number === number)) {
-        measures.push({ time: currTime, number })
+        measures.push({ time: currTime, number, type: 'measure' })
       } else {
         const m = measures.find((m) => m.number === number)
         // TODO: wtffff why are the left and right hand times off.
@@ -368,7 +371,7 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
     currTime += calcWallDuration(orderedEvent.ticksToEvent)
     if (currTick - lastMeasureTickedAt >= ticksPerMeasure()) {
       lastMeasureTickedAt = currTick
-      measures.push({ time: currTime, number: measures.length + 1 })
+      measures.push({ type: 'measure', time: currTime, number: measures.length + 1 })
     }
 
     if (
@@ -403,6 +406,7 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
       }
 
       const note: SongNote = {
+        type: 'note',
         time: currTime,
         duration: 0,
         noteValue,

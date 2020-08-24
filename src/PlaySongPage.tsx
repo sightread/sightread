@@ -22,12 +22,12 @@ function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
   const [waiting, setWaiting] = useState(false)
-  const [viz, setViz] = useState<viz>('sheet')
+  const [viz, setViz] = useState<viz>('falling-notes')
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
   const [song, setSong] = useState<Song | null>(null)
-  const [hand, setHand] = useState('both')
+  const [hand, setHand] = useState<'both' | 'left' | 'right'>('both')
 
   const handleHand = () => {
     switch (hand) {
@@ -228,7 +228,7 @@ function App() {
               height: getKeyboardHeight(width),
             }}
           >
-            <PianoRoll width={width} />
+            <PianoRoll width={width} selectedHand={hand} />
           </div>
         </div>
       )}
@@ -561,12 +561,18 @@ function isBlack(noteValue: number) {
 }
 
 const MemoedPianoNote = React.memo(PianoNote)
-function PianoRoll({ width }: any) {
+function PianoRoll({ width, selectedHand }: any) {
   const pressedKeys: any = useSongPressedKeys()
   const notes = getKeyPositions(width).map((note: any, i: any) => {
     let color = note.color
-    if (i in pressedKeys) {
+    const shouldShow =
+      i in pressedKeys &&
+      (selectedHand === 'both' ||
+        (selectedHand === 'left' && pressedKeys[i].staff === STAFF.bass) ||
+        (selectedHand === 'right' && pressedKeys[i].staff === STAFF.trebl))
+    if (shouldShow) {
       let { staff, noteValue } = pressedKeys[i]
+
       const hand = staff === STAFF.bass ? 'left-hand' : 'right-hand'
       if (hand === 'left-hand') {
         if (isBlack(noteValue)) {
