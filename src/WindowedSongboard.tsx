@@ -105,6 +105,8 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: 'both' | '
         getItemOffsets={getItemOffsets}
         getCurrentOffset={getCurrentOffset}
         itemFilter={itemFilter}
+        width={windowSize.width}
+        height={windowSize.height}
       />
     </div>
   )

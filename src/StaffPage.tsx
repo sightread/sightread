@@ -1,34 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Song, parseMusicXML, parseMidi, getNoteValue, STAFF, SongNote } from './utils'
-import { usePlayer, useWindowSize, useRAFLoop } from './hooks'
+import React from 'react'
+import { Song, parseMusicXML, parseMidi, STAFF, SongNote } from './utils'
+import { usePlayer, useWindowSize } from './hooks'
 
 import FClefSVG from './FClef.svg'
 import GClefSVG from './GClef.svg'
 import { Virtualized } from './Virtualized'
-
-export function StaffPage() {
-  const [song, setSong] = useState<Song | null>(null)
-  const { player } = usePlayer()
-
-  const songLocation = window.location.pathname.substring(6)
-  useEffect(() => {
-    getSong(`/${songLocation}`).then((song: Song) => {
-      setSong(song)
-      player.setSong(song)
-    })
-
-    return function cleanup() {}
-  }, [songLocation, player])
-
-  if (!song) {
-    return <span> Loading...</span>
-  }
-  return (
-    <div style={{ width: '100%', backgroundColor: 'white' }} className="staffPage">
-      <WindowedStaffBoard song={song} />
-    </div>
-  )
-}
 
 const PIXELS_PER_SECOND = 300
 function getXPos(time: number) {
@@ -37,55 +13,42 @@ function getXPos(time: number) {
 
 export function WindowedStaffBoard({ song }: { song: Song }) {
   const windowSize = useWindowSize()
-  const divRef = useRef<HTMLDivElement>(null)
-  const outerRef = useRef<HTMLDivElement>(null)
   const width = song.duration * PIXELS_PER_SECOND
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        overflow: 'hidden',
-        height: windowSize.height,
-        width: windowSize.width,
-      }}
-      ref={outerRef}
-    >
-      <div style={{ height: '100%' }}>
+    <div style={{}}>
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: '100vw',
+          backgroundColor: 'white',
+        }}
+      >
+        <Stave width={windowSize.width - 100} height={100} staff={STAFF.trebl} song={song} />
+        <Sizer height={70} />
+        <Stave width={windowSize.width - 100} height={100} staff={STAFF.bass} song={song} />
         <div
-          ref={divRef}
           style={{
             position: 'absolute',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: '100vw',
-            backgroundColor: 'white',
+            top: -50,
+            left: 200,
+            width: 7,
+            height: 375,
+            backgroundColor: '#B91919',
           }}
-        >
-          <Stave width={'calc(100% - 100px)'} height={100} staff={STAFF.trebl} song={song} />
-          <Sizer height={70} />
-          <Stave width={'calc(100% - 100px)'} height={100} staff={STAFF.bass} song={song} />
-          <div
-            style={{
-              position: 'absolute',
-              top: -50,
-              left: 200,
-              width: 7,
-              height: 375,
-              backgroundColor: '#B91919',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: -50,
-              left: 188,
-              width: 30,
-              height: 375,
-              backgroundColor: 'rgba(185,25,25,0.21)',
-            }}
-          />
-        </div>
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: -50,
+            left: 188,
+            width: 30,
+            height: 375,
+            backgroundColor: 'rgba(185,25,25,0.21)',
+          }}
+        />
       </div>
     </div>
   )
@@ -137,7 +100,7 @@ function Stave({
   staff,
   song,
 }: {
-  width: number | string
+  width: number
   height: number
   staff: typeof STAFF.trebl | typeof STAFF.bass
   song: Song
@@ -200,7 +163,7 @@ function Stave({
   const lines = staff === STAFF.trebl ? TREBL_LINES : BASS_LINES
   return (
     <div style={{ position: 'relative', width, height, margin: '0 auto' }}>
-      <div style={{ position: 'relative', left: 150 }}>
+      <div style={{ position: 'relative', left: 150, overflow: 'hidden' }}>
         <Virtualized
           items={notes}
           renderItem={(note: any) => <Note note={note} />}
@@ -210,6 +173,8 @@ function Stave({
             end: getXPos(note.time + note.duration),
           })}
           direction="horizontal"
+          width={width - 150}
+          height={height}
         />
       </div>
       <div style={{ position: 'absolute', left: 0, width: 2, height, backgroundColor: 'black' }} />

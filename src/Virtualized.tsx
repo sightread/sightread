@@ -1,6 +1,6 @@
 import './player'
 import React, { useState, useRef, useMemo } from 'react'
-import { useRAFLoop, useWindowSize } from './hooks'
+import { useRAFLoop } from './hooks'
 
 /**
  * Virtualized rendering (occlusion).
@@ -12,10 +12,11 @@ export function Virtualized({
   getCurrentOffset,
   direction = 'vertical',
   itemFilter = () => true,
+  height = undefined,
+  width = undefined,
 }: any) {
   const outerRef: any = useRef(null)
   const innerRef: any = useRef(null)
-  const windowSize = useWindowSize()
 
   const sortedItems = useMemo(() => {
     let itms = [...items]
@@ -48,7 +49,7 @@ export function Virtualized({
 
   function getRenderRange() {
     const viewportStart = getCurrentOffset()
-    const viewportEnd = viewportStart + windowSize.height * 2 // overscan a vp
+    const viewportEnd = viewportStart + (direction === 'vertical' ? height : width) * 2 // overscan a vp
 
     let firstIndex = 0
     for (let i = 0; i < sortedItems.length; i++) {
@@ -80,11 +81,7 @@ export function Virtualized({
     }
     let offset = getCurrentOffset()
     if (direction === 'vertical') {
-      innerRef.current.style.transform = `translateY(${-(
-        maxOffset -
-        offset -
-        windowSize.height
-      )}px)`
+      innerRef.current.style.transform = `translateY(${-(maxOffset - offset - height)}px)`
     } else {
       innerRef.current.style.transform = `translateX(-${offset}px)`
     }
@@ -100,12 +97,15 @@ export function Virtualized({
       style={{
         position: 'fixed',
         overflow: 'hidden',
-        height: windowSize.height,
-        width: windowSize.width,
+        height,
+        width,
       }}
       ref={outerRef}
     >
-      <div style={{ [direction === 'vertical' ? 'height' : 'width']: maxOffset }} ref={innerRef}>
+      <div
+        style={{ position: 'absolute', [direction === 'vertical' ? 'height' : 'width']: maxOffset }}
+        ref={innerRef}
+      >
         {renderedItems
           .slice(startIndex, stopIndex)
           .filter((rItem) => itemFilter(rItem.item))

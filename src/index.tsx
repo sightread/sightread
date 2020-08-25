@@ -7,7 +7,6 @@ import SelectSong from './SelectSongPage'
 import * as serviceWorker from './serviceWorker'
 import { PlayerProvider, SongPressedKeysProvider, UserPressedKeysProvider } from './hooks/index'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
-import { StaffPage } from './StaffPage'
 
 function Root() {
   return (
@@ -19,7 +18,6 @@ function Root() {
               <Route path="/" exact component={SelectSong} />
               <Route path="/learn/lessons" exact component={SelectSong} />
               <Route path="/play/music/:song_location" component={PlaySongPage} />
-              <Route path="/staff" component={StaffPage} />
             </Router>
           </PlayerProvider>
         </SongPressedKeysProvider>
