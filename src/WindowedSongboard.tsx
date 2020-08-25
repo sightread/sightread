@@ -4,14 +4,6 @@ import { usePlayer, useWindowSize } from './hooks'
 import { Song, SongMeasure, SongNote, STAFF } from './utils'
 import { Virtualized } from './Virtualized'
 
-/**
- * Only display items in the viewport.
- *
- * How the fuck shoudl this work?
- * 1. Determine for each component, what its absolute height offset should be. Cache it forever.
- * 2. Based on that, figure out which should be displayed on screen
- */
-
 const PIXELS_PER_SECOND = 150
 
 function getKeyboardHeight(width: number) {

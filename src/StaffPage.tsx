@@ -4,6 +4,7 @@ import { usePlayer, useWindowSize, useRAFLoop } from './hooks'
 
 import FClefSVG from './FClef.svg'
 import GClefSVG from './GClef.svg'
+import { Virtualized } from './Virtualized'
 
 export function StaffPage() {
   const [song, setSong] = useState<Song | null>(null)
@@ -38,21 +39,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
   const windowSize = useWindowSize()
   const divRef = useRef<HTMLDivElement>(null)
   const outerRef = useRef<HTMLDivElement>(null)
-  const innerRef = useRef<any>(null)
   const width = song.duration * PIXELS_PER_SECOND
-  const { player } = usePlayer()
-  const s1Ref = useRef<any>()
-  const s2Ref = useRef<any>()
-
-  useRAFLoop((dt: number) => {
-    if (!s1Ref.current || !s2Ref.current) {
-      return
-    }
-    const now = player.getTime()
-    let offset = getXPos(now)
-    s1Ref.current.style.transform = `translateX(${-offset}px)`
-    s2Ref.current.style.transform = `translateX(${-offset}px)`
-  })
 
   return (
     <div
@@ -64,7 +51,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
       }}
       ref={outerRef}
     >
-      <div style={{ height: '100%', width }}>
+      <div style={{ height: '100%' }}>
         <div
           ref={divRef}
           style={{
@@ -75,21 +62,9 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
             backgroundColor: 'white',
           }}
         >
-          <Stave
-            width={'calc(100% - 100px)'}
-            height={100}
-            staff={STAFF.trebl}
-            song={song}
-            refz={s1Ref}
-          />
+          <Stave width={'calc(100% - 100px)'} height={100} staff={STAFF.trebl} song={song} />
           <Sizer height={70} />
-          <Stave
-            width={'calc(100% - 100px)'}
-            height={100}
-            staff={STAFF.bass}
-            song={song}
-            refz={s2Ref}
-          />
+          <Stave width={'calc(100% - 100px)'} height={100} staff={STAFF.bass} song={song} />
           <div
             style={{
               position: 'absolute',
@@ -161,14 +136,13 @@ function Stave({
   height,
   staff,
   song,
-  refz,
 }: {
   width: number | string
   height: number
   staff: typeof STAFF.trebl | typeof STAFF.bass
   song: Song
-  refz: any
 }) {
+  const { player } = usePlayer()
   const notes = song.notes.filter((n) => n.staff === staff)
   const clefImgSrc = staff === STAFF.trebl ? GClefSVG : FClefSVG
   const clefStyle =
@@ -203,7 +177,6 @@ function Stave({
         <div
           style={{
             position: 'absolute',
-            left: 152 + getXPos(note.time),
             top: top + 2,
             transform: 'translateY(-50%)',
           }}
@@ -213,7 +186,7 @@ function Stave({
         <div
           style={{
             position: 'absolute',
-            left: 152 + getXPos(note.time) + 10,
+            left: 10,
             width: note.duration * PIXELS_PER_SECOND - 10,
             top: top + 1,
             height: 15,
@@ -227,10 +200,17 @@ function Stave({
   const lines = staff === STAFF.trebl ? TREBL_LINES : BASS_LINES
   return (
     <div style={{ position: 'relative', width, height, margin: '0 auto' }}>
-      <div style={{ position: 'absolute' }} ref={refz}>
-        {notes.map((n) => (
-          <Note note={n} />
-        ))}
+      <div style={{ position: 'relative', left: 150 }}>
+        <Virtualized
+          items={notes}
+          renderItem={(note: any) => <Note note={note} />}
+          getCurrentOffset={() => getXPos(player.getTime())}
+          getItemOffsets={(note: SongNote) => ({
+            start: getXPos(note.time),
+            end: getXPos(note.time + note.duration),
+          })}
+          direction="horizontal"
+        />
       </div>
       <div style={{ position: 'absolute', left: 0, width: 2, height, backgroundColor: 'black' }} />
       <img style={{ position: 'absolute', ...clefStyle }} src={clefImgSrc} />

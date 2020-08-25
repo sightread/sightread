@@ -1,7 +1,6 @@
 import './player'
-import React, { useState, useEffect, useRef, useMemo } from 'react'
-import { usePlayer, useRAFLoop, useWindowSize } from './hooks'
-import { Song, SongMeasure, STAFF, SongNote } from './utils'
+import React, { useState, useRef, useMemo } from 'react'
+import { useRAFLoop, useWindowSize } from './hooks'
 
 /**
  * Virtualized rendering (occlusion).
@@ -11,7 +10,7 @@ export function Virtualized({
   renderItem,
   getItemOffsets,
   getCurrentOffset,
-  direction,
+  direction = 'vertical',
   itemFilter = () => true,
 }: any) {
   const outerRef: any = useRef(null)
@@ -25,7 +24,7 @@ export function Virtualized({
   }, [items, getItemOffsets])
 
   const [[startIndex, stopIndex], setIndexes] = useState<any>(getRenderRange())
-  const height = useMemo(() => {
+  const maxOffset = useMemo(() => {
     let max = 0
     for (let item of items) {
       max = Math.max(max, getItemOffsets(item).end)
@@ -36,8 +35,9 @@ export function Virtualized({
   const renderedItems = useMemo(() => {
     sortedItems.sort((i1, i2) => getItemOffsets(i1).start - getItemOffsets(i2).start)
     return sortedItems.map((item, i) => {
+      let offsetDir = direction === 'vertical' ? 'bottom' : 'left'
       let renderedItem = (
-        <div style={{ position: 'absolute', bottom: getItemOffsets(item).start }} key={i}>
+        <div style={{ position: 'absolute', [offsetDir]: getItemOffsets(item).start }} key={i}>
           {renderItem(item, i)}
         </div>
       )
@@ -79,7 +79,15 @@ export function Virtualized({
       return
     }
     let offset = getCurrentOffset()
-    innerRef.current.style.transform = `translateY(${-(height - offset - windowSize.height)}px)`
+    if (direction === 'vertical') {
+      innerRef.current.style.transform = `translateY(${-(
+        maxOffset -
+        offset -
+        windowSize.height
+      )}px)`
+    } else {
+      innerRef.current.style.transform = `translateX(-${offset}px)`
+    }
 
     const newIndexes = getRenderRange()
     if (startIndex !== newIndexes[0] || stopIndex !== newIndexes[1]) {
@@ -97,7 +105,7 @@ export function Virtualized({
       }}
       ref={outerRef}
     >
-      <div style={{ height, width: '100%' }} ref={innerRef}>
+      <div style={{ [direction === 'vertical' ? 'height' : 'width']: maxOffset }} ref={innerRef}>
         {renderedItems
           .slice(startIndex, stopIndex)
           .filter((rItem) => itemFilter(rItem.item))
