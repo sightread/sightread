@@ -6,6 +6,7 @@ import {
   useRAFLoop,
   useSongPressedKeys,
   useUserPressedKeys,
+  useQuery,
 } from './hooks'
 import { Song, parseMusicXML, parseMidi, STAFF } from './utils'
 import { WebAudioFontSynth } from './synth'
@@ -22,12 +23,13 @@ function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
   const [waiting, setWaiting] = useState(false)
-  const [viz, setViz] = useState<viz>('falling-notes')
+  const [query, setQuery] = useQuery()
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
   const [song, setSong] = useState<Song | null>(null)
   const [hand, setHand] = useState<'both' | 'left' | 'right'>('both')
+  const viz: viz = (query.viz ?? 'falling-notes') as any
 
   const handleHand = () => {
     switch (hand) {
@@ -185,10 +187,10 @@ function App() {
             aria-hidden="true"
             style={{ color: viz === 'sheet' ? 'red' : undefined, fontSize: 24 }}
             onClick={() => {
-              if (viz === 'sheet') {
-                setViz('falling-notes')
+              if (viz === 'falling-notes' || !viz) {
+                setQuery('viz', 'sheet')
               } else {
-                setViz('sheet')
+                setQuery('viz', 'falling-notes')
               }
             }}
           />

@@ -189,12 +189,3 @@ function Stave({
 function Sizer({ height, width }: { height?: number; width?: number }) {
   return <div style={{ width, height }} />
 }
-
-async function getSong(url: string) {
-  if (url.includes('.xml')) {
-    const xml = await (await fetch(url)).text()
-    return parseMusicXML(xml)
-  }
-  const buffer = await (await fetch(url)).arrayBuffer()
-  return parseMidi(buffer)
-}

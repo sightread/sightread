@@ -1,13 +1,14 @@
-import { useState, useEffect, useContext, useCallback } from "react"
-import Player from "../player"
-import React from "react"
-import { SongNote } from "../utils"
-import midi from "../midi"
+import { useState, useEffect, useContext, useCallback } from 'react'
+import Player from '../player'
+import React from 'react'
+import { SongNote } from '../utils'
+import midi from '../midi'
+import { useHistory } from 'react-router-dom'
 
 export function useMousePressed() {
   const [isPressed, setIsPressed] = useState(false)
-  window.addEventListener("mousedown", () => setIsPressed(true))
-  window.addEventListener("mouseup", () => setIsPressed(false))
+  window.addEventListener('mousedown', () => setIsPressed(true))
+  window.addEventListener('mouseup', () => setIsPressed(false))
 
   return isPressed
 }
@@ -26,8 +27,8 @@ export function useWindowSize() {
       setWindowSize(getSize())
     }
 
-    window.addEventListener("resize", handleResize, { passive: true })
-    return () => window.removeEventListener("resize", handleResize)
+    window.addEventListener('resize', handleResize, { passive: true })
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   return windowSize
@@ -112,4 +113,16 @@ export function PlayerProvider(props: any) {
   const value = { player }
 
   return <PlayerContext.Provider value={value}>{props.children}</PlayerContext.Provider>
+}
+
+export function useQuery(): any {
+  const history = useHistory()
+  const params = new URLSearchParams(window.location.search)
+  return [
+    Object.fromEntries(params.entries()),
+    (key: string, value: string) => {
+      params.set(key, value)
+      history.push(window.location.pathname + '?' + params.toString())
+    },
+  ]
 }
