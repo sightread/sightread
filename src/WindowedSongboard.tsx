@@ -128,6 +128,7 @@ function FallingNote({ note, noteLength, width, posX }: any) {
         width,
         textAlign: 'center',
         borderRadius: '6px',
+        boxSizing: 'border-box',
       }}
       className={className}
     >

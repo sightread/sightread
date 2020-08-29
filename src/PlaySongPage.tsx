@@ -238,7 +238,7 @@ function App() {
       )}
       {viz === 'sheet' && song && (
         <>
-          <WindowedStaffBoard song={song} />
+          <WindowedStaffBoard song={song} selectedHand={hand} />
         </>
       )}
     </div>
@@ -564,7 +564,6 @@ function isBlack(noteValue: number) {
   return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
 }
 
-const MemoedPianoNote = React.memo(PianoNote)
 function PianoRoll({ width, selectedHand }: any) {
   const pressedKeys: any = useSongPressedKeys()
   const notes = getKeyPositions(width).map((note: any, i: any) => {
@@ -593,7 +592,7 @@ function PianoRoll({ width, selectedHand }: any) {
       }
     }
     return (
-      <MemoedPianoNote
+      <PianoNote
         left={note.left}
         width={note.width}
         height={note.height}
@@ -609,7 +608,16 @@ function PianoRoll({ width, selectedHand }: any) {
    */
 
   return (
-    <div style={{ position: 'relative', width, height: getKeyboardHeight(width) }}>{notes}</div>
+    <div
+      style={{
+        position: 'relative',
+        width,
+        height: getKeyboardHeight(width),
+        boxSizing: 'border-box',
+      }}
+    >
+      {notes}
+    </div>
   )
 }
 
@@ -635,6 +643,7 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
         userSelect: 'none',
         borderBottomLeftRadius: '8px',
         borderBottomRightRadius: '8px',
+        boxSizing: 'border-box',
       }}
       onMouseDown={() => {
         setUserPressed(true)

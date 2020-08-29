@@ -11,7 +11,13 @@ function getXPos(time: number) {
   return time * PIXELS_PER_SECOND
 }
 
-export function WindowedStaffBoard({ song }: { song: Song }) {
+export function WindowedStaffBoard({
+  song,
+  selectedHand,
+}: {
+  song: Song
+  selectedHand: 'left' | 'right' | 'both'
+}) {
   const windowSize = useWindowSize()
 
   return (
@@ -25,9 +31,21 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
           backgroundColor: 'white',
         }}
       >
-        <Stave width={windowSize.width - 100} height={100} staff={STAFF.trebl} song={song} />
+        <Stave
+          width={windowSize.width - 100}
+          height={100}
+          staff={STAFF.trebl}
+          song={song}
+          disabled={selectedHand === 'left'}
+        />
         <Sizer height={100} />
-        <Stave width={windowSize.width - 100} height={100} staff={STAFF.bass} song={song} />
+        <Stave
+          width={windowSize.width - 100}
+          height={100}
+          staff={STAFF.bass}
+          song={song}
+          disabled={selectedHand === 'right'}
+        />
         <div
           style={{
             position: 'absolute',
@@ -78,11 +96,13 @@ function Stave({
   height,
   staff,
   song,
+  disabled,
 }: {
   width: number
   height: number
   staff: typeof STAFF.trebl | typeof STAFF.bass
   song: Song
+  disabled: boolean
 }) {
   const { player } = usePlayer()
   const notes = song.notes.filter((n) => n.staff === staff)
@@ -123,7 +143,11 @@ function Stave({
       for (let i = staveTopRow + 2; i <= row; i++) {
         if (i % 2 === 0) {
           extraLines.push(
-            <Line top={100 + getRelYPos(i)} width={note.duration * PIXELS_PER_SECOND} />,
+            <Line
+              top={100 + getRelYPos(i)}
+              width={note.duration * PIXELS_PER_SECOND}
+              key={`line-${i}-${note.time}`}
+            />,
           )
         }
       }
@@ -132,7 +156,11 @@ function Stave({
       for (let i = row; i <= staveTopRow - 8; i++) {
         if (i % 2 === 0) {
           extraLines.push(
-            <Line top={100 + getRelYPos(i)} width={note.duration * PIXELS_PER_SECOND} />,
+            <Line
+              top={100 + getRelYPos(i)}
+              width={note.duration * PIXELS_PER_SECOND}
+              key={`line-${i}-${note.time}`}
+            />,
           )
         }
       }
@@ -177,7 +205,15 @@ function Stave({
   }
 
   return (
-    <div style={{ position: 'relative', width, height, margin: '0 auto' }}>
+    <div
+      style={{
+        position: 'relative',
+        width,
+        height,
+        margin: '0 auto',
+        opacity: disabled ? 0.5 : 1,
+      }}
+    >
       <div style={{ position: 'relative', left: 150, top: -100, overflow: 'hidden' }}>
         <Virtualized
           items={notes}
