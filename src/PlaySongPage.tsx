@@ -13,6 +13,7 @@ import { WebAudioFontSynth } from './synth'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { WindowedStaffBoard } from './StaffPage'
 import midiKeyboard from './midi'
+import { useHistory } from 'react-router'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
@@ -29,7 +30,8 @@ function App() {
   const { player } = usePlayer()
   const [song, setSong] = useState<Song | null>(null)
   const [hand, setHand] = useState<'both' | 'left' | 'right'>('both')
-  const viz: viz = (query.viz ?? 'falling-notes') as any
+  const viz: viz = query.viz ?? 'falling-notes'
+  const history = useHistory()
 
   const handleHand = () => {
     switch (hand) {
@@ -98,7 +100,7 @@ function App() {
           style={{ fontSize: 30, position: 'relative', left: 15 }}
           onClick={() => {
             player.pause()
-            window.history.back()
+            history.push(`/`)
           }}
         />
         <div

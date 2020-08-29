@@ -138,8 +138,19 @@ function Stave({
       }
     }
 
+    const accidentalMap: any = {
+      '-1': '♭',
+      1: '#',
+    }
     return (
       <>
+        {note.accidental !== 0 && (
+          <span
+            style={{ position: 'absolute', top: top - 8, left: -12, fontSize: 20, fontWeight: 600 }}
+          >
+            {accidentalMap[note.accidental]}
+          </span>
+        )}
         <div
           style={{
             position: 'absolute',

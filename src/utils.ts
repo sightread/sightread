@@ -412,7 +412,7 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
         noteValue,
         staff,
         pitch: getPitch(noteValue),
-        accidental: 0,
+        accidental: getPitch(noteValue).alter,
         velocity: midiEvent.velocity,
         noteType: '4',
       }
