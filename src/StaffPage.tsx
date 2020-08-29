@@ -13,7 +13,6 @@ function getXPos(time: number) {
 
 export function WindowedStaffBoard({ song }: { song: Song }) {
   const windowSize = useWindowSize()
-  const width = song.duration * PIXELS_PER_SECOND
 
   return (
     <div style={{}}>
@@ -27,7 +26,7 @@ export function WindowedStaffBoard({ song }: { song: Song }) {
         }}
       >
         <Stave width={windowSize.width - 100} height={100} staff={STAFF.trebl} song={song} />
-        <Sizer height={70} />
+        <Sizer height={100} />
         <Stave width={windowSize.width - 100} height={100} staff={STAFF.bass} song={song} />
         <div
           style={{
@@ -63,18 +62,6 @@ const noteSvg = (
   </svg>
 )
 
-// TODO:
-// - notes
-// - measures
-// - scalability of Grand Staff.
-const BASS_LINES = [
-  { octave: 2, step: 'G' },
-  { octave: 3, step: 'B' },
-  { octave: 3, step: 'D' },
-  { octave: 3, step: 'F' },
-  { octave: 4, step: 'A' },
-]
-
 const STEP_NUM: any = {
   A: 0,
   B: 1,
@@ -84,14 +71,6 @@ const STEP_NUM: any = {
   F: 5,
   G: 6,
 }
-
-const TREBL_LINES = [
-  { octave: 4, step: 'E' },
-  { octave: 4, step: 'G' },
-  { octave: 5, step: 'B' },
-  { octave: 5, step: 'D' },
-  { octave: 5, step: 'F' },
-]
 
 // Make a staffz
 function Stave({
@@ -111,13 +90,13 @@ function Stave({
   const clefStyle =
     staff === STAFF.trebl ? { height: 160, top: -20, left: -5 } : { height: 80, top: 2, left: 10 }
 
-  function Line({ top }: any) {
+  function Line({ top, width }: any) {
     return (
       <div
         style={{
           position: 'absolute',
           top,
-          width: '100%',
+          width: width ?? '100%',
           height: 2.5,
           backgroundColor: 'black',
         }}
@@ -125,16 +104,40 @@ function Stave({
     )
   }
 
-  function getYPos(octave: number, step: string): number {
-    return (octave * 7 + STEP_NUM[step]) * (height / 8)
+  // There are 52 white keys.
+  function getRow(octave: number, step: string): number {
+    return octave * 7 + STEP_NUM[step]
   }
-  function getRelYPos(octave: number, step: string) {
-    const relTop = staff === STAFF.bass ? getYPos(4, 'A') : getYPos(5, 'F')
-    return relTop - getYPos(octave, step)
+  const staveTopRow = staff === STAFF.bass ? getRow(4, 'A') : getRow(5, 'F')
+  const heightPerRow = height / 8
+  function getRelYPos(row: number) {
+    const relDiff = staveTopRow - row
+    return relDiff * heightPerRow
   }
 
   function Note({ note }: { note: SongNote }) {
-    const top = getRelYPos(note.pitch.octave, note.pitch.step)
+    const row = getRow(note.pitch.octave, note.pitch.step)
+    const top = 100 + getRelYPos(row)
+    const extraLines: any = []
+    if (row > staveTopRow) {
+      for (let i = staveTopRow + 2; i <= row; i++) {
+        if (i % 2 === 0) {
+          extraLines.push(
+            <Line top={100 + getRelYPos(i)} width={note.duration * PIXELS_PER_SECOND} />,
+          )
+        }
+      }
+    }
+    if (row < staveTopRow - 8) {
+      for (let i = row; i <= staveTopRow - 8; i++) {
+        if (i % 2 === 0) {
+          extraLines.push(
+            <Line top={100 + getRelYPos(i)} width={note.duration * PIXELS_PER_SECOND} />,
+          )
+        }
+      }
+    }
+
     return (
       <>
         <div
@@ -156,14 +159,15 @@ function Stave({
             backgroundColor: 'rgba(0,0,0,0.51)',
             transform: 'translateY(-50%)',
           }}
-        ></div>
+        />
+        {extraLines}
       </>
     )
   }
-  const lines = staff === STAFF.trebl ? TREBL_LINES : BASS_LINES
+
   return (
     <div style={{ position: 'relative', width, height, margin: '0 auto' }}>
-      <div style={{ position: 'relative', left: 150, overflow: 'hidden' }}>
+      <div style={{ position: 'relative', left: 150, top: -100, overflow: 'hidden' }}>
         <Virtualized
           items={notes}
           renderItem={(note: any) => <Note note={note} />}
@@ -174,14 +178,14 @@ function Stave({
           })}
           direction="horizontal"
           width={width - 150}
-          height={height}
+          height={height + 200}
         />
       </div>
       <div style={{ position: 'absolute', left: 0, width: 2, height, backgroundColor: 'black' }} />
       <img style={{ position: 'absolute', ...clefStyle }} src={clefImgSrc} />
-      {lines.map((l) => (
-        <Line top={getRelYPos(l.octave, l.step)} />
-      ))}
+      {[0, 2, 4, 6, 8].map((i) => {
+        return <Line top={getRelYPos(staveTopRow - i)} key={`line-${i}`} />
+      })}
     </div>
   )
 }
