@@ -1,6 +1,6 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { Song, SongNote } from './utils'
+import { Song, SongNote, STAFF } from './utils'
 import { WebAudioFontSynth } from './synth'
 import midi from './midi'
 
@@ -45,12 +45,19 @@ class Player {
     this.volume = vol
   }
 
+  isActive(note: SongNote) {
+    return (
+      this.hand === 'both' ||
+      (this.hand === 'left' && note?.staff === STAFF.bass) ||
+      (this.hand === 'right' && note?.staff === STAFF.trebl)
+    )
+  }
   getTime() {
     if (!this.playInterval) {
       return this.currentSongTime
     }
     const nextNote = this.song.notes[this.currentIndex]
-    if (this.wait /* && this.isActive(nextNote) */) {
+    if (this.wait && nextNote && this.isActive(nextNote)) {
       const isntPressed =
         !midi.getPressedNotes().has(nextNote.noteValue) ||
         midi.getPressedNotes().get(nextNote.noteValue) ===
@@ -172,12 +179,8 @@ class Player {
 
     while (this.notes[this.currentIndex]?.time < time) {
       const note = this.notes[this.currentIndex]
-      // if (!this.isActive(note)) {
-      //   this.currentIndex++
-      //   continue
-      // }
 
-      if (this.wait) {
+      if (this.wait && this.isActive(note)) {
         if (
           !midi.getPressedNotes().has(note.noteValue) ||
           midi.getPressedNotes().get(note.noteValue) === this.lastPressedKeys.get(note.noteValue)
@@ -234,9 +237,6 @@ class Player {
   getPressedKeys() {
     let ret: any = {}
     for (let note of this.playing) {
-      // if (!this.isActive(note)) {
-      //   continue
-      // }
       ret[note.noteValue] = note
     }
 
