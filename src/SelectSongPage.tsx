@@ -44,15 +44,25 @@ function SelectSongPage() {
   return (
     <>
       <div
-        id="topbar"
+        style={{
+          position: 'absolute',
+          minWidth: '100vw',
+          backgroundColor: 'black',
+          height: 55,
+          left: 0,
+          zIndex: -1,
+        }}
+      ></div>
+      <div
         style={{
           height: 55,
           width,
           zIndex: 2,
-          backgroundColor: 'black',
           display: 'flex',
           alignItems: 'center',
           color: 'white',
+          maxWidth: 1000,
+          margin: '0 auto',
         }}
       >
         <span style={{ fontWeight: 500, fontSize: 24, marginLeft: 50 }}>SIGHTREAD</span>
@@ -89,6 +99,8 @@ function SelectSongPage() {
             height: 'calc(100% - 60px)',
             left: 50,
             width: 'calc(100% - 100px)',
+            maxWidth: 1000,
+            margin: '0 auto',
           }}
         >
           <h2 style={{ fontSize: 36, margin: '16px 0' }}>Learn</h2>
@@ -159,7 +171,7 @@ function SelectSongPage() {
                       }
                     }
                     return (
-                      <div style={{ paddingLeft: 30, width: '25%' }}>
+                      <div style={{ paddingLeft: i === 0 ? 30 : 0, width: '25%' }}>
                         <span
                           onClick={() => {
                             if (sortCol === i + 1) {
