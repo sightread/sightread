@@ -2,6 +2,9 @@ import { getNoteValue } from './utils'
 import { WebAudioFontSynth } from './synth'
 
 export function refreshMIDIDevices() {
+  if (!window.navigator.requestMIDIAccess) {
+    return
+  }
   window.navigator
     .requestMIDIAccess()
     .then((midiAccess) => {

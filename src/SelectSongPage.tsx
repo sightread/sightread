@@ -15,7 +15,7 @@ function SelectSongPage() {
   let toDisplay: any = []
   if (selected === 'songs') {
     const cols = ['name', 'artist', 'difficulty', 'length']
-    const field: string = cols[sortCol]
+    const field: string = cols[Math.abs(sortCol) - 1]
     toDisplay = songs
       .filter(
         (song) =>
@@ -23,7 +23,7 @@ function SelectSongPage() {
           song.artist.toUpperCase().includes(search.toUpperCase()) ||
           song.name.toUpperCase().includes(search.toUpperCase()),
       )
-      .sort((a: any, b: any) => a[field]?.localeCompare(b[field]))
+      .sort((a: any, b: any) => (sortCol < 0 ? -1 : 1) * a[field]?.localeCompare(b[field]))
   } else {
     toDisplay = lessons.filter(
       (lesson) => search === '' || lesson.name.toUpperCase().includes(search.toUpperCase()),
@@ -150,38 +150,31 @@ function SelectSongPage() {
             >
               {selected === 'songs' && (
                 <>
-                  <div style={{ paddingLeft: 30, width: '25%' }}>
-                    <span
-                      onClick={() => setSortCol(0)}
-                      className={sortCol === 0 ? 'activeSortHeader' : ''}
-                    >
-                      TITLE
-                    </span>
-                  </div>
-                  <div style={{ width: '25%' }}>
-                    <span
-                      onClick={() => setSortCol(1)}
-                      className={sortCol === 1 ? 'activeSortHeader' : ''}
-                    >
-                      ARTIST
-                    </span>
-                  </div>
-                  <div style={{ width: '25%' }}>
-                    <span
-                      onClick={() => setSortCol(2)}
-                      className={sortCol === 2 ? 'activeSortHeader' : ''}
-                    >
-                      DIFFICULTY
-                    </span>
-                  </div>
-                  <div style={{ width: '25%' }}>
-                    <span
-                      onClick={() => setSortCol(3)}
-                      className={sortCol === 3 ? 'activeSortHeader' : ''}
-                    >
-                      LENGTH
-                    </span>
-                  </div>
+                  {['TITLE', 'ARTIST', 'DIFFICULTY', 'LENGTH'].map((colName, i) => {
+                    let className = ''
+                    if (Math.abs(sortCol) === i + 1) {
+                      className = `activeSortHeader`
+                      if (sortCol < 0) {
+                        className += ' up'
+                      }
+                    }
+                    return (
+                      <div style={{ paddingLeft: 30, width: '25%' }}>
+                        <span
+                          onClick={() => {
+                            if (sortCol === i + 1) {
+                              setSortCol(-(i + 1))
+                            } else {
+                              setSortCol(i + 1)
+                            }
+                          }}
+                          className={className}
+                        >
+                          {colName}
+                        </span>
+                      </div>
+                    )
+                  })}
                 </>
               )}
               {selected === 'lessons' && (
