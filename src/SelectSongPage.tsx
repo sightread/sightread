@@ -1,16 +1,19 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './SelectSong.css'
 import { useHistory } from 'react-router-dom'
 import { songs, lessons } from './songdata'
 import { useWindowSize } from './hooks'
 
-// TODO: make lessons / songs at diff urls
+let first = true
 function SelectSongPage() {
   const { width, height } = useWindowSize()
   const [sortCol, setSortCol] = useState<number>(0)
   const history = useHistory()
   const [search, saveSearch] = useState('')
   const selected = window.location.pathname.includes('lesson') ? 'lessons' : 'songs'
+  const songsRef = useRef<HTMLSpanElement>(null)
+  const lessonsRef = useRef<HTMLSpanElement>(null)
+  const underlineRef = useRef<HTMLDivElement>(null)
 
   let toDisplay: any = []
   if (selected === 'songs') {
@@ -30,16 +33,36 @@ function SelectSongPage() {
     )
   }
 
-  const selectedStyle = {
-    color: '#AE0101',
-    marginBottom: -3, // -3 -2 + 1 === 0
-    paddingBottom: 2,
-    borderBottom: '#AE0101 solid 1px',
-  }
+  const selectedStyle = { color: '#AE0101' }
+  const unselectedStyle = { cursor: 'pointer' }
 
-  const unselectedStyle = {
-    cursor: 'pointer',
-  }
+  useEffect(() => {
+    if (!songsRef.current || !lessonsRef.current || !underlineRef.current) {
+      return
+    }
+
+    function moveUnderline(fromEl: HTMLElement, toEl: HTMLElement) {
+      const to = toEl.getBoundingClientRect()
+      const from = fromEl.getBoundingClientRect()
+      if (underlineRef.current) {
+        underlineRef.current.style.top = to.bottom + 3 + 'px'
+        underlineRef.current.style.width = to.width + 'px'
+        if (first) {
+          first = false
+          underlineRef.current.style.left = to.left + 'px'
+        } else {
+          underlineRef.current.style.left = from.left + 'px'
+          underlineRef.current.style.transform = `translateX(${to.left - from.left}px)`
+        }
+      }
+    }
+
+    if (selected === 'songs') {
+      moveUnderline(lessonsRef.current, songsRef.current)
+    } else {
+      moveUnderline(songsRef.current, lessonsRef.current)
+    }
+  }, [selected, songsRef, lessonsRef, underlineRef])
 
   return (
     <>
@@ -109,24 +132,33 @@ function SelectSongPage() {
             style={{
               fontSize: 14,
               fontWeight: 600,
-              width: 110,
               display: 'flex',
-              flexBasis: 0,
-              justifyContent: 'space-between',
             }}
           >
             <span
+              ref={songsRef}
               onClick={() => history.push('/')}
               style={selected === 'songs' ? selectedStyle : unselectedStyle}
             >
               Songs
             </span>
+            <Sizer width={10} />
             <span
+              ref={lessonsRef}
               onClick={() => history.push('/learn/lessons')}
               style={selected === 'lessons' ? selectedStyle : unselectedStyle}
             >
               Lessons
             </span>
+            <div
+              ref={underlineRef}
+              style={{
+                position: 'fixed',
+                color: '#AE0101',
+                borderBottom: '#AE0101 solid 1px',
+                transition: '0.25s ease-in-out',
+              }}
+            />
           </div>
           <Sizer height={20} />
           <SearchBox onSearch={saveSearch} />
