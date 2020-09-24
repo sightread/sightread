@@ -52,6 +52,13 @@ function App() {
     player.setHand(hand)
   }, [hand])
 
+  // Register ummount fns
+  useEffect(() => {
+    return () => {
+      player.stop()
+    }
+  }, [])
+
   const songLocation = window.location.pathname.substring(6)
   useEffect(() => {
     getSong(`/${songLocation}`).then((song: Song) => {

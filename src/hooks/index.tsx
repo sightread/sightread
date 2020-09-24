@@ -83,7 +83,9 @@ export function SongPressedKeysProvider({ children }: any) {
   const [pressedKeys, setPressedKeys] = useState<{ [noteValue: number]: SongNote }>({})
 
   useEffect(() => {
-    player.subscribe(setPressedKeys)
+    player.subscribe((keys: any) => {
+      setPressedKeys(keys)
+    })
     return () => {
       player.unsubscribe(setPressedKeys)
     }

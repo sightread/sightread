@@ -213,6 +213,7 @@ class Player {
     this.currentSongTime = 0
     this.currentIndex = 0
     this.playing = []
+    this.notify(true)
   }
 
   seek(time: number) {
@@ -264,8 +265,8 @@ class Player {
     let i = this.listeners.indexOf(fn)
     this.listeners.slice(i, 1)
   }
-  notify() {
-    if (!this.dirty) {
+  notify(force = false) {
+    if (!this.dirty && !force) {
       return
     }
     this.dirty = false
