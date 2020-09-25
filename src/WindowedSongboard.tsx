@@ -50,17 +50,26 @@ function getNoteLanes(width: any) {
   return notes
 }
 
-export function WindowedSongBoard({ song, hand }: { song: Song; hand: 'both' | 'left' | 'right' }) {
-  const windowSize = useWindowSize()
+export function WindowedSongBoard({
+  song,
+  hand = 'both',
+  width,
+  height,
+}: {
+  song: Song
+  hand: 'both' | 'left' | 'right'
+  width: any
+  height: any
+}) {
   const { player } = usePlayer()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
     return [...song.measures, ...song.notes]
   }, [song, hand])
-  const lanes = useMemo(() => getNoteLanes(windowSize.width), [windowSize])
+  const lanes = useMemo(() => getNoteLanes(width), [width])
 
   const renderItem = (item: SongMeasure | SongNote, i: number) => {
     if (item.type === 'measure') {
-      return <Measure measure={item} width={windowSize.width} key={`measure-${item.number}`} />
+      return <Measure measure={item} width={width} key={`measure-${item.number}`} />
     } else {
       const note = item
       const lane = lanes[note.noteValue]
@@ -96,17 +105,15 @@ export function WindowedSongBoard({ song, hand }: { song: Song; hand: 'both' | '
   }
 
   return (
-    <div
-      style={{ position: 'fixed', bottom: getKeyboardHeight(windowSize.width), height: '100vh' }}
-    >
+    <div style={{ width, height }}>
       <Virtualized
         items={items}
         renderItem={renderItem}
         getItemOffsets={getItemOffsets}
         getCurrentOffset={getCurrentOffset}
         itemFilter={itemFilter}
-        width={windowSize.width}
-        height={windowSize.height}
+        width={width}
+        height={height}
       />
     </div>
   )

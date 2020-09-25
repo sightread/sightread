@@ -231,7 +231,12 @@ function App() {
           style={{ backgroundColor: '#2e2e2e', display: 'fixed', width: '100vw', height: '100vh' }}
         >
           <RuleLines width={width} height={height} />
-          <WindowedSongBoard song={song} hand={hand} />
+          <WindowedSongBoard
+            song={song}
+            hand={hand}
+            width={width}
+            height={height - getKeyboardHeight(width)}
+          />
           <div
             style={{
               position: 'fixed',

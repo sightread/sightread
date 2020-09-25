@@ -2,18 +2,21 @@ import React, { useEffect, useRef, useState } from 'react'
 import './SelectSong.css'
 import { useHistory } from 'react-router-dom'
 import { songs, lessons } from './songdata'
-import { useWindowSize } from './hooks'
+import { usePlayer, useWindowSize } from './hooks'
+import { parseMidi, parseMusicXML, Song } from './utils'
+import { WindowedSongBoard } from './WindowedSongboard'
 
 let first = true
 function SelectSongPage() {
   const { width, height } = useWindowSize()
-  const [sortCol, setSortCol] = useState<number>(0)
+  const [sortCol, setSortCol] = useState<number>(1)
   const history = useHistory()
   const [search, saveSearch] = useState('')
   const selected = window.location.pathname.includes('lesson') ? 'lessons' : 'songs'
   const songsRef = useRef<HTMLSpanElement>(null)
   const lessonsRef = useRef<HTMLSpanElement>(null)
   const underlineRef = useRef<HTMLDivElement>(null)
+  const [selectedSong, setSelectedSong] = useState<any>('')
 
   let toDisplay: any = []
   if (selected === 'songs') {
@@ -66,6 +69,13 @@ function SelectSongPage() {
 
   return (
     <>
+      <ModalShit
+        show={!!selectedSong}
+        songMeta={selectedSong}
+        onClose={() => {
+          setSelectedSong(null)
+        }}
+      />
       <div
         style={{
           position: 'absolute',
@@ -88,7 +98,7 @@ function SelectSongPage() {
           margin: '0 auto',
         }}
       >
-        <span style={{ fontWeight: 500, fontSize: 24, marginLeft: 50 }}>SIGHTREAD</span>
+        <span style={{ fontWeight: 500, fontSize: 24 }}>SIGHTREAD</span>
         <div
           style={{
             fontSize: 16,
@@ -120,7 +130,6 @@ function SelectSongPage() {
             flexDirection: 'column',
             position: 'relative',
             height: 'calc(100% - 60px)',
-            left: 50,
             width: 'calc(100% - 100px)',
             maxWidth: 1000,
             margin: '0 auto',
@@ -241,6 +250,7 @@ function SelectSongPage() {
             >
               {toDisplay.map((song: any) => (
                 <div
+                  onClick={() => setSelectedSong(song)}
                   onDoubleClick={() => history.push(`/play/${song.file}`)}
                   style={{
                     position: 'relative',
@@ -318,4 +328,125 @@ function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
   )
 }
 
+function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
+  const modalRef = useRef<HTMLDivElement>(null)
+  const [song, setSong] = useState<Song | null>(null)
+  const { player } = usePlayer()
+
+  useEffect(() => {
+    if (!show) {
+      return
+    }
+
+    function outsideClickHandler(e: MouseEvent) {
+      if (!modalRef.current) {
+        return
+      }
+
+      if (!modalRef.current.contains(e.target as Node)) {
+        onClose()
+      }
+    }
+    function escHandler(e: KeyboardEvent) {
+      if (!modalRef.current) {
+        return
+      }
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+    window.addEventListener('click', outsideClickHandler)
+    window.addEventListener('keydown', escHandler)
+    return () => {
+      window.removeEventListener('click', outsideClickHandler)
+      window.removeEventListener('keydown', escHandler)
+    }
+  }, [show, onClose])
+
+  useEffect(() => {
+    if (!songMeta || !(songMeta as any).file) {
+      return
+    }
+    getSong(`/${(songMeta as any).file}`).then((song: Song) => {
+      setSong(song)
+      player.setSong(song)
+      player.play()
+    })
+    return () => {
+      player.stop()
+    }
+  }, [songMeta])
+
+  if (!show || !song) {
+    return null
+  }
+
+  const { file, name } = songMeta as any
+
+  return (
+    <div
+      ref={modalRef}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'fixed',
+        width: 600,
+        height: 400,
+        backgroundColor: 'white',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 3,
+        border: 'solid black 1px',
+      }}
+    >
+      <Sizer height={16} />
+      <h4 style={{ margin: '0 auto' }}>{name}</h4>
+      <div style={{ position: 'relative', top: 20, left: 200 }}>
+        <WindowedSongBoard width={200} height={200} song={song} hand={'both'} />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          bottom: 10,
+        }}
+      >
+        <button
+          style={{
+            cursor: 'pointer',
+          }}
+          onClick={onClose}
+        >
+          Close
+        </button>
+        <Sizer width={10} />
+        <button
+          style={{
+            width: 400,
+            backgroundColor: 'red',
+            height: 30,
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Play
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default SelectSongPage
+
+async function getSong(url: string) {
+  if (url.includes('.xml')) {
+    const xml = await (await fetch(url)).text()
+    return parseMusicXML(xml)
+  }
+  const buffer = await (await fetch(url)).arrayBuffer()
+  return parseMidi(buffer, url.includes('teachmid'))
+}
