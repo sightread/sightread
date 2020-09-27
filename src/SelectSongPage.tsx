@@ -5,6 +5,7 @@ import { songs, lessons } from './songdata'
 import { usePlayer, useWindowSize } from './hooks'
 import { parseMidi, parseMusicXML, Song } from './utils'
 import { WindowedSongBoard } from './WindowedSongboard'
+import { PianoRoll, SongScrubBar } from './PlaySongPage'
 
 let first = true
 function SelectSongPage() {
@@ -331,6 +332,7 @@ function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
 function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   const modalRef = useRef<HTMLDivElement>(null)
   const [song, setSong] = useState<Song | null>(null)
+  const [playing, setPlaying] = useState(false)
   const { player } = usePlayer()
 
   useEffect(() => {
@@ -355,10 +357,10 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
         onClose()
       }
     }
-    window.addEventListener('click', outsideClickHandler)
+    window.addEventListener('mousedown', outsideClickHandler)
     window.addEventListener('keydown', escHandler)
     return () => {
-      window.removeEventListener('click', outsideClickHandler)
+      window.removeEventListener('mousedown', outsideClickHandler)
       window.removeEventListener('keydown', escHandler)
     }
   }, [show, onClose])
@@ -370,7 +372,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
     getSong(`/${(songMeta as any).file}`).then((song: Song) => {
       setSong(song)
       player.setSong(song)
-      player.play()
+      // player.play()
     })
     return () => {
       player.stop()
@@ -384,59 +386,102 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
   const { file, name } = songMeta as any
 
   return (
-    <div
-      ref={modalRef}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'fixed',
-        width: 600,
-        height: 400,
-        backgroundColor: 'white',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 3,
-        border: 'solid black 1px',
-      }}
-    >
-      <Sizer height={16} />
-      <h4 style={{ margin: '0 auto' }}>{name}</h4>
-      <div style={{ position: 'relative', top: 20, left: 200 }}>
-        <WindowedSongBoard width={200} height={200} song={song} hand={'both'} />
-      </div>
+    <>
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'row',
           position: 'absolute',
+          height: '100vh',
+          width: '100vw',
+          zIndex: 2,
+          backgroundColor: 'rgba(126,126,126, 0.65)',
+        }}
+      />
+      <div
+        ref={modalRef}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'fixed',
+          width: 600,
+          height: 400,
+          backgroundColor: 'white',
           left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: 10,
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 3,
+          border: 'solid black 1px',
         }}
       >
         <button
           style={{
+            position: 'absolute',
+            top: 10,
+            right: 10,
             cursor: 'pointer',
+            border: 'none',
+            background: 'none',
           }}
           onClick={onClose}
         >
-          Close
+          <i className="fas fa-window-close" style={{ color: '#AE0101', fontSize: 24 }} />
         </button>
-        <Sizer width={10} />
-        <button
+        <div
           style={{
-            width: 400,
-            backgroundColor: 'red',
-            height: 30,
-            border: 'none',
-            cursor: 'pointer',
+            display: 'flex',
+            width: 'calc(100% - 100px)',
+            flexDirection: 'column',
+            margin: '0 auto',
+            height: '100%',
           }}
         >
-          Play
-        </button>
+          <Sizer height={10} />
+          <h4 style={{ fontSize: 30 }}>{name}</h4>
+          <Sizer height={20} />
+          <div
+            style={{ backgroundColor: '#2e2e2e', width: 500, margin: '0 auto' }}
+            onClick={() => {
+              if (playing) {
+                player.pause()
+                setPlaying(false)
+              } else {
+                player.play()
+                setPlaying(true)
+              }
+            }}
+          >
+            <WindowedSongBoard width={500} height={200} song={song} hand={'both'} />
+            <SongScrubBar song={song} width={500} />
+            <PianoRoll width={500} selectedHand={'both'} />
+          </div>
+          <div
+            style={{
+              height: 30,
+              width: 500,
+              margin: '0 auto',
+              marginTop: 'auto',
+              display: 'flex',
+              flexDirection: 'row',
+            }}
+          >
+            <button
+              style={{
+                width: 120,
+                backgroundColor: '#AE0101',
+                color: 'white',
+                height: 30,
+                border: 'none',
+                cursor: 'pointer',
+                borderRadius: 5,
+                marginLeft: 'auto',
+              }}
+            >
+              Play Now
+            </button>
+          </div>
+          <Sizer height={10} />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -221,6 +221,7 @@ function App() {
         {song && (
           <SongScrubBar
             song={song}
+            width={width}
             rangeSelecting={rangeSelecting}
             setRangeSelecting={setRangeSelecting}
           />
@@ -231,12 +232,14 @@ function App() {
           style={{ backgroundColor: '#2e2e2e', display: 'fixed', width: '100vw', height: '100vh' }}
         >
           <RuleLines width={width} height={height} />
-          <WindowedSongBoard
-            song={song}
-            hand={hand}
-            width={width}
-            height={height - getKeyboardHeight(width)}
-          />
+          <div>
+            <WindowedSongBoard
+              song={song}
+              hand={hand}
+              width={width}
+              height={height - getKeyboardHeight(width)}
+            />
+          </div>
           <div
             style={{
               position: 'fixed',
@@ -322,26 +325,33 @@ function RuleLines({ width, height }: any) {
 
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
-function SongScrubBar({
+export function SongScrubBar({
   song,
-  rangeSelecting,
-  setRangeSelecting,
+  width,
+  rangeSelecting = false,
+  setRangeSelecting = () => {},
 }: {
   song: Song
-  rangeSelecting: boolean
-  setRangeSelecting: any
+  width: number
+  rangeSelecting?: boolean
+  setRangeSelecting?: any
 }) {
   const { player } = usePlayer()
-  const { width } = useWindowSize()
   const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
   const [mouseOver, setMouseOver] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const currentTimeRef = useRef<HTMLSpanElement>(null)
   const timeSpanRef = useRef<HTMLSpanElement>(null)
   const measureSpanRef = useRef<HTMLSpanElement>(null)
   const toolTipRef = useRef<HTMLDivElement>(null)
   const rangeRef = useRef<HTMLDivElement>(null)
   const rangeSelection = useRef<null | { start: number; end: number }>(null)
+  const startX = useRef<number>(0)
+
+  function getProgress(x: number) {
+    return Math.min(Math.max((x - startX.current) / width, 0), 1)
+  }
 
   useRAFLoop(() => {
     if (!divRef.current) {
@@ -360,6 +370,11 @@ function SongScrubBar({
       rangeRef.current.style.width = ((end - start) / player.getDuration()) * width + 'px'
     }
   })
+  useEffect(() => {
+    if (wrapperRef.current) {
+      startX.current = wrapperRef.current.getBoundingClientRect().x
+    }
+  }, [wrapperRef.current])
 
   useEffect(() => {
     if (rangeSelecting) {
@@ -369,7 +384,7 @@ function SongScrubBar({
   }, [rangeSelecting])
 
   function seekPlayer(e: { clientX: number }) {
-    const progress = Math.max(e.clientX / width, 0)
+    const progress = getProgress(e.clientX)
     const songTime = progress * player.getDuration()
     player.seek(songTime)
   }
@@ -397,7 +412,7 @@ function SongScrubBar({
         }
       }
       const handler = (e: MouseEvent) => {
-        const progress = Math.max(e.clientX / width, 0)
+        const progress = getProgress(e.clientX)
         const songTime = progress * player.getDuration()
         if (rangeSelecting) {
           rangeSelection.current = { start: rangeSelection.current?.start ?? 0, end: songTime }
@@ -417,6 +432,7 @@ function SongScrubBar({
 
   return (
     <div
+      ref={wrapperRef}
       style={{
         position: 'absolute',
         display: 'flex',
@@ -424,6 +440,7 @@ function SongScrubBar({
         top: '55px',
         height: 40,
         borderBottom: 'black solid 1px',
+        overflow: 'hidden',
       }}
       onMouseDown={(e) => {
         setMousePressed(true)
@@ -432,7 +449,7 @@ function SongScrubBar({
           return
         }
 
-        const progress = Math.max(e.clientX / width, 0)
+        const progress = getProgress(e.clientX)
         const songTime = progress * player.getDuration()
         rangeSelection.current = { start: songTime, end: songTime }
       }}
@@ -440,10 +457,13 @@ function SongScrubBar({
       onMouseOut={() => setMouseOver(false)}
       onMouseMove={(e: React.MouseEvent) => {
         if (measureSpanRef.current && timeSpanRef.current && toolTipRef.current) {
-          const progress = e.clientX / width
+          const progress = getProgress(e.clientX)
           const songTime = progress * player.getDuration()
           const measure = player.getMeasureForTime(songTime)
-          toolTipRef.current.style.left = `${Math.min(width - 150, e.clientX + 10)}px`
+          toolTipRef.current.style.left = `${Math.min(
+            width - 150,
+            e.clientX - startX.current + 10,
+          )}px`
           measureSpanRef.current.innerText = String(measure.number)
           timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime))
         }
@@ -576,7 +596,7 @@ function isBlack(noteValue: number) {
   return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
 }
 
-function PianoRoll({ width, selectedHand }: any) {
+export function PianoRoll({ width, selectedHand }: any) {
   const pressedKeys: any = useSongPressedKeys()
   const notes = getKeyPositions(width).map((note: any, i: any) => {
     let color = note.color

@@ -714,7 +714,7 @@ export const songs = [
   },
   {
     file: 'Billie Eilish - Bad Guy.mid',
-    name: 'Bad Guy.mid',
+    name: 'Bad Guy',
     artist: 'Billie Eilish',
     difficulty: 'Easy',
   },
