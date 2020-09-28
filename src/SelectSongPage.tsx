@@ -541,5 +541,5 @@ async function getSong(url: string) {
     return parseMusicXML(xml)
   }
   const buffer = await (await fetch(url)).arrayBuffer()
-  return parseMidi(buffer, url.includes('teachmid'))
+  return parseMidi(buffer, url.includes('lesson'))
 }

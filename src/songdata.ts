@@ -606,7 +606,7 @@ export const lessons = [
   },
 ].map((elem) => ({
   ...elem,
-  file: 'music/lessons/teachmid/' + elem.file,
+  file: 'music/lessons/' + elem.file,
 }))
 
 export const songs = [
