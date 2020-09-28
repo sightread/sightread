@@ -231,17 +231,21 @@ function App() {
       </div>
       {viz === 'falling-notes' && song && (
         <div
-          style={{ backgroundColor: '#2e2e2e', display: 'fixed', width: '100vw', height: '100vh' }}
+          style={{
+            backgroundColor: '#2e2e2e',
+            display: 'fixed',
+            width: '100vw',
+            height: '100vh',
+            contain: 'strict',
+          }}
         >
           <RuleLines width={width} height={height} />
-          <div>
-            <WindowedSongBoard
-              song={song}
-              hand={hand}
-              width={width}
-              height={height - getKeyboardHeight(width)}
-            />
-          </div>
+          <WindowedSongBoard
+            song={song}
+            hand={hand}
+            width={width}
+            height={height - getKeyboardHeight(width)}
+          />
           <div
             style={{
               position: 'fixed',

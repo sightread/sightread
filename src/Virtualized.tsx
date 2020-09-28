@@ -103,7 +103,11 @@ export function Virtualized({
       ref={outerRef}
     >
       <div
-        style={{ position: 'absolute', [direction === 'vertical' ? 'height' : 'width']: maxOffset }}
+        style={{
+          position: 'absolute',
+          willChange: 'transform',
+          [direction === 'vertical' ? 'height' : 'width']: maxOffset,
+        }}
         ref={innerRef}
       >
         {renderedItems
