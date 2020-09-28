@@ -427,6 +427,22 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, widt
         >
           <i className="fas fa-window-close" style={{ color: '#AE0101', fontSize: 24 }} />
         </button>
+        {!playing && (
+          <i
+            className="fas fa-play"
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%,-50%)',
+              fontWeight: 900,
+              color: '#B0B0B0',
+              fontSize: 69,
+              zIndex: 5,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
         <div
           style={{
             display: 'flex',
