@@ -471,7 +471,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, widt
                 borderRadius: 5,
               }}
             />
-            <SongScrubBar song={song} width={innerWidth} borderRadius={true} />
+            <SongScrubBar song={song} width={innerWidth} />
           </div>
           <div style={{ backgroundColor: '#2e2e2e', width: innerWidth, margin: '0 auto' }}>
             <div

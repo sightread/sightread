@@ -332,13 +332,11 @@ export function SongScrubBar({
   width,
   rangeSelecting = false,
   setRangeSelecting = () => {},
-  borderRadius = false,
 }: {
   song: Song
   width: number
   rangeSelecting?: boolean
   setRangeSelecting?: any
-  borderRadius?: boolean
 }) {
   const { player } = usePlayer()
   const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
