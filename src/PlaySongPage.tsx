@@ -219,12 +219,14 @@ function App() {
           />
         </div>
         {song && (
-          <SongScrubBar
-            song={song}
-            width={width}
-            rangeSelecting={rangeSelecting}
-            setRangeSelecting={setRangeSelecting}
-          />
+          <div style={{ position: 'absolute', top: 55 }}>
+            <SongScrubBar
+              song={song}
+              width={width}
+              rangeSelecting={rangeSelecting}
+              setRangeSelecting={setRangeSelecting}
+            />
+          </div>
         )}
       </div>
       {viz === 'falling-notes' && song && (
@@ -330,11 +332,13 @@ export function SongScrubBar({
   width,
   rangeSelecting = false,
   setRangeSelecting = () => {},
+  borderRadius = false,
 }: {
   song: Song
   width: number
   rangeSelecting?: boolean
   setRangeSelecting?: any
+  borderRadius?: boolean
 }) {
   const { player } = usePlayer()
   const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
@@ -434,13 +438,10 @@ export function SongScrubBar({
     <div
       ref={wrapperRef}
       style={{
-        position: 'absolute',
         display: 'flex',
         width,
-        top: '55px',
         height: 40,
         borderBottom: 'black solid 1px',
-        overflow: 'hidden',
       }}
       onMouseDown={(e) => {
         setMousePressed(true)
@@ -471,24 +472,33 @@ export function SongScrubBar({
     >
       <div
         style={{
-          position: 'absolute',
+          position: 'relative',
+          width: '100%',
           height: '100%',
-          width: width,
-          backgroundColor: '#B0B0B0',
+          overflow: 'hidden',
         }}
-      ></div>
-      <div
-        style={{
-          position: 'absolute',
-          height: 'calc(100% )',
-          width: width,
-          pointerEvents: 'none',
-          backgroundColor: 'white',
-          left: -width,
-        }}
-        className="scrubBar"
-        ref={divRef}
-      ></div>
+      >
+        <div
+          style={{
+            position: 'absolute',
+            height: '100%',
+            width: width,
+            backgroundColor: '#B0B0B0',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            height: 'calc(100%)',
+            width: width,
+            pointerEvents: 'none',
+            backgroundColor: 'white',
+            left: -width,
+          }}
+          className="scrubBar"
+          ref={divRef}
+        />
+      </div>
       <span
         ref={currentTimeRef}
         style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 20 }}
@@ -505,6 +515,7 @@ export function SongScrubBar({
           height: '42px',
           width: '150px',
           backgroundColor: 'black',
+          zIndex: 6,
         }}
         ref={toolTipRef}
       >

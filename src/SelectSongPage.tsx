@@ -76,6 +76,7 @@ function SelectSongPage() {
         onClose={() => {
           setSelectedSong(null)
         }}
+        width={Math.min(800, width - 200)}
       />
       <div
         style={{
@@ -252,7 +253,6 @@ function SelectSongPage() {
               {toDisplay.map((song: any) => (
                 <div
                   onClick={() => setSelectedSong(song)}
-                  onDoubleClick={() => history.push(`/play/${song.file}`)}
                   style={{
                     position: 'relative',
                     boxSizing: 'border-box',
@@ -292,7 +292,7 @@ function SelectSongPage() {
 }
 
 function Sizer({ height, width }: { height?: number; width?: number }) {
-  return <div style={{ width, height }} />
+  return <div style={{ width, height, minWidth: width, minHeight: height }} />
 }
 
 function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
@@ -329,11 +329,12 @@ function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
   )
 }
 
-function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
+function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, width = 600 } = {}) {
   const modalRef = useRef<HTMLDivElement>(null)
   const [song, setSong] = useState<Song | null>(null)
   const [playing, setPlaying] = useState(false)
   const { player } = usePlayer()
+  const history = useHistory()
 
   useEffect(() => {
     if (!show) {
@@ -384,6 +385,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
   }
 
   const { file, name } = songMeta as any
+  const innerWidth = width - 100
 
   return (
     <>
@@ -402,14 +404,14 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
           display: 'flex',
           flexDirection: 'column',
           position: 'fixed',
-          width: 600,
-          height: 400,
+          width,
+          height: 600,
           backgroundColor: 'white',
           left: '50%',
-          top: '50%',
+          top: '60%',
           transform: 'translate(-50%, -50%)',
           zIndex: 3,
-          border: 'solid black 1px',
+          borderRadius: 5,
         }}
       >
         <button
@@ -428,57 +430,87 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
         <div
           style={{
             display: 'flex',
-            width: 'calc(100% - 100px)',
+            width: innerWidth,
             flexDirection: 'column',
             margin: '0 auto',
             height: '100%',
           }}
         >
-          <Sizer height={10} />
-          <h4 style={{ fontSize: 30 }}>{name}</h4>
-          <Sizer height={20} />
+          <Sizer height={16} />
+          <h4 style={{ fontSize: 30, fontWeight: 600 }}>{name}</h4>
+          <Sizer height={16} />
           <div
-            style={{ backgroundColor: '#2e2e2e', width: 500, margin: '0 auto' }}
-            onClick={() => {
-              if (playing) {
-                player.pause()
-                setPlaying(false)
-              } else {
-                player.play()
-                setPlaying(true)
-              }
+            style={{
+              position: 'relative',
             }}
           >
-            <WindowedSongBoard width={500} height={200} song={song} hand={'both'} />
-            <SongScrubBar song={song} width={500} />
-            <PianoRoll width={500} selectedHand={'both'} />
+            <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                boxShadow: 'inset 0px 4px 4px rgba(0, 0, 0, 0.25)',
+                zIndex: 5,
+                pointerEvents: 'none',
+                borderRadius: 5,
+              }}
+            />
+            <SongScrubBar song={song} width={innerWidth} borderRadius={true} />
+          </div>
+          <div style={{ backgroundColor: '#2e2e2e', width: innerWidth, margin: '0 auto' }}>
+            <div
+              onClick={() => {
+                if (playing) {
+                  player.pause()
+                  setPlaying(false)
+                } else {
+                  player.play()
+                  setPlaying(true)
+                }
+              }}
+            >
+              <WindowedSongBoard width={innerWidth} height={330} song={song} hand={'both'} />
+            </div>
+            <PianoRoll width={innerWidth} selectedHand={'both'} />
           </div>
           <div
             style={{
-              height: 30,
-              width: 500,
+              height: 40,
+              width: innerWidth,
               margin: '0 auto',
               marginTop: 'auto',
               display: 'flex',
               flexDirection: 'row',
+              fontSize: 22,
+              fontWeight: 600,
+              lineHeight: '40px', // vertically center hack.
             }}
           >
+            <span>Difficulty:</span>
+            <Sizer width={8} />
+            <span style={{ color: 'green' }}>Easy</span>
+            <Sizer width={36} />
+            <span>Duration:</span>
+            <Sizer width={8} />
+            <span style={{ color: 'gray' }}>0:00</span>
             <button
               style={{
                 width: 120,
                 backgroundColor: '#AE0101',
                 color: 'white',
-                height: 30,
+                height: 40,
                 border: 'none',
                 cursor: 'pointer',
                 borderRadius: 5,
                 marginLeft: 'auto',
+                fontSize: 22,
               }}
+              onClick={() => history.push(`/play/${file}`)}
             >
               Play Now
             </button>
           </div>
-          <Sizer height={10} />
+          <Sizer height={16} />
         </div>
       </div>
     </>
