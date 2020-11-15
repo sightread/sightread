@@ -1,53 +1,27 @@
 import './player'
 import React, { useMemo } from 'react'
-import { usePlayer, useWindowSize } from './hooks'
+import { usePlayer } from './hooks'
 import { Song, SongMeasure, SongNote, STAFF } from './utils'
 import { Virtualized } from './Virtualized'
 
 const PIXELS_PER_SECOND = 150
 
-function getKeyboardHeight(width: number) {
-  const whiteWidth = width / 52
-  return (220 / 30) * whiteWidth
-}
-
-function createNoteObject(whiteNotes: any, whiteWidth: any, height: any, type: any) {
-  switch (type) {
-    case 'black':
-      return {
-        left: whiteNotes * whiteWidth - whiteWidth / 4,
-        width: whiteWidth / 2,
-        color: 'black',
-        height: height * (2 / 3),
-      }
-    case 'white':
-      return {
-        left: whiteNotes * whiteWidth,
-        height: height,
-        width: whiteWidth,
-        color: 'white',
-      }
-    default:
-      throw Error('Invalid note type')
-  }
-}
-
 function getNoteLanes(width: any) {
   const whiteWidth = width / 52
-  const height = (220 / 30) * whiteWidth
-
   const blackNotes = [1, 4, 6, 9, 11]
-  const notes: any = []
+  const lanes: Array<{ left: number; width: number }> = []
   let totalNotes = 0
 
   for (var whiteNotes = 0; whiteNotes < 52; whiteNotes++, totalNotes++) {
+    const lane = { width: whiteWidth, left: whiteWidth * whiteNotes }
     if (blackNotes.includes(totalNotes % 12)) {
-      notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'black'))
+      lane.width /= 2
+      lane.left -= whiteWidth / 4
       totalNotes++
     }
-    notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'white'))
+    lanes.push(lane)
   }
-  return notes
+  return lanes
 }
 
 export function WindowedSongBoard({
