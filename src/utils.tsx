@@ -6,7 +6,7 @@ function Sizer({ height, width }: { height?: number; width?: number }) {
 }
 
 async function getSong(url: string) {
-  return fetch('generated' + url).then((res) => res.json())
+  return fetch('/generated/' + url.replace(/\.(mid|xml)/i, '.json')).then((res) => res.json())
 }
 function formatTime(seconds: number) {
   let min = String(Math.floor(seconds / 60))

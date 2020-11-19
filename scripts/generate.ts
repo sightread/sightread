@@ -18,7 +18,7 @@ type ParsedMusicFile = MusicFile & { parsedSong: Song }
 const parsedMusic: ParsedMusicFile[] = musicFiles
   .map((musicFile) => {
     const path = musicFile.file
-    if (path.endsWith('mid')) {
+    if (path.toLowerCase().endsWith('mid')) {
       try {
         var buf = new Uint8Array(fs.readFileSync(pathJoin(baseDir, path))).buffer
         const isTeachMidi = musicFile.type === 'lesson'
@@ -50,15 +50,7 @@ fs.writeFileSync(manifestPath, JSON.stringify(manifestJson))
 fs.writeFileSync(manifestSrcPath, JSON.stringify(manifestJson))
 
 parsedMusic.forEach((parsed) => {
-  const filename = parsed.file.replace('.xml', '').replace('.mid', '') + '.json'
-  let genSongPath = pathJoin(
-    __dirname,
-    '..',
-    'public',
-    'generated',
-    'music',
-    parsed.type + 's',
-    filename,
-  )
+  const filename = parsed.file.replace(/\.(mid|xml)/i, '') + '.json'
+  let genSongPath = pathJoin(__dirname, '..', 'public', 'generated', filename)
   fs.writeFileSync(genSongPath, JSON.stringify(parsed.parsedSong))
 })

@@ -9,7 +9,7 @@ import { PianoRoll, SongScrubBar } from './PlaySongPage'
 import { formatTime, getSong } from './utils'
 
 const songs = songManifest.filter((s) => s.type === 'song')
-const lessons = songManifest.filter((s) => s.type === 'lessons')
+const lessons = songManifest.filter((s) => s.type === 'lesson')
 function SelectSongPage() {
   const { width } = useWindowSize()
   const [sortCol, setSortCol] = useState<number>(1)
@@ -26,7 +26,7 @@ function SelectSongPage() {
     const field: string = cols[Math.abs(sortCol) - 1]
     toDisplay = songs
       .filter(
-        (song) =>
+        (song: any) =>
           search === '' ||
           song.artist.toUpperCase().includes(search.toUpperCase()) ||
           song.name.toUpperCase().includes(search.toUpperCase()),
@@ -347,7 +347,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, widt
     if (!songMeta || !(songMeta as any).file) {
       return
     }
-    getSong(`/${(songMeta as any).file}`).then((song: Song) => {
+    getSong(`${(songMeta as any).file}`).then((song: Song) => {
       setSong(song)
       player.setSong(song)
       // player.play()

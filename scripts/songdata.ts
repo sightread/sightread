@@ -611,7 +611,7 @@ const lessons: MusicFile[] = [
 ].map((elem) => ({
   ...elem,
   type: 'lesson',
-  file: 'music/lessons/teachmid' + elem.file,
+  file: 'music/lessons/teachmid/' + elem.file,
 }))
 
 const songs: MusicFile[] = [
