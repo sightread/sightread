@@ -8,12 +8,13 @@ import {
   useUserPressedKeys,
   useQuery,
 } from './hooks'
-import { Song, parseMusicXML, parseMidi, STAFF } from './utils'
+import { Song, STAFF } from './parsers'
 import { WebAudioFontSynth } from './synth'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { WindowedStaffBoard } from './StaffPage'
 import midiKeyboard from './midi'
 import { useHistory } from 'react-router'
+import { formatTime, getSong } from './utils'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
@@ -395,18 +396,6 @@ export function SongScrubBar({
     player.seek(songTime)
   }
 
-  function formatTime(seconds: number) {
-    let min = String(Math.floor(seconds / 60))
-    if (min.length === 1) {
-      min = '0' + min
-    }
-    let sec = String(Math.floor(seconds % 60))
-    if (sec.length === 1) {
-      sec = '0' + sec
-    }
-    return `${min}:${sec}`
-  }
-
   useEffect(() => {
     if (mousePressed) {
       const handleUp = () => {
@@ -710,15 +699,6 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
       }}
     ></div>
   )
-}
-
-async function getSong(url: string) {
-  if (url.includes('.xml')) {
-    const xml = await (await fetch(url)).text()
-    return parseMusicXML(xml)
-  }
-  const buffer = await (await fetch(url)).arrayBuffer()
-  return parseMidi(buffer, url.includes('lesson'))
 }
 
 export default App

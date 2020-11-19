@@ -1,10 +1,11 @@
 import React from 'react'
-import { Song, parseMusicXML, parseMidi, STAFF, SongNote } from './utils'
+import { Song, STAFF, SongNote } from './parsers'
 import { usePlayer, useWindowSize } from './hooks'
 
 import FClefSVG from './FClef.svg'
 import GClefSVG from './GClef.svg'
 import { Virtualized } from './Virtualized'
+import { Sizer } from './utils'
 
 const PIXELS_PER_SECOND = 300
 function getXPos(time: number) {
@@ -229,14 +230,10 @@ function Stave({
         />
       </div>
       <div style={{ position: 'absolute', left: 0, width: 2, height, backgroundColor: 'black' }} />
-      <img style={{ position: 'absolute', ...clefStyle }} src={clefImgSrc} />
+      <img style={{ position: 'absolute', ...clefStyle }} src={clefImgSrc} alt="clef" />
       {[0, 2, 4, 6, 8].map((i) => {
         return <Line top={getRelYPos(staveTopRow - i)} key={`line-${i}`} />
       })}
     </div>
   )
-}
-
-function Sizer({ height, width }: { height?: number; width?: number }) {
-  return <div style={{ width, height }} />
 }

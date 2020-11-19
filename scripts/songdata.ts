@@ -1,4 +1,8 @@
-export const lessons = [
+export type MusicFile =
+  | { type: 'lesson'; lesson: number; file: string; name: string }
+  | { type: 'song'; file: string; artist: string; difficulty: string }
+
+const lessons: MusicFile[] = [
   {
     lesson: 1,
     file: 'Oats_peas_beans_and_barley_grow.MID',
@@ -606,10 +610,11 @@ export const lessons = [
   },
 ].map((elem) => ({
   ...elem,
-  file: 'music/lessons/' + elem.file,
+  type: 'lesson',
+  file: 'music/lessons/teachmid' + elem.file,
 }))
 
-export const songs = [
+const songs: MusicFile[] = [
   {
     file: 'Fur_Elise.mid',
     name: 'Fur Elise (mid)',
@@ -1498,4 +1503,8 @@ export const songs = [
     artist: 'The XX',
     difficulty: 'Easy',
   },
-].map((elem) => ({ ...elem, file: 'music/songs/' + elem.file }))
+].map((elem) => ({ ...elem, type: 'song', file: 'music/songs/' + elem.file }))
+
+const musicFiles: MusicFile[] = songs.concat(lessons)
+
+export { musicFiles }

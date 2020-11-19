@@ -1,22 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './SelectSong.css'
 import { useHistory } from 'react-router-dom'
-import { songs, lessons } from './songdata'
+import songManifest from './manifest.json'
 import { usePlayer, useWindowSize } from './hooks'
-import { parseMidi, parseMusicXML, Song } from './utils'
+import { Song } from './parsers'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { PianoRoll, SongScrubBar } from './PlaySongPage'
+import { formatTime, getSong } from './utils'
 
-let first = true
+const songs = songManifest.filter((s) => s.type === 'song')
+const lessons = songManifest.filter((s) => s.type === 'lessons')
 function SelectSongPage() {
-  const { width, height } = useWindowSize()
+  const { width } = useWindowSize()
   const [sortCol, setSortCol] = useState<number>(1)
   const history = useHistory()
   const [search, saveSearch] = useState('')
   const selected = window.location.pathname.includes('lesson') ? 'lessons' : 'songs'
   const songsRef = useRef<HTMLSpanElement>(null)
   const lessonsRef = useRef<HTMLSpanElement>(null)
-  const underlineRef = useRef<HTMLDivElement>(null)
   const [selectedSong, setSelectedSong] = useState<any>('')
 
   let toDisplay: any = []
@@ -37,36 +38,13 @@ function SelectSongPage() {
     )
   }
 
-  const selectedStyle = { color: '#AE0101' }
-  const unselectedStyle = { cursor: 'pointer' }
-
-  useEffect(() => {
-    if (!songsRef.current || !lessonsRef.current || !underlineRef.current) {
-      return
-    }
-
-    function moveUnderline(fromEl: HTMLElement, toEl: HTMLElement) {
-      const to = toEl.getBoundingClientRect()
-      const from = fromEl.getBoundingClientRect()
-      if (underlineRef.current) {
-        underlineRef.current.style.top = to.bottom + 3 + 'px'
-        underlineRef.current.style.width = to.width + 'px'
-        if (first) {
-          first = false
-          underlineRef.current.style.left = to.left + 'px'
-        } else {
-          underlineRef.current.style.left = from.left + 'px'
-          underlineRef.current.style.transform = `translateX(${to.left - from.left}px)`
-        }
-      }
-    }
-
-    if (selected === 'songs') {
-      moveUnderline(lessonsRef.current, songsRef.current)
-    } else {
-      moveUnderline(songsRef.current, lessonsRef.current)
-    }
-  }, [selected, songsRef, lessonsRef, underlineRef])
+  const selectedStyle = {
+    color: '#AE0101',
+    paddingBottom: 3,
+    borderBottom: '#AE0101 solid 1px',
+    transition: '0.25s ease-in-out',
+  }
+  const unselectedStyle = { cursor: 'pointer', transition: '0.25s ease-in-out' }
 
   return (
     <>
@@ -162,7 +140,6 @@ function SelectSongPage() {
               Lessons
             </span>
             <div
-              ref={underlineRef}
               style={{
                 position: 'fixed',
                 color: '#AE0101',
@@ -271,7 +248,7 @@ function SelectSongPage() {
                       <span style={{ paddingLeft: 30, width: '25%' }}>{song.name}</span>
                       <span style={{ width: '25%' }}>{song.artist}</span>
                       <span style={{ width: '25%' }}>{song.difficulty}</span>
-                      <span style={{ width: '25%' }}>0:00</span>
+                      <span style={{ width: '25%' }}>{formatTime(song.duration)}</span>
                     </>
                   )}
                   {selected === 'lessons' && (
@@ -534,12 +511,3 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, widt
 }
 
 export default SelectSongPage
-
-async function getSong(url: string) {
-  if (url.includes('.xml')) {
-    const xml = await (await fetch(url)).text()
-    return parseMusicXML(xml)
-  }
-  const buffer = await (await fetch(url)).arrayBuffer()
-  return parseMidi(buffer, url.includes('lesson'))
-}

@@ -9,11 +9,13 @@
     "@types/react-router": "^5.1.5",
     "@types/react-router-dom": "^5.1.4",
     "@types/vexflow": "^1.2.36",
-    "@types/webmidi": "^2.0.4"
+    "@types/webmidi": "^2.0.4",
+    "ts-node": "^9.0.0"
   },
   "dependencies": {
     "@types/react": "^16.9.34",
     "jasmid.ts": "^2.1.0",
+    "jsdom": "^16.4.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router": "^5.1.2",

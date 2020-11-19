@@ -1,13 +1,15 @@
 import './player'
 import React, { useMemo } from 'react'
 import { usePlayer } from './hooks'
-import { Song, SongMeasure, SongNote, STAFF } from './utils'
+import { Song, SongMeasure, SongNote, STAFF } from './parsers'
 import { Virtualized } from './Virtualized'
+import { css } from './flakecss'
 
 const PIXELS_PER_SECOND = 150
 
 function getNoteLanes(width: any) {
   const whiteWidth = width / 52
+  const blackWidth = whiteWidth / 2
   const blackNotes = [1, 4, 6, 9, 11]
   const lanes: Array<{ left: number; width: number }> = []
   let totalNotes = 0
@@ -15,8 +17,7 @@ function getNoteLanes(width: any) {
   for (var whiteNotes = 0; whiteNotes < 52; whiteNotes++, totalNotes++) {
     const lane = { width: whiteWidth, left: whiteWidth * whiteNotes }
     if (blackNotes.includes(totalNotes % 12)) {
-      lane.width /= 2
-      lane.left -= whiteWidth / 4
+      lanes.push({ width: blackWidth, left: lane.left - blackWidth / 2 })
       totalNotes++
     }
     lanes.push(lane)
@@ -118,20 +119,20 @@ function FallingNote({ note, noteLength, width, posX }: any) {
   )
 }
 
+const measureStyles = css({
+  measure: {
+    position: 'relative',
+    left: 10,
+    top: -7,
+    fontSize: 15,
+    color: 'white',
+  },
+})
+
 function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
   return (
     <div id={`measure-${measure.number}`}>
-      <div
-        style={{
-          position: 'relative',
-          left: 10,
-          top: -7,
-          fontSize: 15,
-          color: 'white',
-        }}
-      >
-        {measure.number}
-      </div>
+      <div className={measureStyles.measure}>{measure.number}</div>
       <div style={{ width, height: 1, backgroundColor: '#C5C5C5' }}></div>
     </div>
   )

@@ -52,7 +52,7 @@ export function parseMusicXML(txt: string): Song {
    */
 
   const xml = new DOMParser().parseFromString(txt, 'application/xml')
-  const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL, nodeFilter)
+  const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL /*  nodeFilter */)
 
   let currTime = 0
   let currMeasure = 1
@@ -110,7 +110,7 @@ export function parseMusicXML(txt: string): Song {
       let duration = Number(curr.querySelector('duration')?.textContent?.trim())
       if (isNaN(duration)) {
         // TODO: check for note size and convert to duration.
-        console.error('Error: found a note with no duration.')
+        // console.error('Error: found a note with no duration.')
         duration = 0
       }
       let noteStaff = Number(curr.querySelector('staff')?.textContent?.trim())
@@ -300,7 +300,6 @@ export function getPitch(noteValue: number): { octave: number; step: string; alt
   return { octave: Math.floor(noteValue / 12) + 1, step, alter }
 }
 
-;(window as any).getSharps = getSharps
 function getSharps(fifth: number) {
   const cScale = [0, 2, 3, 5, 7, 8, 10]
   const thisScale = cScale.map((n) => (((n + fifth * 7 + 12) % 12) + 12) % 12)
@@ -317,13 +316,9 @@ function getSharps(fifth: number) {
   return sharps
 }
 
-;(window as any).getSharps = getSharps
-;(window as any).getNoteValue = getNoteValue
-
 // TODO: write own parser
 export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
   const parsed = parseMidiFile(midiData)
-  console.error('midi', { parsed })
 
   const bpms: Array<Bpm> = []
   var ticksPerBeat = parsed.header.ticksPerBeat

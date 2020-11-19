@@ -1,6 +1,6 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { Song, SongNote, STAFF } from './utils'
+import { Song, SongNote, STAFF } from './parsers'
 import { WebAudioFontSynth } from './synth'
 import midi from './midi'
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext, useCallback } from 'react'
 import Player from '../player'
 import React from 'react'
-import { SongNote } from '../utils'
+import { SongNote } from '../parsers'
 import midi from '../midi'
 import { useHistory } from 'react-router-dom'
 

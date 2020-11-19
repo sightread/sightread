@@ -1,4 +1,4 @@
-import { getNoteValue } from './utils'
+import { getNoteValue } from './parsers'
 import { WebAudioFontSynth } from './synth'
 
 export function refreshMIDIDevices() {
