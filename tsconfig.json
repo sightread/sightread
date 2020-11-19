@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "commonjs",
     "noImplicitAny": true,
     "removeComments": true,
     "jsx": "react",
