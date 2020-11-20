@@ -73,7 +73,7 @@ function LandingPage() {
           </div>
           <div style={{ height: 300, marginLeft: 8, marginRight: 8, width: 250 }}>
             <div style={{ height: 217 }}>
-              <img src="/images/sheet.png" style={{ maxWidth: 250 }} />
+              <img src="/images/sheet.png" style={{ maxWidth: 250, height: 177 }} />
             </div>
             <Sizer height={16} />
             <h3 style={{ fontSize: 24, fontWeight: 300, color: PURPLE }}>Sheet music display</h3>
@@ -84,7 +84,10 @@ function LandingPage() {
             </p>
           </div>
           <div style={{ height: 300, marginLeft: 8, marginRight: 8, width: 250 }}>
-            <img src="/images/keyboard.png" style={{ maxWidth: 250, marginTop: -35 }} />
+            <img
+              src="/images/keyboard.png"
+              style={{ maxWidth: 250, marginTop: -35, height: 250 }}
+            />
             <Sizer height={16} />
             <h3 style={{ fontSize: 24, fontWeight: 300, color: PURPLE }}>MIDI Keyboard Support</h3>
             <Sizer height={16} />
@@ -93,7 +96,7 @@ function LandingPage() {
             </p>
           </div>
           <div style={{ height: 300, marginLeft: 8, marginRight: 8, width: 250 }}>
-            <img src="/images/uparrow.png" style={{ maxWidth: 250, marginTop: -35 }} />
+            <img src="/images/uparrow.png" style={{ maxWidth: 250, marginTop: -35, height: 250 }} />
             <Sizer height={16} />
             <h3 style={{ fontSize: 24, fontWeight: 300, color: PURPLE }}>Gradual progression</h3>
             <Sizer height={16} />
@@ -103,6 +106,7 @@ function LandingPage() {
             </p>
           </div>
         </div>
+        <Sizer height={250} />
       </CenteringWrapper>
     </div>
   )
