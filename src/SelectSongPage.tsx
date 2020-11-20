@@ -6,12 +6,12 @@ import { usePlayer, useWindowSize } from './hooks'
 import { Song } from './parsers'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { PianoRoll, SongScrubBar } from './PlaySongPage'
-import { formatTime, getSong } from './utils'
+import { formatTime, getSong, Logo, Sizer } from './utils'
 
 const songs = songManifest.filter((s) => s.type === 'song')
 const lessons = songManifest.filter((s) => s.type === 'lesson')
 function SelectSongPage() {
-  const { width } = useWindowSize()
+  // const { width } = useWindowSize()
   const [sortCol, setSortCol] = useState<number>(1)
   const history = useHistory()
   const [search, saveSearch] = useState('')
@@ -54,22 +54,21 @@ function SelectSongPage() {
         onClose={() => {
           setSelectedSong(null)
         }}
-        width={Math.min(800, width - 200)}
       />
       <div
         style={{
           position: 'absolute',
-          minWidth: '100vw',
+          width: '100vw',
           backgroundColor: 'black',
-          height: 55,
+          height: 60,
           left: 0,
           zIndex: -1,
         }}
-      ></div>
+      />
       <div
         style={{
-          height: 55,
-          width,
+          height: 60,
+          width: '100vw',
           zIndex: 2,
           display: 'flex',
           alignItems: 'center',
@@ -78,19 +77,21 @@ function SelectSongPage() {
           margin: '0 auto',
         }}
       >
+        <Logo />
+        <Sizer width={16} />
         <span style={{ fontWeight: 500, fontSize: 24 }}>SIGHTREAD</span>
+        <Sizer width={60} />
         <div
           style={{
             fontSize: 16,
-            paddingLeft: 60,
-            width: 350,
+            lineHeight: 20,
+            width: 250,
             display: 'flex',
             justifyContent: 'space-between',
           }}
         >
-          <span>Home</span>
           <span>Free Play</span>
-          <span>Learn</span>
+          <span style={{ color: '#DF1F1F', fontWeight: 600 }}>Learn</span>
           <span>About</span>
         </div>
         <span style={{ marginLeft: 'auto', marginRight: 50 }}>Log in / Sign up</span>
@@ -115,7 +116,9 @@ function SelectSongPage() {
             margin: '0 auto',
           }}
         >
-          <h2 style={{ fontSize: 36, margin: '16px 0' }}>Learn</h2>
+          <Sizer height={24} />
+          <h2 style={{ fontSize: 36 }}>Learn</h2>
+          <Sizer height={24} />
 
           <div
             style={{
@@ -126,7 +129,7 @@ function SelectSongPage() {
           >
             <span
               ref={songsRef}
-              onClick={() => history.push('/')}
+              onClick={() => history.push('/learn')}
               style={selected === 'songs' ? selectedStyle : unselectedStyle}
             >
               Songs
@@ -268,10 +271,6 @@ function SelectSongPage() {
   )
 }
 
-function Sizer({ height, width }: { height?: number; width?: number }) {
-  return <div style={{ width, height, minWidth: width, minHeight: height }} />
-}
-
 function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
   return (
     <div style={{ position: 'relative', height: 32, width: 300 }}>
@@ -306,7 +305,8 @@ function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
   )
 }
 
-function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, width = 600 } = {}) {
+function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
+  const { width: windowWidth } = useWindowSize()
   const modalRef = useRef<HTMLDivElement>(null)
   const [song, setSong] = useState<Song | null>(null)
   const [playing, setPlaying] = useState(false)
@@ -350,10 +350,10 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, widt
     getSong(`${(songMeta as any).file}`).then((song: Song) => {
       setSong(song)
       player.setSong(song)
-      // player.play()
     })
     return () => {
       player.stop()
+      setPlaying(false)
     }
   }, [songMeta])
 
@@ -362,6 +362,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, widt
   }
 
   const { file, name } = songMeta as any
+  const width = Math.min(800, windowWidth - 200)
   const innerWidth = width - 100
 
   return (
@@ -385,7 +386,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, widt
           height: 600,
           backgroundColor: 'white',
           left: '50%',
-          top: '60%',
+          top: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex: 3,
           borderRadius: 5,
@@ -485,7 +486,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined, widt
             <Sizer width={36} />
             <span>Duration:</span>
             <Sizer width={8} />
-            <span style={{ color: 'gray' }}>0:00</span>
+            <span style={{ color: 'gray' }}>{formatTime(song.duration)}</span>
             <button
               style={{
                 width: 120,

@@ -21,6 +21,7 @@ import { formatTime, getSong } from './utils'
 const synth = new WebAudioFontSynth()
 type viz = 'falling-notes' | 'sheet'
 
+type Hand = 'both' | 'left' | 'right'
 function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
@@ -30,24 +31,16 @@ function App() {
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
   const [song, setSong] = useState<Song | null>(null)
-  const [hand, setHand] = useState<'both' | 'left' | 'right'>('both')
+  const [hand, setHand] = useState<Hand>('both')
   const viz: viz = query.viz ?? 'falling-notes'
   const history = useHistory()
 
-  const handleHand = () => {
-    switch (hand) {
-      case 'both':
-        setHand('left')
-        break
-      case 'left':
-        setHand('right')
-        break
-      case 'right':
-        setHand('both')
-        break
-      default:
-        console.error('shouldnt get here in handle hand')
+  const handleHand = (selected: Hand) => {
+    if (hand === selected) {
+      setHand('both')
+      return
     }
+    setHand(selected)
   }
   useEffect(() => {
     player.setHand(hand)
@@ -62,7 +55,7 @@ function App() {
 
   const songLocation = window.location.pathname.substring(6)
   useEffect(() => {
-    getSong(`/${songLocation}`).then((song: Song) => {
+    getSong(songLocation).then((song: Song) => {
       setSong(song)
       player.setSong(song)
     })
@@ -160,15 +153,17 @@ function App() {
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <div className="super-hands" onClick={handleHand} style={{ fontSize: 24 }}>
+          <div className="super-hands" style={{ fontSize: 24 }}>
             <i
               style={{ transform: 'rotateY(180deg)', color: hand === 'left' ? 'red' : undefined }}
               className="fas fa-hand-paper"
-            ></i>
+              onClick={() => handleHand('left')}
+            />
             <i
               style={{ color: hand === 'right' ? 'red' : undefined }}
               className="fas fa-hand-paper"
-            ></i>
+              onClick={() => handleHand('right')}
+            />
           </div>
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i

@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './reset.css'
 import './index.css'
+import LandingPage from './LandingPage'
 import PlaySongPage from './PlaySongPage'
 import SelectSong from './SelectSongPage'
 import * as serviceWorker from './serviceWorker'
@@ -15,8 +16,8 @@ function Root() {
         <SongPressedKeysProvider>
           <PlayerProvider>
             <Router>
-              <Route path="/" exact component={SelectSong} />
-              <Route path="/learn/lessons" exact component={SelectSong} />
+              <Route path="/" exact component={LandingPage} />
+              <Route path="/learn*" exact component={SelectSong} />
               <Route path="/play/music/:song_location" component={PlaySongPage} />
             </Router>
           </PlayerProvider>

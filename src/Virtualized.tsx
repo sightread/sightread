@@ -81,9 +81,13 @@ export function Virtualized({
     }
     let offset = getCurrentOffset()
     if (direction === 'vertical') {
-      innerRef.current.style.transform = `translateY(${-(maxOffset - offset - height)}px)`
+      innerRef.current.style.transform = `translateY(${-(
+        maxOffset -
+        offset -
+        height
+      )}px) translateZ(0px)`
     } else {
-      innerRef.current.style.transform = `translateX(-${offset}px)`
+      innerRef.current.style.transform = `translateX(-${offset}px) translateZ(0px)`
     }
 
     const newIndexes = getRenderRange()
