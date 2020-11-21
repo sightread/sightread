@@ -45,7 +45,9 @@ function LandingPage() {
               src="/images/hero.png"
               height={372}
               style={{
-                maxWidth: 600,
+                width: 600,
+                maxWidth: '100%',
+                height: 'auto',
                 borderRadius: 10,
                 boxShadow: '0px 6px 13px 8px rgba(0, 0, 0, 0.25)',
               }}
@@ -70,8 +72,9 @@ function LandingPage() {
             <p style={{ fontSize: 18 }}>
               Sightread is jam packed with features to help you learn how to play Piano.
             </p>
+            <Sizer height={16} />
           </div>
-          <div style={{ height: 300, marginLeft: 8, marginRight: 8, width: 250 }}>
+          <div style={{ marginLeft: 8, marginRight: 8, width: 250 }}>
             <div style={{ height: 217 }}>
               <img src="/images/sheet.png" style={{ maxWidth: 250, height: 177 }} />
             </div>
@@ -82,8 +85,9 @@ function LandingPage() {
               Sightread can display notes in a simplified sheet music format, to help you learn the
               notes.
             </p>
+            <Sizer height={16} />
           </div>
-          <div style={{ height: 300, marginLeft: 8, marginRight: 8, width: 250 }}>
+          <div style={{ marginLeft: 8, marginRight: 8, width: 250 }}>
             <img
               src="/images/keyboard.png"
               style={{ maxWidth: 250, marginTop: -35, height: 250 }}
@@ -94,6 +98,7 @@ function LandingPage() {
             <p style={{ fontSize: 18, lineHeight: '21px' }}>
               Bring your own MIDI Piano! Connect it to your device via either USB or Bluetooth.
             </p>
+            <Sizer height={16} />
           </div>
           <div style={{ height: 300, marginLeft: 8, marginRight: 8, width: 250 }}>
             <img src="/images/uparrow.png" style={{ maxWidth: 250, marginTop: -35, height: 250 }} />
