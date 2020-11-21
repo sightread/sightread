@@ -66,13 +66,13 @@ function LandingPage() {
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ width: 270, marginRight: 15 }}>
+          <div style={{ width: '100%', marginRight: 15 }}>
             <h2 style={{ fontSize: 32 }}>Features you'll love</h2>
-            <Sizer height={32} />
+            <Sizer height={16} />
             <p style={{ fontSize: 18 }}>
               Sightread is jam packed with features to help you learn how to play Piano.
             </p>
-            <Sizer height={16} />
+            <Sizer height={48} />
           </div>
           <div style={{ marginLeft: 8, marginRight: 8, width: 250 }}>
             <div style={{ height: 217 }}>
@@ -138,7 +138,7 @@ function LaunchButton({ onClick }: any) {
   )
 }
 
-function CenteringWrapper({ children, backgroundColor }: any) {
+function CenteringWrapper({ children, backgroundColor = 'white', gutterWidth = 50 }: any) {
   return (
     <>
       <div style={{ position: 'relative', width: '100%' }}>
@@ -153,9 +153,9 @@ function CenteringWrapper({ children, backgroundColor }: any) {
         />
         <div
           style={{
-            width: 'calc(100vw - 100px)',
+            width: `calc(100vw - ${gutterWidth * 2}px)`,
             alignItems: 'center',
-            maxWidth: 1280,
+            maxWidth: 1024,
             margin: '0 auto',
           }}
         >

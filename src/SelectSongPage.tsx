@@ -68,12 +68,12 @@ function SelectSongPage() {
       <div
         style={{
           height: 60,
-          width: '100vw',
+          width: 'calc(100% - 100px)',
           zIndex: 2,
           display: 'flex',
           alignItems: 'center',
           color: 'white',
-          maxWidth: 1000,
+          maxWidth: 1024,
           margin: '0 auto',
         }}
       >
@@ -112,7 +112,7 @@ function SelectSongPage() {
             position: 'relative',
             height: 'calc(100% - 60px)',
             width: 'calc(100% - 100px)',
-            maxWidth: 1000,
+            maxWidth: 1024,
             margin: '0 auto',
           }}
         >
