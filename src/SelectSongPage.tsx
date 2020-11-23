@@ -7,6 +7,7 @@ import { Song } from './parsers'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { PianoRoll, SongScrubBar } from './PlaySongPage'
 import { CenteringWrapper, formatTime, getSong, Logo, Sizer } from './utils'
+import { css } from './flakecss'
 
 const songs = songManifest.filter((s) => s.type === 'song')
 const lessons = songManifest.filter((s) => s.type === 'lesson')
@@ -87,12 +88,12 @@ function SelectSongPage() {
           <span style={{ marginLeft: 'auto', marginRight: 50 }}>Log in / Sign up</span>
         </div>
       </CenteringWrapper>
-      <CenteringWrapper backgroundColor={'#F2F2F2'}>
+      <CenteringWrapper backgroundColor={'#F2F2F2'} verticalGutter={60}>
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            height: 'calc(100vh - 55px)',
+            height: 'calc(100vh - 36px)',
           }}
         >
           <div
@@ -355,6 +356,32 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
   const width = Math.min(800, windowWidth - 200)
   const innerWidth = width - 100
 
+  css(
+    {
+      '.close-modal': {
+        color: 'rgb(174, 1, 1)',
+        fontSize: 24,
+        transition: '150ms',
+      },
+      '.close-modal:hover': {
+        color: 'rgb(174, 1, 1, 0.5)',
+      },
+      '.modal-play-btn': {
+        color: 'rgb(176, 176, 176)',
+        transition: '150ms',
+      },
+      '.modal-play-btn:hover': {
+        color: 'white',
+      },
+      '.selectsong__play-now-btn': {
+        backgroundColor: 'rgb(174, 1, 1)',
+      },
+      '.selectsong__play-now-btn:hover': {
+        backgroundColor: 'rgba(174, 1, 1, 0.5)',
+      },
+    },
+    'SelectSongPage.ModalShit',
+  )
   return (
     <>
       <div
@@ -362,7 +389,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
           position: 'absolute',
           height: '100vh',
           width: '100vw',
-          zIndex: 2,
+          zIndex: 1,
           backgroundColor: 'rgba(126,126,126, 0.65)',
         }}
       />
@@ -378,7 +405,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          zIndex: 3,
+          zIndex: 2,
           borderRadius: 5,
         }}
       >
@@ -393,21 +420,23 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
           }}
           onClick={onClose}
         >
-          <i className="fas fa-window-close" style={{ color: '#AE0101', fontSize: 24 }} />
+          <i className="close-modal fas fa-window-close" />
         </button>
         {!playing && (
           <i
-            className="fas fa-play"
+            className="modal-play-btn fas fa-play"
             style={{
               position: 'absolute',
               left: '50%',
               top: '50%',
               transform: 'translate(-50%,-50%)',
               fontWeight: 900,
-              color: '#B0B0B0',
               fontSize: 69,
-              zIndex: 5,
-              pointerEvents: 'none',
+              zIndex: 1,
+            }}
+            onClick={() => {
+              player.play()
+              setPlaying(true)
             }}
           />
         )}
@@ -478,9 +507,9 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
             <Sizer width={8} />
             <span style={{ color: 'gray' }}>{formatTime(song.duration)}</span>
             <button
+              className="selectsong__play-now-btn"
               style={{
                 width: 120,
-                backgroundColor: '#AE0101',
                 color: 'white',
                 height: 40,
                 border: 'none',
@@ -488,6 +517,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
                 borderRadius: 5,
                 marginLeft: 'auto',
                 fontSize: 22,
+                transition: '150ms',
               }}
               onClick={() => history.push(`/play/${file}`)}
             >
