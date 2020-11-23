@@ -36,7 +36,14 @@ function formatTime(seconds: number) {
 
 function Logo() {
   return (
-    <svg width="34" height="32" viewBox="0 0 34 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="34"
+      height="32"
+      viewBox="0 0 34 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ flexShrink: 0 }}
+    >
       <g clip-path="url(#clip0)">
         <path d="M33.2306 20.1791H0.0865479V20.619H33.2306V20.1791Z" fill="white" />
         <path
@@ -73,4 +80,32 @@ function Logo() {
   )
 }
 
-export { Sizer, getSong, formatTime, Logo }
+function CenteringWrapper({ children, backgroundColor = 'white', gutterWidth = 50 }: any) {
+  return (
+    <>
+      <div style={{ position: 'relative', width: '100%' }}>
+        <div
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            backgroundColor,
+            zIndex: -1,
+          }}
+        />
+        <div
+          style={{
+            width: `calc(100vw - ${gutterWidth * 2}px)`,
+            alignItems: 'center',
+            maxWidth: 1024,
+            margin: '0 auto',
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </>
+  )
+}
+
+export { Sizer, getSong, formatTime, Logo, CenteringWrapper }

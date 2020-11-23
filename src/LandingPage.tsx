@@ -1,13 +1,14 @@
 import React from 'react'
-import { Logo, Sizer } from './utils'
+import { CenteringWrapper, Logo, Sizer } from './utils'
 import { useHistory } from 'react-router-dom'
 
+const DARKER_PURPLE = '#4C41CC' // header.
 const PURPLE = '#5A4EDF'
 function LandingPage() {
   const history = useHistory()
   return (
     <div>
-      <CenteringWrapper backgroundColor={'#4C41CC'}>
+      <CenteringWrapper backgroundColor={DARKER_PURPLE}>
         <div
           style={{
             height: 60,
@@ -135,34 +136,6 @@ function LaunchButton({ onClick }: any) {
     >
       Launch
     </div>
-  )
-}
-
-function CenteringWrapper({ children, backgroundColor = 'white', gutterWidth = 50 }: any) {
-  return (
-    <>
-      <div style={{ position: 'relative', width: '100%' }}>
-        <div
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            backgroundColor,
-            zIndex: -1,
-          }}
-        />
-        <div
-          style={{
-            width: `calc(100vw - ${gutterWidth * 2}px)`,
-            alignItems: 'center',
-            maxWidth: 1024,
-            margin: '0 auto',
-          }}
-        >
-          {children}
-        </div>
-      </div>
-    </>
   )
 }
 

@@ -6,7 +6,7 @@ import { usePlayer, useWindowSize } from './hooks'
 import { Song } from './parsers'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { PianoRoll, SongScrubBar } from './PlaySongPage'
-import { formatTime, getSong, Logo, Sizer } from './utils'
+import { CenteringWrapper, formatTime, getSong, Logo, Sizer } from './utils'
 
 const songs = songManifest.filter((s) => s.type === 'song')
 const lessons = songManifest.filter((s) => s.type === 'lesson')
@@ -55,218 +55,208 @@ function SelectSongPage() {
           setSelectedSong(null)
         }}
       />
-      <div
-        style={{
-          position: 'absolute',
-          width: '100vw',
-          backgroundColor: 'black',
-          height: 60,
-          left: 0,
-          zIndex: -1,
-        }}
-      />
-      <div
-        style={{
-          height: 60,
-          width: 'calc(100% - 100px)',
-          zIndex: 2,
-          display: 'flex',
-          alignItems: 'center',
-          color: 'white',
-          maxWidth: 1024,
-          margin: '0 auto',
-        }}
-      >
-        <Logo />
-        <Sizer width={16} />
-        <span style={{ fontWeight: 500, fontSize: 24 }}>SIGHTREAD</span>
-        <Sizer width={60} />
+      <CenteringWrapper backgroundColor={'black'}>
         <div
           style={{
-            fontSize: 16,
-            lineHeight: 20,
-            width: 250,
+            height: 60,
+            zIndex: 2,
             display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <span>Free Play</span>
-          <span style={{ color: '#DF1F1F', fontWeight: 600 }}>Learn</span>
-          <span>About</span>
-        </div>
-        <span style={{ marginLeft: 'auto', marginRight: 50 }}>Log in / Sign up</span>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: '#F2F2F2',
-          height: 'calc(100vh - 55px)',
-          width: '100vw',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative',
-            height: 'calc(100% - 60px)',
-            width: 'calc(100% - 100px)',
+            alignItems: 'center',
+            color: 'white',
             maxWidth: 1024,
             margin: '0 auto',
           }}
         >
-          <Sizer height={24} />
-          <h2 style={{ fontSize: 36 }}>Learn</h2>
-          <Sizer height={24} />
-
+          <Logo />
+          <Sizer width={16} />
+          <span style={{ fontWeight: 500, fontSize: 24 }}>SIGHTREAD</span>
+          <Sizer width={60} />
           <div
             style={{
-              fontSize: 14,
-              fontWeight: 600,
+              fontSize: 16,
+              lineHeight: 20,
+              width: 250,
               display: 'flex',
+              justifyContent: 'space-between',
             }}
           >
-            <span
-              ref={songsRef}
-              onClick={() => history.push('/learn')}
-              style={selected === 'songs' ? selectedStyle : unselectedStyle}
-            >
-              Songs
-            </span>
-            <Sizer width={10} />
-            <span
-              ref={lessonsRef}
-              onClick={() => history.push('/learn/lessons')}
-              style={selected === 'lessons' ? selectedStyle : unselectedStyle}
-            >
-              Lessons
-            </span>
-            <div
-              style={{
-                position: 'fixed',
-                color: '#AE0101',
-                borderBottom: '#AE0101 solid 1px',
-                transition: '0.25s ease-in-out',
-              }}
-            />
+            <span>Free Play</span>
+            <span style={{ color: '#DF1F1F', fontWeight: 600 }}>Learn</span>
+            <span>About</span>
           </div>
-          <Sizer height={20} />
-          <SearchBox onSearch={saveSearch} />
-          <Sizer height={20} />
+          <span style={{ marginLeft: 'auto', marginRight: 50 }}>Log in / Sign up</span>
+        </div>
+      </CenteringWrapper>
+      <CenteringWrapper backgroundColor={'#F2F2F2'}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: 'calc(100vh - 55px)',
+          }}
+        >
           <div
             style={{
-              position: 'relative',
               display: 'flex',
               flexDirection: 'column',
+              position: 'relative',
+              height: 'calc(100% - 60px)',
               width: '100%',
-              flexGrow: 1,
-              backgroundColor: '#FFF',
-              boxShadow: `0px 0px 5px rgba(0, 0, 0, 0.2)`,
-              borderRadius: 5,
+              margin: '0 auto',
             }}
           >
+            <Sizer height={24} />
+            <h2 style={{ fontSize: 36 }}>Learn</h2>
+            <Sizer height={24} />
+
             <div
-              className="table_header"
               style={{
-                position: 'sticky',
-                top: 0,
-                display: 'flex',
-                alignItems: 'center',
-                height: 30,
-                boxSizing: 'border-box',
+                fontSize: 14,
                 fontWeight: 600,
-                color: '#AE0101',
-                backgroundColor: '#F1F1F1',
-                flexShrink: 0,
-                borderBottom: '#d9d5ec solid 1px',
-                zIndex: 1,
+                display: 'flex',
               }}
             >
-              {selected === 'songs' && (
-                <>
-                  {['TITLE', 'ARTIST', 'DIFFICULTY', 'LENGTH'].map((colName, i) => {
-                    let className = ''
-                    if (Math.abs(sortCol) === i + 1) {
-                      className = `activeSortHeader`
-                      if (sortCol < 0) {
-                        className += ' up'
-                      }
-                    }
-                    return (
-                      <div style={{ paddingLeft: i === 0 ? 30 : 0, width: '25%' }}>
-                        <span
-                          onClick={() => {
-                            if (sortCol === i + 1) {
-                              setSortCol(-(i + 1))
-                            } else {
-                              setSortCol(i + 1)
-                            }
-                          }}
-                          className={className}
-                        >
-                          {colName}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </>
-              )}
-              {selected === 'lessons' && (
-                <>
-                  <span style={{ paddingLeft: 30, width: '15%' }}>LESSON</span>
-                  <span style={{ width: '50%' }}>TITLE</span>
-                  <span style={{ width: '33%' }}>DIFFICULTY</span>
-                </>
-              )}
+              <span
+                ref={songsRef}
+                onClick={() => history.push('/learn')}
+                style={selected === 'songs' ? selectedStyle : unselectedStyle}
+              >
+                Songs
+              </span>
+              <Sizer width={10} />
+              <span
+                ref={lessonsRef}
+                onClick={() => history.push('/learn/lessons')}
+                style={selected === 'lessons' ? selectedStyle : unselectedStyle}
+              >
+                Lessons
+              </span>
+              <div
+                style={{
+                  position: 'fixed',
+                  color: '#AE0101',
+                  borderBottom: '#AE0101 solid 1px',
+                  transition: '0.25s ease-in-out',
+                }}
+              />
             </div>
+            <Sizer height={20} />
+            <SearchBox onSearch={saveSearch} />
+            <Sizer height={20} />
             <div
               style={{
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                position: 'absolute',
-                top: 30,
-                height: 'calc(100% - 30px)',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
                 width: '100%',
+                flexGrow: 1,
+                backgroundColor: '#FFF',
+                boxShadow: `0px 0px 5px rgba(0, 0, 0, 0.2)`,
+                borderRadius: 5,
               }}
             >
-              {toDisplay.map((song: any) => (
-                <div
-                  onClick={() => setSelectedSong(song)}
-                  style={{
-                    position: 'relative',
-                    boxSizing: 'border-box',
-                    height: 35,
-                    fontSize: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexShrink: 0,
-                    borderBottom: '#d9d5ec solid 1px',
-                  }}
-                  className="SelectSongPage__song"
-                  key={song.file}
-                >
-                  {selected === 'songs' && (
-                    <>
-                      <span style={{ paddingLeft: 30, width: '25%' }}>{song.name}</span>
-                      <span style={{ width: '25%' }}>{song.artist}</span>
-                      <span style={{ width: '25%' }}>{song.difficulty}</span>
-                      <span style={{ width: '25%' }}>{formatTime(song.duration)}</span>
-                    </>
-                  )}
-                  {selected === 'lessons' && (
-                    <>
-                      <span style={{ paddingLeft: 30, width: '15%' }}>{song.lesson}</span>
-                      <span style={{ width: '50%' }}>{song.name}</span>
-                      <span style={{ width: '33%' }}>{'Easy'}</span>
-                    </>
-                  )}
-                </div>
-              ))}
+              <div
+                className="table_header"
+                style={{
+                  position: 'sticky',
+                  top: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  height: 30,
+                  boxSizing: 'border-box',
+                  fontWeight: 600,
+                  color: '#AE0101',
+                  backgroundColor: '#F1F1F1',
+                  flexShrink: 0,
+                  borderBottom: '#d9d5ec solid 1px',
+                  zIndex: 1,
+                }}
+              >
+                {selected === 'songs' && (
+                  <>
+                    {['TITLE', 'ARTIST', 'DIFFICULTY', 'LENGTH'].map((colName, i) => {
+                      let className = ''
+                      if (Math.abs(sortCol) === i + 1) {
+                        className = `activeSortHeader`
+                        if (sortCol < 0) {
+                          className += ' up'
+                        }
+                      }
+                      return (
+                        <div style={{ paddingLeft: i === 0 ? 30 : 0, width: '25%' }}>
+                          <span
+                            onClick={() => {
+                              if (sortCol === i + 1) {
+                                setSortCol(-(i + 1))
+                              } else {
+                                setSortCol(i + 1)
+                              }
+                            }}
+                            className={className}
+                          >
+                            {colName}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </>
+                )}
+                {selected === 'lessons' && (
+                  <>
+                    <span style={{ paddingLeft: 30, width: '15%' }}>LESSON</span>
+                    <span style={{ width: '50%' }}>TITLE</span>
+                    <span style={{ width: '33%' }}>DIFFICULTY</span>
+                  </>
+                )}
+              </div>
+              <div
+                style={{
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  position: 'absolute',
+                  top: 30,
+                  height: 'calc(100% - 30px)',
+                  width: '100%',
+                }}
+              >
+                {toDisplay.map((song: any) => (
+                  <div
+                    onClick={() => setSelectedSong(song)}
+                    style={{
+                      position: 'relative',
+                      boxSizing: 'border-box',
+                      height: 35,
+                      fontSize: 14,
+                      display: 'flex',
+                      alignItems: 'center',
+                      flexShrink: 0,
+                      borderBottom: '#d9d5ec solid 1px',
+                    }}
+                    className="SelectSongPage__song"
+                    key={song.file}
+                  >
+                    {selected === 'songs' && (
+                      <>
+                        <span style={{ paddingLeft: 30, width: '25%' }}>{song.name}</span>
+                        <span style={{ width: '25%' }}>{song.artist}</span>
+                        <span style={{ width: '25%' }}>{song.difficulty}</span>
+                        <span style={{ width: '25%' }}>{formatTime(song.duration)}</span>
+                      </>
+                    )}
+                    {selected === 'lessons' && (
+                      <>
+                        <span style={{ paddingLeft: 30, width: '15%' }}>{song.lesson}</span>
+                        <span style={{ width: '50%' }}>{song.name}</span>
+                        <span style={{ width: '33%' }}>{'Easy'}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </CenteringWrapper>
     </>
   )
 }
