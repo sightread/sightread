@@ -1,6 +1,7 @@
 import React from 'react'
 import { CenteringWrapper, Logo, Sizer } from './utils'
 import { useHistory } from 'react-router-dom'
+import { css } from './flakecss'
 
 const DARKER_PURPLE = '#4C41CC' // header.
 const PURPLE = '#5A4EDF'
@@ -119,21 +120,32 @@ function LandingPage() {
 }
 
 function LaunchButton({ onClick }: any) {
-  return (
-    <div
-      style={{
+  css(
+    {
+      '.launchbutton': {
         color: PURPLE,
         backgroundColor: 'white',
         borderRadius: 15,
-        height: 40,
-        lineHeight: '40px',
-        width: 100,
+        height: 50,
+        lineHeight: '50px',
+        width: 120,
         filter: 'drop-shadow(1px 7px 11px rgba(0, 0, 0, 0.25))',
         textAlign: 'center',
         cursor: 'pointer',
-      }}
-      onClick={onClick}
-    >
+        fontSize: 20,
+        border: '2px solid transparent',
+        transition: '150ms',
+      },
+      '.launchbutton:hover': {
+        backgroundColor: 'transparent !important',
+        borderColor: 'white !important',
+        color: 'white',
+      },
+    },
+    'LandingPage.LaunchButton',
+  )
+  return (
+    <div className="launchbutton" onClick={onClick}>
       Launch
     </div>
   )

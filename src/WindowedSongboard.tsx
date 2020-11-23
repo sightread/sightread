@@ -3,7 +3,6 @@ import React, { useMemo } from 'react'
 import { usePlayer } from './hooks'
 import { Song, SongMeasure, SongNote, STAFF } from './parsers'
 import { Virtualized } from './Virtualized'
-import { css } from './flakecss'
 
 const PIXELS_PER_SECOND = 150
 
@@ -119,20 +118,12 @@ function FallingNote({ note, noteLength, width, posX }: any) {
   )
 }
 
-const measureStyles = css({
-  measure: {
-    position: 'relative',
-    left: 10,
-    top: -7,
-    fontSize: 15,
-    color: 'white',
-  },
-})
-
 function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
   return (
     <div id={`measure-${measure.number}`}>
-      <div className={measureStyles.measure}>{measure.number}</div>
+      <div style={{ position: 'relative', left: 10, top: -7, fontSize: 15, color: 'white' }}>
+        {measure.number}
+      </div>
       <div style={{ width, height: 1, backgroundColor: '#C5C5C5' }}></div>
     </div>
   )
