@@ -315,6 +315,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
       }
 
       if (!modalRef.current.contains(e.target as Node)) {
+        setSong(null)
         onClose()
       }
     }
@@ -323,6 +324,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
         return
       }
       if (e.key === 'Escape') {
+        setSong(null)
         onClose()
       }
     }
@@ -386,10 +388,10 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
     <>
       <div
         style={{
-          position: 'absolute',
+          position: 'fixed',
           height: '100vh',
           width: '100vw',
-          zIndex: 1,
+          zIndex: 2,
           backgroundColor: 'rgba(126,126,126, 0.65)',
         }}
       />
@@ -433,6 +435,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
               fontWeight: 900,
               fontSize: 69,
               zIndex: 1,
+              cursor: 'pointer',
             }}
             onClick={() => {
               player.play()

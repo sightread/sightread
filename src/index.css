@@ -7,9 +7,9 @@
   color: #3a68e7;
 }
 
-* {
+/* * {
   user-select: none;
-}
+} */
 
 .SelectSongPage__song:hover {
   background-color: rgba(235, 27, 27, 0.5);

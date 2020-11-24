@@ -1,3 +1,5 @@
+import { CSSProperties } from 'react'
+
 /**
  * A super basic css-in-js implementation.
  * No advanced features. Only accepts strings as args.
@@ -5,7 +7,7 @@
  *
  */
 const seen = new Set()
-export function css(styleObj: { [key: string]: Object }, component: string): void {
+export function css(styleObj: { [key: string]: CSSProperties }, component: string): void {
   if (seen.has(component)) {
     return
   }

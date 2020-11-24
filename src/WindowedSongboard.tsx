@@ -121,7 +121,16 @@ function FallingNote({ note, noteLength, width, posX }: any) {
 function Measure({ width, measure }: { width: number; measure: SongMeasure }) {
   return (
     <div id={`measure-${measure.number}`}>
-      <div style={{ position: 'relative', left: 10, top: -7, fontSize: 15, color: 'white' }}>
+      <div
+        style={{
+          position: 'relative',
+          left: 10,
+          top: -7,
+          fontSize: 15,
+          color: 'white',
+          userSelect: 'none',
+        }}
+      >
         {measure.number}
       </div>
       <div style={{ width, height: 1, backgroundColor: '#C5C5C5' }}></div>
