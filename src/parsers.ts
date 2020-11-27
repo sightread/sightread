@@ -435,7 +435,7 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
   }
 
   // Dumb way to determine r/l hand, calc which has the higher avg score, and flip if guessed wrong.
-  const sum = (arr: Array<number>) => arr.reduce((a: number, b: number) => a + b)
+  const sum = (arr: Array<number>) => arr.reduce((a: number, b: number) => a + b, 0)
   const avg = (arr: Array<number>) => sum(arr) / arr.length
   let treblAvg = avg(notes.filter((n) => n.staff === STAFF.trebl).map((n) => n.noteValue))
   let bassAvg = avg(notes.filter((n) => n.staff === STAFF.trebl).map((n) => n.noteValue))
