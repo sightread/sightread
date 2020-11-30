@@ -8,20 +8,23 @@ import {
   useUserPressedKeys,
   useQuery,
 } from './hooks'
-import { Song, STAFF } from './parsers'
+import { Song } from './parsers'
 import { WebAudioFontSynth } from './synth'
 import { WindowedSongBoard } from './WindowedSongboard'
 import { WindowedStaffBoard } from './StaffPage'
 import midiKeyboard from './midi'
 import { useHistory } from 'react-router'
-import { formatTime, getSong } from './utils'
+import { formatTime, getSong, inferHands } from './utils'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 
 const synth = new WebAudioFontSynth()
 type viz = 'falling-notes' | 'sheet'
 
-type Hand = 'both' | 'left' | 'right'
+export type Hand = 'both' | 'left' | 'right'
+export type SongConfig = { config: { left?: number; right?: number } }
+export type PlayableSong = Song & SongConfig
+
 function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
@@ -30,7 +33,7 @@ function App() {
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
-  const [song, setSong] = useState<Song | null>(null)
+  const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
   const viz: viz = query.viz ?? 'falling-notes'
   const history = useHistory()
@@ -55,10 +58,12 @@ function App() {
 
   const songLocation = window.location.pathname.substring(6)
   useEffect(() => {
-    getSong(songLocation).then((song: Song) => {
-      setSong(song)
-      player.setSong(song)
-    })
+    getSong(songLocation)
+      .then(inferHands)
+      .then((song: PlayableSong) => {
+        setSong(song)
+        player.setSong(song)
+      })
     midiKeyboard.virtualKeyboard = true
 
     return function cleanup() {
@@ -249,7 +254,7 @@ function App() {
               height: getKeyboardHeight(width),
             }}
           >
-            <PianoRoll width={width} selectedHand={hand} />
+            <PianoRoll width={width} selectedHand={hand} song={song} />
           </div>
         </div>
       )}
@@ -593,20 +598,29 @@ function isBlack(noteValue: number) {
   return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
 }
 
-export function PianoRoll({ width, selectedHand }: any) {
-  const pressedKeys: any = useSongPressedKeys()
+export function PianoRoll({
+  width,
+  selectedHand,
+  song,
+}: {
+  width: number
+  selectedHand: Hand
+  song: PlayableSong
+}) {
+  const pressedKeys = useSongPressedKeys()
+
   const notes = getKeyPositions(width).map((note: any, i: any) => {
     let color = note.color
     const shouldShow =
       i in pressedKeys &&
       (selectedHand === 'both' ||
-        (selectedHand === 'left' && pressedKeys[i].staff === STAFF.bass) ||
-        (selectedHand === 'right' && pressedKeys[i].staff === STAFF.trebl))
+        (selectedHand === 'left' && pressedKeys[i].track === song.config.left) ||
+        (selectedHand === 'right' && pressedKeys[i].track === song.config.right))
     if (shouldShow) {
-      let { staff, noteValue } = pressedKeys[i]
+      let { track, noteValue } = pressedKeys[i]
 
-      const hand = staff === STAFF.bass ? 'left-hand' : 'right-hand'
-      if (hand === 'left-hand') {
+      const hand: 'left' | 'right' = track === song.config.left ? 'left' : 'right'
+      if (hand === 'left') {
         if (isBlack(noteValue)) {
           color = '#c65a00'
         } else {

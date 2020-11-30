@@ -45,7 +45,7 @@ export function Virtualized({
 
       return { renderedItem, item }
     })
-  }, [sortedItems, renderItem, getItemOffsets])
+  }, [sortedItems, renderItem, getItemOffsets, direction])
 
   function getRenderRange() {
     const viewportStart = getCurrentOffset()

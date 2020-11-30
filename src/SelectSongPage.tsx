@@ -3,10 +3,9 @@ import './SelectSong.css'
 import { useHistory } from 'react-router-dom'
 import songManifest from './manifest.json'
 import { usePlayer, useWindowSize } from './hooks'
-import { Song } from './parsers'
 import { WindowedSongBoard } from './WindowedSongboard'
-import { PianoRoll, SongScrubBar } from './PlaySongPage'
-import { CenteringWrapper, formatTime, getSong, Logo, Sizer } from './utils'
+import { PianoRoll, PlayableSong, SongScrubBar } from './PlaySongPage'
+import { CenteringWrapper, formatTime, getSong, inferHands, Logo, Sizer } from './utils'
 import { css } from './flakecss'
 
 const songs = songManifest.filter((s) => s.type === 'song')
@@ -184,7 +183,7 @@ function SelectSongPage() {
                         }
                       }
                       return (
-                        <div style={{ paddingLeft: i === 0 ? 30 : 0, width: '25%' }}>
+                        <div style={{ paddingLeft: i === 0 ? 30 : 0, width: '25%' }} key={i}>
                           <span
                             onClick={() => {
                               if (sortCol === i + 1) {
@@ -299,7 +298,7 @@ function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
 function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   const { width: windowWidth } = useWindowSize()
   const modalRef = useRef<HTMLDivElement>(null)
-  const [song, setSong] = useState<Song | null>(null)
+  const [song, setSong] = useState<PlayableSong | null>(null)
   const [playing, setPlaying] = useState(false)
   const { player } = usePlayer()
   const history = useHistory()
@@ -340,15 +339,17 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
     if (!songMeta || !(songMeta as any).file) {
       return
     }
-    getSong(`${(songMeta as any).file}`).then((song: Song) => {
-      setSong(song)
-      player.setSong(song)
-    })
+    getSong(`${(songMeta as any).file}`)
+      .then(inferHands)
+      .then((song: PlayableSong) => {
+        setSong(song)
+        player.setSong(song)
+      })
     return () => {
       player.stop()
       setPlaying(false)
     }
-  }, [songMeta])
+  }, [songMeta, player])
 
   if (!show || !song) {
     return null
@@ -487,7 +488,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
             >
               <WindowedSongBoard width={innerWidth} height={330} song={song} hand={'both'} />
             </div>
-            <PianoRoll width={innerWidth} selectedHand={'both'} />
+            <PianoRoll width={innerWidth} selectedHand={'both'} song={song} />
           </div>
           <div
             style={{

@@ -1,11 +1,12 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { Song, SongNote, STAFF } from './parsers'
+import { SongNote } from './parsers'
 import { WebAudioFontSynth } from './synth'
 import midi from './midi'
+import { PlayableSong } from './PlaySongPage'
 
 class Player {
-  song!: Song
+  song!: PlayableSong
   playInterval: any = null
   currentSongTime = 0
   // right now assuming bpm means quarter notes per minute
@@ -28,7 +29,7 @@ class Player {
   setWait(wait: boolean) {
     this.wait = wait
   }
-  setSong(song: Song) {
+  setSong(song: PlayableSong) {
     this.song = song
     this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
     this.currentBpm = 0
@@ -48,8 +49,8 @@ class Player {
   isActive(note: SongNote) {
     return (
       this.hand === 'both' ||
-      (this.hand === 'left' && note?.staff === STAFF.bass) ||
-      (this.hand === 'right' && note?.staff === STAFF.trebl)
+      (this.hand === 'left' && note.track === this.song.config.left) ||
+      (this.hand === 'right' && note.track === this.song.config.right)
     )
   }
   getTime() {

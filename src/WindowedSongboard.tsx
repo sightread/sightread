@@ -1,8 +1,9 @@
 import './player'
 import React, { useMemo } from 'react'
 import { usePlayer } from './hooks'
-import { Song, SongMeasure, SongNote, STAFF } from './parsers'
+import { SongMeasure, SongNote } from './parsers'
 import { Virtualized } from './Virtualized'
+import { Hand, PlayableSong } from './PlaySongPage'
 
 const PIXELS_PER_SECOND = 150
 
@@ -30,8 +31,8 @@ export function WindowedSongBoard({
   width,
   height,
 }: {
-  song: Song
-  hand: 'both' | 'left' | 'right'
+  song: PlayableSong
+  hand: Hand
   width: any
   height: any
 }) {
@@ -54,6 +55,7 @@ export function WindowedSongBoard({
           posX={lane.left}
           note={note}
           key={`songnote-${note.time}-${note.noteValue}-${i}`}
+          song={song}
         />
       )
     }
@@ -70,11 +72,16 @@ export function WindowedSongBoard({
   const getCurrentOffset = () => player.getTime() * PIXELS_PER_SECOND
 
   function itemFilter(item: SongMeasure | SongNote) {
+    if (item.type === 'measure') {
+      return true
+    }
+
+    const isLeft = item.track === song.config.left
+    const isRight = item.track === song.config.right
     return (
-      hand === 'both' ||
-      item.type === 'measure' ||
-      (item.type === 'note' && item.staff === STAFF.bass && hand === 'left') ||
-      (item.type === 'note' && item.staff === STAFF.trebl && hand === 'right')
+      (hand === 'both' && (isLeft || isRight)) ||
+      (item.type === 'note' && hand === 'left' && isLeft) ||
+      (item.type === 'note' && hand === 'right' && isRight)
     )
   }
 
@@ -97,9 +104,9 @@ function isBlack(noteValue: number) {
   return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
 }
 
-function FallingNote({ note, noteLength, width, posX }: any) {
+function FallingNote({ note, noteLength, width, posX, song }: any) {
   const keyType = isBlack(note.noteValue) ? 'black' : 'white'
-  const className = keyType + ' ' + (note.staff === STAFF.bass ? 'left-hand' : 'right-hand')
+  const className = keyType + ' ' + (note.track === song.config.left ? 'left-hand' : 'right-hand')
   return (
     <div
       style={{

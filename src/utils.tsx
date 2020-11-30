@@ -1,5 +1,12 @@
 import React from 'react'
-import { parseMusicXML, parseMidi } from './parsers'
+import {
+  parseMusicXML,
+  parseMidi,
+  getHandIndexesForTeachMid,
+  parserInferHands,
+  Song,
+} from './parsers'
+import { PlayableSong } from './PlaySongPage'
 
 function Sizer({ height, width }: { height?: number; width?: number }) {
   return <div style={{ width, height }} />
@@ -9,19 +16,27 @@ function Sizer({ height, width }: { height?: number; width?: number }) {
  * In development, parse on client.
  * In production, use preparsed songs.
  */
-async function getSong(url: string) {
+async function getSong(url: string): Promise<Song> {
   if (process.env.NODE_ENV === 'development') {
     if (url.includes('.xml')) {
       const xml = await (await fetch('/' + url)).text()
-      return parseMusicXML(xml)
+      return parseMusicXML(xml) as PlayableSong
     }
     const buffer = await (await fetch('/' + url)).arrayBuffer()
-    return parseMidi(buffer, url.includes('teachmid'))
+    return parseMidi(buffer) as PlayableSong
   }
 
   const parsedUrl = '/generated/' + url.replace(/\.(mid|xml)/i, '.json')
   return fetch(parsedUrl).then((res) => res.json())
 }
+
+function inferHands(song: Song): PlayableSong {
+  let playableSong = song as PlayableSong
+  const isTeachMidi = window.location.href.includes('teachmid')
+  playableSong.config = isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
+  return playableSong
+}
+
 function formatTime(seconds: number) {
   let min = String(Math.floor(seconds / 60))
   if (min.length === 1) {
@@ -44,7 +59,7 @@ function Logo() {
       xmlns="http://www.w3.org/2000/svg"
       style={{ flexShrink: 0 }}
     >
-      <g clip-path="url(#clip0)">
+      <g clipPath="url(#clip0)">
         <path d="M33.2306 20.1791H0.0865479V20.619H33.2306V20.1791Z" fill="white" />
         <path
           d="M33.0749 18.3461H0.242254C0.15626 18.3461 0.0865479 18.4161 0.0865479 18.5025V18.6295C0.0865479 18.7159 0.15626 18.786 0.242254 18.786H33.0749C33.1609 18.786 33.2306 18.7159 33.2306 18.6295V18.5025C33.2306 18.4161 33.1609 18.3461 33.0749 18.3461Z"
@@ -108,4 +123,4 @@ function CenteringWrapper({ children, backgroundColor = 'white', gutterWidth = 5
   )
 }
 
-export { Sizer, getSong, formatTime, Logo, CenteringWrapper }
+export { Sizer, getSong, formatTime, Logo, CenteringWrapper, inferHands }

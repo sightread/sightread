@@ -1,11 +1,12 @@
 import React from 'react'
-import { Song, STAFF, SongNote } from './parsers'
+import { SongNote } from './parsers'
 import { usePlayer, useWindowSize } from './hooks'
 
 import FClefSVG from './FClef.svg'
 import GClefSVG from './GClef.svg'
 import { Virtualized } from './Virtualized'
 import { Sizer } from './utils'
+import { PlayableSong } from './PlaySongPage'
 
 const PIXELS_PER_SECOND = 300
 function getXPos(time: number) {
@@ -16,7 +17,7 @@ export function WindowedStaffBoard({
   song,
   selectedHand,
 }: {
-  song: Song
+  song: PlayableSong
   selectedHand: 'left' | 'right' | 'both'
 }) {
   const windowSize = useWindowSize()
@@ -35,7 +36,7 @@ export function WindowedStaffBoard({
         <Stave
           width={windowSize.width - 100}
           height={100}
-          staff={STAFF.trebl}
+          hand={'right'}
           song={song}
           disabled={selectedHand === 'left'}
         />
@@ -43,7 +44,7 @@ export function WindowedStaffBoard({
         <Stave
           width={windowSize.width - 100}
           height={100}
-          staff={STAFF.bass}
+          hand={'left'}
           song={song}
           disabled={selectedHand === 'right'}
         />
@@ -95,21 +96,21 @@ const STEP_NUM: any = {
 function Stave({
   width,
   height,
-  staff,
+  hand,
   song,
   disabled,
 }: {
   width: number
   height: number
-  staff: typeof STAFF.trebl | typeof STAFF.bass
-  song: Song
+  hand: 'left' | 'right'
+  song: PlayableSong
   disabled: boolean
 }) {
   const { player } = usePlayer()
-  const notes = song.notes.filter((n) => n.staff === staff)
-  const clefImgSrc = staff === STAFF.trebl ? GClefSVG : FClefSVG
+  const notes = song.notes.filter((n) => n.track === song.config[hand])
+  const clefImgSrc = hand === 'right' ? GClefSVG : FClefSVG
   const clefStyle =
-    staff === STAFF.trebl ? { height: 160, top: -20, left: -5 } : { height: 80, top: 2, left: 10 }
+    hand === 'right' ? { height: 160, top: -20, left: -5 } : { height: 80, top: 2, left: 10 }
 
   function Line({ top, width }: any) {
     return (
@@ -129,7 +130,7 @@ function Stave({
   function getRow(octave: number, step: string): number {
     return octave * 7 + STEP_NUM[step]
   }
-  const staveTopRow = staff === STAFF.bass ? getRow(4, 'A') : getRow(5, 'F')
+  const staveTopRow = hand === 'left' ? getRow(4, 'A') : getRow(5, 'F')
   const heightPerRow = height / 8
   function getRelYPos(row: number) {
     const relDiff = staveTopRow - row

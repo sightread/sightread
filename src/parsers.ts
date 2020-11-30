@@ -1,15 +1,9 @@
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
 
-export const STAFF = {
-  trebl: 1,
-  bass: 2,
-}
-
-type Seconds = number
 export type SongNote = {
   type: 'note'
   noteValue: number
-  staff: number
+  track: number
   time: number
   duration: number
   pitch: {
@@ -18,12 +12,12 @@ export type SongNote = {
   }
   accidental: number // 1 | -1 | 0
   velocity?: number
-  noteType: string // 4 = quarter, 1 = whole, etc.
 }
 
-export type Staffs = {
-  [staff: number]: {
-    clef: { sign: string }
+export type Tracks = {
+  [id: number]: {
+    instrument: string
+    name?: string
   }
 }
 
@@ -36,7 +30,7 @@ export type SongMeasure = {
 type Bpm = { time: number; bpm: number }
 
 export type Song = {
-  staffs: Staffs
+  tracks: Tracks
   duration: number
   measures: Array<SongMeasure>
   notes: Array<SongNote>
@@ -52,7 +46,7 @@ export function parseMusicXML(txt: string): Song {
    */
 
   const xml = new DOMParser().parseFromString(txt, 'application/xml')
-  const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL /*  nodeFilter */)
+  const walker = xml.createTreeWalker(xml, NodeFilter.SHOW_ALL)
 
   let currTime = 0
   let currMeasure = 1
@@ -60,14 +54,14 @@ export function parseMusicXML(txt: string): Song {
   let openTies = new Map() // A tie in music is when a note should be held down even after crossing a measure.
   let repeatStart: number = 1
   let curr = walker.currentNode as HTMLElement
-  let staffs: Staffs = {}
+  let tracks: Tracks = { 1: { instrument: 'piano' }, 2: { instrument: 'piano' } }
   let notes: Array<SongNote> = []
   let measures: Array<SongMeasure> = []
   const bpms: Array<Bpm> = []
   const divisions = Number(xml.querySelector('divisions')?.textContent)
   let part = 0
   const timeSignature = { numerator: 4, denominator: 4 }
-  let currStaff = STAFF.trebl
+  let currTrack = 1
 
   function stepTime(duration: number): void {
     currTime = +(currTime + calcWallDuration(duration)).toFixed(2)
@@ -80,7 +74,7 @@ export function parseMusicXML(txt: string): Song {
     // divisions  , bpm, duration ;
     // | beats  |                      =  | beats |   *  |    1   | =     1
     // | minute | * (60)ms/minute         |  s    |      |  beats |       s
-    // bpm / (60) == quarter beats per second
+    // bpm / (60)===quarter beats per second
     // (duration/divisions) =  number of quarter beats
     // (1 / (bpm/60)) * duration/divisions = seconds
     const bpmIndex = bpms.findIndex((bpm) => bpm.time > time) - 1
@@ -92,14 +86,11 @@ export function parseMusicXML(txt: string): Song {
   while (curr) {
     if (curr.tagName === 'clef') {
       const sign = curr.querySelector('sign')?.textContent ?? 'F'
-      if (sign === 'F') {
-        currStaff = STAFF.bass
-      } else if (sign === 'G') {
-        currStaff = STAFF.trebl
+      if (sign === 'G') {
+        currTrack = 1
+      } else if (sign === 'F') {
+        currTrack = 2
       }
-      let number = Number(curr.getAttribute('number'))
-      staffs[number] = staffs[number] || {}
-      staffs[number].clef = { sign }
     } else if (curr.tagName === 'note' && curr.querySelector('rest')) {
       const duration: number = Number(curr.querySelector('duration')?.textContent?.trim())
       stepTime(duration)
@@ -113,8 +104,8 @@ export function parseMusicXML(txt: string): Song {
         // console.error('Error: found a note with no duration.')
         duration = 0
       }
-      let noteStaff = Number(curr.querySelector('staff')?.textContent?.trim())
-      let staff = noteStaff ? noteStaff : currStaff
+      let noteTrack = Number(curr.querySelector('staff')?.textContent?.trim())
+      let track = currTrack ? noteTrack : currTrack
       let accidental: any = curr.querySelector('accidental')?.textContent?.trim()
       if (!accidental || accidental === 'natural') {
         accidental = 0
@@ -130,17 +121,9 @@ export function parseMusicXML(txt: string): Song {
         accidental = Number(curr.querySelector('alter')?.textContent?.trim()) ?? 0
       }
       const isChord = !!curr.querySelector('chord')
-      let lastNoteTime = notes.length > 0 ? notes[notes.length - 1]?.time : 0
+      let lastNoteTime = notes[notes.length - 1]?.time ?? 0
 
       let time = isChord ? lastNoteTime : currTime
-      const noteConversionMap: any = {
-        '16th': '16',
-        eighth: '8',
-        quarter: '4',
-        third: '3',
-        half: '2',
-        whole: '1',
-      }
       const noteValue = getNoteValue(step, octave, accidental)
       let note: SongNote = {
         type: 'note',
@@ -148,9 +131,8 @@ export function parseMusicXML(txt: string): Song {
         duration: calcWallDuration(duration, time),
         time,
         noteValue,
-        staff,
+        track,
         accidental,
-        noteType: noteConversionMap[curr.querySelector('type')?.textContent ?? ''] ?? '4',
       }
       if (tie) {
         let type = tie.getAttribute('type')
@@ -228,6 +210,9 @@ export function parseMusicXML(txt: string): Song {
         currTime = +(currTime + dt).toFixed(2)
       } else if (curr.getAttribute('direction') === 'forward') {
         repeatStart = currMeasure
+      } else {
+        // noop if type is unrecognized. Intentionally not using NodeFilter,
+        // which would improve performance since we only serve preparsed version for prod.
       }
     }
     totalDuration = Math.max(totalDuration, currTime)
@@ -235,34 +220,13 @@ export function parseMusicXML(txt: string): Song {
   }
 
   return {
-    staffs,
+    tracks,
     duration: totalDuration,
     measures,
     notes,
     bpms,
     timeSignature,
   }
-}
-
-const nodeFilter = {
-  acceptNode(node: HTMLElement) {
-    const acceptable = [
-      'note',
-      'clef',
-      'measure',
-      'key',
-      'time',
-      'backup',
-      'forward',
-      'meter',
-      'sound',
-      'part',
-      'repeat',
-    ]
-    return acceptable.some((name) => name === node.tagName)
-      ? NodeFilter.FILTER_ACCEPT
-      : NodeFilter.FILTER_SKIP
-  },
 }
 
 export function getNoteValue(step: string, octave: number, accidental: number = 0) {
@@ -300,24 +264,8 @@ export function getPitch(noteValue: number): { octave: number; step: string; alt
   return { octave: Math.floor(noteValue / 12) + 1, step, alter }
 }
 
-function getSharps(fifth: number) {
-  const cScale = [0, 2, 3, 5, 7, 8, 10]
-  const thisScale = cScale.map((n) => (((n + fifth * 7 + 12) % 12) + 12) % 12)
-  thisScale.sort((a, b) => a - b)
-
-  const revIndex = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-  let sharps: any = {}
-  let accidentalOffset = fifth > 0 ? 1 : -1
-  cScale.forEach((val, i) => {
-    if (!thisScale.includes(val)) {
-      sharps[revIndex[i]] = accidentalOffset
-    }
-  })
-  return sharps
-}
-
-// TODO: write own parser
-export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
+// TODO in the faroff future: replace jasmid.ts with own parser.
+export function parseMidi(midiData: ArrayBufferLike): Song {
   const parsed = parseMidiFile(midiData)
 
   const bpms: Array<Bpm> = []
@@ -325,6 +273,7 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
 
   let currTime = 0
   let currTick = 0
+  let tracks: Tracks = {}
   let openNotes = new Map<number, SongNote>() // notes still "on"
   let notes: SongNote[] = []
   let measures: SongMeasure[] = []
@@ -334,34 +283,15 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
     ticksPerBeat * (timeSignature.numerator / timeSignature.denominator) * 4
 
   function calcWallDuration(ticks: number): number {
-    // (tick / tpb) --> n beats  * bpm / 60 -->  (ticks *60 ) / (tpb * bpm)
-    // beats per minute, ticks per beat, ticks  --> seconds
-    // 1/b/m = m/b     min    * 60s  = s/b / t/b* t = s              ===>  tpb * tics = beats /bpm = minutes * 60     ticks  * 60 * (   beats   | minutes )
-    //                beats     min                                 ===> (tpb / tics) * 60)/bpm = seconds                              (  ticks | beats)
-
-    const bpm = bpms[bpms.length - 1]?.bpm || 120
+    const bpm = bpms[bpms.length - 1]?.bpm ?? 120
     return (ticks * 60) / (ticksPerBeat * bpm)
   }
 
   let orderedEvents = getOrderedMidiEvents(parsed)
-  let onlyStudentTrack =
-    isTeachMid &&
-    orderedEvents.find((event) => {
-      return event.event.subType === 'trackName' && event.event.text === 'Student'
-    })?.track
-  let lhStudentTrack =
-    isTeachMid &&
-    orderedEvents.find((event) => {
-      return event.event.subType === 'trackName' && event.event.text?.trim() === 'L.H. Student'
-    })?.track
-  let rhStudentTrack =
-    isTeachMid &&
-    orderedEvents.find((event) => {
-      return event.event.subType === 'trackName' && event.event.text?.trim() === 'R.H. Student'
-    })?.track
-
   for (let orderedEvent of orderedEvents) {
-    let midiEvent: MidiEvent = orderedEvent.event
+    const midiEvent: MidiEvent = orderedEvent.event
+    const track: number = orderedEvent.track
+
     currTick += orderedEvent.ticksToEvent
     currTime += calcWallDuration(orderedEvent.ticksToEvent)
     if (currTick - lastMeasureTickedAt >= ticksPerMeasure()) {
@@ -369,35 +299,20 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
       measures.push({ type: 'measure', time: currTime, number: measures.length + 1 })
     }
 
-    if (
-      (onlyStudentTrack || lhStudentTrack || rhStudentTrack) &&
-      orderedEvent.track !== onlyStudentTrack &&
-      orderedEvent.track !== lhStudentTrack &&
-      orderedEvent.track !== rhStudentTrack
-    ) {
-      continue
+    if (!tracks[track]) {
+      tracks[track] = { instrument: 'piano' }
     }
 
-    if (midiEvent.subType === 'noteOn') {
+    if (midiEvent.subType === 'instrumentName') {
+      tracks[orderedEvent.track].instrument = midiEvent.text
+    } else if (midiEvent.subType === 'trackName') {
+      tracks[orderedEvent.track].name = midiEvent.text
+    } else if (midiEvent.subType === 'noteOn') {
       const noteValue = midiEvent.note - 21 // convert to noteValue
       if (openNotes.has(noteValue)) {
         const note = openNotes.get(noteValue)!
         note.duration = calcWallDuration(note.duration)
         openNotes.delete(noteValue)
-      }
-      let staff = parsed.header.formatType === 0 ? 2 : orderedEvent.track
-      if (parsed.tracks.length === 3) {
-        if (staff === 1) {
-          staff = STAFF.bass
-        } else if (staff === 2) {
-          staff = STAFF.trebl
-        }
-      } else if (parsed.tracks.length === 2) {
-        if (staff === 0) {
-          staff = STAFF.trebl
-        } else {
-          staff = STAFF.bass
-        }
       }
 
       const note: SongNote = {
@@ -405,11 +320,10 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
         time: currTime,
         duration: 0,
         noteValue,
-        staff,
+        track,
         pitch: getPitch(noteValue),
         accidental: getPitch(noteValue).alter,
         velocity: midiEvent.velocity,
-        noteType: '4',
       }
       openNotes.set(noteValue, note)
       notes.push(note)
@@ -434,19 +348,12 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
     duration = Math.max(duration, n.time + n.duration)
   }
 
-  // Dumb way to determine r/l hand, calc which has the higher avg score, and flip if guessed wrong.
-  const sum = (arr: Array<number>) => arr.reduce((a: number, b: number) => a + b, 0)
-  const avg = (arr: Array<number>) => sum(arr) / arr.length
-  let treblAvg = avg(notes.filter((n) => n.staff === STAFF.trebl).map((n) => n.noteValue))
-  let bassAvg = avg(notes.filter((n) => n.staff === STAFF.trebl).map((n) => n.noteValue))
-  if (treblAvg < bassAvg) {
-    // flip if in the wrong.
-    for (let n of notes) {
-      if (n.staff === STAFF.trebl) {
-        n.staff = STAFF.bass
-      } else {
-        n.staff = STAFF.trebl
-      }
+  // TODO: evaluate if this is necessary.
+  // Removing empty tracks.
+  for (let t of Object.keys(tracks).map(Number)) {
+    let note = notes.find((n) => n.track === t)
+    if (!note) {
+      delete tracks[t]
     }
   }
 
@@ -454,7 +361,7 @@ export function parseMidi(midiData: ArrayBufferLike, isTeachMid = false): Song {
     duration: currTime,
     measures: measures,
     notes: notes,
-    staffs: {},
+    tracks,
     bpms,
     timeSignature,
   }
@@ -478,7 +385,7 @@ function getOrderedMidiEvents(parsed: any) {
     for (let i = 0; i < trackStates.length; i++) {
       if (
         trackStates[i].ticksToNextEvent != null &&
-        (ticksToNextEvent == null || trackStates[i].ticksToNextEvent < ticksToNextEvent)
+        (ticksToNextEvent === null || trackStates[i].ticksToNextEvent < ticksToNextEvent)
       ) {
         ticksToNextEvent = trackStates[i].ticksToNextEvent
         nextEventTrack = i
@@ -519,4 +426,64 @@ function getOrderedMidiEvents(parsed: any) {
     nextEvent = getNextEvent()
   }
   return orderedEvents
+}
+
+// Unused.
+function getSharps(fifth: number) {
+  const cScale = [0, 2, 3, 5, 7, 8, 10]
+  const thisScale = cScale.map((n) => (((n + fifth * 7 + 12) % 12) + 12) % 12)
+  thisScale.sort((a, b) => a - b)
+
+  const revIndex = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+  let sharps: any = {}
+  let accidentalOffset = fifth > 0 ? 1 : -1
+  cScale.forEach((val, i) => {
+    if (!thisScale.includes(val)) {
+      sharps[revIndex[i]] = accidentalOffset
+    }
+  })
+  return sharps
+}
+
+export function getHandIndexesForTeachMid(song: Song): { left?: number; right?: number } {
+  // const onlyStudentTrack = Object.keys(song.tracks)
+  //   .map(Number)
+  //   .filter((trackNum) => song.tracks[trackNum].name === 'Student')
+  // if (onlyStudentTrack) {
+  //   return { right: onlyStudentTrack }
+  // }
+  console.error(song)
+
+  const lhStudentTrack = Object.keys(song.tracks)
+    .map(Number)
+    .find((trackNum) => song.tracks[trackNum].name?.includes('L.H.'))
+  const rhStudentTrack = Object.keys(song.tracks)
+    .map(Number)
+    .find((trackNum) => song.tracks[trackNum].name?.includes('R.H.'))
+  return { left: lhStudentTrack, right: rhStudentTrack }
+}
+
+export function parserInferHands(song: Song): { left: any; right: any } {
+  const pianoTracks = Object.values(song.tracks).filter((track) =>
+    track.instrument.toLowerCase().includes('piano'),
+  )
+  // TODO: force users to choose tracks in this case.
+  if (pianoTracks.length !== 2) {
+    console.error(
+      `Choosing the first two Piano tracks, even though there are ${pianoTracks.length}`,
+      song,
+    )
+  }
+  const [t1, t2] = Object.keys(song.tracks)
+    .filter((trackNum: any) => song.tracks[trackNum].instrument.toLowerCase().includes('piano'))
+    .map(Number)
+  // Dumb way to determine r/l hand, calc which has the higher avg score, and flip if guessed wrong.
+  const sum = (arr: Array<number>) => arr.reduce((a: number, b: number) => a + b, 0)
+  const avg = (arr: Array<number>) => sum(arr) / arr.length
+  let t1Avg = avg(song.notes.filter((n) => n.track === t1).map((n) => n.noteValue))
+  let t2Avg = avg(song.notes.filter((n) => n.track === t2).map((n) => n.noteValue))
+  if (t1Avg < t2Avg) {
+    return { left: t1, right: t2 }
+  }
+  return { left: t2, right: t1 }
 }

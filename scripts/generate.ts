@@ -23,7 +23,7 @@ const parsedMusic: ParsedMusicFile[] = musicFiles
       try {
         var buf = new Uint8Array(fs.readFileSync(pathJoin(baseDir, path))).buffer
         const isTeachMidi = musicFile.type === 'lesson'
-        return { ...musicFile, parsedSong: parseMidi(buf, isTeachMidi) }
+        return { ...musicFile, parsedSong: parseMidi(buf) }
       } catch (err) {
         console.error(`Error parsing file: ${path}` + err)
       }
