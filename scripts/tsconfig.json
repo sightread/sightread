@@ -3,15 +3,9 @@
     "module": "commonjs",
     "noImplicitAny": true,
     "removeComments": true,
-    "jsx": "react",
     "sourceMap": true,
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext",
-      "es2019"
-    ],
+    "lib": [ "dom", "dom.iterable", "esnext", "es2019" ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -23,11 +17,5 @@
     "isolatedModules": true,
     "noEmit": true,
     "downlevelIteration": true
-  },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "src\\WindowedSongboard.tsx"
-  ]
+  }
 }

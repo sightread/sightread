@@ -47,19 +47,24 @@ class Player {
     this.volume = vol
   }
 
-  isActive(note: SongNote) {
+  isActiveHand(note: SongNote) {
     return (
       this.hand === 'both' ||
       (this.hand === 'left' && note.track === this.song.config.left) ||
       (this.hand === 'right' && note.track === this.song.config.right)
     )
   }
+
+  isActiveTrack(note: SongNote) {
+    return this.song.config.left === note.track || this.song.config.right === note.track
+  }
+
   getTime() {
     if (!this.playInterval) {
       return this.currentSongTime
     }
     const nextNote = this.song.notes[this.currentIndex]
-    if (this.wait && nextNote && this.isActive(nextNote)) {
+    if (this.wait && nextNote && this.isActiveHand(nextNote)) {
       const isntPressed =
         !midi.getPressedNotes().has(nextNote.noteValue) ||
         midi.getPressedNotes().get(nextNote.noteValue) ===
@@ -127,7 +132,9 @@ class Player {
 
   playNoteValue(note: SongNote, vol: number) {
     this.synth.playNoteValue(note.noteValue, vol)
-    this.dirty = true
+    if (this.isActiveTrack(note)) {
+      this.dirty = true
+    }
   }
 
   stopNoteValues(notes: Array<SongNote>) {
@@ -182,7 +189,7 @@ class Player {
     while (this.notes[this.currentIndex]?.time < time) {
       const note = this.notes[this.currentIndex]
 
-      if (this.wait && this.isActive(note)) {
+      if (this.wait && this.isActiveHand(note)) {
         if (
           !midi.getPressedNotes().has(note.noteValue) ||
           midi.getPressedNotes().get(note.noteValue) === this.lastPressedKeys.get(note.noteValue)
@@ -239,7 +246,7 @@ class Player {
 
   getPressedKeys() {
     let ret: any = {}
-    for (let note of this.playing) {
+    for (let note of this.playing.filter((n) => this.isActiveTrack(n))) {
       ret[note.noteValue] = note
     }
 
