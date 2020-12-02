@@ -5,6 +5,7 @@ import { WebAudioFontSynth } from './synth'
 import midi from './midi'
 import { PlayableSong } from './PlaySongPage'
 
+// TODO remove the non-current track notes? Or allow per-track subscriptions?
 class Player {
   song!: PlayableSong
   playInterval: any = null
