@@ -53,13 +53,16 @@ musicFiles
     }
   })
 console.log(
-  'These files have exactly two piano tracks, are almost definitely excellent',
+  'These files have exactly two piano tracks, are almost definitely excellent:\n',
   defGood.join('\n'),
 )
 
 function hasExactlyTwoPianoTracks(parsed: Song, f: string) {
   return (
-    Object.values(parsed.tracks).filter((track) => track.instrument.toLowerCase().includes('piano'))
-      .length === 2
+    Object.values(parsed.tracks).filter(
+      (track) =>
+        track.instrument.toLowerCase().includes('piano') ||
+        track.name?.toLowerCase().includes('piano'),
+    ).length === 2
   )
 }
