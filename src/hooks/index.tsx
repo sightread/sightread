@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext, useCallback } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import Player from '../player'
-import React from 'react'
 import { SongNote } from '../parsers'
 import midi from '../midi'
-import { useHistory } from 'react-router-dom'
+import { useRouter } from 'next/router'
+import { isBrowser } from '../utils'
 
 export function useMousePressed() {
   const [isPressed, setIsPressed] = useState(false)
@@ -21,11 +21,14 @@ export function useWindowSize() {
     }
   }
 
-  const [windowSize, setWindowSize] = useState(getSize)
+  const [windowSize, setWindowSize] = useState({ height: 0, width: 0 })
+
   useEffect(() => {
     function handleResize() {
       setWindowSize(getSize())
     }
+
+    handleResize()
 
     window.addEventListener('resize', handleResize, { passive: true })
     return () => window.removeEventListener('resize', handleResize)
@@ -61,6 +64,7 @@ export const PlayerContext = React.createContext({
 })
 
 const UserPressedKeysContext = React.createContext<Map<number, number>>(new Map())
+
 export function UserPressedKeysProvider({ children }: any) {
   const [pressedKeys, setPressedKeys] = useState<Map<number, number>>(new Map())
 
@@ -79,6 +83,7 @@ export function UserPressedKeysProvider({ children }: any) {
 }
 
 const SongPressedKeysContext = React.createContext<{ [noteValue: number]: SongNote }>({})
+
 export function SongPressedKeysProvider({ children }: any) {
   const [pressedKeys, setPressedKeys] = useState<{ [noteValue: number]: SongNote }>({})
 
@@ -110,21 +115,33 @@ export function useUserPressedKeys() {
   return useContext(UserPressedKeysContext)
 }
 
-const player = new Player()
+let player: Player
+
+// const player = isBrowser() ? new Player() : ({} as Player)
+function getPlayer() {
+  if (player === undefined) {
+    player = new Player()
+  }
+  return player
+}
+
 export function PlayerProvider(props: any) {
-  const value = { player }
+  const value = { player: getPlayer() }
 
   return <PlayerContext.Provider value={value}>{props.children}</PlayerContext.Provider>
 }
 
 export function useQuery(): any {
-  const history = useHistory()
-  const params = new URLSearchParams(window.location.search)
+  const router = useRouter()
+  if (!isBrowser()) {
+    return [{}, () => {}]
+  }
+  const params = new URLSearchParams(window?.location?.search)
   return [
     Object.fromEntries(params.entries()),
     (key: string, value: string) => {
       params.set(key, value)
-      history.push(window.location.pathname + '?' + params.toString())
+      router.push(window.location.pathname + '?' + params.toString())
     },
   ]
 }

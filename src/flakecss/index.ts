@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react'
-
+import { isBrowser } from '../utils'
 /**
  * A super basic css-in-js implementation.
  * No advanced features. Only accepts strings as args.
@@ -8,6 +8,8 @@ import { CSSProperties } from 'react'
  */
 const seen = new Set()
 export function css(styleObj: { [key: string]: CSSProperties }, component: string): void {
+  if (!isBrowser()) return
+
   if (seen.has(component)) {
     return
   }

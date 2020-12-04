@@ -1,16 +1,26 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-const AudioContext = window.AudioContext || (window as any).webkitAudioContext
-let audioContext = new AudioContext()
+import { isBrowser } from './utils'
+
+let AudioContext: any
+
+function getAudioContext() {
+  if (!isBrowser()) return Object as any
+  if (AudioContext === undefined) {
+    const AC = window.AudioContext || (window as any).webkitAudioContext
+    AudioContext = new AC()
+  }
+  return AudioContext
+}
 
 export class WebAudioFontSynth {
-  audioContext = new AudioContext()
-  tone = (window as any)._tone_0000_JCLive_sf2_file
+  audioContext = getAudioContext()
+  tone = isBrowser() ? (window as any)._tone_0000_JCLive_sf2_file : undefined
   player: any = null
   playing: Map<number, any> = new Map()
 
   constructor() {
-    this.player = new (window as any).WebAudioFontPlayer()
-    this.player.loader.decodeAfterLoading(this.audioContext, '_tone_0000_JCLive_sf2_file')
+    this.player = isBrowser() ? new (window as any).WebAudioFontPlayer() : undefined
+    this.player?.loader?.decodeAfterLoading(this.audioContext, '_tone_0000_JCLive_sf2_file')
   }
 
   playNoteValue(noteValue: number, velocity: number = 0.1) {
@@ -45,10 +55,10 @@ export class WebAudioFontSynth {
 }
 
 export class Synth {
-  masterGainNode = audioContext.createGain()
+  masterGainNode = getAudioContext().createGain()
   oscilattors: Map<number, OscillatorNode> = new Map()
   constructor() {
-    this.masterGainNode.connect(audioContext.destination)
+    this.masterGainNode.connect(getAudioContext().destination)
   }
 
   playNoteValue(noteValue: number) {
@@ -63,7 +73,7 @@ export class Synth {
   }
 
   playNote(freq: number) {
-    let osc = audioContext.createOscillator()
+    let osc = getAudioContext().createOscillator()
     osc.connect(this.masterGainNode)
     osc.frequency.value = freq
     osc.type = 'sawtooth' // TODO: less shitty sounds plz

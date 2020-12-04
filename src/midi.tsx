@@ -2,7 +2,7 @@ import { getNoteValue } from './parsers'
 import { WebAudioFontSynth } from './synth'
 
 export function refreshMIDIDevices() {
-  if (!window.navigator.requestMIDIAccess) {
+  if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {
     return
   }
   window.navigator
@@ -66,8 +66,10 @@ class MidiState {
   virtualKeyboard = false
 
   constructor() {
-    window.addEventListener('keydown', (e) => this.handleKeyDown(e))
-    window.addEventListener('keyup', (e) => this.handleKeyUp(e))
+    if (typeof window === 'object') {
+      window.addEventListener('keydown', (e) => this.handleKeyDown(e))
+      window.addEventListener('keyup', (e) => this.handleKeyUp(e))
+    }
   }
 
   handleKeyDown(e: KeyboardEvent) {

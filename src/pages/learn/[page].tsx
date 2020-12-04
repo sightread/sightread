@@ -1,42 +1,51 @@
-import React, { useEffect, useRef, useState } from 'react'
-import './SelectSong.css'
-import { useHistory } from 'react-router-dom'
-import songManifest from './manifest.json'
-import { usePlayer, useWindowSize } from './hooks'
-import { WindowedSongBoard } from './WindowedSongboard'
-import { PianoRoll, PlayableSong, SongScrubBar } from './PlaySongPage'
-import { CenteringWrapper, formatTime, getSong, inferHands, Logo, Sizer } from './utils'
-import { css } from './flakecss'
+import * as React from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { usePlayer, useWindowSize } from '../../hooks'
+import { CenteringWrapper, formatTime, getSong, inferHands, Logo, Sizer } from '../../utils'
+import { WindowedSongBoard } from '../../WindowedSongboard'
+import { PianoRoll, PlayableSong, SongScrubBar } from '../play/music/[...song_location]'
+import songManifest from '../../manifest.json'
+import { css } from '../../flakecss'
+import { GetStaticProps, GetStaticPaths } from 'next'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
-const songs = songManifest.filter((s) => s.type === 'song')
-const lessons = songManifest.filter((s) => s.type === 'lesson')
-function SelectSongPage() {
-  // const { width } = useWindowSize()
+type displayParams = {
+  sortCol: number
+  search: string
+  page: string
+}
+
+type SelectSongPageProps = {
+  page: 'songs' | 'lessons'
+}
+
+const displayOptions = (songOptions: any, { page, sortCol, search }: displayParams) => {
+  const includesSearch = (value: string) => value.toUpperCase().includes(search.toUpperCase())
+  const searchIsEmpty = search === ''
+  if (page === 'songs') {
+    const cols = ['name', 'artist', 'difficulty', 'length']
+    const sortBy: string = cols[Math.abs(sortCol) - 1]
+    return songOptions
+      .filter(
+        (song: any) => searchIsEmpty || includesSearch(song.artist) || includesSearch(song.name),
+      )
+      .sort((a: any, b: any) => sortCol * a[sortBy]?.localeCompare(b[sortBy]))
+  }
+  return songOptions.filter((lesson: any) => searchIsEmpty || includesSearch(lesson.name))
+}
+
+export default function SelectSongPage({ page }: SelectSongPageProps) {
   const [sortCol, setSortCol] = useState<number>(1)
-  const history = useHistory()
   const [search, saveSearch] = useState('')
-  const selected = window.location.pathname.includes('lesson') ? 'lessons' : 'songs'
   const songsRef = useRef<HTMLSpanElement>(null)
   const lessonsRef = useRef<HTMLSpanElement>(null)
   const [selectedSong, setSelectedSong] = useState<any>('')
+  const router = useRouter()
 
-  let toDisplay: any = []
-  if (selected === 'songs') {
-    const cols = ['name', 'artist', 'difficulty', 'length']
-    const field: string = cols[Math.abs(sortCol) - 1]
-    toDisplay = songs
-      .filter(
-        (song: any) =>
-          search === '' ||
-          song.artist.toUpperCase().includes(search.toUpperCase()) ||
-          song.name.toUpperCase().includes(search.toUpperCase()),
-      )
-      .sort((a: any, b: any) => (sortCol < 0 ? -1 : 1) * a[field]?.localeCompare(b[field]))
-  } else {
-    toDisplay = lessons.filter(
-      (lesson) => search === '' || lesson.name.toUpperCase().includes(search.toUpperCase()),
-    )
-  }
+  const type = page === 'songs' ? 'song' : 'lesson'
+  const songOptions = songManifest.filter((s) => s.type === type)
+  const toDisplay = displayOptions(songOptions, { sortCol, search, page })
 
   const selectedStyle = {
     color: '#AE0101',
@@ -74,7 +83,6 @@ function SelectSongPage() {
           <div
             style={{
               fontSize: 16,
-              lineHeight: 20,
               width: 250,
               display: 'flex',
               justifyContent: 'space-between',
@@ -118,16 +126,16 @@ function SelectSongPage() {
             >
               <span
                 ref={songsRef}
-                onClick={() => history.push('/learn')}
-                style={selected === 'songs' ? selectedStyle : unselectedStyle}
+                onClick={() => router.push('/learn')}
+                style={page === 'songs' ? selectedStyle : unselectedStyle}
               >
                 Songs
               </span>
               <Sizer width={10} />
               <span
                 ref={lessonsRef}
-                onClick={() => history.push('/learn/lessons')}
-                style={selected === 'lessons' ? selectedStyle : unselectedStyle}
+                onClick={() => router.push('/learn/lessons')}
+                style={page === 'lessons' ? selectedStyle : unselectedStyle}
               >
                 Lessons
               </span>
@@ -172,7 +180,7 @@ function SelectSongPage() {
                   zIndex: 1,
                 }}
               >
-                {selected === 'songs' && (
+                {page === 'songs' && (
                   <>
                     {['TITLE', 'ARTIST', 'DIFFICULTY', 'LENGTH'].map((colName, i) => {
                       let className = ''
@@ -201,7 +209,7 @@ function SelectSongPage() {
                     })}
                   </>
                 )}
-                {selected === 'lessons' && (
+                {page === 'lessons' && (
                   <>
                     <span style={{ paddingLeft: 30, width: '15%' }}>LESSON</span>
                     <span style={{ width: '50%' }}>TITLE</span>
@@ -235,7 +243,7 @@ function SelectSongPage() {
                     className="SelectSongPage__song"
                     key={song.file}
                   >
-                    {selected === 'songs' && (
+                    {page === 'songs' && (
                       <>
                         <span style={{ paddingLeft: 30, width: '25%' }}>{song.name}</span>
                         <span style={{ width: '25%' }}>{song.artist}</span>
@@ -243,7 +251,7 @@ function SelectSongPage() {
                         <span style={{ width: '25%' }}>{formatTime(song.duration)}</span>
                       </>
                     )}
-                    {selected === 'lessons' && (
+                    {page === 'lessons' && (
                       <>
                         <span style={{ paddingLeft: 30, width: '15%' }}>{song.lesson}</span>
                         <span style={{ width: '50%' }}>{song.name}</span>
@@ -259,6 +267,22 @@ function SelectSongPage() {
       </CenteringWrapper>
     </>
   )
+}
+
+// fallback false because which pages to be rendered is not updated
+// except for hardcoding
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [{ params: { page: 'songs' } }, { params: { page: 'lessons' } }],
+    fallback: false,
+  }
+}
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const page = params?.page
+  return {
+    props: { page },
+  }
 }
 
 function SearchBox({ onSearch }: any = { onSearch: () => {} }) {
@@ -301,7 +325,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
   const [song, setSong] = useState<PlayableSong | null>(null)
   const [playing, setPlaying] = useState(false)
   const { player } = usePlayer()
-  const history = useHistory()
+  const router = useRouter()
 
   useEffect(() => {
     if (!show) {
@@ -523,7 +547,7 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
                 fontSize: 22,
                 transition: '150ms',
               }}
-              onClick={() => history.push(`/play/${file}`)}
+              onClick={() => router.push(`/play/${file}`)}
             >
               Play Now
             </button>
@@ -534,5 +558,3 @@ function ModalShit({ show = true, onClose = () => {}, songMeta = undefined } = {
     </>
   )
 }
-
-export default SelectSongPage

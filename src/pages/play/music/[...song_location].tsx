@@ -1,4 +1,4 @@
-import './player'
+import '../../../player'
 import React, { useState, useEffect, useRef } from 'react'
 import {
   useWindowSize,
@@ -7,17 +7,18 @@ import {
   useSongPressedKeys,
   useUserPressedKeys,
   useQuery,
-} from './hooks'
-import { Song } from './parsers'
-import { WebAudioFontSynth } from './synth'
-import { WindowedSongBoard } from './WindowedSongboard'
-import { WindowedStaffBoard } from './StaffPage'
-import midiKeyboard from './midi'
-import { useHistory } from 'react-router'
-import { formatTime, getSong, inferHands } from './utils'
+} from '../../../hooks'
+import { Song } from '../../../parsers'
+import { WebAudioFontSynth } from '../../../synth'
+import { WindowedSongBoard } from '../../../WindowedSongboard'
+import { WindowedStaffBoard } from '../../../StaffPage'
+import midiKeyboard from '../../../midi'
+import { useRouter } from 'next/router'
+import { formatTime, getSong, inferHands, isBrowser } from '../../../utils'
+import { GetServerSideProps } from 'next'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
-
+// const pathToSongs =
 const synth = new WebAudioFontSynth()
 type viz = 'falling-notes' | 'sheet'
 
@@ -35,8 +36,13 @@ function App() {
   const { player } = usePlayer()
   const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
+  const router = useRouter()
   const viz: viz = query.viz ?? 'falling-notes'
-  const history = useHistory()
+
+  let songLocation = ''
+  if (isBrowser()) {
+    songLocation = window.location.pathname.substring(6)
+  }
 
   const handleHand = (selected: Hand) => {
     if (hand === selected) {
@@ -56,7 +62,6 @@ function App() {
     }
   }, [])
 
-  const songLocation = window.location.pathname.substring(6)
   useEffect(() => {
     getSong(songLocation)
       .then(inferHands)
@@ -106,7 +111,7 @@ function App() {
           style={{ fontSize: 30, position: 'relative', left: 15 }}
           onClick={() => {
             player.pause()
-            history.push(`/`)
+            router.push(`/`)
           }}
         />
         <div
@@ -173,7 +178,6 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className="fas fa-clock"
-            aria-hidden="true"
             style={{ fontSize: 24, color: waiting ? 'red' : undefined }}
             onClick={() => {
               setWaiting(!waiting)
@@ -183,7 +187,6 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className="fas fa-history"
-            aria-hidden="true"
             style={{ fontSize: 24, color: rangeSelecting ? 'red' : undefined }}
             onClick={() => {
               setRangeSelecting(!rangeSelecting)
@@ -194,7 +197,6 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className="fas fa-music"
-            aria-hidden="true"
             style={{ color: viz === 'sheet' ? 'red' : undefined, fontSize: 24 }}
             onClick={() => {
               if (viz === 'falling-notes' || !viz) {
@@ -665,8 +667,14 @@ export function PianoRoll({
 }
 
 let isMouseDown = false
-window.addEventListener('mousedown', () => (isMouseDown = true), { passive: true })
-window.addEventListener('mouseup', () => (isMouseDown = false), { passive: true })
+;(function () {
+  const setMouseDown = () => (isMouseDown = true)
+  const setMouseUp = () => (isMouseDown = false)
+  if (isBrowser()) {
+    window.addEventListener('mousedown', setMouseDown, { passive: true })
+    window.addEventListener('mouseup', setMouseUp, { passive: true })
+  }
+})()
 
 function PianoNote({ left, width, color, height, noteValue }: any) {
   const [userPressed, setUserPressed] = useState(false)

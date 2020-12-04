@@ -1,12 +1,15 @@
-import React from 'react'
-import { CenteringWrapper, Logo, Sizer } from './utils'
-import { useHistory } from 'react-router-dom'
-import { css } from './flakecss'
+import * as React from 'react'
+import { CenteringWrapper, Logo, Sizer } from '../utils'
+import { css } from '../flakecss'
+import { useRouter } from 'next/router'
+import Image from 'next/image'
+import Link from 'next/link'
 
 const DARKER_PURPLE = '#4C41CC' // header.
 const PURPLE = '#5A4EDF'
+
 function LandingPage() {
-  const history = useHistory()
+  const router = useRouter()
   return (
     <div>
       <CenteringWrapper backgroundColor={DARKER_PURPLE}>
@@ -39,21 +42,20 @@ function LandingPage() {
             <Sizer height={16} />
             <h2 style={{ fontSize: 36, color: '#EEEEEE' }}>No install necessary</h2>
             <Sizer height={32} />
-            <LaunchButton onClick={() => history.push('/learn')} />
+            <LaunchButton href="/learn/songs" />
             <Sizer height={32} />
           </div>
           <div>
-            <img
-              src="/images/hero.png"
-              height={372}
+            <div
               style={{
-                width: 600,
                 maxWidth: '100%',
                 height: 'auto',
                 borderRadius: 10,
                 boxShadow: '0px 6px 13px 8px rgba(0, 0, 0, 0.25)',
               }}
-            />
+            >
+              <Image priority src="/images/hero.png" height={372} width={600} />
+            </div>
             <Sizer height={32} />
           </div>
         </div>
@@ -119,7 +121,7 @@ function LandingPage() {
   )
 }
 
-function LaunchButton({ onClick }: any) {
+function LaunchButton({ href }: any) {
   css(
     {
       '.launchbutton': {
@@ -127,7 +129,6 @@ function LaunchButton({ onClick }: any) {
         backgroundColor: 'white',
         borderRadius: 15,
         height: 50,
-        lineHeight: '50px',
         width: 120,
         filter: 'drop-shadow(1px 7px 11px rgba(0, 0, 0, 0.25))',
         textAlign: 'center',
@@ -145,9 +146,11 @@ function LaunchButton({ onClick }: any) {
     'LandingPage.LaunchButton',
   )
   return (
-    <div className="launchbutton" onClick={onClick}>
-      Launch
-    </div>
+    <Link href={href}>
+      <a>
+        <button className="launchbutton">Launch</button>
+      </a>
+    </Link>
   )
 }
 

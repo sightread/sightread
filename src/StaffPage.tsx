@@ -1,9 +1,7 @@
-import React from 'react'
+import * as React from 'react'
 import { SongNote } from './parsers'
 import { usePlayer, useWindowSize } from './hooks'
-
-import FClefSVG from './FClef.svg'
-import GClefSVG from './GClef.svg'
+import { FClefSVG, GClefSVG } from './icons'
 import { Virtualized } from './Virtualized'
 import { Sizer } from './utils'
 import { PlayableSong } from './PlaySongPage'
@@ -92,6 +90,13 @@ const STEP_NUM: any = {
   G: 6,
 }
 
+function ClefSvg({ hand, style }: any) {
+  if (hand === 'right') {
+    return <GClefSVG style={{ position: 'absolute', ...style }} />
+  }
+  return <FClefSVG style={{ position: 'absolute', ...style }} />
+}
+
 // Make a staffz
 function Stave({
   width,
@@ -108,7 +113,7 @@ function Stave({
 }) {
   const { player } = usePlayer()
   const notes = song.notes.filter((n) => n.track === song.config[hand])
-  const clefImgSrc = hand === 'right' ? GClefSVG : FClefSVG
+
   const clefStyle =
     hand === 'right' ? { height: 160, top: -20, left: -5 } : { height: 80, top: 2, left: 10 }
 
@@ -231,7 +236,7 @@ function Stave({
         />
       </div>
       <div style={{ position: 'absolute', left: 0, width: 2, height, backgroundColor: 'black' }} />
-      <img style={{ position: 'absolute', ...clefStyle }} src={clefImgSrc} alt="clef" />
+      <ClefSvg hand={hand} style={clefStyle} />
       {[0, 2, 4, 6, 8].map((i) => {
         return <Line top={getRelYPos(staveTopRow - i)} key={`line-${i}`} />
       })}

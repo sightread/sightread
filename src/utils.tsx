@@ -12,6 +12,7 @@ function Sizer({ height, width }: { height?: number; width?: number }) {
   return <div style={{ width, height }} />
 }
 
+export const isBrowser = () => typeof window === 'object'
 /*
  * In development, parse on client.
  * In production, use preparsed songs.
