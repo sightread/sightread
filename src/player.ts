@@ -5,7 +5,6 @@ import { WebAudioFontSynth } from './synth'
 import midi from './midi'
 import { PlayableSong } from './pages/play/music/[...song_location]'
 
-// TODO remove the non-current track notes? Or allow per-track subscriptions?
 class Player {
   song!: PlayableSong
   playInterval: any = null
@@ -16,7 +15,7 @@ class Player {
   lastIntervalFiredTime = 0
   notes: Array<any> = []
   playing: Array<any> = []
-  synth = new WebAudioFontSynth()
+  synths: Array<WebAudioFontSynth> = []
   volume = 1
   handlers: any = {}
   bpmModifier = 1
@@ -38,6 +37,12 @@ class Player {
     this.currentSongTime = 0
     this.bpmModifier = 1
     this.playing.length = 0
+
+    this.synths = []
+    Object.entries(song.tracks).forEach(([trackId]) => {
+      // TODO: make the correct instrument instread.
+      this.synths[Number(trackId)] = new WebAudioFontSynth()
+    })
   }
 
   setVolume(vol: number) {
@@ -131,7 +136,8 @@ class Player {
   }
 
   playNoteValue(note: SongNote, vol: number) {
-    this.synth.playNoteValue(note.noteValue, vol)
+    console.log(this.synths)
+    this.synths[note.track].playNoteValue(note.noteValue, vol)
     if (this.isActiveTrack(note)) {
       this.dirty = true
     }
@@ -142,7 +148,7 @@ class Player {
       return
     }
     for (let note of notes) {
-      this.synth.stopNoteValue(note.noteValue)
+      this.synths[note.track].stopNoteValue(note.noteValue)
     }
     this.dirty = true
   }

@@ -18,6 +18,7 @@ export type Tracks = {
   [id: number]: {
     instrument: string
     name?: string
+    program?: number
   }
 }
 
@@ -265,6 +266,11 @@ export function getPitch(noteValue: number): { octave: number; step: string; alt
 }
 
 // TODO in the faroff future: replace jasmid.ts with own parser.
+
+export interface NoteKey extends String {
+  notReal: string
+}
+
 export function parseMidi(midiData: ArrayBufferLike): Song {
   const parsed = parseMidiFile(midiData)
 
@@ -274,7 +280,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
   let currTime = 0
   let currTick = 0
   let tracks: Tracks = {}
-  let openNotes = new Map<number, SongNote>() // notes still "on"
+  let openNotes: Map<NoteKey, SongNote> = new Map() // notes still "on"
   let notes: SongNote[] = []
   let measures: SongMeasure[] = []
   let lastMeasureTickedAt = -Infinity
@@ -291,6 +297,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
   for (let orderedEvent of orderedEvents) {
     const midiEvent: MidiEvent = orderedEvent.event
     const track: number = orderedEvent.track
+    const noteKey = (num: number): NoteKey => (`${track}-${num}` as unknown) as NoteKey
 
     currTick += orderedEvent.ticksToEvent
     currTime += calcWallDuration(orderedEvent.ticksToEvent)
@@ -304,15 +311,17 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     }
 
     if (midiEvent.subType === 'instrumentName') {
-      tracks[orderedEvent.track].instrument = midiEvent.text
+      tracks[track].instrument = midiEvent.text
     } else if (midiEvent.subType === 'trackName') {
-      tracks[orderedEvent.track].name = midiEvent.text
+      tracks[track].name = midiEvent.text
+    } else if (midiEvent.subType === 'programChange') {
+      tracks[track].program = midiEvent.program
     } else if (midiEvent.subType === 'noteOn') {
       const noteValue = midiEvent.note - 21 // convert to noteValue
-      if (openNotes.has(noteValue)) {
-        const note = openNotes.get(noteValue)!
+      if (openNotes.has(noteKey(noteValue))) {
+        const note = openNotes.get(noteKey(noteValue))!
         note.duration = calcWallDuration(note.duration)
-        openNotes.delete(noteValue)
+        openNotes.delete(noteKey(noteValue))
       }
 
       const note: SongNote = {
@@ -325,14 +334,14 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
         accidental: getPitch(noteValue).alter,
         velocity: midiEvent.velocity,
       }
-      openNotes.set(noteValue, note)
+      openNotes.set(noteKey(noteValue), note)
       notes.push(note)
     } else if (midiEvent.subType === 'noteOff') {
       const noteValue = midiEvent.note - 21
-      if (openNotes.has(noteValue)) {
-        const note = openNotes.get(noteValue)!
+      if (openNotes.has(noteKey(noteValue))) {
+        const note = openNotes.get(noteKey(noteValue))!
         note.duration = currTime - note.time
-        openNotes.delete(noteValue)
+        openNotes.delete(noteKey(noteValue))
       }
     } else if (midiEvent.subType === 'setTempo') {
       const bpm = 60000000 / midiEvent.microsecondsPerBeat

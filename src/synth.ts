@@ -25,7 +25,8 @@ export class WebAudioFontSynth {
 
   playNoteValue(noteValue: number, velocity: number = 0.1) {
     if (velocity === 0) {
-      velocity = 0.001
+      this.stopNoteValue(noteValue)
+      return
     }
 
     this.stopNoteValue(noteValue)
