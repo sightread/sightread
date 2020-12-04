@@ -3,7 +3,7 @@
 import { SongNote } from './parsers'
 import { WebAudioFontSynth } from './synth'
 import midi from './midi'
-import { PlayableSong } from './pages/play/music/[...song_location]'
+import { PlayableSong } from './pages/play/[...song_location]'
 
 class Player {
   song!: PlayableSong
@@ -136,7 +136,6 @@ class Player {
   }
 
   playNoteValue(note: SongNote, vol: number) {
-    console.log(this.synths)
     this.synths[note.track].playNoteValue(note.noteValue, vol)
     if (this.isActiveTrack(note)) {
       this.dirty = true

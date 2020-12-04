@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { usePlayer, useWindowSize } from '../../hooks'
-import { CenteringWrapper, formatTime, getSong, inferHands, Logo, Sizer } from '../../utils'
-import { WindowedSongBoard } from '../../WindowedSongboard'
-import { PianoRoll, PlayableSong, SongScrubBar } from '../play/music/[...song_location]'
-import songManifest from '../../manifest.json'
-import { css } from '../../flakecss'
+import { usePlayer, useWindowSize } from '../hooks'
+import { CenteringWrapper, formatTime, getSong, inferHands, Logo, Sizer } from '../utils'
+import { WindowedSongBoard } from '../WindowedSongboard'
+import { PianoRoll, PlayableSong, SongScrubBar } from './play/[...song_location]'
+import songManifest from '../manifest.json'
+import { css } from '../flakecss'
 import { GetStaticProps, GetStaticPaths } from 'next'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 type displayParams = {
   sortCol: number
@@ -38,22 +38,12 @@ const displayOptions = (songOptions: any, { page, sortCol, search }: displayPara
 export default function SelectSongPage({ page }: SelectSongPageProps) {
   const [sortCol, setSortCol] = useState<number>(1)
   const [search, saveSearch] = useState('')
-  const songsRef = useRef<HTMLSpanElement>(null)
-  const lessonsRef = useRef<HTMLSpanElement>(null)
   const [selectedSong, setSelectedSong] = useState<any>('')
   const router = useRouter()
 
   const type = page === 'songs' ? 'song' : 'lesson'
   const songOptions = songManifest.filter((s) => s.type === type)
   const toDisplay = displayOptions(songOptions, { sortCol, search, page })
-
-  const selectedStyle = {
-    color: '#AE0101',
-    paddingBottom: 3,
-    borderBottom: '#AE0101 solid 1px',
-    transition: '0.25s ease-in-out',
-  }
-  const unselectedStyle = { cursor: 'pointer', transition: '0.25s ease-in-out' }
 
   return (
     <>
@@ -83,13 +73,18 @@ export default function SelectSongPage({ page }: SelectSongPageProps) {
           <div
             style={{
               fontSize: 16,
-              width: 250,
+              width: 400,
               display: 'flex',
               justifyContent: 'space-between',
             }}
           >
             <span>Free Play</span>
-            <span style={{ color: '#DF1F1F', fontWeight: 600 }}>Learn</span>
+            <Link href="songs">
+              <a style={{ color: 'white', textDecoration: 'none' }}>Songs</a>
+            </Link>
+            <Link href="lessons">
+              <a style={{ color: 'white', textDecoration: 'none' }}>Lessons</a>
+            </Link>
             <span>About</span>
           </div>
           <span style={{ marginLeft: 'auto', marginRight: 50 }}>Log in / Sign up</span>
@@ -114,41 +109,8 @@ export default function SelectSongPage({ page }: SelectSongPageProps) {
             }}
           >
             <Sizer height={24} />
-            <h2 style={{ fontSize: 36 }}>Learn</h2>
+            <h2 style={{ fontSize: 36 }}>{page[0].toUpperCase() + page.slice(1)}</h2>
             <Sizer height={24} />
-
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                display: 'flex',
-              }}
-            >
-              <span
-                ref={songsRef}
-                onClick={() => router.push('/learn')}
-                style={page === 'songs' ? selectedStyle : unselectedStyle}
-              >
-                Songs
-              </span>
-              <Sizer width={10} />
-              <span
-                ref={lessonsRef}
-                onClick={() => router.push('/learn/lessons')}
-                style={page === 'lessons' ? selectedStyle : unselectedStyle}
-              >
-                Lessons
-              </span>
-              <div
-                style={{
-                  position: 'fixed',
-                  color: '#AE0101',
-                  borderBottom: '#AE0101 solid 1px',
-                  transition: '0.25s ease-in-out',
-                }}
-              />
-            </div>
-            <Sizer height={20} />
             <SearchBox onSearch={saveSearch} />
             <Sizer height={20} />
             <div

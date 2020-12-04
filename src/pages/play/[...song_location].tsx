@@ -1,4 +1,4 @@
-import '../../../player'
+import '../../player'
 import React, { useState, useEffect, useRef } from 'react'
 import {
   useWindowSize,
@@ -7,15 +7,14 @@ import {
   useSongPressedKeys,
   useUserPressedKeys,
   useQuery,
-} from '../../../hooks'
-import { Song } from '../../../parsers'
-import { WebAudioFontSynth } from '../../../synth'
-import { WindowedSongBoard } from '../../../WindowedSongboard'
-import { WindowedStaffBoard } from '../../../StaffPage'
-import midiKeyboard from '../../../midi'
+} from '../../hooks'
+import { Song } from '../../parsers'
+import { WebAudioFontSynth } from '../../synth'
+import { WindowedSongBoard } from '../../WindowedSongboard'
+import { WindowedStaffBoard } from '../../StaffPage'
+import midiKeyboard from '../../midi'
 import { useRouter } from 'next/router'
-import { formatTime, getSong, inferHands, isBrowser } from '../../../utils'
-import { GetServerSideProps } from 'next'
+import { formatTime, getSong, inferHands, isBrowser } from '../../utils'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 // const pathToSongs =

@@ -22,10 +22,11 @@
     "vexflow": "^3.0.9"
   },
   "scripts": {
+    "start": "next dev",
     "dev": "next dev",
     "build": "next build",
     "gen": "cd scripts && ts-node generate.ts && cd .."
-   },
+  },
   "eslintConfig": {
     "extends": "react-app"
   },

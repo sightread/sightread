@@ -42,7 +42,7 @@ function LandingPage() {
             <Sizer height={16} />
             <h2 style={{ fontSize: 36, color: '#EEEEEE' }}>No install necessary</h2>
             <Sizer height={32} />
-            <LaunchButton href="/learn/songs" />
+            <LaunchButton href="/songs" />
             <Sizer height={32} />
           </div>
           <div>
