@@ -4,7 +4,7 @@ import { usePlayer, useWindowSize } from './hooks'
 import { FClefSVG, GClefSVG } from './icons'
 import { Virtualized } from './Virtualized'
 import { Sizer } from './utils'
-import { PlayableSong } from './pages/play/music/[...song_location]'
+import { PlayableSong } from './pages/play/[...song_location]'
 
 const PIXELS_PER_SECOND = 300
 function getXPos(time: number) {
