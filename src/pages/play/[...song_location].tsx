@@ -100,7 +100,7 @@ function App() {
           height: 55,
           width,
           zIndex: 2,
-          backgroundColor: 'black',
+          backgroundColor: '#292929',
           display: 'flex',
           alignItems: 'center',
         }}
@@ -623,15 +623,15 @@ export function PianoRoll({
       const hand: 'left' | 'right' = track === song.config.left ? 'left' : 'right'
       if (hand === 'left') {
         if (isBlack(noteValue)) {
-          color = '#c65a00'
+          color = '#D74000'
         } else {
-          color = '#ef6c00'
+          color = '#FF6825'
         }
       } else {
         if (isBlack(noteValue)) {
-          color = '#2c6e78'
+          color = '#4912D4'
         } else {
-          color = '#4dd0e1'
+          color = '#7029FB'
         }
       }
     }

@@ -5,8 +5,8 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Link from 'next/link'
 
-const DARKER_PURPLE = '#4C41CC' // header.
-const PURPLE = '#5A4EDF'
+const DARKER_PURPLE = '#5F18EA' // header.
+const PURPLE = '#7029FB'
 
 function LandingPage() {
   const router = useRouter()
@@ -42,7 +42,7 @@ function LandingPage() {
             <Sizer height={16} />
             <h2 style={{ fontSize: 36, color: '#EEEEEE' }}>No install necessary</h2>
             <Sizer height={32} />
-            <LaunchButton href="/songs" />
+            <LaunchButton href="songs" />
             <Sizer height={32} />
           </div>
           <div>
@@ -79,11 +79,13 @@ function LandingPage() {
             <Sizer height={48} />
           </div>
           <div style={{ marginLeft: 8, marginRight: 8, width: 250 }}>
-            <div style={{ height: 217 }}>
-              <img src="/images/sheet.png" style={{ maxWidth: 250, height: 177 }} />
+            <div style={{ position: 'relative', height: 250 }}>
+              <Image src="/images/sheet.png" width={250} height={217} />
             </div>
             <Sizer height={16} />
-            <h3 style={{ fontSize: 24, fontWeight: 300, color: PURPLE }}>Sheet music display</h3>
+            <h3 style={{ fontSize: 24, fontWeight: 300, color: DARKER_PURPLE }}>
+              Sheet music display
+            </h3>
             <Sizer height={16} />
             <p style={{ fontSize: 18, lineHeight: '21px' }}>
               Sightread can display notes in a simplified sheet music format, to help you learn the
@@ -92,12 +94,13 @@ function LandingPage() {
             <Sizer height={16} />
           </div>
           <div style={{ marginLeft: 8, marginRight: 8, width: 250 }}>
-            <img
-              src="/images/keyboard.png"
-              style={{ maxWidth: 250, marginTop: -35, height: 250 }}
-            />
+            <div style={{ position: 'relative', width: 250, height: 250 }}>
+              <Image src="/images/keyboard.png" layout="fill" />
+            </div>
             <Sizer height={16} />
-            <h3 style={{ fontSize: 24, fontWeight: 300, color: PURPLE }}>MIDI Keyboard Support</h3>
+            <h3 style={{ fontSize: 24, fontWeight: 300, color: DARKER_PURPLE }}>
+              MIDI Keyboard Support
+            </h3>
             <Sizer height={16} />
             <p style={{ fontSize: 18, lineHeight: '21px' }}>
               Bring your own MIDI Piano! Connect it to your device via either USB or Bluetooth.
@@ -105,9 +108,13 @@ function LandingPage() {
             <Sizer height={16} />
           </div>
           <div style={{ height: 300, marginLeft: 8, marginRight: 8, width: 250 }}>
-            <img src="/images/uparrow.png" style={{ maxWidth: 250, marginTop: -35, height: 250 }} />
+            <div style={{ position: 'relative', width: 250, height: 250 }}>
+              <Image src="/images/uparrow.png" layout="fill" />
+            </div>
             <Sizer height={16} />
-            <h3 style={{ fontSize: 24, fontWeight: 300, color: PURPLE }}>Gradual progression</h3>
+            <h3 style={{ fontSize: 24, fontWeight: 300, color: DARKER_PURPLE }}>
+              Gradual progression
+            </h3>
             <Sizer height={16} />
             <p style={{ fontSize: 18, lineHeight: '21px' }}>
               Sightread was specifically designed to have a gradual difficulty progression, so

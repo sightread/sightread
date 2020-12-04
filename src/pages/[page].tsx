@@ -39,7 +39,6 @@ export default function SelectSongPage({ page }: SelectSongPageProps) {
   const [sortCol, setSortCol] = useState<number>(1)
   const [search, saveSearch] = useState('')
   const [selectedSong, setSelectedSong] = useState<any>('')
-  const router = useRouter()
 
   const type = page === 'songs' ? 'song' : 'lesson'
   const songOptions = songManifest.filter((s) => s.type === type)
@@ -54,7 +53,7 @@ export default function SelectSongPage({ page }: SelectSongPageProps) {
           setSelectedSong(null)
         }}
       />
-      <CenteringWrapper backgroundColor={'black'}>
+      <CenteringWrapper backgroundColor={'#292929'}>
         <div
           style={{
             height: 60,
@@ -109,8 +108,10 @@ export default function SelectSongPage({ page }: SelectSongPageProps) {
             }}
           >
             <Sizer height={24} />
-            <h2 style={{ fontSize: 36 }}>{page[0].toUpperCase() + page.slice(1)}</h2>
-            <Sizer height={24} />
+            <h2 style={{ fontSize: 36, fontWeight: 200 }}>
+              {page[0].toUpperCase() + page.slice(1)}
+            </h2>
+            <Sizer height={36} />
             <SearchBox onSearch={saveSearch} />
             <Sizer height={20} />
             <div
@@ -135,7 +136,7 @@ export default function SelectSongPage({ page }: SelectSongPageProps) {
                   height: 30,
                   boxSizing: 'border-box',
                   fontWeight: 600,
-                  color: '#AE0101',
+                  color: '#1B0EA6',
                   backgroundColor: '#F1F1F1',
                   flexShrink: 0,
                   borderBottom: '#d9d5ec solid 1px',
