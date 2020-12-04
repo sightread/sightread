@@ -6,7 +6,7 @@ import {
   parserInferHands,
   Song,
 } from './parsers'
-import { PlayableSong } from './PlaySongPage'
+import { PlayableSong } from './pages/play/music/[...song_location]'
 
 function Sizer({ height, width }: { height?: number; width?: number }) {
   return <div style={{ width, height }} />

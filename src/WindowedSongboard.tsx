@@ -3,7 +3,7 @@ import React, { useMemo } from 'react'
 import { usePlayer } from './hooks'
 import { SongMeasure, SongNote } from './parsers'
 import { Virtualized } from './Virtualized'
-import { Hand, PlayableSong } from './PlaySongPage'
+import { Hand, PlayableSong } from './pages/play/music/[...song_location]'
 
 const PIXELS_PER_SECOND = 150
 

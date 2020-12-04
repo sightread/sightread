@@ -3,7 +3,7 @@
 import { SongNote } from './parsers'
 import { WebAudioFontSynth } from './synth'
 import midi from './midi'
-import { PlayableSong } from './PlaySongPage'
+import { PlayableSong } from './pages/play/music/[...song_location]'
 
 // TODO remove the non-current track notes? Or allow per-track subscriptions?
 class Player {
