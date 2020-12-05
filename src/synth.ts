@@ -1,7 +1,9 @@
 // TODO: handle when users don't have an AudioContext supporting browser
+import { PlayerContext } from './hooks'
+import { getSoundFonts, loadInstruments } from './synth/midi'
 import { isBrowser } from './utils'
 
-let AudioContext: any
+let AudioContext: AudioContext
 
 function getAudioContext() {
   if (!isBrowser()) return Object as any
@@ -10,6 +12,28 @@ function getAudioContext() {
     AudioContext = new AC()
   }
   return AudioContext
+}
+
+export class JakeSynth {
+  audioContext = getAudioContext()
+  playing: Map<number, any> = new Map()
+  player: any = null
+}
+
+if (isBrowser()) {
+  loadInstruments(['acoustic_grand_piano']).then(() => {
+    const sf = getSoundFonts().acoustic_grand_piano
+    console.log({ sf })
+    function playNote(key: string) {
+      let ac = getAudioContext()
+      var source = ac.createBufferSource()
+      source.buffer = sf[key]
+      source.connect(ac.destination)
+      source.start()
+    }
+    playNote('A4')
+    ;(window as any).playNote = playNote
+  })
 }
 
 export class WebAudioFontSynth {
