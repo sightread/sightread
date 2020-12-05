@@ -26,11 +26,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         <script src="/soundfont/0000_JCLive_sf2_file.js"></script>
 
         {/* <!-- Font Awesome --> */}
-        <script
-          async
-          src="https://kit.fontawesome.com/c4e11a9337.js"
-          crossOrigin="anonymous"
-        ></script>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: ` <script async src="https://kit.fontawesome.com/c4e11a9337.js" crossOrigin="anonymous" ></script>`,
+          }}
+        />
       </Head>
       <UserPressedKeysProvider>
         <SongPressedKeysProvider>
