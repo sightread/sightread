@@ -9,7 +9,6 @@ const DARKER_PURPLE = '#5F18EA' // header.
 const PURPLE = '#7029FB'
 
 function LandingPage() {
-  const router = useRouter()
   return (
     <div>
       <CenteringWrapper backgroundColor={DARKER_PURPLE}>
@@ -42,7 +41,7 @@ function LandingPage() {
             <Sizer height={16} />
             <h2 style={{ fontSize: 36, color: '#EEEEEE' }}>No install necessary</h2>
             <Sizer height={32} />
-            <LaunchButton href="songs" />
+            <LaunchButton href="/songs" />
             <Sizer height={32} />
           </div>
           <div>
