@@ -157,6 +157,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   const modalRef = useRef<HTMLDivElement>(null)
   const [song, setSong] = useState<PlayableSong | null>(null)
   const [playing, setPlaying] = useState(false)
+  const [canPlay, setCanPlay] = useState(false)
   const { player } = usePlayer()
 
   const handleTogglePlay = () => {
@@ -164,8 +165,10 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
       player.pause()
       setPlaying(false)
     } else {
-      player.play()
-      setPlaying(true)
+      if (canPlay) {
+        player.play()
+        setPlaying(true)
+      }
     }
   }
 
@@ -214,8 +217,11 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
     getSong(`${(songMeta as any).file}`)
       .then(inferHands)
       .then((song: PlayableSong) => {
+        setCanPlay(false)
         setSong(song)
-        player.setSong(song)
+        player.setSong(song).then(() => {
+          setCanPlay(true)
+        })
       })
     return () => {
       player.stop()
@@ -260,8 +266,10 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
                   <i
                     className={`${classes.modalPlayBtn} fas fa-play`}
                     onClick={() => {
-                      player.play()
-                      setPlaying(true)
+                      if (canPlay) {
+                        player.play()
+                        setPlaying(true)
+                      }
                     }}
                   />
                 )}

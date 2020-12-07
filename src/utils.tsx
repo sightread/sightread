@@ -124,4 +124,16 @@ function CenteringWrapper({ children, backgroundColor = 'white', gutterWidth = 5
   )
 }
 
-export { Sizer, getSong, formatTime, Logo, CenteringWrapper, inferHands }
+class Deferred<T> {
+  promise: Promise<T>
+  resolve!: (value?: T | PromiseLike<T> | undefined) => void
+  reject!: (value?: T | PromiseLike<T> | undefined) => void
+  constructor() {
+    this.promise = new Promise((res, rej) => {
+      this.resolve = res
+      this.reject = rej
+    })
+  }
+}
+
+export { Sizer, getSong, formatTime, Logo, CenteringWrapper, inferHands, Deferred }

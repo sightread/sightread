@@ -15,11 +15,13 @@ export type SongNote = {
 }
 
 export type Tracks = {
-  [id: number]: {
-    instrument: string
-    name?: string
-    program?: number
-  }
+  [id: number]: Track
+}
+
+type Track = {
+  instrument?: string
+  name?: string
+  program?: number
 }
 
 export type SongMeasure = {
@@ -307,7 +309,7 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     }
 
     if (!tracks[track]) {
-      tracks[track] = { instrument: 'piano' }
+      tracks[track] = {}
     }
 
     if (midiEvent.subType === 'instrumentName') {
@@ -455,14 +457,6 @@ function getSharps(fifth: number) {
 }
 
 export function getHandIndexesForTeachMid(song: Song): { left?: number; right?: number } {
-  // const onlyStudentTrack = Object.keys(song.tracks)
-  //   .map(Number)
-  //   .filter((trackNum) => song.tracks[trackNum].name === 'Student')
-  // if (onlyStudentTrack) {
-  //   return { right: onlyStudentTrack }
-  // }
-  console.error(song)
-
   const lhStudentTrack = Object.keys(song.tracks)
     .map(Number)
     .find((trackNum) => song.tracks[trackNum].name?.includes('L.H.'))
@@ -472,20 +466,29 @@ export function getHandIndexesForTeachMid(song: Song): { left?: number; right?: 
   return { left: lhStudentTrack, right: rhStudentTrack }
 }
 
+function isPiano(t: Track): boolean {
+  const program = t.program ?? -1
+  return t.instrument?.toLowerCase()?.includes('piano') || (program > 0 && program < 5)
+}
 export function parserInferHands(song: Song): { left: any; right: any } {
-  const pianoTracks = Object.values(song.tracks).filter((track) =>
-    track.instrument.toLowerCase().includes('piano'),
-  )
+  const pianoTracks = Object.values(song.tracks).filter((track) => isPiano(track))
   // TODO: force users to choose tracks in this case.
-  if (pianoTracks.length !== 2) {
-    console.error(
-      `Choosing the first two Piano tracks, even though there are ${pianoTracks.length}`,
-      song,
-    )
+
+  let t1!: number
+  let t2!: number
+  if (pianoTracks.length >= 2) {
+    if (pianoTracks.length > 2) {
+      console.error(
+        `Choosing the first two Piano tracks, even though there are ${pianoTracks.length}`,
+        song,
+      )
+    }
+    ;[t1, t2] = Object.keys(song.tracks)
+      .filter((track) => isPiano(song.tracks[+track]))
+      .map(Number)
+  } else if (pianoTracks.length < 2) {
+    ;[t1, t2] = Object.keys(song.tracks).map(Number)
   }
-  const [t1, t2] = Object.keys(song.tracks)
-    .filter((trackNum: any) => song.tracks[trackNum].instrument.toLowerCase().includes('piano'))
-    .map(Number)
   // Dumb way to determine r/l hand, calc which has the higher avg score, and flip if guessed wrong.
   const sum = (arr: Array<number>) => arr.reduce((a: number, b: number) => a + b, 0)
   const avg = (arr: Array<number>) => sum(arr) / arr.length

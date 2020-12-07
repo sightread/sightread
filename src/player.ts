@@ -1,7 +1,7 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
 import { SongNote } from './parsers'
-import { WebAudioFontSynth } from './synth'
+import { getSynth, Synth } from './synth'
 import midi from './midi'
 import { PlayableSong } from './pages/play/[...song_location]'
 
@@ -15,7 +15,7 @@ class Player {
   lastIntervalFiredTime = 0
   notes: Array<any> = []
   playing: Array<any> = []
-  synths: Array<WebAudioFontSynth> = []
+  synths: Array<Synth> = []
   volume = 1
   handlers: any = {}
   bpmModifier = 1
@@ -25,12 +25,15 @@ class Player {
   wait = false
   lastPressedKeys = new Map<number, number>()
   dirty = false
+  instrumentsLoaded = false
 
   setWait(wait: boolean) {
     this.wait = wait
   }
-  setSong(song: PlayableSong) {
+
+  async setSong(song: PlayableSong) {
     this.song = song
+    this.instrumentsLoaded = false
     this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
     this.currentBpm = 0
     this.currentIndex = 0
@@ -38,18 +41,20 @@ class Player {
     this.bpmModifier = 1
     this.playing.length = 0
 
-    this.synths = []
-    Object.entries(song.tracks).forEach(([trackId]) => {
-      // TODO: make the correct instrument instread.
-      this.synths[Number(trackId)] = new WebAudioFontSynth()
+    const synths: Promise<Synth>[] = []
+    Object.entries(song.tracks).forEach(async ([trackId, { program, instrument }]) => {
+      synths[+trackId] = getSynth((program ?? instrument ?? 0) as any)
+    })
+    await Promise.all(synths).then((s) => {
+      this.instrumentsLoaded = true
+      this.synths = s
     })
   }
 
   setVolume(vol: number) {
-    if (vol === 0) {
-      this.stopAllSounds()
-    }
-    this.volume = vol
+    this.synths?.forEach((synth) => {
+      synth?.setMasterVolume(vol)
+    })
   }
 
   isActiveHand(note: SongNote) {
@@ -131,12 +136,12 @@ class Player {
     this.lastIntervalFiredTime = performance.now()
     this.playInterval = setInterval(() => this.playLoop_(), 16)
     // continue playing everything we were in the middle of, but at a lower vol
-    this.playing.forEach((note) => this.playNoteValue(note, this.volume / 4))
+    this.playing.forEach((note) => this.playNoteValue(note))
     this.notify()
   }
 
-  playNoteValue(note: SongNote, vol: number) {
-    this.synths[note.track].playNoteValue(note.noteValue, vol)
+  playNoteValue(note: SongNote) {
+    this.synths[note.track].playNote(note.noteValue + 21, note.velocity)
     if (this.isActiveTrack(note)) {
       this.dirty = true
     }
@@ -147,7 +152,7 @@ class Player {
       return
     }
     for (let note of notes) {
-      this.synths[note.track].stopNoteValue(note.noteValue)
+      this.synths[note.track].stopNote(note.noteValue + 21)
     }
     this.dirty = true
   }
@@ -205,7 +210,7 @@ class Player {
         this.lastPressedKeys.set(note.noteValue, midi.getPressedNotes().get(note.noteValue)!)
       }
       this.playing.push(note)
-      this.playNoteValue(note, this.volume / 2)
+      this.playNoteValue(note)
       this.currentIndex++
     }
     this.notify()
@@ -237,7 +242,7 @@ class Player {
       return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
     })
     if (!!this.playInterval) {
-      this.playing.forEach((note) => this.playNoteValue(note, this.volume / 2))
+      this.playing.forEach((note) => this.playNoteValue(note))
     }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentBpm = this.getBpmIndexForTime(time)

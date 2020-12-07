@@ -9,16 +9,16 @@ import {
   useQuery,
 } from '../../hooks'
 import { Song } from '../../parsers'
-import { WebAudioFontSynth } from '../../synth'
 import { WindowedSongBoard } from '../../WindowedSongboard'
 import { WindowedStaffBoard } from '../../StaffPage'
 import midiKeyboard from '../../midi'
 import { useRouter } from 'next/router'
 import { formatTime, getSong, inferHands, isBrowser } from '../../utils'
+import { getSynthStub } from '../../synth'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 // const pathToSongs =
-const synth = new WebAudioFontSynth()
+let synth = getSynthStub('acoustic_grand_piano')
 type viz = 'falling-notes' | 'sheet'
 
 export type Hand = 'both' | 'left' | 'right'
@@ -33,6 +33,7 @@ function App() {
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
+  const [canPlay, setCanPlay] = useState<boolean>(false)
   const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
@@ -65,8 +66,11 @@ function App() {
     getSong(songLocation)
       .then(inferHands)
       .then((song: PlayableSong) => {
+        setCanPlay(false)
         setSong(song)
-        player.setSong(song)
+        player.setSong(song).then(() => {
+          setCanPlay(true)
+        })
       })
     midiKeyboard.virtualKeyboard = true
 
@@ -82,14 +86,16 @@ function App() {
           player.pause()
           setPlaying(false)
         } else {
-          player.play()
-          setPlaying(true)
+          if (canPlay) {
+            player.play()
+            setPlaying(true)
+          }
         }
       }
     }
     window.addEventListener('keydown', keyboardHandler, { passive: true })
     return () => window.removeEventListener('keydown', keyboardHandler)
-  }, [playing, player])
+  }, [playing, player, canPlay])
 
   return (
     <div className="App">
@@ -140,8 +146,10 @@ function App() {
             style={{ fontSize: 24 }}
             onClick={() => {
               if (!playing) {
-                player.play()
-                setPlaying(true)
+                if (canPlay) {
+                  player.play()
+                  setPlaying(true)
+                }
               } else {
                 player.pause()
                 setPlaying(false)
@@ -700,20 +708,20 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
       }}
       onMouseDown={() => {
         setUserPressed(true)
-        synth.playNoteValue(noteValue)
+        synth.playNote(noteValue + 21)
       }}
       onMouseUp={() => {
         setUserPressed(false)
-        synth.stopNoteValue(noteValue)
+        synth.stopNote(noteValue + 21)
       }}
       onMouseLeave={() => {
         setUserPressed(false)
-        synth.stopNoteValue(noteValue)
+        synth.stopNote(noteValue + 21)
       }}
       onMouseEnter={() => {
         if (isMouseDown) {
           setUserPressed(true)
-          synth.playNoteValue(noteValue)
+          synth.playNote(noteValue + 21)
         }
       }}
     ></div>

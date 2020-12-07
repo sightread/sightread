@@ -1,5 +1,5 @@
 import { getNoteValue } from './parsers'
-import { WebAudioFontSynth } from './synth'
+import { getSynth, Synth } from './synth'
 
 export function refreshMIDIDevices() {
   if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {
@@ -61,7 +61,7 @@ const qwertyStepConfig: { [key: string]: { step: string; alter?: number } } = {
 class MidiState {
   octave = 4
   pressedNotes = new Map<number, number>()
-  synth: any = new WebAudioFontSynth()
+  synth: Synth | undefined
   listeners: Array<Function> = []
   virtualKeyboard = false
 
@@ -70,6 +70,8 @@ class MidiState {
       window.addEventListener('keydown', (e) => this.handleKeyDown(e))
       window.addEventListener('keyup', (e) => this.handleKeyUp(e))
     }
+
+    getSynth('acoustic_grand_piano').then((s) => (this.synth = s))
   }
 
   handleKeyDown(e: KeyboardEvent) {
@@ -116,13 +118,14 @@ class MidiState {
 
   press(noteValue: number) {
     this.pressedNotes.set(noteValue, Date.now())
-    this.synth.playNoteValue(noteValue)
+    this.synth?.playNote(noteValue + 21)
+
     this.notify()
   }
 
   release(noteValue: number) {
     this.pressedNotes.delete(noteValue)
-    this.synth.stopNoteValue(noteValue)
+    this.synth?.stopNote(noteValue + 21)
     this.notify()
   }
 
