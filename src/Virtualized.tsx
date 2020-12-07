@@ -6,6 +6,7 @@ import { useRAFLoop } from './hooks'
  * Virtualized rendering (occlusion).
  */
 export function Virtualized({
+  position,
   items,
   renderItem,
   getItemOffsets,
@@ -99,7 +100,7 @@ export function Virtualized({
   return (
     <div
       style={{
-        position: 'fixed',
+        position,
         overflow: 'hidden',
         height,
         width,

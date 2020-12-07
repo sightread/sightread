@@ -225,6 +225,7 @@ function App() {
             <SongScrubBar
               song={song}
               width={width}
+              height={40}
               rangeSelecting={rangeSelecting}
               setRangeSelecting={setRangeSelecting}
             />
@@ -335,12 +336,14 @@ function RuleLines({ width, height }: any) {
 // TODO support seeking to start of current measure
 export function SongScrubBar({
   song,
+  height,
   width,
   rangeSelecting = false,
   setRangeSelecting = () => {},
 }: {
   song: Song
   width: number
+  height: number
   rangeSelecting?: boolean
   setRangeSelecting?: any
 }) {
@@ -432,7 +435,7 @@ export function SongScrubBar({
       style={{
         display: 'flex',
         width,
-        height: 40,
+        height,
         borderBottom: 'black solid 1px',
       }}
       onMouseDown={(e) => {

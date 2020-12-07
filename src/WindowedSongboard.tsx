@@ -30,11 +30,13 @@ export function WindowedSongBoard({
   hand = 'both',
   width,
   height,
+  position = 'fixed',
 }: {
   song: PlayableSong
   hand: Hand
   width: any
   height: any
+  position?: 'fixed' | 'absolute'
 }) {
   const { player } = usePlayer()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
@@ -88,6 +90,7 @@ export function WindowedSongBoard({
   return (
     <div style={{ width, height }}>
       <Virtualized
+        position={position}
         items={items}
         renderItem={renderItem}
         getItemOffsets={getItemOffsets}

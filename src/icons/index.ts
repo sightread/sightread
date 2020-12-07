@@ -1,2 +1,6 @@
 export { default as GClefSVG } from './GClef'
 export { default as FClefSVG } from './FClef'
+export { default as BothHandsSVG } from './BothHands'
+export { default as Clock } from './Clock'
+export { default as MuiscalNote } from './MusicalNote'
+export { default as Loop } from './Loop'
