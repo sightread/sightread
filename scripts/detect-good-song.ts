@@ -16,6 +16,7 @@ const pathJoin: any = require('path').join
 const baseDir = pathJoin(__dirname, '..', 'public')
 
 const defGood: Array<string> = []
+const maybeBad: string[] = []
 musicFiles
   .filter((song) => song.type === 'song')
   .forEach((musicFile) => {
@@ -46,16 +47,21 @@ musicFiles
     const len = Object.keys(parsed.tracks).length
     if (hasExactlyTwoPianoTracks(parsed, filename)) {
       defGood.push(filename)
-    } else if (len == 2 || len == 3) {
-      // console.log(`File may be good due to ${len} tracks: ${filename}`)
-    } else if (musicFile.file.includes('piano')) {
-      // console.log(`File include piano in title, may be good: ${filename}`)
+    } else {
+      maybeBad.push(filename)
     }
+    // else if (len == 2 || len == 3) {
+    //   // console.log(`File may be good due to ${len} tracks: ${filename}`)
+    // } else if (musicFile.file.includes('piano')) {
+    //   // console.log(`File include piano in title, may be good: ${filename}`)
+    // }
   })
 console.log(
   'These files have exactly two piano tracks, are almost definitely excellent:\n',
   defGood.join('\n'),
 )
+
+console.log('These files mebbe bad', maybeBad.join('\n'))
 
 function hasExactlyTwoPianoTracks(parsed: Song, f: string) {
   return (
