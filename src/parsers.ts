@@ -235,7 +235,9 @@ export function parseMusicXML(txt: string): Song {
 export function getPitch(midiNote: number): { octave: number; step: string; alter: number } {
   // e.g. Cb3
   const key = getKey(midiNote)
-  if (key[1] === 'b') {
+  if (!key) {
+    return { step: 'N/A', octave: -1, alter: 0 }
+  } else if (key[1] === 'b') {
     return { step: key[1], octave: +key[2], alter: 0 }
   } else {
     return { step: key[1], octave: +key[2], alter: -1 }
