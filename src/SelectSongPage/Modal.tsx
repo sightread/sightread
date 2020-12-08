@@ -44,7 +44,7 @@ const classes = css({
     fontSize: 32,
     transition: '150ms',
     color: '#7029FA',
-    '&::before:hover': {
+    '&:hover': {
       color: '#3e0ca0',
     },
   },

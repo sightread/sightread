@@ -216,7 +216,7 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className={soundOff ? 'fas fa-volume-off' : 'fas fa-volume-up'}
-            style={{ fontSize: 24 }}
+            style={{ fontSize: 24, width: 24 }}
             onClick={() => {
               if (!soundOff) {
                 player.setVolume(0)
