@@ -12,7 +12,7 @@
 } */
 
 .SelectSongPage__song:hover {
-  background-color: rgba(235, 27, 27, 0.5);
+  background-color: rgb(159 133 221 / 45%);
   cursor: pointer;
 }
 
