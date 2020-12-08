@@ -142,7 +142,7 @@ const controlsOverview = [
     icon: <Clock height={50} width={50} />,
   },
   {
-    title: 'Visulatization',
+    title: 'Visualization',
     caption: 'Choose between Falling notes or Sheet Music display.',
     icon: <MuiscalNote height={50} width={50} />,
   },
