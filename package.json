@@ -16,8 +16,11 @@
     "jasmid.ts": "^2.1.0",
     "jsdom": "^16.4.0",
     "next": "^10.0.3",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "next-plugin-preact": "^3.0.3",
+    "preact": "^10.5.7",
+    "preact-render-to-string": "^5.1.12",
+    "react": "npm:@preact/compat",
+    "react-dom": "npm:@preact/compat",
     "typescript": "^3.8.3",
     "vexflow": "^3.0.9"
   },
