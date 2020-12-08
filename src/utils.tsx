@@ -138,7 +138,7 @@ class Deferred<T> {
 }
 
 function isBlack(note: number) {
-  return getKey(note)[1] === 'b'
+  return getKey(note)?.[1] === 'b'
 }
 
 export { Sizer, getSong, formatTime, Logo, CenteringWrapper, inferHands, Deferred, isBlack }

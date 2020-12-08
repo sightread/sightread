@@ -232,20 +232,6 @@ export function parseMusicXML(txt: string): Song {
   }
 }
 
-export function getNoteValue(step: string, octave: number, accidental: number = 0) {
-  const stepValues: any = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
-  let offset = 0
-
-  if (octave === 0) {
-    if (step === 'A') {
-      return 0
-    }
-    return 1 // 'B';
-  }
-
-  return (octave - 1) * 12 + stepValues[step] + offset + 3 + accidental
-}
-
 export function getPitch(midiNote: number): { octave: number; step: string; alter: number } {
   // e.g. Cb3
   const key = getKey(midiNote)

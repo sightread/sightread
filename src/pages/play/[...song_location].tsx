@@ -15,6 +15,7 @@ import midiKeyboard from '../../midi'
 import { useRouter } from 'next/router'
 import { formatTime, getSong, inferHands, isBlack, isBrowser } from '../../utils'
 import { getSynthStub } from '../../synth'
+import { getNote } from '../../synth/utils'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 // const pathToSongs =
@@ -116,7 +117,7 @@ function App() {
           style={{ fontSize: 30, position: 'relative', left: 15 }}
           onClick={() => {
             player.pause()
-            router.push(`/`)
+            router.back()
           }}
         />
         <div
@@ -618,14 +619,15 @@ export function PianoRoll({
   const pressedKeys = useSongPressedKeys()
 
   const notes = getKeyPositions(width).map((note: any, i: any) => {
+    const midiNote = i + getNote('A0')
     let color = note.color
     const shouldShow =
-      i in pressedKeys &&
+      midiNote in pressedKeys &&
       (selectedHand === 'both' ||
-        (selectedHand === 'left' && pressedKeys[i].track === song.config.left) ||
-        (selectedHand === 'right' && pressedKeys[i].track === song.config.right))
+        (selectedHand === 'left' && pressedKeys[midiNote].track === song.config.left) ||
+        (selectedHand === 'right' && pressedKeys[midiNote].track === song.config.right))
     if (shouldShow) {
-      let { track, midiNote } = pressedKeys[i]
+      let { track } = pressedKeys[midiNote]
 
       const hand: 'left' | 'right' = track === song.config.left ? 'left' : 'right'
       if (hand === 'left') {
@@ -648,7 +650,7 @@ export function PianoRoll({
         width={note.width}
         height={note.height}
         color={color}
-        noteValue={i}
+        note={i + getNote('A0')}
         key={i}
       />
     )
@@ -682,10 +684,11 @@ let isMouseDown = false
   }
 })()
 
-function PianoNote({ left, width, color, height, noteValue }: any) {
+type PianoNote = { left: number; width: number; color: string; height: number; note: number }
+function PianoNote({ left, width, color, height, note }: PianoNote) {
   const [userPressed, setUserPressed] = useState(false)
   const midiKeys: Map<number, number> = useUserPressedKeys()
-  let pressed = userPressed || midiKeys.has(noteValue)
+  let pressed = userPressed || midiKeys.has(note)
   return (
     <div
       style={{
@@ -696,7 +699,7 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
         width,
         height,
         backgroundColor: pressed ? 'grey' : color,
-        zIndex: isBlack(noteValue) ? 1 : 0,
+        zIndex: isBlack(note) ? 1 : 0,
         userSelect: 'none',
         borderBottomLeftRadius: '8px',
         borderBottomRightRadius: '8px',
@@ -704,20 +707,20 @@ function PianoNote({ left, width, color, height, noteValue }: any) {
       }}
       onMouseDown={() => {
         setUserPressed(true)
-        synth.playNote(noteValue + 21)
+        synth.playNote(note)
       }}
       onMouseUp={() => {
         setUserPressed(false)
-        synth.stopNote(noteValue + 21)
+        synth.stopNote(note)
       }}
       onMouseLeave={() => {
         setUserPressed(false)
-        synth.stopNote(noteValue + 21)
+        synth.stopNote(note)
       }}
       onMouseEnter={() => {
         if (isMouseDown) {
           setUserPressed(true)
-          synth.playNote(noteValue + 21)
+          synth.playNote(note)
         }
       }}
     ></div>

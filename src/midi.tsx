@@ -1,5 +1,5 @@
-import { getNoteValue } from './parsers'
-import { getSynth, Synth } from './synth'
+import { getSynth, getSynthStub, Synth } from './synth'
+import { getNote } from './synth/utils'
 
 export function refreshMIDIDevices() {
   if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {
@@ -41,25 +41,27 @@ function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
   }
 }
 
-const qwertyStepConfig: { [key: string]: { step: string; alter?: number } } = {
+const qwertyKeyConfig: { [key: string]: string } = {
   // White Notes
-  g: { step: 'C' },
-  h: { step: 'D' },
-  j: { step: 'E' },
-  k: { step: 'F' },
-  l: { step: 'G' },
-  ';': { step: 'A' },
+  f: 'C',
+  g: 'D',
+  h: 'E',
+  j: 'F',
+  k: 'G',
+  l: 'A',
+  ';': 'B',
   // Black notes
-  y: { step: 'C', alter: 1 },
-  u: { step: 'D', alter: 1 },
-  o: { step: 'F', alter: 1 },
-  p: { step: 'G', alter: 1 },
+  t: 'Db',
+  y: 'Eb',
+  i: 'Gb',
+  o: 'Ab',
+  p: 'Bb',
 }
 
 class MidiState {
   octave = 4
   pressedNotes = new Map<number, number>()
-  synth: Synth | undefined
+  synth = getSynthStub('acoustic_grand_piano')
   listeners: Array<Function> = []
   virtualKeyboard = false
 
@@ -68,8 +70,6 @@ class MidiState {
       window.addEventListener('keydown', (e) => this.handleKeyDown(e))
       window.addEventListener('keyup', (e) => this.handleKeyUp(e))
     }
-
-    getSynth('acoustic_grand_piano').then((s) => (this.synth = s))
   }
 
   handleKeyDown(e: KeyboardEvent) {
@@ -92,9 +92,9 @@ class MidiState {
       this.octave = Math.max(1, this.octave - 1)
       this.pressedNotes.clear()
       this.notify()
-    } else if (key in qwertyStepConfig) {
-      const note = qwertyStepConfig[key]
-      this.press(getNoteValue(note.step, this.octave, note.alter))
+    } else if (key in qwertyKeyConfig) {
+      const note = qwertyKeyConfig[key]
+      this.press(getNote(note + this.octave), 80)
     }
   }
 
@@ -104,9 +104,9 @@ class MidiState {
     }
 
     const key = e.key
-    if (key in qwertyStepConfig) {
-      const note = qwertyStepConfig[key]
-      this.release(getNoteValue(note.step, this.octave, note.alter))
+    if (key in qwertyKeyConfig) {
+      const note = qwertyKeyConfig[key]
+      this.release(getNote(note + this.octave))
     }
   }
 
