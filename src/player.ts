@@ -76,9 +76,9 @@ class Player {
     const nextNote = this.song.notes[this.currentIndex]
     if (this.wait && nextNote && this.isActiveHand(nextNote)) {
       const isntPressed =
-        !midi.getPressedNotes().has(nextNote.noteValue) ||
-        midi.getPressedNotes().get(nextNote.noteValue) ===
-          this.lastPressedKeys.get(nextNote.noteValue)
+        !midi.getPressedNotes().has(nextNote.midiNote) ||
+        midi.getPressedNotes().get(nextNote.midiNote) ===
+          this.lastPressedKeys.get(nextNote.midiNote)
       if (isntPressed) {
         return this.currentSongTime
       }
@@ -136,23 +136,23 @@ class Player {
     this.lastIntervalFiredTime = performance.now()
     this.playInterval = setInterval(() => this.playLoop_(), 16)
     // continue playing everything we were in the middle of, but at a lower vol
-    this.playing.forEach((note) => this.playNoteValue(note))
+    this.playing.forEach((note) => this.playNote(note))
     this.notify()
   }
 
-  playNoteValue(note: SongNote) {
-    this.synths[note.track].playNote(note.noteValue + 21, note.velocity)
+  playNote(note: SongNote) {
+    this.synths[note.track].playNote(note.midiNote, note.velocity)
     if (this.isActiveTrack(note)) {
       this.dirty = true
     }
   }
 
-  stopNoteValues(notes: Array<SongNote>) {
+  stopNotes(notes: Array<SongNote>) {
     if (notes.length === 0) {
       return
     }
     for (let note of notes) {
-      this.synths[note.track].stopNote(note.noteValue + 21)
+      this.synths[note.track].stopNote(note.midiNote)
     }
     this.dirty = true
   }
@@ -193,7 +193,7 @@ class Player {
       this.currentBpm++
     }
     const stillPlaying = (n: SongNote) => n.time + n.duration > time
-    this.stopNoteValues(this.playing.filter((n) => !stillPlaying(n)))
+    this.stopNotes(this.playing.filter((n) => !stillPlaying(n)))
     this.playing = this.playing.filter(stillPlaying)
 
     while (this.notes[this.currentIndex]?.time < time) {
@@ -201,23 +201,23 @@ class Player {
 
       if (this.wait && this.isActiveHand(note)) {
         if (
-          !midi.getPressedNotes().has(note.noteValue) ||
-          midi.getPressedNotes().get(note.noteValue) === this.lastPressedKeys.get(note.noteValue)
+          !midi.getPressedNotes().has(note.midiNote) ||
+          midi.getPressedNotes().get(note.midiNote) === this.lastPressedKeys.get(note.midiNote)
         ) {
           this.currentSongTime = note.time
           return
         }
-        this.lastPressedKeys.set(note.noteValue, midi.getPressedNotes().get(note.noteValue)!)
+        this.lastPressedKeys.set(note.midiNote, midi.getPressedNotes().get(note.midiNote)!)
       }
       this.playing.push(note)
-      this.playNoteValue(note)
+      this.playNote(note)
       this.currentIndex++
     }
     this.notify()
   }
 
   stopAllSounds() {
-    this.stopNoteValues(this.playing)
+    this.stopNotes(this.playing)
     this.notify()
   }
 
@@ -242,7 +242,7 @@ class Player {
       return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
     })
     if (!!this.playInterval) {
-      this.playing.forEach((note) => this.playNoteValue(note))
+      this.playing.forEach((note) => this.playNote(note))
     }
     this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentBpm = this.getBpmIndexForTime(time)
@@ -257,7 +257,7 @@ class Player {
   getPressedKeys() {
     let ret: any = {}
     for (let note of this.playing.filter((n) => this.isActiveTrack(n))) {
-      ret[note.noteValue] = note
+      ret[note.midiNote] = note
     }
 
     return ret

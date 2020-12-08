@@ -13,7 +13,7 @@ import { WindowedSongBoard } from '../../WindowedSongboard'
 import { WindowedStaffBoard } from '../../StaffPage'
 import midiKeyboard from '../../midi'
 import { useRouter } from 'next/router'
-import { formatTime, getSong, inferHands, isBrowser } from '../../utils'
+import { formatTime, getSong, inferHands, isBlack, isBrowser } from '../../utils'
 import { getSynthStub } from '../../synth'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
@@ -606,10 +606,6 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-function isBlack(noteValue: number) {
-  return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
-}
-
 export function PianoRoll({
   width,
   selectedHand,
@@ -629,17 +625,17 @@ export function PianoRoll({
         (selectedHand === 'left' && pressedKeys[i].track === song.config.left) ||
         (selectedHand === 'right' && pressedKeys[i].track === song.config.right))
     if (shouldShow) {
-      let { track, noteValue } = pressedKeys[i]
+      let { track, midiNote } = pressedKeys[i]
 
       const hand: 'left' | 'right' = track === song.config.left ? 'left' : 'right'
       if (hand === 'left') {
-        if (isBlack(noteValue)) {
+        if (isBlack(midiNote)) {
           color = '#D74000'
         } else {
           color = '#FF6825'
         }
       } else {
-        if (isBlack(noteValue)) {
+        if (isBlack(midiNote)) {
           color = '#4912D4'
         } else {
           color = '#7029FB'

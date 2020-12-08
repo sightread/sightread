@@ -4,6 +4,8 @@ import { usePlayer } from './hooks'
 import { SongMeasure, SongNote } from './parsers'
 import { Virtualized } from './Virtualized'
 import { Hand, PlayableSong } from './pages/play/[...song_location]'
+import { getNote } from './synth/utils'
+import { isBlack } from './utils'
 
 const PIXELS_PER_SECOND = 150
 
@@ -49,14 +51,14 @@ export function WindowedSongBoard({
       return <Measure measure={item} width={width} key={`measure-${item.number}`} />
     } else {
       const note = item
-      const lane = lanes[note.noteValue]
+      const lane = lanes[note.midiNote - getNote('A0')]
       return (
         <FallingNote
           noteLength={PIXELS_PER_SECOND * note.duration}
           width={lane.width}
           posX={lane.left}
           note={note}
-          key={`songnote-${note.time}-${note.noteValue}-${i}`}
+          key={`songnote-${note.time}-${note.midiNote}-${i}`}
           song={song}
         />
       )
@@ -103,12 +105,15 @@ export function WindowedSongBoard({
   )
 }
 
-function isBlack(noteValue: number) {
-  return [1, 4, 6, 9, 11].some((x) => noteValue % 12 === x)
+type FallingNoteProps = {
+  note: SongNote
+  noteLength: number
+  width: number
+  posX: number
+  song: PlayableSong
 }
-
-function FallingNote({ note, noteLength, width, posX, song }: any) {
-  const keyType = isBlack(note.noteValue) ? 'black' : 'white'
+function FallingNote({ note, noteLength, width, posX, song }: FallingNoteProps) {
+  const keyType = isBlack(note.midiNote) ? 'black' : 'white'
   const className = keyType + ' ' + (note.track === song.config.left ? 'left-hand' : 'right-hand')
   return (
     <div

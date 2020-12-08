@@ -82,10 +82,10 @@ export function UserPressedKeysProvider({ children }: any) {
   )
 }
 
-const SongPressedKeysContext = React.createContext<{ [noteValue: number]: SongNote }>({})
+const SongPressedKeysContext = React.createContext<{ [note: number]: SongNote }>({})
 
 export function SongPressedKeysProvider({ children }: any) {
-  const [pressedKeys, setPressedKeys] = useState<{ [noteValue: number]: SongNote }>({})
+  const [pressedKeys, setPressedKeys] = useState<{ [note: number]: SongNote }>({})
 
   useEffect(() => {
     player.subscribe((keys: any) => {

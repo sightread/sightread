@@ -24,8 +24,7 @@ refreshMIDIDevices()
 type MidiEvent = {
   type: 'on' | 'off'
   velocity: number
-  octave: number
-  step: number
+  note: number
 }
 function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
   const data = event.data
@@ -37,8 +36,7 @@ function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
   let command = status >>> 4
   return {
     type: command === 0x9 ? 'on' : 'off',
-    octave: Math.trunc(data[1] / 12),
-    step: Math.trunc(data[1] % 12),
+    note: data[1],
     velocity: data[2],
   }
 }
@@ -116,16 +114,16 @@ class MidiState {
     return this.pressedNotes
   }
 
-  press(noteValue: number) {
-    this.pressedNotes.set(noteValue, Date.now())
-    this.synth?.playNote(noteValue + 21)
+  press(note: number, velocity: number) {
+    this.pressedNotes.set(note, Date.now())
+    this.synth?.playNote(note, velocity)
 
     this.notify()
   }
 
-  release(noteValue: number) {
-    this.pressedNotes.delete(noteValue)
-    this.synth?.stopNote(noteValue + 21)
+  release(note: number) {
+    this.pressedNotes.delete(note)
+    this.synth?.stopNote(note)
     this.notify()
   }
 
@@ -152,11 +150,11 @@ function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
   if (!msg) {
     return
   }
-  const noteValue = msg.step + msg.octave * 12 - 21
+  const { note, velocity } = msg
   if (msg.type === 'on' && msg.velocity > 0) {
-    provider.press(noteValue)
+    provider.press(note, velocity)
   } else {
-    provider.release(noteValue)
+    provider.release(note)
   }
 }
 export default provider

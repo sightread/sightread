@@ -1,16 +1,17 @@
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
+import { getKey, getNote } from './synth/utils'
 
 export type SongNote = {
   type: 'note'
-  noteValue: number
+  midiNote: number
   track: number
   time: number
   duration: number
   pitch: {
     step: string
     octave: number
+    alter: number
   }
-  accidental: number // 1 | -1 | 0
   velocity?: number
 }
 
@@ -127,34 +128,33 @@ export function parseMusicXML(txt: string): Song {
       let lastNoteTime = notes[notes.length - 1]?.time ?? 0
 
       let time = isChord ? lastNoteTime : currTime
-      const noteValue = getNoteValue(step, octave, accidental)
+      const midiNote = getNote(step + octave) + accidental
       let note: SongNote = {
         type: 'note',
-        pitch: { step, octave },
+        pitch: { step, octave, alter: accidental },
         duration: calcWallDuration(duration, time),
         time,
-        noteValue,
+        midiNote,
         track,
-        accidental,
       }
       if (tie) {
         let type = tie.getAttribute('type')
         const hasTwoTies = curr.querySelectorAll('tie').length > 1
         if (type === 'stop') {
-          if (openTies.has(noteValue)) {
-            openTies.get(noteValue).duration += note.duration
+          if (openTies.has(midiNote)) {
+            openTies.get(midiNote).duration += note.duration
             // Only end it if the tie doesnt' have a next part as well.
-            const i = notes.findIndex((n) => n === openTies.get(noteValue))
+            const i = notes.findIndex((n) => n === openTies.get(midiNote))
             notes.splice(i, 1)
-            notes.push(openTies.get(noteValue))
+            notes.push(openTies.get(midiNote))
             if (!hasTwoTies) {
-              openTies.delete(noteValue)
+              openTies.delete(midiNote)
             }
           } else {
             console.warn('could not close tie', curr)
           }
         } else {
-          openTies.set(noteValue, note)
+          openTies.set(midiNote, note)
           notes.push(note)
         }
       } else {
@@ -246,25 +246,14 @@ export function getNoteValue(step: string, octave: number, accidental: number = 
   return (octave - 1) * 12 + stepValues[step] + offset + 3 + accidental
 }
 
-export function getPitch(noteValue: number): { octave: number; step: string; alter: number } {
-  const map: any = {
-    0: { step: 'C', alter: 0 },
-    1: { step: 'C', alter: 1 },
-    2: { step: 'D', alter: 0 },
-    3: { step: 'D', alter: 1 },
-    4: { step: 'E', alter: 0 },
-    5: { step: 'F', alter: 0 },
-    6: { step: 'F', alter: 1 },
-    7: { step: 'G', alter: 0 },
-    8: { step: 'G', alter: 1 },
-    9: { step: 'A', alter: 0 },
-    10: { step: 'A', alter: 1 },
-    11: { step: 'B', alter: 0 },
+export function getPitch(midiNote: number): { octave: number; step: string; alter: number } {
+  // e.g. Cb3
+  const key = getKey(midiNote)
+  if (key[1] === 'b') {
+    return { step: key[1], octave: +key[2], alter: 0 }
+  } else {
+    return { step: key[1], octave: +key[2], alter: -1 }
   }
-  //noteValue = noteValue + 1 // TODO: figure out why this is here
-  const { step, alter } = map[(noteValue - 3) % 12]
-
-  return { octave: Math.floor(noteValue / 12) + 1, step, alter }
 }
 
 // TODO in the faroff future: replace jasmid.ts with own parser.
@@ -319,31 +308,30 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     } else if (midiEvent.subType === 'programChange') {
       tracks[track].program = midiEvent.program
     } else if (midiEvent.subType === 'noteOn') {
-      const noteValue = midiEvent.note - 21 // convert to noteValue
-      if (openNotes.has(noteKey(noteValue))) {
-        const note = openNotes.get(noteKey(noteValue))!
+      const midiNote = midiEvent.note
+      if (openNotes.has(noteKey(midiNote))) {
+        const note = openNotes.get(noteKey(midiNote))!
         note.duration = calcWallDuration(note.duration)
-        openNotes.delete(noteKey(noteValue))
+        openNotes.delete(noteKey(midiNote))
       }
 
       const note: SongNote = {
         type: 'note',
         time: currTime,
         duration: 0,
-        noteValue,
+        midiNote,
         track,
-        pitch: getPitch(noteValue),
-        accidental: getPitch(noteValue).alter,
+        pitch: getPitch(midiNote),
         velocity: midiEvent.velocity,
       }
-      openNotes.set(noteKey(noteValue), note)
+      openNotes.set(noteKey(midiNote), note)
       notes.push(note)
     } else if (midiEvent.subType === 'noteOff') {
-      const noteValue = midiEvent.note - 21
-      if (openNotes.has(noteKey(noteValue))) {
-        const note = openNotes.get(noteKey(noteValue))!
+      const midiNote = midiEvent.note
+      if (openNotes.has(noteKey(midiNote))) {
+        const note = openNotes.get(noteKey(midiNote))!
         note.duration = currTime - note.time
-        openNotes.delete(noteKey(noteValue))
+        openNotes.delete(noteKey(midiNote))
       }
     } else if (midiEvent.subType === 'setTempo') {
       const bpm = 60000000 / midiEvent.microsecondsPerBeat
@@ -492,8 +480,8 @@ export function parserInferHands(song: Song): { left: any; right: any } {
   // Dumb way to determine r/l hand, calc which has the higher avg score, and flip if guessed wrong.
   const sum = (arr: Array<number>) => arr.reduce((a: number, b: number) => a + b, 0)
   const avg = (arr: Array<number>) => sum(arr) / arr.length
-  let t1Avg = avg(song.notes.filter((n) => n.track === t1).map((n) => n.noteValue))
-  let t2Avg = avg(song.notes.filter((n) => n.track === t2).map((n) => n.noteValue))
+  let t1Avg = avg(song.notes.filter((n) => n.track === t1).map((n) => n.midiNote))
+  let t2Avg = avg(song.notes.filter((n) => n.track === t2).map((n) => n.midiNote))
   if (t1Avg < t2Avg) {
     return { left: t1, right: t2 }
   }

@@ -7,6 +7,7 @@ import {
   Song,
 } from './parsers'
 import { PlayableSong } from './pages/play/[...song_location]'
+import { getKey } from './synth/utils'
 
 function Sizer({ height, width }: { height?: number; width?: number }) {
   return <div style={{ width, height }} />
@@ -136,4 +137,8 @@ class Deferred<T> {
   }
 }
 
-export { Sizer, getSong, formatTime, Logo, CenteringWrapper, inferHands, Deferred }
+function isBlack(note: number) {
+  return getKey(note)[1] === 'b'
+}
+
+export { Sizer, getSong, formatTime, Logo, CenteringWrapper, inferHands, Deferred, isBlack }
