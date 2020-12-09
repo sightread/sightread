@@ -108,8 +108,7 @@ export function parseMusicXML(txt: string): Song {
         // console.error('Error: found a note with no duration.')
         duration = 0
       }
-      let noteTrack = Number(curr.querySelector('staff')?.textContent?.trim())
-      let track = currTrack ? noteTrack : currTrack
+      let track = currTrack
       let accidental: any = curr.querySelector('accidental')?.textContent?.trim()
       if (!accidental || accidental === 'natural') {
         accidental = 0
@@ -442,7 +441,7 @@ export function getHandIndexesForTeachMid(song: Song): { left?: number; right?: 
   return { left: lhStudentTrack, right: rhStudentTrack }
 }
 
-function isPiano(t: Track): boolean {
+export function isPiano(t: Track): boolean {
   const program = t.program ?? -1
   return t.instrument?.toLowerCase()?.includes('piano') || (program > 0 && program < 5)
 }

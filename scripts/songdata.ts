@@ -898,12 +898,6 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Halo-One-Final-Effort-altered.mid',
-    name: 'One Final Effort',
-    artist: "Martin O'Donnel",
-    difficulty: 'Easy',
-  },
-  {
     file: 'Happy Birthday - Chopin and Liszt style.mid',
     name: 'Happy Birthday',
     artist: 'Chopin and Liszt',
@@ -1000,12 +994,6 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Leonard Cohen - Hallelujah.mid',
-    name: 'Hallelujah',
-    artist: 'Leonard Cohen',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Lewis Capaldi - Someone You Loved.mid',
     name: 'Someone You Loved',
     artist: 'Lewis Capaldi',
@@ -1027,12 +1015,6 @@ const songs: MusicFile[] = [
     file: 'Ludwig Van Beethoven - 7th Symphony - 2nd movement - Easy.mid',
     name: '7th Symphony - 2nd movement',
     artist: 'Ludwig Van Beethoven',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Mad World - Gary Jules.mid',
-    name: 'Mad World',
-    artist: 'Gary Jules',
     difficulty: 'Easy',
   },
   {
@@ -1127,7 +1109,7 @@ const songs: MusicFile[] = [
   },
   {
     file: 'Piano Hero 001 - C2C - Down The Road.mid',
-    name: 'Down The Road.mid',
+    name: 'Down The Road',
     artist: 'C2C',
     difficulty: 'Easy',
   },

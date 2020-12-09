@@ -47,8 +47,8 @@ async function getSynth(instrument: InstrumentName | number): Promise<Synth> {
   if (typeof instrument === 'number') {
     instrument = gmInstruments[instrument]
   }
-  if (!instrument) {
-    console.error('Invalid instrument: ', instrument, 'reverting to Piano.')
+  if (!instrument || !gmInstruments.find((s) => s === instrument)) {
+    console.error('Invalid instrument: ', instrument, 'reverting to acoustic_grand_piano.')
     instrument = gmInstruments[0]
   }
 
