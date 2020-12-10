@@ -33,6 +33,8 @@ const classes = css({
       color: 'white',
       cursor: 'pointer',
       transition: 'color 0.1s',
+      fontSize: 24,
+      width: 22,
     },
     '& i:hover': {
       color: 'rgba(58, 104, 231, 1)',
@@ -152,7 +154,6 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className="fas fa-step-backward"
-            style={{ fontSize: 24 }}
             onClick={() => {
               player.stop()
               setPlaying(false)
@@ -161,7 +162,6 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className={playing ? 'fas fa-pause' : 'fas fa-play'}
-            style={{ fontSize: 24 }}
             onClick={() => {
               if (!playing) {
                 if (canPlay) {
@@ -188,7 +188,7 @@ function App() {
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <div style={{ fontSize: 24 }}>
+          <div>
             <i
               style={{ transform: 'rotateY(180deg)' }}
               className={`fas fa-hand-paper ${hand === 'left' && 'active'}`}
@@ -202,7 +202,6 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className={`fas fa-clock ${waiting && 'active'}`}
-            style={{ fontSize: 24 }}
             onClick={() => {
               setWaiting(!waiting)
               player.setWait(!waiting)
@@ -210,8 +209,7 @@ function App() {
           />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
-            className="fas fa-history"
-            style={{ fontSize: 24, color: rangeSelecting ? 'red' : undefined }}
+            className={`fas fa-history ${rangeSelecting && 'active'}`}
             onClick={() => {
               setRangeSelecting(!rangeSelecting)
               setPlaying(false)
@@ -220,8 +218,7 @@ function App() {
           />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
-            className="fas fa-music"
-            style={{ color: viz === 'sheet' ? 'red' : undefined, fontSize: 24 }}
+            className={`fas fa-music ${viz == 'sheet' && 'active'}`}
             onClick={() => {
               if (viz === 'falling-notes' || !viz) {
                 setQuery('viz', 'sheet')
@@ -233,7 +230,6 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className={soundOff ? 'fas fa-volume-off' : 'fas fa-volume-up'}
-            style={{ fontSize: 24, width: 24 }}
             onClick={() => {
               if (!soundOff) {
                 player.setVolume(0)
@@ -312,12 +308,12 @@ function BpmDisplay() {
     <div
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 110 }}
     >
-      <i style={{ fontSize: 24 }} className="fas fa-minus" onClick={() => player.decreaseBpm()} />
+      <i className="fas fa-minus" onClick={() => player.decreaseBpm()} />
       <div style={{ display: 'flex', flexDirection: 'column', color: 'white' }}>
         <span style={{ fontSize: 24 }} ref={percentRef} />
         <span style={{ fontSize: 16 }} ref={bpmRef} />
       </div>
-      <i style={{ fontSize: 24 }} className="fas fa-plus" onClick={() => player.increaseBpm()} />
+      <i className="fas fa-plus" onClick={() => player.increaseBpm()} />
     </div>
   )
 }
