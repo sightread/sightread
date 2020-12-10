@@ -23,25 +23,17 @@ type TableHeadProps = {
   onSelectCol: (index: number) => void
 }
 
-function getComparator(sortCol: number, cols: string[]) {
-  const colIndex = Math.abs(sortCol) - 1
-  const sortBy: string = cols[colIndex]
-  return (a: any, b: any) => {
-    const v1 = a[sortBy],
-      v2 = b[sortBy]
-    if (typeof v1 === 'string') {
-      return sortCol * v1?.localeCompare(v2)
-    }
-    return sortCol * (v1 - v2)
+function compare(a: number | string, b: number | string) {
+  if (typeof a === 'string') {
+    return a.localeCompare(b + '')
   }
+  return +a - +b
 }
 
-function filterSearch(songOptions: any, search: string, filter: (keyof MusicFile)[]) {
-  const includesSearch = (value: string) => value.toUpperCase().includes(search.toUpperCase())
-  if (search === '') {
-    return songOptions
-  }
-  return songOptions.filter((song: MusicFile) => filter.some((f) => includesSearch(song[f])))
+function sortBy<T>(fn: (x: T) => number | string, rev: boolean, arr: T[]): T[] {
+  return arr.sort((a: T, b: T) => {
+    return (rev ? -1 : 1) * compare(fn(a), fn(b))
+  })
 }
 
 function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTableProps) {
@@ -58,6 +50,12 @@ function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTable
       setSortCol(index)
     }
   }
+
+  const isSearchMatch = (s: string) => s.toUpperCase().includes(search.toUpperCase())
+  const filtered =
+    search === '' ? rows : rows.filter((row) => filter.some((f) => isSearchMatch(row[f])))
+  const sortField = cols[Math.abs(sortCol) - 1]
+  const sorted = sortBy((row) => row[sortField], sortCol < 0, filtered)
 
   return (
     <>
@@ -89,43 +87,38 @@ function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTable
             width: '100%',
           }}
         >
-          {filterSearch(rows, search, filter)
-            .sort(getComparator(sortCol, cols))
-            .map((row: any) => {
-              return (
-                <div
-                  onClick={() => onSelectRow(row)}
-                  style={{
-                    position: 'relative',
-                    boxSizing: 'border-box',
-                    height: 35,
-                    fontSize: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexShrink: 0,
-                    borderBottom: '#d9d5ec solid 1px',
-                  }}
-                  className="SelectSongPage__song"
-                  key={row.file}
-                >
-                  {columns.map((col, i) => {
-                    let cellValue = row[col.id]
-                    if (!!col.format) {
-                      cellValue = col.format(cellValue)
-                    }
-                    const paddingLeft = i === 0 ? 30 : 0
-                    return (
-                      <span
-                        style={{ paddingLeft, width: `${colWidth}%`, ...col.style }}
-                        key={col.id}
-                      >
-                        {cellValue}
-                      </span>
-                    )
-                  })}
-                </div>
-              )
-            })}
+          {sorted.map((row: any) => {
+            return (
+              <div
+                onClick={() => onSelectRow(row)}
+                style={{
+                  position: 'relative',
+                  boxSizing: 'border-box',
+                  height: 35,
+                  fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexShrink: 0,
+                  borderBottom: '#d9d5ec solid 1px',
+                }}
+                className="SelectSongPage__song"
+                key={row.file}
+              >
+                {columns.map((col, i) => {
+                  let cellValue = row[col.id]
+                  if (!!col.format) {
+                    cellValue = col.format(cellValue)
+                  }
+                  const paddingLeft = i === 0 ? 30 : 0
+                  return (
+                    <span style={{ paddingLeft, width: `${colWidth}%`, ...col.style }} key={col.id}>
+                      {cellValue}
+                    </span>
+                  )
+                })}
+              </div>
+            )
+          })}
         </div>
       </div>
       <Sizer height={60} />
