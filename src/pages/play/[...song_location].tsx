@@ -37,9 +37,7 @@ const classes = css({
     '& i:hover': {
       color: 'rgba(58, 104, 231, 1)',
     },
-  },
-  hand: {
-    '&.active': {
+    '& i.active': {
       color: 'rgba(58, 104, 231, 1)',
     },
   },
@@ -193,18 +191,18 @@ function App() {
           <div style={{ fontSize: 24 }}>
             <i
               style={{ transform: 'rotateY(180deg)' }}
-              className={`fas fa-hand-paper ${classes.hand} ${hand === 'left' && 'active'}`}
+              className={`fas fa-hand-paper ${hand === 'left' && 'active'}`}
               onClick={() => handleHand('left')}
             />
             <i
-              className={`fas fa-hand-paper ${classes.hand} ${hand === 'right' && 'active'}`}
+              className={`fas fa-hand-paper ${hand === 'right' && 'active'}`}
               onClick={() => handleHand('right')}
             />
           </div>
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
-            className="fas fa-clock"
-            style={{ fontSize: 24, color: waiting ? 'red' : undefined }}
+            className={`fas fa-clock ${waiting && 'active'}`}
+            style={{ fontSize: 24 }}
             onClick={() => {
               setWaiting(!waiting)
               player.setWait(!waiting)
