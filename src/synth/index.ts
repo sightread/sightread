@@ -90,7 +90,10 @@ class InstrumentSynth implements Synth {
   masterVolume: number
 
   /** Map from note to currently BufferSource */
-  playing: Map<number, { node: GainNode; velocity: number }> = new Map()
+  playing: Map<
+    number,
+    { gainNode: GainNode; velocity: number; sourceNode: AudioBufferSourceNode }
+  > = new Map()
   constructor(instrument: InstrumentName) {
     const soundfont = soundfonts[instrument]
     if (!soundfont) {
@@ -104,32 +107,36 @@ class InstrumentSynth implements Synth {
 
   playNote(note: number, velocity = 127 / 2) {
     const key = getKey(note)
-    const source = this.audioContext.createBufferSource()
-    source.buffer = this.soundfont[key]
+    const sourceNode = this.audioContext.createBufferSource()
+    sourceNode.buffer = this.soundfont[key]
 
     const gainNode = this.audioContext.createGain()
     gainNode.gain.value = (velocity / 127) * this.masterVolume
 
-    source.connect(gainNode)
+    sourceNode.connect(gainNode)
     gainNode.connect(this.audioContext.destination)
-    source.start()
+    sourceNode.start()
 
-    this.playing.set(note, { node: gainNode, velocity })
+    this.playing.set(note, { gainNode, velocity, sourceNode })
   }
 
   stopNote(note: number) {
     if (!this.playing.has(note)) {
       return
     }
-    const { node: audioNode } = this.playing.get(note)!
-    audioNode.disconnect()
+    const currTime = this.audioContext.currentTime
+    const { gainNode, sourceNode } = this.playing.get(note)!
+    gainNode.gain.exponentialRampToValueAtTime(gainNode.gain.value, currTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, currTime + 0.5)
+    sourceNode.stop(currTime + 0.5)
+
     this.playing.delete(note)
   }
 
   setMasterVolume(volume: number) {
     this.masterVolume = volume
-    for (let { node, velocity } of this.playing.values()) {
-      node.gain.value = (velocity / 127) * this.masterVolume
+    for (let { gainNode, velocity } of this.playing.values()) {
+      gainNode.gain.value = (velocity / 127) * this.masterVolume
     }
   }
 }
