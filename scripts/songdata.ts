@@ -676,12 +676,6 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'All_Of_Me_-_John_Legend_Piano_Cover_-_ReiK.mid',
-    name: 'All Of Me',
-    artist: 'John Legend',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Ariana Grande - Only 1.mid',
     name: 'Only 1',
     artist: 'Ariana Grande',
