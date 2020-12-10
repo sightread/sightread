@@ -1,4 +1,4 @@
-import { getSynth, getSynthStub, Synth } from './synth'
+import { getSynthStub } from './synth'
 import { getNote } from './synth/utils'
 
 export function refreshMIDIDevices() {

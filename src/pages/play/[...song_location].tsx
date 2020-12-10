@@ -16,6 +16,7 @@ import { useRouter } from 'next/router'
 import { formatTime, getSong, inferHands, isBlack, isBrowser } from '../../utils'
 import { getSynthStub } from '../../synth'
 import { getNote } from '../../synth/utils'
+import { css } from '../../flakecss'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 // const pathToSongs =
@@ -26,6 +27,23 @@ export type Hand = 'both' | 'left' | 'right'
 export type SongConfig = { config: { left?: number; right?: number } }
 export type PlayableSong = Song & SongConfig
 
+const classes = css({
+  topbar: {
+    '& i': {
+      color: 'white',
+      cursor: 'pointer',
+      transition: 'color 0.1s',
+    },
+    '& i:hover': {
+      color: 'rgba(58, 104, 231, 1)',
+    },
+  },
+  hand: {
+    '&.active': {
+      color: 'rgba(58, 104, 231, 1)',
+    },
+  },
+})
 function App() {
   const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
@@ -102,6 +120,7 @@ function App() {
     <div className="App">
       <div
         id="topbar"
+        className={`${classes.topbar}`}
         style={{
           position: 'fixed',
           height: 55,
@@ -171,15 +190,14 @@ function App() {
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <div className="super-hands" style={{ fontSize: 24 }}>
+          <div style={{ fontSize: 24 }}>
             <i
-              style={{ transform: 'rotateY(180deg)', color: hand === 'left' ? 'red' : undefined }}
-              className="fas fa-hand-paper"
+              style={{ transform: 'rotateY(180deg)' }}
+              className={`fas fa-hand-paper ${classes.hand} ${hand === 'left' && 'active'}`}
               onClick={() => handleHand('left')}
             />
             <i
-              style={{ color: hand === 'right' ? 'red' : undefined }}
-              className="fas fa-hand-paper"
+              className={`fas fa-hand-paper ${classes.hand} ${hand === 'right' && 'active'}`}
               onClick={() => handleHand('right')}
             />
           </div>

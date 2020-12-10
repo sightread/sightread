@@ -62,7 +62,7 @@ function rules(rules: Object): string {
 }
 
 function isNestedSelector(key: string) {
-  return key.substr(0, 2) === '&:'
+  return key.startsWith('&')
 }
 
 const excludeRules = new Set(['opacity', 'zIndex', 'fontWeight'])

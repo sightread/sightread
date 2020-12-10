@@ -52,8 +52,7 @@ function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTable
   }
 
   const isSearchMatch = (s: string) => s.toUpperCase().includes(search.toUpperCase())
-  const filtered =
-    search === '' ? rows : rows.filter((row) => filter.some((f) => isSearchMatch(row[f])))
+  const filtered = !search ? rows : rows.filter((row) => filter.some((f) => isSearchMatch(row[f])))
   const sortField = cols[Math.abs(sortCol) - 1]
   const sorted = sortBy((row) => row[sortField], sortCol < 0, filtered)
 
