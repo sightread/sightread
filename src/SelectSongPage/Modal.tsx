@@ -274,13 +274,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
                     }}
                   />
                 )}
-                <WindowedSongBoard
-                  width={previewWidth}
-                  height={330}
-                  song={song}
-                  hand={'both'}
-                  position="absolute"
-                />
+                <WindowedSongBoard song={song} hand={'both'} />
               </div>
             </div>
             <Sizer height={16} />
