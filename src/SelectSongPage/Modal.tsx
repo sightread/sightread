@@ -265,7 +265,8 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
                 {!playing && (
                   <i
                     className={`${classes.modalPlayBtn} fas fa-play`}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation()
                       if (canPlay) {
                         player.play()
                         setPlaying(true)
