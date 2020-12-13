@@ -243,11 +243,9 @@ function App() {
           />
         </div>
         {song && (
-          <div style={{ position: 'absolute', top: 55 }}>
+          <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
             <SongScrubBar
               song={song}
-              width={width}
-              height={40}
               rangeSelecting={rangeSelecting}
               setRangeSelecting={setRangeSelecting}
             />
@@ -262,13 +260,14 @@ function App() {
             height: '100vh',
             contain: 'strict',
             display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <RuleLines width={width} height={height} />
-          <div style={{ width: '100%' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
             <WindowedSongBoard song={song} hand={hand} />
           </div>
-          <div style={{ height: getKeyboardHeight(width), width: '100%' }}>
+          <div style={{ position: 'relative', height: getKeyboardHeight(width) }}>
             <PianoRoll selectedHand={hand} song={song} />
           </div>
         </div>
@@ -349,14 +348,10 @@ function RuleLines({ width, height }: any) {
 // TODO support seeking to start of current measure
 export function SongScrubBar({
   song,
-  height,
-  width,
   rangeSelecting = false,
   setRangeSelecting = () => {},
 }: {
   song: Song
-  width: number
-  height: number
   rangeSelecting?: boolean
   setRangeSelecting?: any
 }) {
@@ -365,6 +360,7 @@ export function SongScrubBar({
   const [mouseOver, setMouseOver] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const { width, height } = useSize(wrapperRef)
   const currentTimeRef = useRef<HTMLSpanElement>(null)
   const timeSpanRef = useRef<HTMLSpanElement>(null)
   const measureSpanRef = useRef<HTMLSpanElement>(null)
@@ -447,8 +443,9 @@ export function SongScrubBar({
       ref={wrapperRef}
       style={{
         display: 'flex',
-        width,
-        height,
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
         borderBottom: 'black solid 1px',
       }}
       onMouseDown={(e) => {

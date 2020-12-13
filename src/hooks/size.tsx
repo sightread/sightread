@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useEffect, useLayoutEffect, useState } from 'react'
 
 let resizeObserver: ResizeObserver
 let callbacks: WeakMap<Element, Array<(x: Dimensions) => void>>
@@ -48,15 +48,24 @@ function removeItem(arr: Array<any>, val: any) {
  */
 type Dimensions = { width: number; height: number }
 export function useSize(ref: RefObject<Element>): Dimensions {
-  const [size, setSize] = useState<Dimensions>({ width: 0, height: 0 })
+  const [size, setSize] = useState<Dimensions | null>(null)
   const element = ref.current
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!element) {
       return
     }
     return observe(element, (resizeEvent) => setSize(resizeEvent as any))
   }, [element])
+
+  // If we haven't had a resize event yet, force a sync measure.
+  if (!size) {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      return { width: rect.width, height: rect.height }
+    }
+    return { width: 0, height: 0 }
+  }
 
   return size
 }

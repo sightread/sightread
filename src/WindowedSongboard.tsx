@@ -31,6 +31,7 @@ function getNoteLanes(width: any) {
 export function WindowedSongBoard({ song, hand = 'both' }: { song: PlayableSong; hand: Hand }) {
   const sizeRef = useRef<HTMLDivElement>(null)
   const { height, width } = useSize(sizeRef)
+  console.error({ width, height })
   const { player } = usePlayer()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
     return [...song.measures, ...song.notes]

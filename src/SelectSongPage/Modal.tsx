@@ -250,32 +250,41 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
           <div
             style={{
+              display: 'flex',
               width: previewWidth,
               minWidth: previewWidth,
               borderRadius: 6,
               overflow: 'hidden',
+              flexDirection: 'column',
+              flex: 1,
             }}
           >
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative', height: 30 }}>
               <div className={classes.scrubBarBorder} />
-              <SongScrubBar song={song} width={previewWidth} height={20} />
+              <SongScrubBar song={song} />
             </div>
-            <div style={{ backgroundColor: '#2e2e2e', margin: '0 auto' }}>
-              <div onClick={handleTogglePlay} style={{ position: 'relative' }}>
-                {!playing && (
-                  <i
-                    className={`${classes.modalPlayBtn} fas fa-play`}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (canPlay) {
-                        player.play()
-                        setPlaying(true)
-                      }
-                    }}
-                  />
-                )}
-                <WindowedSongBoard song={song} hand={'both'} />
-              </div>
+            <div
+              style={{
+                position: 'relative',
+                backgroundColor: '#2e2e2e',
+                height: '100%',
+                width: '100%',
+              }}
+              onClick={handleTogglePlay}
+            >
+              {!playing && (
+                <i
+                  className={`${classes.modalPlayBtn} fas fa-play`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (canPlay) {
+                      player.play()
+                      setPlaying(true)
+                    }
+                  }}
+                />
+              )}
+              <WindowedSongBoard song={song} hand={'both'} />
             </div>
             <Sizer height={16} />
             <div className={classes.buttonContainer}>

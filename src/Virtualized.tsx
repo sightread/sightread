@@ -48,7 +48,8 @@ export function Virtualized({
   }, [sortedItems, renderItem, getItemOffsets, direction])
 
   function getRenderRange() {
-    const viewportStart = getCurrentOffset() - (direction === 'vertical' ? height : width) / 2
+    // TODO: overscan at start too?
+    const viewportStart = getCurrentOffset() //- (direction === 'vertical' ? height : width) / 2
     const viewportEnd = viewportStart + (direction === 'vertical' ? height : width) * 1.5 // overscan a vp
 
     let firstIndex = 0
