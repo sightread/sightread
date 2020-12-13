@@ -25,9 +25,7 @@ export function Virtualized({
   const { width, height, measureRef } = useSize()
 
   const sortedItems = useMemo(() => {
-    let itms = [...items]
-    itms.sort((i1, i2) => getItemOffsets(i1).start - getItemOffsets(i2).start)
-    return itms
+    return [...items].sort((i1, i2) => getItemOffsets(i1).start - getItemOffsets(i2).start)
   }, [items, getItemOffsets])
 
   const [[startIndex, stopIndex], setIndexes] = useState<any>(getRenderRange())
@@ -38,20 +36,7 @@ export function Virtualized({
     }
     return max
   }, [items, getItemOffsets])
-
-  const renderedItems = useMemo(() => {
-    sortedItems.sort((i1, i2) => getItemOffsets(i1).start - getItemOffsets(i2).start)
-    return sortedItems.map((item, i) => {
-      let offsetDir = direction === 'vertical' ? 'bottom' : 'left'
-      let renderedItem = (
-        <div style={{ position: 'absolute', [offsetDir]: getItemOffsets(item).start }} key={i}>
-          {renderItem(item, i)}
-        </div>
-      )
-
-      return { renderedItem, item }
-    })
-  }, [sortedItems, renderItem, getItemOffsets, direction])
+  const offsetDir = direction === 'vertical' ? 'bottom' : 'left'
 
   function getRenderRange() {
     // TODO: overscan at start too?
@@ -111,10 +96,16 @@ export function Virtualized({
       ref={innerRef}
     >
       <div style={{ position: 'absolute', height: '100%', width: '100%' }} ref={measureRef} />
-      {renderedItems
+      {sortedItems
         .slice(startIndex, stopIndex)
-        .filter((rItem) => itemFilter(rItem.item))
-        .map((rItem) => rItem.renderedItem)}
+        .filter((item) => itemFilter(item))
+        .map((item, i) => (
+          // TODO: can optimize by saving the rendered items to a cache.
+          // While doing so remember to only do so lazily, instead of frontloading work.
+          <div style={{ position: 'absolute', [offsetDir]: getItemOffsets(item).start }} key={i}>
+            {renderItem(item, i)}
+          </div>
+        ))}
     </div>
   )
 }
