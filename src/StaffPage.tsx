@@ -119,7 +119,7 @@ function Stave({
 
   // There are 52 white keys.
   function getRow(octave: number, step: string): number {
-    return octave * 7 + STEP_NUM[step]
+    return octave * 10 + STEP_NUM[step]
   }
   const staveTopRow = hand === 'left' ? getRow(4, 'A') : getRow(5, 'F')
   const heightPerRow = height / 8
@@ -130,7 +130,7 @@ function Stave({
 
   function Note({ note }: { note: SongNote }) {
     const row = getRow(note.pitch.octave, note.pitch.step)
-    const top = 100 + getRelYPos(row)
+    const top = getRelYPos(row) - 40
     const extraLines: any = []
     if (row > staveTopRow) {
       for (let i = staveTopRow + 2; i <= row; i++) {

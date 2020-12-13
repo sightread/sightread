@@ -36,7 +36,6 @@ export function WindowedSongBoard({
   hand: Hand
 }) {
   const { width, measureRef } = useSize()
-  console.error('windowboard', { width })
   const { player } = usePlayer()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
     return (song && [...song.measures, ...song.notes]) ?? []
