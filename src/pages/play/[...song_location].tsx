@@ -1,12 +1,6 @@
 import '../../player'
 import React, { useState, useEffect, useRef } from 'react'
-import {
-  usePlayer,
-  useRAFLoop,
-  useSongPressedKeys,
-  useUserPressedKeys,
-  useQuery,
-} from '../../hooks'
+import { usePlayer, useRAFLoop, useSongPressedKeys, useUserPressedKeys } from '../../hooks'
 import { Song } from '../../parsers'
 import { WindowedSongBoard } from '../../WindowedSongboard'
 import { WindowedStaffBoard } from '../../StaffPage'
@@ -47,7 +41,6 @@ const classes = css({
 function App() {
   const [playing, setPlaying] = useState(false)
   const [waiting, setWaiting] = useState(false)
-  const [query, setQuery] = useQuery()
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const { player } = usePlayer()
@@ -55,7 +48,7 @@ function App() {
   const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
-  const viz: viz = (query.viz as viz) ?? 'falling-notes'
+  const viz: viz = (router.query.viz as viz) ?? 'falling-notes'
 
   let songLocation = ''
   if (isBrowser()) {
@@ -223,9 +216,15 @@ function App() {
             className={`fas fa-music ${viz == 'sheet' && 'active'}`}
             onClick={() => {
               if (viz === 'falling-notes' || !viz) {
-                setQuery('viz', 'sheet')
+                router.replace({
+                  href: router.route,
+                  query: { viz: 'sheet', song_location: router.query.song_location },
+                })
               } else {
-                setQuery('viz', 'falling-notes')
+                router.replace({
+                  href: router.route,
+                  query: { viz: 'falling-notes', song_location: router.query.song_location },
+                })
               }
             }}
           />
@@ -254,7 +253,7 @@ function App() {
       </div>
       <div
         style={{
-          backgroundColor: '#2e2e2e',
+          backgroundColor: viz === 'falling-notes' ? '#2e2e2e' : 'white',
           width: '100vw',
           height: '100vh',
           contain: 'strict',

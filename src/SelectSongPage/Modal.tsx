@@ -269,6 +269,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
                 backgroundColor: '#2e2e2e',
                 height: '100%',
                 width: '100%',
+                overflow: 'hidden', // WHY IS THIS NEEDED?
               }}
               onClick={handleTogglePlay}
             >

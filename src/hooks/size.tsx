@@ -1,4 +1,12 @@
-import { RefCallback, RefObject, useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import {
+  RefCallback,
+  RefObject,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 
 let resizeObserver: ResizeObserver
 let callbacks: WeakMap<Element, Array<(x: Dimensions) => void>>
@@ -55,6 +63,7 @@ function removeItem(arr: Array<any>, val: any) {
 type Dimensions = { width: number; height: number }
 export function useSize(): Dimensions & { measureRef: RefCallback<Element> } {
   const [size, setSize] = useState<Dimensions | null>(null)
+  const mountedRef = useRef(true)
   const refCb = useCallback((element: Element) => {
     if (!element) {
       return
@@ -62,8 +71,19 @@ export function useSize(): Dimensions & { measureRef: RefCallback<Element> } {
     const rect = element.getBoundingClientRect()
     setSize({ width: rect.width, height: rect.height })
     return observe(element, (dims: Dimensions) => {
-      setSize(dims)
+      if (mountedRef.current) {
+        setSize(dims)
+      }
     })
+  }, [])
+
+  // Save mounted state.
+  // Lets us skip calls in case unmounted.
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
   }, [])
 
   let width = size?.width ?? 0

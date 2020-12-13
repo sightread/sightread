@@ -13,8 +13,14 @@ export function Virtualized({
   getCurrentOffset,
   direction = 'vertical',
   itemFilter = () => true,
-}: any) {
-  const outerRef: any = useRef(null)
+}: {
+  items: any
+  renderItem: any
+  getItemOffsets: any
+  getCurrentOffset: any
+  direction?: any
+  itemFilter?: any
+}) {
   const innerRef: any = useRef(null)
   const { width, height, measureRef } = useSize()
 
@@ -77,16 +83,12 @@ export function Virtualized({
   }
 
   useRAFLoop((dt: number) => {
-    if (!outerRef.current || !innerRef.current) {
+    if (!innerRef.current) {
       return
     }
     let offset = getCurrentOffset()
     if (direction === 'vertical') {
-      innerRef.current.style.transform = `translateY(${-(
-        maxOffset -
-        offset -
-        height
-      )}px) translateZ(0px)`
+      innerRef.current.style.transform = `translateY(${offset}px) translateZ(0px)`
     } else {
       innerRef.current.style.transform = `translateX(-${offset}px) translateZ(0px)`
     }
@@ -101,26 +103,18 @@ export function Virtualized({
     <div
       style={{
         position: 'absolute',
-        overflow: 'hidden',
+        willChange: 'transform',
+        [direction === 'vertical' ? 'height' : 'width']: maxOffset,
         height: '100%',
         width: '100%',
       }}
-      ref={outerRef}
+      ref={innerRef}
     >
       <div style={{ position: 'absolute', height: '100%', width: '100%' }} ref={measureRef} />
-      <div
-        style={{
-          position: 'absolute',
-          willChange: 'transform',
-          [direction === 'vertical' ? 'height' : 'width']: maxOffset,
-        }}
-        ref={innerRef}
-      >
-        {renderedItems
-          .slice(startIndex, stopIndex)
-          .filter((rItem) => itemFilter(rItem.item))
-          .map((rItem) => rItem.renderedItem)}
-      </div>
+      {renderedItems
+        .slice(startIndex, stopIndex)
+        .filter((rItem) => itemFilter(rItem.item))
+        .map((rItem) => rItem.renderedItem)}
     </div>
   )
 }

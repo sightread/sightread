@@ -18,55 +18,43 @@ export function WindowedStaffBoard({
   song: PlayableSong | null
   selectedHand: 'left' | 'right' | 'both'
 }) {
-  const windowSize = { width: 800, height: 800 }
-
   return (
-    <div style={{}}>
+    <div
+      style={{
+        position: 'absolute',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        width: '100vw',
+        backgroundColor: 'white',
+      }}
+    >
+      <div style={{ marginLeft: 150 }}>
+        <Stave height={100} hand={'right'} song={song} disabled={selectedHand === 'left'} />
+      </div>
+      <Sizer height={100} />
+      <div style={{ marginLeft: 150 }}>
+        <Stave height={100} hand={'left'} song={song} disabled={selectedHand === 'right'} />
+      </div>
       <div
         style={{
           position: 'absolute',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          width: '100vw',
-          backgroundColor: 'white',
+          top: -50,
+          left: 200,
+          width: 7,
+          height: 375,
+          backgroundColor: '#B91919',
         }}
-      >
-        <Stave
-          width={windowSize.width - 100}
-          height={100}
-          hand={'right'}
-          song={song}
-          disabled={selectedHand === 'left'}
-        />
-        <Sizer height={100} />
-        <Stave
-          width={windowSize.width - 100}
-          height={100}
-          hand={'left'}
-          song={song}
-          disabled={selectedHand === 'right'}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            top: -50,
-            left: 200,
-            width: 7,
-            height: 375,
-            backgroundColor: '#B91919',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            top: -50,
-            left: 188,
-            width: 30,
-            height: 375,
-            backgroundColor: 'rgba(185,25,25,0.21)',
-          }}
-        />
-      </div>
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: -50,
+          left: 188,
+          width: 30,
+          height: 375,
+          backgroundColor: 'rgba(185,25,25,0.21)',
+        }}
+      />
     </div>
   )
 }
@@ -99,13 +87,11 @@ function ClefSvg({ hand, style }: any) {
 
 // Make a staffz
 function Stave({
-  width,
   height,
   hand,
   song,
   disabled,
 }: {
-  width: number
   height: number
   hand: 'left' | 'right'
   song: PlayableSong | null
@@ -123,7 +109,7 @@ function Stave({
         style={{
           position: 'absolute',
           top,
-          width: width ?? '100%',
+          width: '100%',
           height: 2.5,
           backgroundColor: 'black',
         }}
@@ -180,7 +166,7 @@ function Stave({
       2: '##',
     }
     return (
-      <>
+      <div>
         {note.pitch.alter !== 0 && (
           <span
             style={{ position: 'absolute', top: top - 8, left: -12, fontSize: 20, fontWeight: 600 }}
@@ -209,21 +195,22 @@ function Stave({
           }}
         />
         {extraLines}
-      </>
+      </div>
     )
   }
 
   return (
     <div
       style={{
+        display: 'flex',
         position: 'relative',
-        width,
+        width: '100%',
         height,
         margin: '0 auto',
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <div style={{ position: 'relative', left: 150, top: -100, overflow: 'hidden' }}>
+      <div style={{ position: 'relative', marginLeft: 57, flex: 1 }}>
         <Virtualized
           items={notes}
           renderItem={(note: any) => <Note note={note} />}
@@ -233,8 +220,6 @@ function Stave({
             end: getXPos(note.time + note.duration),
           })}
           direction="horizontal"
-          width={width - 150}
-          height={height + 200}
         />
       </div>
       <div style={{ position: 'absolute', left: 0, width: 2, height, backgroundColor: 'black' }} />

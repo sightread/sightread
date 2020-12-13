@@ -35,7 +35,8 @@ export function WindowedSongBoard({
   song: PlayableSong | null
   hand: Hand
 }) {
-  const { height, width, measureRef } = useSize()
+  const { width, measureRef } = useSize()
+  console.error('windowboard', { width })
   const { player } = usePlayer()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
     return (song && [...song.measures, ...song.notes]) ?? []
@@ -93,10 +94,7 @@ export function WindowedSongBoard({
         getItemOffsets={getItemOffsets}
         getCurrentOffset={getCurrentOffset}
         itemFilter={itemFilter}
-        width={width}
-        height={height}
       />
-      )
     </div>
   )
 }

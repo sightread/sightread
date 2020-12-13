@@ -16,12 +16,6 @@ class MyDocument extends Document {
           {/* manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/ */}
           <link rel="manifest" href="/manifest.json" />
-          {/* <!-- WebAudio Sounds --> */}
-          {/* <!-- <script src="https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js"></script>
-    <script src="https://surikov.github.io/webaudiofontdata/sound/0000_JCLive_sf2_file.js"></script> -->*/}
-          <script src="/soundfont/WebAudioFontPlayer.js"></script>
-          <script src="/soundfont/0000_JCLive_sf2_file.js"></script>
-
           {/* <!-- Font Awesome --> */}
           <script
             async
