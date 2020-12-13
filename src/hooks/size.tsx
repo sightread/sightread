@@ -61,7 +61,6 @@ export function useSize(): Dimensions & { measureRef: RefCallback<Element> } {
     }
     const rect = element.getBoundingClientRect()
     setSize({ width: rect.width, height: rect.height })
-    console.error('settingRef', { width: rect.width, height: rect.height }, element)
     return observe(element, (dims: Dimensions) => {
       setSize(dims)
     })

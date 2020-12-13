@@ -262,27 +262,27 @@ function App() {
           flexDirection: 'column',
         }}
       >
-        {/* {viz === 'falling-notes' && ( */}
-        <>
-          <RuleLines />
-          <div style={{ position: 'relative', flex: 1 }}>
-            {/* 
+        {viz === 'falling-notes' && (
+          <>
+            <RuleLines />
+            <div style={{ position: 'relative', flex: 1 }}>
+              {/*
               TODO: convert to canvas based for both falling notes + sheet music
             */}
-            <WindowedSongBoard song={song} hand={hand} />
-          </div>
-          <div
-            style={{
-              position: 'relative',
-              paddingBottom: '7%',
-              width: '100%',
-              boxSizing: 'border-box',
-            }}
-          >
-            <PianoRoll selectedHand={hand} song={song} />
-          </div>
-        </>
-        {/* )} */}
+              <WindowedSongBoard song={song} hand={hand} />
+            </div>
+            <div
+              style={{
+                position: 'relative',
+                paddingBottom: '7%',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
+            >
+              <PianoRoll selectedHand={hand} song={song} />
+            </div>
+          </>
+        )}
         {viz === 'sheet' && (
           <>
             <WindowedStaffBoard song={song} selectedHand={hand} />
