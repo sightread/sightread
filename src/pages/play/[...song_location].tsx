@@ -1,7 +1,6 @@
 import '../../player'
 import React, { useState, useEffect, useRef } from 'react'
 import {
-  useWindowSize,
   usePlayer,
   useRAFLoop,
   useSongPressedKeys,
@@ -46,7 +45,6 @@ const classes = css({
   },
 })
 function App() {
-  const { width, height } = useWindowSize()
   const [playing, setPlaying] = useState(false)
   const [waiting, setWaiting] = useState(false)
   const [query, setQuery] = useQuery()
@@ -125,7 +123,7 @@ function App() {
         style={{
           position: 'fixed',
           height: 55,
-          width,
+          width: '100vw',
           zIndex: 2,
           backgroundColor: '#292929',
           display: 'flex',
@@ -189,7 +187,7 @@ function App() {
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <div>
+          <div style={{ width: 44 }}>
             <i
               style={{ transform: 'rotateY(180deg)' }}
               className={`fas fa-hand-paper ${hand === 'left' && 'active'}`}
@@ -202,6 +200,7 @@ function App() {
           </div>
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
+            style={{ width: 24 }}
             className={`fas fa-clock ${waiting && 'active'}`}
             onClick={() => {
               setWaiting(!waiting)
@@ -211,6 +210,7 @@ function App() {
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
             className={`fas fa-history ${rangeSelecting && 'active'}`}
+            style={{ width: 24 }}
             onClick={() => {
               setRangeSelecting(!rangeSelecting)
               setPlaying(false)
@@ -219,6 +219,7 @@ function App() {
           />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
+            style={{ width: 24 }}
             className={`fas fa-music ${viz == 'sheet' && 'active'}`}
             onClick={() => {
               if (viz === 'falling-notes' || !viz) {
@@ -230,6 +231,7 @@ function App() {
           />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <i
+            style={{ width: 24 }}
             className={soundOff ? 'fas fa-volume-off' : 'fas fa-volume-up'}
             onClick={() => {
               if (!soundOff) {
@@ -242,41 +244,51 @@ function App() {
             }}
           />
         </div>
-        {song && (
-          <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
-            <SongScrubBar
-              song={song}
-              rangeSelecting={rangeSelecting}
-              setRangeSelecting={setRangeSelecting}
-            />
-          </div>
-        )}
+        <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
+          <SongScrubBar
+            song={song}
+            rangeSelecting={rangeSelecting}
+            setRangeSelecting={setRangeSelecting}
+          />
+        </div>
       </div>
-      {viz === 'falling-notes' && song && (
-        <div
-          style={{
-            backgroundColor: '#2e2e2e',
-            width: '100vw',
-            height: '100vh',
-            contain: 'strict',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <RuleLines width={width} height={height} />
+      <div
+        style={{
+          backgroundColor: '#2e2e2e',
+          width: '100vw',
+          height: '100vh',
+          contain: 'strict',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* {viz === 'falling-notes' && ( */}
+        <>
+          <RuleLines />
           <div style={{ position: 'relative', flex: 1 }}>
+            {/* 
+              TODO: convert to canvas based for both falling notes + sheet music
+            */}
             <WindowedSongBoard song={song} hand={hand} />
           </div>
-          <div style={{ position: 'relative', height: getKeyboardHeight(width) }}>
+          <div
+            style={{
+              position: 'relative',
+              paddingBottom: '7%',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
             <PianoRoll selectedHand={hand} song={song} />
           </div>
-        </div>
-      )}
-      {viz === 'sheet' && song && (
-        <>
-          <WindowedStaffBoard song={song} selectedHand={hand} />
         </>
-      )}
+        {/* )} */}
+        {viz === 'sheet' && (
+          <>
+            <WindowedStaffBoard song={song} selectedHand={hand} />
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -309,7 +321,8 @@ function BpmDisplay() {
   )
 }
 
-function RuleLines({ width, height }: any) {
+function RuleLines() {
+  const { width, height, measureRef } = useSize()
   const widthOfWhiteKey = width / 52
   const getRuleLines = () => {
     const baseStyle = {
@@ -341,7 +354,15 @@ function RuleLines({ width, height }: any) {
       </div>
     ))
   }
-  return <div id="rule-lines">{getRuleLines()}</div>
+  return (
+    <div
+      id="rule-lines"
+      style={{ position: 'absolute', width: '100%', height: '100%' }}
+      ref={measureRef}
+    >
+      {getRuleLines()}
+    </div>
+  )
 }
 
 // TODO: animate filling up the green of current measure
@@ -351,7 +372,7 @@ export function SongScrubBar({
   rangeSelecting = false,
   setRangeSelecting = () => {},
 }: {
-  song: Song
+  song: Song | null
   rangeSelecting?: boolean
   setRangeSelecting?: any
 }) {
@@ -360,7 +381,7 @@ export function SongScrubBar({
   const [mouseOver, setMouseOver] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const { width, height } = useSize(wrapperRef)
+  const { width, measureRef } = useSize()
   const currentTimeRef = useRef<HTMLSpanElement>(null)
   const timeSpanRef = useRef<HTMLSpanElement>(null)
   const measureSpanRef = useRef<HTMLSpanElement>(null)
@@ -475,6 +496,7 @@ export function SongScrubBar({
         }
       }}
     >
+      <div ref={measureRef} style={{ width: '100%', height: '100%', position: 'absolute' }} />
       <div
         style={{
           position: 'relative',
@@ -509,7 +531,7 @@ export function SongScrubBar({
         style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 20 }}
       ></span>
       <span style={{ position: 'absolute', bottom: 1, right: 4, color: '#242632', fontSize: 20 }}>
-        {formatTime(player.getRealTimeDuration(0, song.duration))}
+        {song && formatTime(player.getRealTimeDuration(0, song.duration))}
       </span>
       <div
         style={{
@@ -585,10 +607,11 @@ function createNoteObject(whiteNotes: any, whiteWidth: any, height: any, type: a
   }
 }
 
-function getKeyboardHeight(width: number) {
-  const whiteWidth = width / 52
-  return (220 / 30) * whiteWidth
-}
+// 7% as tall as the total width!
+// function getKeyboardHeight(width: number) {
+//   const whiteWidth = width / 52
+//   return (220 / 30) * whiteWidth
+// }
 
 function getKeyPositions(width: any) {
   const whiteWidth = width / 52
@@ -608,9 +631,14 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-export function PianoRoll({ selectedHand, song }: { selectedHand: Hand; song: PlayableSong }) {
-  const sizeRef = useRef<HTMLDivElement>(null)
-  const { width } = useSize(sizeRef)
+export function PianoRoll({
+  selectedHand,
+  song,
+}: {
+  selectedHand: Hand
+  song: PlayableSong | null
+}) {
+  const { width, measureRef } = useSize()
   const pressedKeys = useSongPressedKeys()
 
   const notes = getKeyPositions(width).map((note: any, i: any) => {
@@ -619,12 +647,12 @@ export function PianoRoll({ selectedHand, song }: { selectedHand: Hand; song: Pl
     const shouldShow =
       midiNote in pressedKeys &&
       (selectedHand === 'both' ||
-        (selectedHand === 'left' && pressedKeys[midiNote].track === song.config.left) ||
-        (selectedHand === 'right' && pressedKeys[midiNote].track === song.config.right))
+        (selectedHand === 'left' && pressedKeys[midiNote].track === song?.config.left) ||
+        (selectedHand === 'right' && pressedKeys[midiNote].track === song?.config.right))
     if (shouldShow) {
       let { track } = pressedKeys[midiNote]
 
-      const hand: 'left' | 'right' = track === song.config.left ? 'left' : 'right'
+      const hand: 'left' | 'right' = track === song?.config.left ? 'left' : 'right'
       if (hand === 'left') {
         if (isBlack(midiNote)) {
           color = '#D74000'
@@ -658,12 +686,13 @@ export function PianoRoll({ selectedHand, song }: { selectedHand: Hand; song: Pl
   return (
     <div
       style={{
-        position: 'absolute',
+        position: 'relative',
         width: '100%',
-        height: getKeyboardHeight(width),
+        paddingTop: '3.5%', // hack to make it 7% as tall as the width
+        paddingBottom: '3.5%',
         boxSizing: 'border-box',
       }}
-      ref={sizeRef}
+      ref={measureRef}
     >
       {notes}
     </div>

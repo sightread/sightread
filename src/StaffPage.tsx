@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { SongNote } from './parsers'
-import { usePlayer, useWindowSize } from './hooks'
+import { usePlayer } from './hooks'
 import { FClefSVG, GClefSVG } from './icons'
 import { Virtualized } from './Virtualized'
 import { Sizer } from './utils'
@@ -15,10 +15,10 @@ export function WindowedStaffBoard({
   song,
   selectedHand,
 }: {
-  song: PlayableSong
+  song: PlayableSong | null
   selectedHand: 'left' | 'right' | 'both'
 }) {
-  const windowSize = useWindowSize()
+  const windowSize = { width: 800, height: 800 }
 
   return (
     <div style={{}}>
@@ -108,11 +108,11 @@ function Stave({
   width: number
   height: number
   hand: 'left' | 'right'
-  song: PlayableSong
+  song: PlayableSong | null
   disabled: boolean
 }) {
   const { player } = usePlayer()
-  const notes = song.notes.filter((n) => n.track === song.config[hand])
+  const notes = song?.notes.filter((n) => n.track === song.config[hand]) ?? []
 
   const clefStyle =
     hand === 'right' ? { height: 160, top: -20, left: -5 } : { height: 80, top: 2, left: 10 }

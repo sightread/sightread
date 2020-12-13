@@ -16,7 +16,7 @@ export function Virtualized({
 }: any) {
   const outerRef: any = useRef(null)
   const innerRef: any = useRef(null)
-  const { width, height } = useSize(outerRef)
+  const { width, height, measureRef } = useSize()
 
   const sortedItems = useMemo(() => {
     let itms = [...items]
@@ -107,6 +107,7 @@ export function Virtualized({
       }}
       ref={outerRef}
     >
+      <div style={{ position: 'absolute', height: '100%', width: '100%' }} ref={measureRef} />
       <div
         style={{
           position: 'absolute',

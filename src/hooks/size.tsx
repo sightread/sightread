@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useLayoutEffect, useState } from 'react'
+import { RefCallback, RefObject, useCallback, useEffect, useLayoutEffect, useState } from 'react'
 
 let resizeObserver: ResizeObserver
 let callbacks: WeakMap<Element, Array<(x: Dimensions) => void>>
@@ -22,6 +22,9 @@ function getSharedResizeObserver(): ResizeObserver {
   }
   return resizeObserver
 }
+
+// Start observing an element and when it changes size call provided fn.
+// Returns the cleanup fn.
 function observe(element: Element, fn: (dim: Dimensions) => void): () => void {
   const observer = getSharedResizeObserver()
   if (!callbacks.has(element)) {
@@ -30,8 +33,11 @@ function observe(element: Element, fn: (dim: Dimensions) => void): () => void {
   callbacks.get(element)!.push(fn)
   observer.observe(element)
   return () => {
-    observer.unobserve(element)
     removeItem(callbacks.get(element)!, fn)
+    if (callbacks.get(element)?.length == 0) {
+      observer.unobserve(element)
+      callbacks.delete(element)
+    }
   }
 }
 
@@ -47,25 +53,21 @@ function removeItem(arr: Array<any>, val: any) {
  * const {width, height} = useSize(ref);
  */
 type Dimensions = { width: number; height: number }
-export function useSize(ref: RefObject<Element>): Dimensions {
+export function useSize(): Dimensions & { measureRef: RefCallback<Element> } {
   const [size, setSize] = useState<Dimensions | null>(null)
-  const element = ref.current
-
-  useLayoutEffect(() => {
+  const refCb = useCallback((element: Element) => {
     if (!element) {
       return
     }
-    return observe(element, (resizeEvent) => setSize(resizeEvent as any))
-  }, [element])
+    const rect = element.getBoundingClientRect()
+    setSize({ width: rect.width, height: rect.height })
+    console.error('settingRef', { width: rect.width, height: rect.height }, element)
+    return observe(element, (dims: Dimensions) => {
+      setSize(dims)
+    })
+  }, [])
 
-  // If we haven't had a resize event yet, force a sync measure.
-  if (!size) {
-    if (ref.current) {
-      const rect = ref.current.getBoundingClientRect()
-      return { width: rect.width, height: rect.height }
-    }
-    return { width: 0, height: 0 }
-  }
-
-  return size
+  let width = size?.width ?? 0
+  let height = size?.height ?? 0
+  return { width, height, measureRef: refCb }
 }

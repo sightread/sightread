@@ -28,13 +28,17 @@ function getNoteLanes(width: any) {
   return lanes
 }
 
-export function WindowedSongBoard({ song, hand = 'both' }: { song: PlayableSong; hand: Hand }) {
-  const sizeRef = useRef<HTMLDivElement>(null)
-  const { height, width } = useSize(sizeRef)
-  console.error({ width, height })
+export function WindowedSongBoard({
+  song,
+  hand = 'both',
+}: {
+  song: PlayableSong | null
+  hand: Hand
+}) {
+  const { height, width, measureRef } = useSize()
   const { player } = usePlayer()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
-    return [...song.measures, ...song.notes]
+    return (song && [...song.measures, ...song.notes]) ?? []
   }, [song, hand])
   const lanes = useMemo(() => getNoteLanes(width), [width])
 
@@ -51,7 +55,7 @@ export function WindowedSongBoard({ song, hand = 'both' }: { song: PlayableSong;
           posX={lane.left}
           note={note}
           key={`songnote-${note.time}-${note.midiNote}-${i}`}
-          song={song}
+          song={song!}
         />
       )
     }
@@ -72,8 +76,8 @@ export function WindowedSongBoard({ song, hand = 'both' }: { song: PlayableSong;
       return true
     }
 
-    const isLeft = item.track === song.config.left
-    const isRight = item.track === song.config.right
+    const isLeft = item.track === song?.config.left
+    const isRight = item.track === song?.config.right
     return (
       (hand === 'both' && (isLeft || isRight)) ||
       (item.type === 'note' && hand === 'left' && isLeft) ||
@@ -82,7 +86,7 @@ export function WindowedSongBoard({ song, hand = 'both' }: { song: PlayableSong;
   }
 
   return (
-    <div style={{ position: 'absolute', width: '100%', height: '100%' }} ref={sizeRef}>
+    <div style={{ position: 'absolute', width: '100%', height: '100%' }} ref={measureRef}>
       <Virtualized
         items={items}
         renderItem={renderItem}
@@ -92,6 +96,7 @@ export function WindowedSongBoard({ song, hand = 'both' }: { song: PlayableSong;
         width={width}
         height={height}
       />
+      )
     </div>
   )
 }

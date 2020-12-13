@@ -13,30 +13,6 @@ export function useMousePressed() {
   return isPressed
 }
 
-export function useWindowSize() {
-  function getSize() {
-    return {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    }
-  }
-
-  const [windowSize, setWindowSize] = useState({ height: 0, width: 0 })
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize(getSize())
-    }
-
-    handleResize()
-
-    window.addEventListener('resize', handleResize, { passive: true })
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  return windowSize
-}
-
 export function useRAFLoop(fn: Function) {
   const requestRef: any = React.useRef()
   const previousTimeRef: any = React.useRef()
