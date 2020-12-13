@@ -17,6 +17,7 @@ import { formatTime, getSong, inferHands, isBlack, isBrowser } from '../../utils
 import { getSynthStub } from '../../synth'
 import { getNote } from '../../synth/utils'
 import { css } from '../../flakecss'
+import { useSize } from '../../hooks/size'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 // const pathToSongs =
@@ -56,7 +57,7 @@ function App() {
   const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
-  const viz: viz = query.viz ?? 'falling-notes'
+  const viz: viz = (query.viz as viz) ?? 'falling-notes'
 
   let songLocation = ''
   if (isBrowser()) {
@@ -257,27 +258,18 @@ function App() {
         <div
           style={{
             backgroundColor: '#2e2e2e',
-            display: 'fixed',
             width: '100vw',
             height: '100vh',
             contain: 'strict',
+            display: 'flex',
           }}
         >
           <RuleLines width={width} height={height} />
-          <WindowedSongBoard
-            song={song}
-            hand={hand}
-            width={width}
-            height={height - getKeyboardHeight(width)}
-          />
-          <div
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              height: getKeyboardHeight(width),
-            }}
-          >
-            <PianoRoll width={width} selectedHand={hand} song={song} />
+          <div style={{ width: '100%' }}>
+            <WindowedSongBoard song={song} hand={hand} />
+          </div>
+          <div style={{ height: getKeyboardHeight(width), width: '100%' }}>
+            <PianoRoll selectedHand={hand} song={song} />
           </div>
         </div>
       )}
@@ -619,15 +611,9 @@ function getKeyPositions(width: any) {
   return notes
 }
 
-export function PianoRoll({
-  width,
-  selectedHand,
-  song,
-}: {
-  width: number
-  selectedHand: Hand
-  song: PlayableSong
-}) {
+export function PianoRoll({ selectedHand, song }: { selectedHand: Hand; song: PlayableSong }) {
+  const sizeRef = useRef<HTMLDivElement>(null)
+  const { width } = useSize(sizeRef)
   const pressedKeys = useSongPressedKeys()
 
   const notes = getKeyPositions(width).map((note: any, i: any) => {
@@ -675,11 +661,12 @@ export function PianoRoll({
   return (
     <div
       style={{
-        position: 'relative',
-        width,
+        position: 'absolute',
+        width: '100%',
         height: getKeyboardHeight(width),
         boxSizing: 'border-box',
       }}
+      ref={sizeRef}
     >
       {notes}
     </div>

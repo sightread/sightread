@@ -1,23 +1,22 @@
 import './player'
 import React, { useState, useRef, useMemo } from 'react'
 import { useRAFLoop } from './hooks'
+import { useSize } from './hooks/size'
 
 /**
  * Virtualized rendering (occlusion).
  */
 export function Virtualized({
-  position,
   items,
   renderItem,
   getItemOffsets,
   getCurrentOffset,
   direction = 'vertical',
   itemFilter = () => true,
-  height = undefined,
-  width = undefined,
 }: any) {
   const outerRef: any = useRef(null)
   const innerRef: any = useRef(null)
+  const { width, height } = useSize(outerRef)
 
   const sortedItems = useMemo(() => {
     let itms = [...items]
@@ -100,10 +99,10 @@ export function Virtualized({
   return (
     <div
       style={{
-        position,
+        position: 'absolute',
         overflow: 'hidden',
-        height,
-        width,
+        height: '100%',
+        width: '100%',
       }}
       ref={outerRef}
     >

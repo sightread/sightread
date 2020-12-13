@@ -317,6 +317,11 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
+"@types/resize-observer-browser@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@types/resize-observer-browser/-/resize-observer-browser-0.1.4.tgz#84879a4d6d4aaefde53d4b29c91c0c4cbcffc26f"
+  integrity sha512-rPvqs+1hL/5hbES/0HTdUu4lvNmneiwKwccbWe7HGLWbnsLdqKnQHyWLg4Pj0AMO7PLHCwBM1Cs8orChdkDONg==
+
 "@types/testing-library__dom@*":
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/@types/testing-library__dom/-/testing-library__dom-7.0.1.tgz#426bef0aa306a603fe071859d4b485941b28aca6"

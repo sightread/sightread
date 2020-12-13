@@ -116,8 +116,6 @@ export function useUserPressedKeys() {
 }
 
 let player: Player
-
-// const player = isBrowser() ? new Player() : ({} as Player)
 function getPlayer() {
   if (player === undefined) {
     player = new Player()
@@ -131,7 +129,8 @@ export function PlayerProvider(props: any) {
   return <PlayerContext.Provider value={value}>{props.children}</PlayerContext.Provider>
 }
 
-export function useQuery(): any {
+// Returns [query, setQuery] pair.
+export function useQuery(): [{ [key: string]: string }, (key: string, value: string) => void] {
   const router = useRouter()
   if (!isBrowser()) {
     return [{}, () => {}]

@@ -6,13 +6,14 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "@types/node": "^14.14.10",
+    "@types/react": "^16.9.34",
+    "@types/resize-observer-browser": "^0.1.4",
     "@types/vexflow": "^1.2.36",
     "@types/webmidi": "^2.0.4",
     "ts-node": "^9.0.0"
   },
   "dependencies": {
-    "@types/node": "^14.14.10",
-    "@types/react": "^16.9.34",
     "jasmid.ts": "^2.1.0",
     "jsdom": "^16.4.0",
     "next": "^10.0.3",

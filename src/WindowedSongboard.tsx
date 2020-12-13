@@ -1,11 +1,12 @@
 import './player'
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { usePlayer } from './hooks'
 import { SongMeasure, SongNote } from './parsers'
 import { Virtualized } from './Virtualized'
 import { Hand, PlayableSong } from './pages/play/[...song_location]'
 import { getNote } from './synth/utils'
 import { isBlack } from './utils'
+import { useSize } from './hooks/size'
 
 const PIXELS_PER_SECOND = 150
 
@@ -27,19 +28,9 @@ function getNoteLanes(width: any) {
   return lanes
 }
 
-export function WindowedSongBoard({
-  song,
-  hand = 'both',
-  width,
-  height,
-  position = 'fixed',
-}: {
-  song: PlayableSong
-  hand: Hand
-  width: any
-  height: any
-  position?: 'fixed' | 'absolute'
-}) {
+export function WindowedSongBoard({ song, hand = 'both' }: { song: PlayableSong; hand: Hand }) {
+  const sizeRef = useRef<HTMLDivElement>(null)
+  const { height, width } = useSize(sizeRef)
   const { player } = usePlayer()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
     return [...song.measures, ...song.notes]
@@ -90,9 +81,8 @@ export function WindowedSongBoard({
   }
 
   return (
-    <div style={{ width, height }}>
+    <div style={{ position: 'absolute', width: '100%', height: '100%' }} ref={sizeRef}>
       <Virtualized
-        position={position}
         items={items}
         renderItem={renderItem}
         getItemOffsets={getItemOffsets}
