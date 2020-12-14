@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 function FClef({ style }: { style: React.CSSProperties }) {
   return (
     // <!-- Created with Inkscape (http://www.inkscape.org/) -->

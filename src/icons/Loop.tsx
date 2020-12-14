@@ -1,11 +1,13 @@
 import * as React from 'react'
+import { IconInput } from './types'
 
-function Loop({ width, height }: { width: number; height: number }) {
+function Loop({ width, height, style }: IconInput) {
   return (
     <svg
       width={width}
       height={height}
-      viewBox={`0 0 58 37`}
+      style={style}
+      viewBox="0 0 58 37"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >

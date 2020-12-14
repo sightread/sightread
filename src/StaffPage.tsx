@@ -1,10 +1,9 @@
 import * as React from 'react'
-import { SongNote } from './parsers'
-import { usePlayer } from './hooks'
 import { FClefSVG, GClefSVG } from './icons'
 import { Virtualized } from './Virtualized'
 import { Sizer } from './utils'
-import { PlayableSong } from './pages/play/[...song_location]'
+import { PlayableSong, SongNote } from './types'
+import Player from './player'
 
 const PIXELS_PER_SECOND = 300
 function getXPos(time: number) {
@@ -97,8 +96,9 @@ function Stave({
   song: PlayableSong | null
   disabled: boolean
 }) {
-  const { player } = usePlayer()
   const notes = song?.notes.filter((n) => n.track === song.config[hand]) ?? []
+
+  const player = Player.player()
 
   const clefStyle =
     hand === 'right' ? { height: 160, top: -20, left: -5 } : { height: 80, top: 2, left: 10 }

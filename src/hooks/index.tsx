@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react'
 import Player from '../player'
-import { SongNote } from '../parsers'
+import { SongNote, SongSettings } from '../types'
 import midi from '../midi'
 import { useRouter } from 'next/router'
 import { isBrowser } from '../utils'
@@ -35,13 +35,31 @@ export function useRAFLoop(fn: Function) {
   }, [animate]) // Make sure the effect runs only once
 }
 
-export const PlayerContext = React.createContext({
-  player: (null as unknown) as any,
-})
+type ProviderProps = {
+  children: React.ReactNode
+}
+
+const SongSettingsContext = React.createContext<
+  [SongSettings | null, (value: SongSettings) => void | null]
+>([null, () => {}])
+
+export function SongSettingsProvider({ children }: ProviderProps) {
+  const [songSettings, setSongSettings] = useState<SongSettings | null>(null)
+
+  return (
+    <SongSettingsContext.Provider value={[songSettings, setSongSettings]}>
+      {children}
+    </SongSettingsContext.Provider>
+  )
+}
+
+export function useSelectedSong() {
+  return useContext(SongSettingsContext)
+}
 
 const UserPressedKeysContext = React.createContext<Map<number, number>>(new Map())
 
-export function UserPressedKeysProvider({ children }: any) {
+export function UserPressedKeysProvider({ children }: ProviderProps) {
   const [pressedKeys, setPressedKeys] = useState<Map<number, number>>(new Map())
 
   useEffect(() => {
@@ -64,11 +82,11 @@ export function SongPressedKeysProvider({ children }: any) {
   const [pressedKeys, setPressedKeys] = useState<{ [note: number]: SongNote }>({})
 
   useEffect(() => {
-    player.subscribe((keys: any) => {
+    Player.player().subscribe((keys: any) => {
       setPressedKeys(keys)
     })
     return () => {
-      player.unsubscribe(setPressedKeys)
+      Player.player().unsubscribe(setPressedKeys)
     }
   }, [])
 
@@ -79,10 +97,6 @@ export function SongPressedKeysProvider({ children }: any) {
   )
 }
 
-export function usePlayer(): { player: Player } {
-  return useContext(PlayerContext)
-}
-
 export function useSongPressedKeys() {
   return useContext(SongPressedKeysContext)
 }
@@ -91,16 +105,17 @@ export function useUserPressedKeys() {
   return useContext(UserPressedKeysContext)
 }
 
-let player: Player
-function getPlayer() {
-  if (player === undefined) {
-    player = new Player()
+export function useQuery(): any {
+  const router = useRouter()
+  if (!isBrowser()) {
+    return [{}, () => {}]
   }
-  return player
-}
-
-export function PlayerProvider(props: any) {
-  const value = { player: getPlayer() }
-
-  return <PlayerContext.Provider value={value}>{props.children}</PlayerContext.Provider>
+  const params = new URLSearchParams(window?.location?.search)
+  return [
+    Object.fromEntries(params.entries()),
+    (key: string, value: string) => {
+      params.set(key, value)
+      router.push(window.location.pathname + '?' + params.toString())
+    },
+  ]
 }

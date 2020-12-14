@@ -1,7 +1,8 @@
 import '../../player'
 import React, { useState, useEffect, useRef } from 'react'
-import { usePlayer, useRAFLoop, useSongPressedKeys, useUserPressedKeys } from '../../hooks'
-import { Song } from '../../parsers'
+import Player from '../../player'
+import { Song, PlayableSong, Hand } from '../../types'
+import { useRAFLoop, useSongPressedKeys, useUserPressedKeys } from '../../hooks'
 import { WindowedSongBoard } from '../../WindowedSongboard'
 import { WindowedStaffBoard } from '../../StaffPage'
 import midiKeyboard from '../../midi'
@@ -14,12 +15,10 @@ import { useSize } from '../../hooks/size'
 
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 // const pathToSongs =
-let synth = getSynthStub('acoustic_grand_piano')
-type viz = 'falling-notes' | 'sheet'
 
-export type Hand = 'both' | 'left' | 'right'
-export type SongConfig = { config: { left?: number; right?: number } }
-export type PlayableSong = Song & SongConfig
+let synth = getSynthStub('acoustic_grand_piano')
+
+type viz = 'falling-notes' | 'sheet'
 
 const classes = css({
   topbar: {
@@ -43,12 +42,13 @@ function App() {
   const [waiting, setWaiting] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
-  const { player } = usePlayer()
   const [canPlay, setCanPlay] = useState<boolean>(false)
   const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
   const viz: viz = (router.query.viz as viz) ?? 'falling-notes'
+
+  const player = Player.player()
 
   let songLocation = ''
   if (isBrowser()) {
@@ -293,9 +293,9 @@ function App() {
 }
 
 function BpmDisplay() {
-  const { player } = usePlayer()
   const bpmRef = useRef<HTMLSpanElement>(null)
   const percentRef = useRef<HTMLSpanElement>(null)
+  const player = Player.player()
 
   useRAFLoop(() => {
     if (!bpmRef.current || !percentRef.current) {
@@ -375,7 +375,6 @@ export function SongScrubBar({
   rangeSelecting?: boolean
   setRangeSelecting?: any
 }) {
-  const { player } = usePlayer()
   const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
   const [mouseOver, setMouseOver] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
@@ -388,6 +387,7 @@ export function SongScrubBar({
   const rangeRef = useRef<HTMLDivElement>(null)
   const rangeSelection = useRef<null | { start: number; end: number }>(null)
   const startX = useRef<number>(0)
+  const player = Player.player()
 
   function getProgress(x: number) {
     return Math.min(Math.max((x - startX.current) / width, 0), 1)

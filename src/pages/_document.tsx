@@ -16,6 +16,11 @@ class MyDocument extends Document {
           {/* manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/ */}
           <link rel="manifest" href="/manifest.json" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap"
+            rel="stylesheet"
+          />
           {/* <!-- Font Awesome --> */}
           <script
             async

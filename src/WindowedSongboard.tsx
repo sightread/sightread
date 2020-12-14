@@ -1,9 +1,7 @@
-import './player'
-import React, { useMemo, useRef } from 'react'
-import { usePlayer } from './hooks'
-import { SongMeasure, SongNote } from './parsers'
+import Player from './player'
+import React, { useMemo } from 'react'
 import { Virtualized } from './Virtualized'
-import { Hand, PlayableSong } from './pages/play/[...song_location]'
+import { Hand, PlayableSong, SongMeasure, SongNote } from './types'
 import { getNote } from './synth/utils'
 import { isBlack } from './utils'
 import { useSize } from './hooks/size'
@@ -35,8 +33,9 @@ export function WindowedSongBoard({
   song: PlayableSong | null
   hand: Hand
 }) {
+  const player = Player.player()
+
   const { width, measureRef } = useSize()
-  const { player } = usePlayer()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
     return (song && [...song.measures, ...song.notes]) ?? []
   }, [song, hand])

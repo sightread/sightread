@@ -1,13 +1,12 @@
 import React from 'react'
-import {
-  parseMusicXML,
-  parseMidi,
-  getHandIndexesForTeachMid,
-  parserInferHands,
-  Song,
-} from './parsers'
-import { PlayableSong } from './pages/play/[...song_location]'
+import { parseMusicXML, parseMidi, getHandIndexesForTeachMid, parserInferHands } from './parsers'
+import { PlayableSong, Song } from './types'
 import { getKey } from './synth/utils'
+
+export function peek(o: any) {
+  console.log(o)
+  return o
+}
 
 function Sizer({ height, width }: { height?: number; width?: number }) {
   return <div style={{ width, height }} />

@@ -13,6 +13,25 @@ type StringMap = {
 
 let counter: number = 0
 
+/**
+ * style object expected in the shape of
+ * {
+ *    class1: {
+ *        attr1: val1,
+ *        attr2: val2,
+ *        '&:pseudoclass': {
+ *            ...
+ *        },
+ *        "@media(...)": {
+ *            ...
+ *        }
+ *    },
+ *    class2: {
+ *        ...
+ *    },
+ *    ...
+ * }
+ */
 export function css(styleObj: StyleObject): StringMap {
   const classes: StringMap = {}
 
@@ -46,6 +65,11 @@ function getNestedSelectors(styleObject: any, className: string): string {
     if (isNestedSelector(key)) {
       const styles = styleObject[key]
       acc += `.${className}${key.slice(1)} { ${rules(styles)}}`
+    } else if (isMediaQuery(key)) {
+      const styles = styleObject[key]
+      acc += `${key}{
+        .${className} { ${rules(styles)}}
+      }`
     }
     return acc
   }, '')
@@ -53,7 +77,7 @@ function getNestedSelectors(styleObject: any, className: string): string {
 
 function rules(rules: Object): string {
   return Object.entries(rules).reduce((accum, [key, val]) => {
-    if (!isNestedSelector(key)) {
+    if (!isNestedSelector(key) && !isMediaQuery(key)) {
       val = transform(key, val)
       accum += ' ' + dashCase(key) + ':' + val + ';'
     }
@@ -63,6 +87,10 @@ function rules(rules: Object): string {
 
 function isNestedSelector(key: string) {
   return key.startsWith('&')
+}
+
+function isMediaQuery(key: string): boolean {
+  return key.startsWith('@media')
 }
 
 const excludeRules = new Set(['opacity', 'zIndex', 'fontWeight'])

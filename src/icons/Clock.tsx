@@ -1,10 +1,11 @@
-import * as React from 'react'
+import { IconInput } from './types'
 
-function Clock({ width, height }: { width: number; height: number }) {
+function Clock({ width, height, style }: IconInput) {
   return (
     <svg
       width={width}
       height={height}
+      style={style}
       viewBox="0 0 42 42"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

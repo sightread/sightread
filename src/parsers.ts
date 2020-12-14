@@ -1,46 +1,6 @@
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
 import { getKey, getNote } from './synth/utils'
-
-export type SongNote = {
-  type: 'note'
-  midiNote: number
-  track: number
-  time: number
-  duration: number
-  pitch: {
-    step: string
-    octave: number
-    alter: number
-  }
-  velocity?: number
-}
-
-export type Tracks = {
-  [id: number]: Track
-}
-
-type Track = {
-  instrument?: string
-  name?: string
-  program?: number
-}
-
-export type SongMeasure = {
-  type: 'measure'
-  time: number
-  number: number
-}
-
-type Bpm = { time: number; bpm: number }
-
-export type Song = {
-  tracks: Tracks
-  duration: number
-  measures: Array<SongMeasure>
-  notes: Array<SongNote>
-  bpms: Array<Bpm>
-  timeSignature: { numerator: number; denominator: number }
-}
+import { Song, SongMeasure, SongNote, Track, Tracks, Bpm } from './types'
 
 export function parseMusicXML(txt: string): Song {
   /*

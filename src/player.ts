@@ -1,9 +1,10 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { SongNote } from './parsers'
+import { SongNote, Bpm, PlayableSong } from './types'
 import { getSynth, Synth } from './synth'
 import midi from './midi'
-import { PlayableSong } from './pages/play/[...song_location]'
+
+let player: Player
 
 class Player {
   song!: PlayableSong
@@ -27,6 +28,13 @@ class Player {
   dirty = false
   instrumentsLoaded = false
 
+  static player(): Player {
+    if (!player) {
+      player = new Player()
+    }
+    return player
+  }
+
   setWait(wait: boolean) {
     this.wait = wait
   }
@@ -34,7 +42,7 @@ class Player {
   async setSong(song: PlayableSong) {
     this.song = song
     this.instrumentsLoaded = false
-    this.notes = song.notes.sort((note1, note2) => note1.time - note2.time)
+    this.notes = song.notes.sort((note1: SongNote, note2) => note1.time - note2.time)
     this.currentBpm = 0
     this.currentIndex = 0
     this.currentSongTime = 0
