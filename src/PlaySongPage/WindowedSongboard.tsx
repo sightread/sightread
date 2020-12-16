@@ -1,10 +1,10 @@
-import Player from './player'
+import Player from '../player'
 import React, { useMemo } from 'react'
 import { Virtualized } from './Virtualized'
-import { Hand, PlayableSong, SongMeasure, SongNote } from './types'
-import { getNote } from './synth/utils'
-import { isBlack } from './utils'
-import { useSize } from './hooks/size'
+import { Hand, PlayableSong, SongMeasure, SongNote } from '../types'
+import { getNote } from '../synth/utils'
+import { isBlack } from '../utils'
+import { useSize } from '../hooks/size'
 
 const PIXELS_PER_SECOND = 150
 
@@ -38,7 +38,7 @@ export function WindowedSongBoard({
   const { width, measureRef } = useSize()
   const items: Array<SongMeasure | SongNote> = useMemo(() => {
     return (song && [...song.measures, ...song.notes]) ?? []
-  }, [song, hand])
+  }, [song])
   const lanes = useMemo(() => getNoteLanes(width), [width])
 
   const renderItem = (item: SongMeasure | SongNote, i: number) => {

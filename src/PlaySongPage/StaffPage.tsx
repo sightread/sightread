@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { FClefSVG, GClefSVG } from './icons'
+import { FClefSVG, GClefSVG } from '../icons'
 import { Virtualized } from './Virtualized'
-import { Sizer } from './utils'
-import { PlayableSong, SongNote } from './types'
-import Player from './player'
+import { Sizer } from '../utils'
+import { PlayableSong, SongNote } from '../types'
+import Player from '../player'
 
 const PIXELS_PER_SECOND = 300
 function getXPos(time: number) {

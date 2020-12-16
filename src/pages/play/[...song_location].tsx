@@ -3,8 +3,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Player from '../../player'
 import { Song, PlayableSong, Hand } from '../../types'
 import { useRAFLoop, useSongPressedKeys, useUserPressedKeys } from '../../hooks'
-import { WindowedSongBoard } from '../../WindowedSongboard'
-import { WindowedStaffBoard } from '../../StaffPage'
+import { CanvasSongBoard, WindowedStaffBoard, WindowedSongBoard } from '../../PlaySongPage'
 import midiKeyboard from '../../midi'
 import { useRouter } from 'next/router'
 import { formatTime, getSong, inferHands, isBlack, isBrowser } from '../../utils'
@@ -268,7 +267,8 @@ function App() {
               {/*
               TODO: convert to canvas based for both falling notes + sheet music
             */}
-              <WindowedSongBoard song={song} hand={hand} />
+              <CanvasSongBoard song={song} hand={hand} />
+              {/* <WindowedSongBoard song={song} hand={hand} /> */}
             </div>
             <div
               style={{

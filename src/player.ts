@@ -1,6 +1,6 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { SongNote, Bpm, PlayableSong } from './types'
+import { SongNote, PlayableSong } from './types'
 import { getSynth, Synth } from './synth'
 import midi from './midi'
 
@@ -290,7 +290,7 @@ class Player {
   }
   unsubscribe(fn: Function) {
     let i = this.listeners.indexOf(fn)
-    this.listeners.slice(i, 1)
+    this.listeners.splice(i, 1)
   }
   notify(force = false) {
     if (!this.dirty && !force) {

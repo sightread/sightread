@@ -1,7 +1,8 @@
-import './player'
+import '../player'
 import React, { useState, useRef, useMemo } from 'react'
-import { useRAFLoop } from './hooks'
-import { useSize } from './hooks/size'
+import { useRAFLoop } from '../hooks'
+import { useSize } from '../hooks/size'
+import { peek } from '../utils'
 
 /**
  * Virtualized rendering (occlusion).

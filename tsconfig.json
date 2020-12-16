@@ -20,5 +20,5 @@
     "downlevelIteration": true
   },
   "include": ["src"],
-  "exclude": ["src\\WindowedSongboard.tsx"]
+  "exclude": ["src\\PlaySongPage\\WindowedSongboard.tsx"]
 }

@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useRef, useState, useEffect, MouseEvent as MouseE } from 'react'
 import { PlayableSong, Track, TrackSetting } from '../types'
 import { useSelectedSong } from '../hooks'
-import { WindowedSongBoard } from '../WindowedSongboard'
+import { CanvasSongBoard } from '../PlaySongPage'
 import { SongScrubBar } from '../pages/play/[...song_location]'
 import { getSong, inferHands, Sizer } from '../utils'
 import Player from '../player'
@@ -453,7 +453,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
                   }}
                 />
               )}
-              <WindowedSongBoard song={song} hand={'both'} />
+              <CanvasSongBoard song={song} hand={'both'} />
             </div>
             <Sizer height={16} />
             <div className={classes.buttonContainer}>
