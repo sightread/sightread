@@ -391,13 +391,20 @@ function getSharps(fifth: number) {
   return sharps
 }
 
+function findFirstMatchForHand(tracks: Tracks, arr: string[]): number | undefined {
+  const trackKeys = Object.keys(tracks).map(Number)
+  let found = undefined
+  for (const s of arr) {
+    found = trackKeys.find((trackNum) => tracks[trackNum].name?.includes(s))
+    if (found !== undefined) return found
+  }
+  return found
+}
+
 export function getHandIndexesForTeachMid(song: Song): { left?: number; right?: number } {
-  const lhStudentTrack = Object.keys(song.tracks)
-    .map(Number)
-    .find((trackNum) => song.tracks[trackNum].name?.includes('L.H.'))
-  const rhStudentTrack = Object.keys(song.tracks)
-    .map(Number)
-    .find((trackNum) => song.tracks[trackNum].name?.includes('R.H.'))
+  const { tracks } = song
+  const lhStudentTrack = findFirstMatchForHand(tracks, ['L.H.'])
+  const rhStudentTrack = findFirstMatchForHand(tracks, ['R.H.', 'Student'])
   return { left: lhStudentTrack, right: rhStudentTrack }
 }
 

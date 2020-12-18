@@ -2,22 +2,66 @@ import '../../player'
 import React, { useState, useEffect, useRef } from 'react'
 import Player from '../../player'
 import { Song, PlayableSong, Hand } from '../../types'
-import { useRAFLoop, useSongPressedKeys, useUserPressedKeys } from '../../hooks'
-import { CanvasSongBoard, WindowedStaffBoard, WindowedSongBoard } from '../../PlaySongPage'
+import { useRAFLoop, useSongPressedKeys, useSelectedSong } from '../../hooks'
+import {
+  CanvasSongBoard,
+  WindowedStaffBoard,
+  RuleLines,
+  BpmDisplay,
+  PianoRoll,
+} from '../../PlaySongPage'
 import midiKeyboard from '../../midi'
 import { useRouter } from 'next/router'
-import { formatTime, getSong, inferHands, isBlack, isBrowser } from '../../utils'
+import { formatTime, getSong, inferHands } from '../../utils'
 import { getSynthStub } from '../../synth'
-import { getNote } from '../../synth/utils'
 import { css } from '../../flakecss'
 import { useSize } from '../../hooks/size'
-
+import { GetServerSideProps } from 'next'
+import { default as ErrorPage } from 'next/error'
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 // const pathToSongs =
+
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+  const props = {
+    props: {},
+  }
+  if (query === undefined) {
+    return props
+  }
+  const song_location = query.song_location
+  if (!Array.isArray(song_location) || song_location.length < 3) {
+    return props
+  }
+  const type = song_location.includes('lessons') ? 'lesson' : 'song'
+  const viz = query.viz
+  return {
+    props: {
+      type,
+      songLocation: song_location.join('/'),
+      viz: viz ?? 'falling-notes',
+    },
+  }
+}
 
 let synth = getSynthStub('acoustic_grand_piano')
 
 type viz = 'falling-notes' | 'sheet'
+type PlaySongProps = {
+  type: 'lesson' | 'song' | undefined
+  songLocation: string | undefined
+  viz: viz
+}
+const palette = {
+  right: {
+    black: '#4912d4',
+    white: '#7029fb',
+  },
+  left: {
+    black: '#d74000',
+    white: '#ff6825',
+  },
+  measure: '#C5C5C5', //'#C5C5C5',
+}
 
 const classes = css({
   topbar: {
@@ -36,31 +80,23 @@ const classes = css({
     },
   },
 })
-function App() {
+function App({ type, songLocation, viz }: PlaySongProps) {
+  if (!type || !songLocation) {
+    return <ErrorPage statusCode={404} title="Song Not Found :(" />
+  }
+
   const [playing, setPlaying] = useState(false)
   const [waiting, setWaiting] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const [canPlay, setCanPlay] = useState<boolean>(false)
-  const [song, setSong] = useState<PlayableSong | null>(null)
+  const [songSettings, setSongSettings] = useSelectedSong(songLocation)
+  // const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
+  const pressedKeys = useSongPressedKeys()
   const router = useRouter()
-  const viz: viz = (router.query.viz as viz) ?? 'falling-notes'
-
   const player = Player.player()
 
-  let songLocation = ''
-  if (isBrowser()) {
-    songLocation = window.location.pathname.substring(6)
-  }
-
-  const handleHand = (selected: Hand) => {
-    if (hand === selected) {
-      setHand('both')
-      return
-    }
-    setHand(selected)
-  }
   useEffect(() => {
     player.setHand(hand)
   }, [hand])
@@ -73,11 +109,20 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (!songLocation || !type) return
+
+    if (songSettings?.song) {
+      player.setSong(songSettings.song).then(() => {
+        setCanPlay(true)
+      })
+      return
+    }
     getSong(songLocation)
-      .then(inferHands)
+      .then((song) => inferHands(song, type === 'lesson'))
       .then((song: PlayableSong) => {
         setCanPlay(false)
-        setSong(song)
+        const settings = { tracks: songSettings?.tracks ?? {}, song }
+        setSongSettings(songLocation, settings)
         player.setSong(song).then(() => {
           setCanPlay(true)
         })
@@ -106,6 +151,30 @@ function App() {
     window.addEventListener('keydown', keyboardHandler, { passive: true })
     return () => window.removeEventListener('keydown', keyboardHandler)
   }, [playing, player, canPlay])
+
+  const handleHand = (selected: Hand) => {
+    if (hand === selected) {
+      setHand('both')
+      return
+    }
+    setHand(selected)
+  }
+
+  const getKeyColor = (midiNote: number, type: 'white' | 'black'): string => {
+    const song = songSettings?.song
+    if (!song || !(midiNote in pressedKeys)) return type
+
+    const track = pressedKeys[midiNote].track
+    const shouldShow =
+      hand === 'both' ||
+      (hand === 'left' && track === song?.config.left) ||
+      (hand === 'right' && track === song?.config.right)
+    if (shouldShow) {
+      const hand: 'left' | 'right' = track === song?.config.left ? 'left' : 'right'
+      return palette[hand][type]
+    }
+    return type
+  }
 
   return (
     <div className="App">
@@ -244,7 +313,7 @@ function App() {
         </div>
         <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
           <SongScrubBar
-            song={song}
+            song={songSettings?.song ?? null}
             rangeSelecting={rangeSelecting}
             setRangeSelecting={setRangeSelecting}
           />
@@ -267,7 +336,7 @@ function App() {
               {/*
               TODO: convert to canvas based for both falling notes + sheet music
             */}
-              <CanvasSongBoard song={song} hand={hand} />
+              <CanvasSongBoard song={songSettings?.song ?? null} hand={hand} />
               {/* <WindowedSongBoard song={song} hand={hand} /> */}
             </div>
             <div
@@ -278,88 +347,16 @@ function App() {
                 boxSizing: 'border-box',
               }}
             >
-              <PianoRoll selectedHand={hand} song={song} />
+              <PianoRoll getKeyColor={getKeyColor} activeColor="grey" />
             </div>
           </>
         )}
         {viz === 'sheet' && (
           <>
-            <WindowedStaffBoard song={song} selectedHand={hand} />
+            <WindowedStaffBoard song={songSettings?.song ?? null} selectedHand={hand} />
           </>
         )}
       </div>
-    </div>
-  )
-}
-
-function BpmDisplay() {
-  const bpmRef = useRef<HTMLSpanElement>(null)
-  const percentRef = useRef<HTMLSpanElement>(null)
-  const player = Player.player()
-
-  useRAFLoop(() => {
-    if (!bpmRef.current || !percentRef.current) {
-      return
-    }
-
-    bpmRef.current.textContent = Math.floor(player.getBpm()) + ' BPM'
-    percentRef.current.textContent = Math.floor(player.getBpmModifier() * 100) + '%'
-  })
-
-  return (
-    <div
-      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 110 }}
-    >
-      <i className="fas fa-minus" onClick={() => player.decreaseBpm()} />
-      <div style={{ display: 'flex', flexDirection: 'column', color: 'white' }}>
-        <span style={{ fontSize: 24 }} ref={percentRef} />
-        <span style={{ fontSize: 16 }} ref={bpmRef} />
-      </div>
-      <i className="fas fa-plus" onClick={() => player.increaseBpm()} />
-    </div>
-  )
-}
-
-function RuleLines() {
-  const { width, height, measureRef } = useSize()
-  const widthOfWhiteKey = width / 52
-  const getRuleLines = () => {
-    const baseStyle = {
-      position: 'fixed',
-      height,
-      width: 1,
-      backgroundColor: '#fff',
-    }
-    return Array.from({ length: 12 }).map((_n, i) => (
-      <div key={i}>
-        <div
-          style={
-            {
-              ...baseStyle,
-              left: widthOfWhiteKey * i * 7 + 5 * widthOfWhiteKey,
-              opacity: 0.15,
-            } as any
-          }
-        ></div>
-        <div
-          style={
-            {
-              ...baseStyle,
-              opacity: 0.3,
-              left: widthOfWhiteKey * i * 7 + 2 * widthOfWhiteKey,
-            } as any
-          }
-        ></div>
-      </div>
-    ))
-  }
-  return (
-    <div
-      id="rule-lines"
-      style={{ position: 'absolute', width: '100%', height: '100%' }}
-      ref={measureRef}
-    >
-      {getRuleLines()}
     </div>
   )
 }
@@ -490,7 +487,7 @@ export function SongScrubBar({
             width - 150,
             e.clientX - startX.current + 10,
           )}px`
-          measureSpanRef.current.innerText = String(measure.number)
+          measureSpanRef.current.innerText = String(measure?.number)
           timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime))
         }
       }}
@@ -582,172 +579,6 @@ export function SongScrubBar({
         ></div>
       )}
     </div>
-  )
-}
-
-function createNoteObject(whiteNotes: any, whiteWidth: any, height: any, type: any) {
-  switch (type) {
-    case 'black':
-      return {
-        left: whiteNotes * whiteWidth - whiteWidth / 4,
-        width: whiteWidth / 2,
-        color: 'black',
-        height: height * (2 / 3),
-      }
-    case 'white':
-      return {
-        left: whiteNotes * whiteWidth,
-        height: height,
-        width: whiteWidth,
-        color: 'white',
-      }
-    default:
-      throw Error('Invalid note type')
-  }
-}
-
-// 7% as tall as the total width!
-// function getKeyboardHeight(width: number) {
-//   const whiteWidth = width / 52
-//   return (220 / 30) * whiteWidth
-// }
-
-function getKeyPositions(width: any) {
-  const whiteWidth = width / 52
-  const height = (220 / 30) * whiteWidth
-
-  const blackNotes = [1, 4, 6, 9, 11]
-  const notes: any = []
-  let totalNotes = 0
-
-  for (var whiteNotes = 0; whiteNotes < 52; whiteNotes++, totalNotes++) {
-    if (blackNotes.includes(totalNotes % 12)) {
-      notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'black'))
-      totalNotes++
-    }
-    notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'white'))
-  }
-  return notes
-}
-
-export function PianoRoll({
-  selectedHand,
-  song,
-}: {
-  selectedHand: Hand
-  song: PlayableSong | null
-}) {
-  const { width, measureRef } = useSize()
-  const pressedKeys = useSongPressedKeys()
-
-  const notes = getKeyPositions(width).map((note: any, i: any) => {
-    const midiNote = i + getNote('A0')
-    let color = note.color
-    const shouldShow =
-      midiNote in pressedKeys &&
-      (selectedHand === 'both' ||
-        (selectedHand === 'left' && pressedKeys[midiNote].track === song?.config.left) ||
-        (selectedHand === 'right' && pressedKeys[midiNote].track === song?.config.right))
-    if (shouldShow) {
-      let { track } = pressedKeys[midiNote]
-
-      const hand: 'left' | 'right' = track === song?.config.left ? 'left' : 'right'
-      if (hand === 'left') {
-        if (isBlack(midiNote)) {
-          color = '#D74000'
-        } else {
-          color = '#FF6825'
-        }
-      } else {
-        if (isBlack(midiNote)) {
-          color = '#4912D4'
-        } else {
-          color = '#7029FB'
-        }
-      }
-    }
-    return (
-      <PianoNote
-        left={note.left}
-        width={note.width}
-        height={note.height}
-        color={color}
-        note={i + getNote('A0')}
-        key={i}
-      />
-    )
-  })
-  /**
-   *   0  1   2  3  4   5  6   7  8  9   10 11
-   *  {A, A#, B, C, C#, D, D#, E, F, F#, G, G#}
-   */
-
-  return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        paddingTop: '3.5%', // hack to make it 7% as tall as the width
-        paddingBottom: '3.5%',
-        boxSizing: 'border-box',
-      }}
-      ref={measureRef}
-    >
-      {notes}
-    </div>
-  )
-}
-
-let isMouseDown = false
-;(function () {
-  const setMouseDown = () => (isMouseDown = true)
-  const setMouseUp = () => (isMouseDown = false)
-  if (isBrowser()) {
-    window.addEventListener('mousedown', setMouseDown, { passive: true })
-    window.addEventListener('mouseup', setMouseUp, { passive: true })
-  }
-})()
-
-type PianoNote = { left: number; width: number; color: string; height: number; note: number }
-function PianoNote({ left, width, color, height, note }: PianoNote) {
-  const [userPressed, setUserPressed] = useState(false)
-  const midiKeys: Map<number, number> = useUserPressedKeys()
-  let pressed = userPressed || midiKeys.has(note)
-  return (
-    <div
-      style={{
-        border: '1px solid #292e49',
-        position: 'absolute',
-        top: 0,
-        left,
-        width,
-        height,
-        backgroundColor: pressed ? 'grey' : color,
-        zIndex: isBlack(note) ? 1 : 0,
-        userSelect: 'none',
-        borderBottomLeftRadius: '8px',
-        borderBottomRightRadius: '8px',
-        boxSizing: 'border-box',
-      }}
-      onMouseDown={() => {
-        setUserPressed(true)
-        synth.playNote(note)
-      }}
-      onMouseUp={() => {
-        setUserPressed(false)
-        synth.stopNote(note)
-      }}
-      onMouseLeave={() => {
-        setUserPressed(false)
-        synth.stopNote(note)
-      }}
-      onMouseEnter={() => {
-        if (isMouseDown) {
-          setUserPressed(true)
-          synth.playNote(note)
-        }
-      }}
-    ></div>
   )
 }
 

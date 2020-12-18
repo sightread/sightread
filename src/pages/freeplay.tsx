@@ -1,0 +1,293 @@
+import React, { useEffect, useRef, useMemo } from 'react'
+import { SongMeasure, SongNote } from '../types'
+import Player from '../player'
+import {
+  CanvasRenderer,
+  Config,
+  CanvasItem,
+  PianoRoll,
+  BpmDisplay,
+  RuleLines,
+} from '../PlaySongPage'
+import { getNoteLanes, useSynth } from '../PlaySongPage/utils'
+import midiKeyboard from '../midi'
+import { isBlack } from '../utils'
+import { getNote } from '../synth/utils'
+import { css } from '../flakecss'
+import { useSize } from '../hooks/size'
+import { useRouter } from 'next/router'
+
+function findLastIndex<T>(
+  array: Array<T>,
+  predicate: (value: T, index: number, obj: T[]) => boolean,
+): number {
+  let l = array.length
+  while (l--) {
+    if (predicate(array[l], l, array)) return l
+  }
+  return -1
+}
+/**
+ * Notes:
+ *  - can never go backwards always forward:
+ *     - can delete items once out of view
+ * Logic:
+ *  - have items array
+ *  - each loop:
+ *      - check items that are in view and mutate the items array
+ */
+
+const PIXELS_PER_SECOND = 150
+
+const palette = {
+  black: '#4912d4',
+  white: '#7029fb',
+  measure: '#C5C5C5', //'#C5C5C5',
+}
+
+function getKeyColor(midiNote: number): string {
+  const keyType = isBlack(midiNote) ? 'black' : 'white'
+  return palette[keyType]
+}
+
+const classes = css({
+  topbar: {
+    '& i': {
+      color: 'white',
+      cursor: 'pointer',
+      transition: 'color 0.1s',
+      fontSize: 24,
+      width: 22,
+    },
+    '& i:hover': {
+      color: 'rgba(58, 104, 231, 1)',
+    },
+    '& i.active': {
+      color: 'rgba(58, 104, 231, 1)',
+    },
+  },
+})
+function getItemStartEnd(item: CanvasItem) {
+  const start = item.time * PIXELS_PER_SECOND
+  if (item.type === 'note') {
+    return { start, end: start + item.duration * PIXELS_PER_SECOND }
+  } else {
+    return { start, end: start }
+  }
+}
+function getCurrentOffset(time: number) {
+  return time * PIXELS_PER_SECOND
+}
+
+type NotesAndMeasures = CanvasItem[]
+
+function App() {
+  const { width, height, measureRef } = useSize()
+  const lanes = useMemo(() => getNoteLanes(width), [width])
+  const router = useRouter()
+  const player = Player.player()
+
+  const synth = useSynth()
+  const items = useRef<NotesAndMeasures>([])
+  const playingItems = useRef<number[]>([])
+
+  const time = (): number => -player.getTime()
+  const noteColor = 'red'
+
+  // Register ummount fns
+  useEffect(() => {
+    player.init()
+    player.startTimeInterval(16)
+
+    synth.subscribe((action, note, velocity) => {
+      if (action === 'play') {
+        return addNoteToItems(note, velocity)
+      }
+      return stopNoteInItems(note)
+    })
+    return () => {
+      player.stop()
+    }
+  }, [])
+
+  useEffect(() => {
+    midiKeyboard.virtualKeyboard = true
+
+    return function cleanup() {
+      midiKeyboard.virtualKeyboard = false
+    }
+  }, [player])
+
+  const pitch = { step: 'G', octave: 3, alter: 0 }
+  const track = 1
+  //  TODO what should track and pitch be for a key pressed?
+  function addNoteToItems(note: number, velocity?: number) {
+    const newNote: SongNote = {
+      midiNote: note,
+      velocity: velocity ?? 80,
+      type: 'note',
+      pitch,
+      track,
+      time: time(),
+      duration: 0,
+    }
+    items.current.unshift(newNote)
+    playingItems.current.push(note)
+  }
+  //
+  function stopNoteInItems(note: number): void {
+    playingItems.current = playingItems.current.filter((i) => i !== note)
+  }
+  // ¯\_(ツ)_/¯
+  function canvasStartPosition(startTime: number) {
+    return height - (startTime - time()) * PIXELS_PER_SECOND
+  }
+
+  function getItemsInView(sortedItems: NotesAndMeasures): NotesAndMeasures {
+    if (sortedItems.length === 0) {
+      return sortedItems
+    }
+
+    const viewportStart = getCurrentOffset(time())
+    const viewportEnd = viewportStart + height * 1.5 // overscan a vp
+    let lastIndex = sortedItems.length - 1
+    const lastItemStillInView = getItemStartEnd(sortedItems[lastIndex]).start < viewportEnd
+
+    if (lastItemStillInView) {
+      return sortedItems
+    }
+
+    lastIndex = findLastIndex(sortedItems, (o) => getItemStartEnd(o).start >= viewportStart)
+
+    return sortedItems.slice(0, lastIndex)
+  }
+
+  function getItemSettings<T extends CanvasItem>(item: T): Config<T> {
+    const note = item as SongNote
+    const lane = lanes[note.midiNote - getNote('A0')]
+    const length = PIXELS_PER_SECOND * note.duration
+    return {
+      width: lane.width - 2, // accounting for piano key with border 1px
+      posX: lane.left + 1,
+      color: getKeyColor(note.midiNote),
+      posY: canvasStartPosition(item.time) - length,
+      length,
+    } as Config<T>
+  }
+
+  // relys on the fact the notes are always pushed to the front
+  // so playing notes are the numbers in playingItems and their first
+  // occurence found in note.midiNote
+  function incrementPlayingNotes(
+    notes: NotesAndMeasures,
+    playingItems: number[],
+  ): NotesAndMeasures {
+    for (const num of playingItems) {
+      for (const note of notes) {
+        if (note.type === 'measure') continue
+        if (note.midiNote === num) {
+          const currTime = time()
+          note.duration += note.time - currTime // bc time is negative in freeplay
+          note.time = time()
+          break
+        }
+      }
+    }
+    return notes
+  }
+
+  function getItems(): CanvasItem[] {
+    items.current = getItemsInView(incrementPlayingNotes(items.current, playingItems.current))
+
+    return items.current
+  }
+
+  return (
+    <div className="App">
+      <div
+        id="topbar"
+        className={`${classes.topbar}`}
+        style={{
+          position: 'fixed',
+          height: 55,
+          width: '100vw',
+          zIndex: 2,
+          backgroundColor: '#292929',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <i
+          className="fas fa-arrow-left"
+          style={{ fontSize: 30, position: 'relative', left: 15 }}
+          onClick={() => {
+            player.pause()
+            router.back()
+          }}
+        />
+        <div
+          className="nav-buttons"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            alignItems: 'center',
+            display: 'flex',
+            justifyContent: 'space-around',
+            width: 225,
+          }}
+        >
+          <BpmDisplay />
+        </div>
+      </div>
+      <div
+        style={{
+          backgroundColor: '#2e2e2e',
+          width: '100vw',
+          height: '100vh',
+          contain: 'strict',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <RuleLines />
+        <div style={{ position: 'relative', flex: 1 }}>
+          <div style={{ position: 'absolute', width: '100%', height: '100%' }} ref={measureRef}>
+            <CanvasRenderer
+              getItems={getItems}
+              itemSettings={getItemSettings}
+              width={width}
+              height={height}
+            />
+          </div>
+          {/*
+              TODO: convert to canvas based for both falling notes + sheet music
+            */}
+          {/* <CanvasSongBoard song={songSettings?.song ?? null} hand={hand} /> */}
+          {/* <WindowedSongBoard song={song} hand={hand} /> */}
+        </div>
+        <div
+          style={{
+            position: 'relative',
+            paddingBottom: '7%',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        >
+          <PianoRoll getKeyColor={(_, t) => t} activeColor={noteColor} />
+        </div>
+        {/* {viz === 'falling-notes' && (
+          <>
+          </>
+        )} */}
+        {/* {viz === 'sheet' && (
+          <>
+            <WindowedStaffBoard song={songSettings?.song ?? null} selectedHand={hand} />
+          </>
+        )} */}
+      </div>
+    </div>
+  )
+}
+
+export default App

@@ -1,3 +1,7 @@
 export { WindowedSongBoard } from './WindowedSongboard'
 export { WindowedStaffBoard } from './StaffPage'
 export { default as CanvasSongBoard } from './CanvasSongBoard'
+export { default as PianoRoll } from './PianoRoll'
+export { RuleLines } from './RuleLines'
+export { BpmDisplay } from './BpmDisplay'
+export * from './CanvasRenderer'

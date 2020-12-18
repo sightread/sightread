@@ -31,9 +31,8 @@ async function getSong(url: string): Promise<Song> {
   return fetch(parsedUrl).then((res) => res.json())
 }
 
-function inferHands(song: Song): PlayableSong {
+function inferHands(song: Song, isTeachMidi: boolean): PlayableSong {
   let playableSong = song as PlayableSong
-  const isTeachMidi = window.location.href.includes('teachmid')
   playableSong.config = isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
   return playableSong
 }

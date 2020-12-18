@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react'
 import Player from '../player'
-import { SongNote, SongSettings } from '../types'
+import { SongNote, SongSettings, TrackSettings } from '../types'
 import midi from '../midi'
 import { useRouter } from 'next/router'
 import { isBrowser } from '../utils'
@@ -39,22 +39,40 @@ type ProviderProps = {
   children: React.ReactNode
 }
 
-const SongSettingsContext = React.createContext<
-  [SongSettings | null, (value: SongSettings) => void | null]
->([null, () => {}])
+type SongSettingsContext = [SongSettings | null, (key: string, value: SongSettings) => void | null]
+const SongSettingsContext = React.createContext<SongSettingsContext>([null, () => {}])
+
+export function cachedSettings(key: string): TrackSettings | null {
+  if (!isBrowser()) return null
+  const cached = window.localStorage.getItem(key)
+  if (!cached) return null
+  return JSON.parse(cached)
+}
 
 export function SongSettingsProvider({ children }: ProviderProps) {
   const [songSettings, setSongSettings] = useState<SongSettings | null>(null)
 
+  const handleSetWithCache = (key: string, settings: SongSettings): void => {
+    if (isBrowser()) {
+      window.localStorage.setItem(key, JSON.stringify(settings.tracks))
+    }
+    setSongSettings(settings)
+  }
+
   return (
-    <SongSettingsContext.Provider value={[songSettings, setSongSettings]}>
+    <SongSettingsContext.Provider value={[songSettings, handleSetWithCache]}>
       {children}
     </SongSettingsContext.Provider>
   )
 }
 
-export function useSelectedSong() {
-  return useContext(SongSettingsContext)
+export function useSelectedSong(file: string | null): SongSettingsContext {
+  const [songSettings, setSongSettings] = useContext(SongSettingsContext)
+  if (file) {
+    const cached = cachedSettings(file)
+    if (cached) return [{ ...songSettings, tracks: cached }, setSongSettings]
+  }
+  return [songSettings, setSongSettings]
 }
 
 const UserPressedKeysContext = React.createContext<Map<number, number>>(new Map())

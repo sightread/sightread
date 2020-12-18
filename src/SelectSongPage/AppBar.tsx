@@ -27,7 +27,9 @@ function AppBar({ height }: { height: number }) {
           justifyContent: 'space-between',
         }}
       >
-        <span>Free Play</span>
+        <Link href="/freeplay">
+          <a style={{ color: 'white', textDecoration: 'none' }}>Free Play</a>
+        </Link>
         <Link href="/songs">
           <a style={{ color: 'white', textDecoration: 'none' }}>Songs</a>
         </Link>

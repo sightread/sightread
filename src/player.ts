@@ -39,15 +39,19 @@ class Player {
     this.wait = wait
   }
 
+  init(): void {
+    this.currentBpm = 0
+    this.bpmModifier = 1
+    this.currentSongTime = 0
+    this.currentIndex = 0
+    this.currentSongTime = 0
+    this.playing = []
+  }
+
   async setSong(song: PlayableSong) {
     this.song = song
     this.instrumentsLoaded = false
     this.notes = song.notes.sort((note1: SongNote, note2) => note1.time - note2.time)
-    this.currentBpm = 0
-    this.currentIndex = 0
-    this.currentSongTime = 0
-    this.bpmModifier = 1
-    this.playing.length = 0
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, { program, instrument }]) => {
@@ -81,7 +85,7 @@ class Player {
     if (!this.playInterval) {
       return this.currentSongTime
     }
-    const nextNote = this.song.notes[this.currentIndex]
+    const nextNote = this.song?.notes[this.currentIndex]
     if (this.wait && nextNote && this.isActiveHand(nextNote)) {
       const isntPressed =
         !midi.getPressedNotes().has(nextNote.midiNote) ||
@@ -129,6 +133,10 @@ class Player {
   }
 
   getMeasureForTime(time: number) {
+    if (!this.song?.measures) {
+      console.log('measures have not been loaded')
+      return
+    }
     let index = this.song.measures.findIndex((m) => m.time > time) - 1
     if (index < 0) {
       index = this.song.measures.length - 1
@@ -165,9 +173,17 @@ class Player {
     this.dirty = true
   }
 
+  startTimeInterval(interval: number): void {
+    this.lastIntervalFiredTime = performance.now()
+    this.playInterval = setInterval(() => this.timeStep(), interval)
+  }
+
+  timeStep(this: this) {
+    this.updateTime_()
+  }
+
   updateTime_() {
     const isPlaying = !!this.playInterval
-
     let dt = 0
     if (isPlaying) {
       const now = performance.now()

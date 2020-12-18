@@ -1,6 +1,6 @@
 import { getSynthStub } from './synth'
 import { getNote } from './synth/utils'
-
+import { useSynth } from './PlaySongPage/utils'
 export function refreshMIDIDevices() {
   if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {
     return
@@ -61,7 +61,7 @@ const qwertyKeyConfig: { [key: string]: string } = {
 class MidiState {
   octave = 4
   pressedNotes = new Map<number, number>()
-  synth = getSynthStub('acoustic_grand_piano')
+  synth = useSynth()
   listeners: Array<Function> = []
   virtualKeyboard = false
 

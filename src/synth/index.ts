@@ -32,16 +32,22 @@ async function loadInstrument(instrument: InstrumentName) {
   }
 }
 
+type Subscription = (action: 'play' | 'stop', note: number, velocity?: number) => void
 interface Synth {
   playNote(note: number, velocity?: number): void
   stopNote(note: number, velocity?: number): void
-
+  subscribe(callback: Subscription): void
   setMasterVolume(vol: number): void
 }
 
 async function getSynth(instrument: InstrumentName | number): Promise<Synth> {
   if (!isBrowser()) {
-    return { playNote() {}, stopNote() {}, setMasterVolume() {} }
+    return {
+      playNote() {},
+      stopNote() {},
+      setMasterVolume() {},
+      subscribe() {},
+    }
   }
 
   if (typeof instrument === 'number') {
@@ -63,12 +69,16 @@ function getSynthStub(instrument: InstrumentName | number): Synth {
 class SynthStub implements Synth {
   synth: Synth | undefined
   masterVolume: number
+  __subscriptions: Subscription[] = []
 
   constructor(instrument: InstrumentName | number) {
     this.masterVolume = 1.0
     getSynth(instrument).then((s) => {
       this.synth = s
       this.synth.setMasterVolume(this.masterVolume)
+      if (this.__subscriptions.length > 0) {
+        this.__subscriptions.forEach((fn) => this.synth?.subscribe(fn))
+      }
     })
   }
   playNote(note: number) {
@@ -76,6 +86,13 @@ class SynthStub implements Synth {
   }
   stopNote(note: number) {
     this.synth?.stopNote(note)
+  }
+  subscribe(fn: Subscription) {
+    if (!this.synth) {
+      this.__subscriptions.push(fn)
+    } else {
+      this.synth.subscribe(fn)
+    }
   }
   setMasterVolume(vol: number) {
     this.masterVolume = vol
@@ -88,7 +105,7 @@ class InstrumentSynth implements Synth {
   soundfont: SoundFont
   audioContext: AudioContext
   masterVolume: number
-
+  __subscriptions: Subscription[] = []
   /** Map from note to currently BufferSource */
   playing: Map<
     number,
@@ -105,7 +122,14 @@ class InstrumentSynth implements Synth {
     this.audioContext = getAudioContext()
   }
 
+  subscribe(fn: Subscription) {
+    this.__subscriptions.push(fn)
+  }
+
   playNote(note: number, velocity = 127 / 2) {
+    this.__subscriptions.forEach((fn) => {
+      fn('play', note, velocity)
+    })
     const key = getKey(note)
     const sourceNode = this.audioContext.createBufferSource()
     sourceNode.buffer = this.soundfont[key]
@@ -124,9 +148,17 @@ class InstrumentSynth implements Synth {
     if (!this.playing.has(note)) {
       return
     }
+    this.__subscriptions.forEach((fn) => {
+      fn('stop', note)
+    })
     const currTime = this.audioContext.currentTime
     const { gainNode, sourceNode } = this.playing.get(note)!
-    gainNode.gain.exponentialRampToValueAtTime(gainNode.gain.value, currTime)
+
+    // cannot be 0, instead using the lowest possible value
+    gainNode.gain.exponentialRampToValueAtTime(
+      gainNode.gain.value === 0 ? parseFloat('1.40130e-44') : gainNode.gain.value,
+      currTime,
+    )
     gainNode.gain.exponentialRampToValueAtTime(0.01, currTime + 0.5)
     sourceNode.stop(currTime + 0.5)
 

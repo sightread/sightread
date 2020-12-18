@@ -48,10 +48,10 @@ export type TrackSetting = {
   count?: number
   sound: boolean
 }
-
+export type TrackSettings = {
+  [key: string]: TrackSetting
+}
 export type SongSettings = {
-  song: PlayableSong
-  tracks: {
-    [key: string]: TrackSetting
-  }
+  song?: PlayableSong
+  tracks: TrackSettings
 }

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useRef, useState, useEffect, MouseEvent as MouseE } from 'react'
-import { PlayableSong, Track, TrackSetting } from '../types'
-import { useSelectedSong } from '../hooks'
+import { PlayableSong, Track, TrackSetting, SongSettings, TrackSettings } from '../types'
+import { useSelectedSong, cachedSettings } from '../hooks'
 import { CanvasSongBoard } from '../PlaySongPage'
 import { SongScrubBar } from '../pages/play/[...song_location]'
 import { getSong, inferHands, Sizer } from '../utils'
@@ -256,10 +256,6 @@ const controlsOverview = [
   },
 ]
 
-type TrackSettings = {
-  [key: string]: TrackSetting
-}
-
 function getHand({ config }: PlayableSong, trackId: number): 'left' | 'right' | 'none' {
   if (config.left === trackId) {
     return 'left'
@@ -300,12 +296,14 @@ function getTrackSettings(song: PlayableSong): TrackSettings {
 }
 
 function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
+  const { file, name, artist } = (songMeta as any) || {}
   const modalRef = useRef<HTMLDivElement>(null)
   // songSettings is context api for lifting state,
   // but still keeping song + trackSettings for local configuration.
   // then will use setSongSettings before moving to the play song page
-  const [_, setSongSettings] = useSelectedSong()
+  const [songSettings, setSongSettings] = useSelectedSong(file)
   const [song, setSong] = useState<PlayableSong | null>(null)
+  // if tracks exits on songSettings, then it was  read from localStorage cache
   const [trackSetings, setTrackSettings] = useState<TrackSettings | null>(null)
   const [playing, setPlaying] = useState(false)
   const [canPlay, setCanPlay] = useState(false)
@@ -313,18 +311,15 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   const router = useRouter()
   const player = Player.player()
 
-  const { file, name, artist } = (songMeta as any) || {}
-
   const handlePlayNow = () => {
-    if (!song || !trackSetings) return
+    if (!song || !trackSetings) {
+      console.error('Both song and track settings are required.')
+      return
+    }
 
-    setSongSettings({ song, tracks: trackSetings })
+    setSongSettings(file, { song, tracks: trackSetings })
     router.push(`/play/${file}`)
   }
-
-  useEffect(() => {
-    console.log({ song })
-  }, [song])
 
   const handleShowInstruments = () => {
     setShowInstruments(!showInstruments)
@@ -385,11 +380,11 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
       return
     }
     getSong(`${(songMeta as any).file}`)
-      .then(inferHands)
+      .then((song) => inferHands(song, file.includes('lesson')))
       .then((song: PlayableSong) => {
         setCanPlay(false)
         setSong(song)
-        setTrackSettings(getTrackSettings(song))
+        setTrackSettings(cachedSettings(file) || getTrackSettings(song))
         player.setSong(song).then(() => {
           setCanPlay(true)
         })
@@ -513,7 +508,7 @@ function AdjustInstruments({ tracks, setTracks, show }: InstrumentSettingsProps)
         Select the track and assign a hand you want to play per track.
       </h4>
       <Sizer height={24} />
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
         {!!tracks &&
           Object.entries(tracks).map(([track, settings]) => {
             return (
@@ -570,7 +565,7 @@ function InstrumentCard({ count, hand, track, sound, trackId, setTrack }: CardPr
         <span>{count} Notes</span>
       </div>
       <InstrumentSelect value={getInstrument(track)} onSelect={handleSelectInstrument} />
-      <TrackSettings
+      <TrackSettingsSection
         hand={hand}
         sound={sound}
         onSelectHand={handleSelectHand}
@@ -581,7 +576,7 @@ function InstrumentCard({ count, hand, track, sound, trackId, setTrack }: CardPr
 }
 
 function InstrumentSelect({ value, onSelect }: { value: string; onSelect: Function }) {
-  console.log({ value })
+  // console.log({ value })
   return (
     <select className={classes.instrumentSelect}>
       <option>Grand Piano</option>
@@ -595,9 +590,8 @@ type TrackSettingProps = {
   onSelectHand: (hand: string) => void
   onToggleSound: (sound: boolean) => void
 }
-function TrackSettings({ hand, sound, onSelectHand, onToggleSound }: TrackSettingProps) {
+function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: TrackSettingProps) {
   const handleSound = () => {
-    console.log('handle click: ', { sound })
     onToggleSound(!sound)
   }
 
