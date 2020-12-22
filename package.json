@@ -23,7 +23,7 @@
     "vexflow": "^3.0.9"
   },
   "scripts": {
-    "start": "next dev",
+    "start": "next start",
     "dev": "next dev",
     "build": "next build",
     "gen": "cd scripts && ts-node generate.ts && cd .."

@@ -1,17 +1,18 @@
 import { CSSProperties } from 'react'
 import { isBrowser } from '../utils'
 
-type StyleObjectValues = CSSProperties | { [key: string]: CSSProperties }
+type StyleObjectValues = CSSProperties | { [selectorKey: string]: CSSProperties }
 
 type StyleObject = {
-  [key: string]: StyleObjectValues
+  [selectorKey: string]: StyleObjectValues
 }
 
 type StringMap = {
-  [key: string]: string
+  [selectorKey: string]: string
 }
 
 let counter: number = 0
+let globalStyle = ''
 
 /**
  * style object expected in the shape of
@@ -32,57 +33,76 @@ let counter: number = 0
  *    ...
  * }
  */
-export function css(styleObj: StyleObject): StringMap {
-  const classes: StringMap = {}
-
-  // if on the server, still calculate the classnames
+export function css(styleObject: StyleObject) {
+  const parsed = compileCss(styleObject)
   if (!isBrowser()) {
-    const initialCount = counter
-    const deteriminedNames = Object.keys(styleObj).reduce((acc, curr) => {
-      const className = `css-${counter.toString()}`
-      acc[curr] = className
-      counter += 1
-      return acc
-    }, classes)
-    counter = initialCount
-    return deteriminedNames
+    globalStyle += parsed.styleHtml
   }
 
-  getStyleEl().innerHTML += Object.keys(styleObj).reduce((acc: string, selector) => {
-    const className = `css-${counter.toString()}`
-    counter += 1
+  return parsed.classes
+}
+
+export function extractCss() {
+  return globalStyle
+}
+
+export function compileCss(styleObj: StyleObject): { classes: StringMap; styleHtml: string } {
+  const classes: StringMap = {}
+  let styleHtml = ''
+
+  Object.entries(styleObj).forEach(([selector, styles]) => {
+    const className = `${selector}-${counter.toString()}`
+    counter++
+
     classes[selector] = className
-    const styles = styleObj[selector]
-    acc += getNestedSelectors(styles, className)
-    acc += `.${className} { ${rules(styles)} }`
-    return acc
-  }, '')
-  return classes
+    styleHtml += getNestedSelectors(styles, className)
+    const directRules = rules(getDirectProperties(styles))
+    if (directRules) {
+      styleHtml += `.${className}{${directRules}}`
+    }
+  })
+
+  if (process.env.NODE_ENV === 'development') {
+    styleHtml =
+      '\n' +
+      styleHtml
+        .replace(/(\{)/g, ' $&\n')
+        .replace(/(\})/g, '$&\n')
+        .replace(/([^;]*;)/g, '$&\n')
+  }
+
+  return { classes, styleHtml }
 }
 
-function getNestedSelectors(styleObject: any, className: string): string {
-  return Object.keys(styleObject).reduce((acc, key) => {
+function getDirectProperties(styleObject: StyleObjectValues): CSSProperties {
+  const extractedProps: StringMap = {}
+  for (let [propKey, propVal] of Object.entries(styleObject)) {
+    if (typeof propVal === 'object') {
+      continue
+    }
+    extractedProps[propKey] = propVal
+  }
+  return extractedProps as CSSProperties
+}
+
+function getNestedSelectors(styleObject: StyleObjectValues, className: string): string {
+  return Object.entries(styleObject).reduce((acc, [key, styles]) => {
     if (isNestedSelector(key)) {
-      const styles = styleObject[key]
-      acc += `.${className}${key.slice(1)} { ${rules(styles)}}`
+      acc += `.${className}${key.slice(1)}{${rules(styles)}}`
     } else if (isMediaQuery(key)) {
-      const styles = styleObject[key]
-      acc += `${key}{
-        .${className} { ${rules(styles)}}
-      }`
+      acc += `${key}{.${className} {${rules(styles)}}}`
     }
     return acc
   }, '')
 }
 
-function rules(rules: Object): string {
-  return Object.entries(rules).reduce((accum, [key, val]) => {
-    if (!isNestedSelector(key) && !isMediaQuery(key)) {
-      val = transform(key, val)
-      accum += ' ' + dashCase(key) + ':' + val + ';'
-    }
-    return accum
-  }, '')
+function rules(rules: CSSProperties): string {
+  return Object.entries(rules)
+    .map(([prop, val]) => {
+      val = maybeAddPx(prop, val)
+      return dashCase(prop) + ':' + val + ';'
+    })
+    .join('')
 }
 
 function isNestedSelector(key: string) {
@@ -93,30 +113,12 @@ function isMediaQuery(key: string): boolean {
   return key.startsWith('@media')
 }
 
-const excludeRules = new Set(['opacity', 'zIndex', 'fontWeight'])
-
-function transform(attr: string, val: number | string) {
-  if (typeof val === 'string') {
-    return val
-  }
-  if (excludeRules.has(attr)) {
+const unitlessProperties = new Set(['opacity', 'zIndex', 'fontWeight'])
+function maybeAddPx(attr: string, val: number | string) {
+  if (typeof val === 'string' || unitlessProperties.has(attr)) {
     return val
   }
   return `${val}px`
-}
-
-const STYLE_EL_ID = 'FLAKE_CSS'
-let styleEl: undefined | HTMLStyleElement
-
-function getStyleEl(): HTMLStyleElement {
-  if (styleEl) {
-    return styleEl
-  }
-
-  styleEl = document.createElement('style')
-  styleEl.id = STYLE_EL_ID
-  document.head.appendChild(styleEl)
-  return styleEl
 }
 
 function dashCase(str: string): string {
