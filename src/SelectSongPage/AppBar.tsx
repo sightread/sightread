@@ -38,7 +38,6 @@ function AppBar({ height }: { height: number }) {
         </Link>
         <span>About</span>
       </div>
-      <span style={{ marginLeft: 'auto', marginRight: 50 }}>Log in / Sign up</span>
     </div>
   )
 }

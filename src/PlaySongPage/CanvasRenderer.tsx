@@ -96,17 +96,27 @@ export function CanvasRenderer({ getItems, width, height, itemSettings }: Canvas
   return <canvas ref={canvasRef} width={width} height={height} />
 }
 
+const radius = 5
 const noteCornerRadius = {
-  tl: 5,
-  tr: 5,
-  bl: 5,
-  br: 5,
+  tl: radius,
+  tr: radius,
+  bl: radius,
+  br: radius,
 }
-function roundRect(ctx: Canvas, x: number, y: number, width: number, height: number) {
-  const tl = noteCornerRadius.tl
-  const tr = noteCornerRadius.tr
-  const bl = noteCornerRadius.bl
-  const br = noteCornerRadius.br
+function roundRect(ctx: Canvas, x: number, y: number, width: number, height: number): void {
+  if (height < radius) {
+    ctx.fillRect(x, y, width, height > 2 ? height : 2)
+    return
+  }
+  const getCornerRadii = () => {
+    if (width > radius) {
+      return noteCornerRadius
+    }
+    const r = width - 1
+    return { tl: r, tr: r, bl: r, br: r }
+  }
+  const { tl, tr, bl, br } = getCornerRadii()
+
   ctx.beginPath()
   ctx.moveTo(x + tl, y)
   ctx.lineTo(x + width - tr, y)

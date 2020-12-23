@@ -25,12 +25,11 @@ let globalStyle = ''
  *        },
  *        "@media(...)": {
  *            ...
- *        }
+ *        },
  *    },
  *    class2: {
  *        ...
  *    },
- *    ...
  * }
  */
 export function css(styleObject: StyleObject) {

@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useMemo } from 'react'
+import React, { useEffect, useRef, useMemo, useState } from 'react'
 import { SongMeasure, SongNote } from '../types'
 import Player from '../player'
+import Select from '../components/Select'
 import {
   CanvasRenderer,
   Config,
@@ -11,10 +12,12 @@ import {
 } from '../PlaySongPage'
 import { getNoteLanes, useSynth } from '../PlaySongPage/utils'
 import midiKeyboard from '../midi'
-import { isBlack } from '../utils'
+import { isBlack, formatInstrumentName } from '../utils'
 import { getNote } from '../synth/utils'
+import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { css } from '../flakecss'
 import { useSize } from '../hooks/size'
+import { ArrowLeft } from '../icons'
 import { useRouter } from 'next/router'
 
 function findLastIndex<T>(
@@ -66,6 +69,14 @@ const classes = css({
       color: 'rgba(58, 104, 231, 1)',
     },
   },
+  topbarIcon: {
+    fill: 'white',
+    cursor: 'pointer',
+    transition: '100ms',
+    '&:hover': {
+      fill: 'rgba(58, 104, 231, 1)',
+    },
+  },
 })
 function getItemStartEnd(item: CanvasItem) {
   const start = item.time * PIXELS_PER_SECOND
@@ -80,8 +91,12 @@ function getCurrentOffset(time: number) {
 }
 
 type NotesAndMeasures = CanvasItem[]
-
+type SelectSynth = { loading: boolean; error: boolean }
 function App() {
+  const [selectSynth, setSelectSynth] = useState<SelectSynth>({
+    loading: false,
+    error: false,
+  })
   const { width, height, measureRef } = useSize()
   const lanes = useMemo(() => getNoteLanes(width), [width])
   const router = useRouter()
@@ -117,6 +132,18 @@ function App() {
       midiKeyboard.virtualKeyboard = false
     }
   }, [player])
+
+  function setSynthInstrument(instrument: InstrumentName) {
+    setSelectSynth({ ...selectSynth, loading: true })
+    synth
+      .setInstrument(instrument)
+      .then((res) => {
+        setSelectSynth({ loading: false, error: false })
+      })
+      .catch(() => {
+        setSelectSynth({ loading: false, error: true })
+      })
+  }
 
   const pitch = { step: 'G', octave: 3, alter: 0 }
   const track = 1
@@ -217,27 +244,48 @@ function App() {
           alignItems: 'center',
         }}
       >
-        <i
-          className="fas fa-arrow-left"
-          style={{ fontSize: 30, position: 'relative', left: 15 }}
-          onClick={() => {
-            player.pause()
-            router.back()
-          }}
-        />
         <div
+          aria-label="left-items"
+          style={{ width: '33%', paddingLeft: '20px', boxSizing: 'border-box', cursor: 'pointer' }}
+        >
+          <ArrowLeft
+            className={classes.topbarIcon}
+            width={50}
+            height={40}
+            onClick={() => {
+              player.pause()
+              router.back()
+            }}
+          />
+        </div>
+        <div
+          aria-label="center-items"
           className="nav-buttons"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            alignItems: 'center',
-            display: 'flex',
-            justifyContent: 'space-around',
-            width: 225,
-          }}
+          style={{ width: '33%', display: 'flex', justifyContent: 'center' }}
         >
           <BpmDisplay />
+        </div>
+        <div
+          aria-label="right-items"
+          style={{
+            width: '34%',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            paddingRight: '20px',
+            boxSizing: 'border-box',
+          }}
+        >
+          <span style={{ width: '200px', display: 'inline-block' }}>
+            <Select
+              loading={selectSynth.loading}
+              error={selectSynth.error}
+              value={synth.getInstrument()}
+              onChange={setSynthInstrument}
+              options={gmInstruments as any}
+              format={formatInstrumentName}
+              display={formatInstrumentName}
+            />
+          </span>
         </div>
       </div>
       <div
@@ -260,11 +308,6 @@ function App() {
               height={height}
             />
           </div>
-          {/*
-              TODO: convert to canvas based for both falling notes + sheet music
-            */}
-          {/* <CanvasSongBoard song={songSettings?.song ?? null} hand={hand} /> */}
-          {/* <WindowedSongBoard song={song} hand={hand} /> */}
         </div>
         <div
           style={{
@@ -291,3 +334,32 @@ function App() {
 }
 
 export default App
+
+function InstrumentPicker({
+  value,
+  onSelect,
+}: {
+  value: InstrumentName
+  onSelect: (value: InstrumentName) => void
+}) {
+  const [state, setState] = useState(value)
+
+  return (
+    <select
+      value={state}
+      onChange={(e) => {
+        const val = e.target.value as InstrumentName
+        setState(val)
+        onSelect(val)
+      }}
+    >
+      {gmInstruments.map((instrument: InstrumentName) => {
+        return (
+          <option key={instrument} value={instrument}>
+            {instrument}
+          </option>
+        )
+      })}
+    </select>
+  )
+}

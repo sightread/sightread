@@ -333,11 +333,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           <>
             <RuleLines />
             <div style={{ position: 'relative', flex: 1 }}>
-              {/*
-              TODO: convert to canvas based for both falling notes + sheet music
-            */}
               <CanvasSongBoard song={songSettings?.song ?? null} hand={hand} />
-              {/* <WindowedSongBoard song={song} hand={hand} /> */}
             </div>
             <div
               style={{

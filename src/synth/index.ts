@@ -1,3 +1,4 @@
+import { sign } from 'crypto'
 import { isBrowser } from '../utils'
 import { gmInstruments, InstrumentName } from './instruments'
 import { getAudioContext, getKey, parseMidiJsSoundfont } from './utils'
@@ -32,12 +33,18 @@ async function loadInstrument(instrument: InstrumentName) {
   }
 }
 
+function isValidInstrument(instrument: InstrumentName | undefined) {
+  return instrument && gmInstruments.find((s) => s === instrument)
+}
+
 type Subscription = (action: 'play' | 'stop', note: number, velocity?: number) => void
 interface Synth {
   playNote(note: number, velocity?: number): void
   stopNote(note: number, velocity?: number): void
   subscribe(callback: Subscription): void
   setMasterVolume(vol: number): void
+  setInstrument(instrument: InstrumentName): Promise<void>
+  getInstrument(): InstrumentName
 }
 
 async function getSynth(instrument: InstrumentName | number): Promise<Synth> {
@@ -47,13 +54,17 @@ async function getSynth(instrument: InstrumentName | number): Promise<Synth> {
       stopNote() {},
       setMasterVolume() {},
       subscribe() {},
+      async setInstrument() {},
+      getInstrument() {
+        return gmInstruments[0]
+      },
     }
   }
 
   if (typeof instrument === 'number') {
     instrument = gmInstruments[instrument]
   }
-  if (!instrument || !gmInstruments.find((s) => s === instrument)) {
+  if (!isValidInstrument(instrument)) {
     console.error('Invalid instrument: ', instrument, 'reverting to acoustic_grand_piano.')
     instrument = gmInstruments[0]
   }
@@ -66,6 +77,7 @@ function getSynthStub(instrument: InstrumentName | number): Synth {
   return new SynthStub(instrument)
 }
 
+// TODO one synth per instrument
 class SynthStub implements Synth {
   synth: Synth | undefined
   masterVolume: number
@@ -98,6 +110,13 @@ class SynthStub implements Synth {
     this.masterVolume = vol
     this.synth?.setMasterVolume(vol)
   }
+
+  async setInstrument(instrument: InstrumentName): Promise<void> {
+    return this.synth?.setInstrument(instrument)
+  }
+  getInstrument(): InstrumentName {
+    return this.synth?.getInstrument() ?? gmInstruments[0]
+  }
 }
 
 class InstrumentSynth implements Synth {
@@ -106,6 +125,7 @@ class InstrumentSynth implements Synth {
   audioContext: AudioContext
   masterVolume: number
   __subscriptions: Subscription[] = []
+  __instrument: InstrumentName
   /** Map from note to currently BufferSource */
   playing: Map<
     number,
@@ -120,6 +140,7 @@ class InstrumentSynth implements Synth {
     this.soundfont = soundfont
     this.masterVolume = 1
     this.audioContext = getAudioContext()
+    this.__instrument = instrument
   }
 
   subscribe(fn: Subscription) {
@@ -170,6 +191,31 @@ class InstrumentSynth implements Synth {
     for (let { gainNode, velocity } of this.playing.values()) {
       gainNode.gain.value = (velocity / 127) * this.masterVolume
     }
+  }
+
+  async setInstrument(instrument: InstrumentName): Promise<void> {
+    if (this.__instrument === instrument) {
+      return
+    }
+    if (!isValidInstrument(instrument)) {
+      throw new Error(`invalid instrument: ${instrument} no change will be made.`)
+    }
+
+    let soundfont = soundfonts[instrument]
+    if (soundfont) {
+      this.soundfont = soundfont
+      return
+    }
+    await loadInstrument(instrument)
+    soundfont = soundfonts[instrument]
+    if (soundfont) {
+      this.soundfont = soundfont
+      return
+    }
+    throw new Error()
+  }
+  getInstrument() {
+    return this.__instrument
   }
 }
 

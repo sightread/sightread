@@ -1,12 +1,13 @@
 import * as React from 'react'
-import { useRef, useState, useEffect, MouseEvent as MouseE } from 'react'
-import { PlayableSong, Track, TrackSetting, SongSettings, TrackSettings } from '../types'
+import { useRef, useState, useEffect } from 'react'
+import { PlayableSong, Track, TrackSetting, TrackSettings } from '../types'
 import { useSelectedSong, cachedSettings } from '../hooks'
 import { CanvasSongBoard } from '../PlaySongPage'
 import { SongScrubBar } from '../pages/play/[...song_location]'
-import { getSong, inferHands, Sizer } from '../utils'
+import { getSong, inferHands, Sizer, formatInstrumentName } from '../utils'
 import Player from '../player'
-import { gmInstruments } from '../synth/instruments'
+import Select from '../components/Select'
+import { gmInstruments, InstrumentName } from '../synth/instruments'
 import {
   BothHandsSVG,
   Clock,
@@ -208,6 +209,7 @@ const classes = css({
     margin: '4px 8px',
   },
   instrumentSelect: {
+    borderRadius: 0,
     width: '100%',
     border: 'none',
     height: '50px',
@@ -215,19 +217,21 @@ const classes = css({
     fontWeight: 'bold',
     fontSize: '16px',
   },
+  selectIcon: {
+    top: 18,
+    right: 15,
+  },
+  instrumentMenu: {
+    top: 30,
+  },
   settingsIcon: {
     '& path': {
       transition: '200ms',
     },
     cursor: 'pointer',
   },
-  iconInActive: {
-    '&:hover path': {
-      fill: palette.purple.primary,
-    },
-  },
   settingsIconActive: {
-    '&:not(:hover) path': {
+    '& path': {
       fill: palette.purple.primary,
     },
   },
@@ -301,7 +305,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   // songSettings is context api for lifting state,
   // but still keeping song + trackSettings for local configuration.
   // then will use setSongSettings before moving to the play song page
-  const [songSettings, setSongSettings] = useSelectedSong(file)
+  const [_, setSongSettings] = useSelectedSong(file)
   const [song, setSong] = useState<PlayableSong | null>(null)
   // if tracks exits on songSettings, then it was  read from localStorage cache
   const [trackSetings, setTrackSettings] = useState<TrackSettings | null>(null)
@@ -525,23 +529,19 @@ function AdjustInstruments({ tracks, setTracks, show }: InstrumentSettingsProps)
   )
 }
 
-function formatInstrument(instrument: string): string {
-  return instrument.split('_').join(' ')
-}
-
 function getInstrument(track: Track): string {
   const { program, instrument, name } = track
   if (!!program) {
     return gmInstruments[program]
   }
   if (!!instrument) {
-    return formatInstrument(instrument)
+    return instrument
   }
   if (!!name) {
     return name
   }
-  console.log('error getting instrument:', { track })
-  return 'Error'
+  console.log('error getting instrument from track:', { track }, 'falling back to piano')
+  return 'acoustic_grand_piano'
 }
 
 type CardProps = TrackSetting & { key: string; trackId: number; setTrack: Function }
@@ -550,11 +550,13 @@ function InstrumentCard({ count, hand, track, sound, trackId, setTrack }: CardPr
   const handleSelectInstrument = (instrument: string) => {
     setTrack(trackId, { count, hand, track: instrument, sound })
   }
-  const handleSelectHand = (hand: string) => {
-    setTrack(trackId, { count, hand, sound, track })
+  const handleSelectHand = (newHand: string) => {
+    if (hand === newHand) {
+      newHand = 'none'
+    }
+    setTrack(trackId, { count, hand: newHand, sound, track })
   }
   const handleSound = (sound: boolean) => {
-    console.log({ sound })
     setTrack(trackId, { count, hand, sound, track })
   }
   return (
@@ -575,12 +577,21 @@ function InstrumentCard({ count, hand, track, sound, trackId, setTrack }: CardPr
   )
 }
 
-function InstrumentSelect({ value, onSelect }: { value: string; onSelect: Function }) {
+function InstrumentSelect({ value, onSelect }: { value: string; onSelect: (val: any) => void }) {
   // console.log({ value })
   return (
-    <select className={classes.instrumentSelect}>
-      <option>Grand Piano</option>
-    </select>
+    <Select
+      value={value}
+      onChange={onSelect}
+      options={gmInstruments as any}
+      classNames={{
+        select: classes.instrumentSelect,
+        icon: classes.selectIcon,
+        menu: classes.instrumentMenu,
+      }}
+      format={formatInstrumentName}
+      display={formatInstrumentName}
+    />
   )
 }
 

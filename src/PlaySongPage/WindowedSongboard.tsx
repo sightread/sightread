@@ -102,9 +102,7 @@ function FallingNote({ note, noteLength, width, posX, song }: FallingNoteProps) 
         boxSizing: 'border-box',
       }}
       className={className}
-    >
-      {/* {note.pitch.step} */}
-    </div>
+    ></div>
   )
 }
 

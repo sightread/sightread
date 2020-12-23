@@ -2,6 +2,7 @@ import React from 'react'
 import { parseMusicXML, parseMidi, getHandIndexesForTeachMid, parserInferHands } from './parsers'
 import { PlayableSong, Song } from './types'
 import { getKey } from './synth/utils'
+import { InstrumentName } from './synth/instruments'
 
 export function peek(o: any) {
   console.log(o)
@@ -137,6 +138,13 @@ class Deferred<T> {
 
 function isBlack(note: number) {
   return getKey(note)?.[1] === 'b'
+}
+
+export function formatInstrumentName(instrument: InstrumentName): string {
+  return instrument
+    .split('_')
+    .map((i) => i.charAt(0).toUpperCase() + i.slice(1))
+    .join(' ')
 }
 
 export { Sizer, getSong, formatTime, Logo, CenteringWrapper, inferHands, Deferred, isBlack }
