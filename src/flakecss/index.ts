@@ -14,6 +14,11 @@ type StringMap = {
 let counter: number = 0
 let globalStyle = ''
 
+// TODO: create babel plugin that processes all of the CSS into a single bundle
+// and removes all css() calls from the source in favor of inlining classname map
+// that would enable complete removal of flake from client.
+const DETERMINISTIC_CLASSNAMES = false
+
 /**
  * style object expected in the shape of
  * {
@@ -36,6 +41,8 @@ export function css(styleObject: StyleObject) {
   const parsed = compileCss(styleObject)
   if (!isBrowser()) {
     globalStyle += parsed.styleHtml
+  } else {
+    getStyleEl().innerHTML += parsed.styleHtml
   }
 
   return parsed.classes
@@ -50,7 +57,8 @@ export function compileCss(styleObj: StyleObject): { classes: StringMap; styleHt
   let styleHtml = ''
 
   Object.entries(styleObj).forEach(([selector, styles]) => {
-    const className = `${selector}-${counter.toString()}`
+    const suffix = DETERMINISTIC_CLASSNAMES ? getDeterministicClassnameSuffix(styles) : counter++
+    const className = `${selector}-${suffix}`
     counter++
 
     classes[selector] = className
@@ -71,6 +79,10 @@ export function compileCss(styleObj: StyleObject): { classes: StringMap; styleHt
   }
 
   return { classes, styleHtml }
+}
+
+function getDeterministicClassnameSuffix(obj: StyleObjectValues) {
+  return hash(JSON.stringify(obj))
 }
 
 function getDirectProperties(styleObject: StyleObjectValues): CSSProperties {
@@ -122,4 +134,34 @@ function maybeAddPx(attr: string, val: number | string) {
 
 function dashCase(str: string): string {
   return str.replace(/([a-z])([A-Z])/g, (s) => s[0] + '-' + s[1].toLowerCase())
+}
+
+export const FLAKE_STYLE_ID = 'FLAKE_CSS'
+let styleEl: null | HTMLStyleElement =
+  (isBrowser() && (document.getElementById(FLAKE_STYLE_ID) as HTMLStyleElement)) || null
+
+function getStyleEl(): HTMLStyleElement {
+  if (styleEl) {
+    return styleEl
+  }
+
+  styleEl = document.createElement('style')
+  styleEl.id = FLAKE_STYLE_ID
+  document.head.appendChild(styleEl)
+  return styleEl
+}
+
+// Stolen from stackoverflow: https://stackoverflow.com/questions/6122571/simple-non-secure-hash-function-for-javascript
+function hash(str: string) {
+  if (str.length == 0) {
+    return 0
+  }
+
+  let hash = 0
+  for (var i = 0; i < str.length; i++) {
+    var char = str.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  return hash
 }

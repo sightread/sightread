@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useCallback } from 'react'
 import { useRAFLoop } from '../hooks'
 import { SongMeasure, SongNote } from '../types'
 
@@ -42,24 +42,25 @@ const palette = {
 }
 
 export function CanvasRenderer({ getItems, width, height, itemSettings }: CanvasRendererProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
   const ctx = useRef<CanvasContext>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current?.getContext('2d')
-    ctx.current = canvas
-  }, [canvasRef.current])
+  const setContext = useCallback((canvasEl: HTMLCanvasElement) => {
+    if (canvasEl) {
+      ctx.current = canvasEl.getContext('2d')
+    }
+  }, [])
 
   function clearCanvas(ctx: Canvas) {
     ctx.clearRect(0, 0, width, height)
   }
 
   useRAFLoop(() => {
-    if (!ctx.current) return
+    if (!ctx.current) {
+      return
+    }
+
     clearCanvas(ctx.current)
-    const itemsToShow = getItems()
-    for (const item of itemsToShow) {
-      renderItemOnCanvas(ctx.current, item)
+    for (const item of getItems()) {
+      renderItem(ctx.current, item)
     }
   })
   function renderMeasure(ctx: Canvas, measure: SongMeasure): void {
@@ -87,13 +88,13 @@ export function CanvasRenderer({ getItems, width, height, itemSettings }: Canvas
     ctx.restore()
   }
 
-  function renderItemOnCanvas(ctx: Canvas, item: CanvasItem): void {
+  function renderItem(ctx: Canvas, item: CanvasItem): void {
     if (item.type === 'measure') {
       return renderMeasure(ctx, item)
     }
     return renderNote(ctx, item)
   }
-  return <canvas ref={canvasRef} width={width} height={height} />
+  return <canvas ref={setContext} width={width} height={height} />
 }
 
 const radius = 5

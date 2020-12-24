@@ -57,14 +57,10 @@ function getSortedItems(song: PlayableSong | null): NotesAndMeasures {
 }
 
 function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBoardProps) {
-  const notesAndMeasures = useRef<NotesAndMeasures>(getSortedItems(song))
   const { width, height, measureRef } = useSize()
   const player = Player.player()
   const lanes = useMemo(() => getNoteLanes(width), [width])
-
-  useEffect(() => {
-    notesAndMeasures.current = getSortedItems(song)
-  }, [song])
+  const notesAndMeasures = useMemo(() => getSortedItems(song).filter(isMatchingHand), [song])
 
   // keeping within component scope since song and hand can change
   function isMatchingHand(item: SongMeasure | SongNote) {
@@ -93,13 +89,13 @@ function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBo
     const lastIndex = sortedItems.findIndex((i) => getItemStartEnd(i).start >= viewportEnd)
     // returns -1 if nothing satisfies condition
     if (lastIndex === -1) {
-      return sortedItems.slice(firstIndex, sortedItems.length - 1)
+      return sortedItems.slice(firstIndex)
     }
     return sortedItems.slice(firstIndex, lastIndex)
   }
 
   function getItems() {
-    return getItemsInView(notesAndMeasures.current).filter(isMatchingHand)
+    return getItemsInView(notesAndMeasures)
   }
 
   // ¯\_(ツ)_/¯
@@ -113,7 +109,7 @@ function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBo
         posY: canvasStartPosition(item.time),
       } as Config<T>
     }
-    const note = item as SongNote
+    const note: SongNote = item as SongNote
     const lane = lanes[note.midiNote - getNote('A0')]
     const length = PIXELS_PER_SECOND * note.duration
     return {

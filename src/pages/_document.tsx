@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
-import { extractCss } from '../flakecss'
+import { extractCss, FLAKE_STYLE_ID } from '../flakecss'
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
@@ -24,7 +24,7 @@ class MyDocument extends Document {
           />
           {/* <!-- Font Awesome --> */}
           <script async src="https://kit.fontawesome.com/c4e11a9337.js" crossOrigin="anonymous" />
-          <style id="FLAKE_CSS" dangerouslySetInnerHTML={{ __html: extractCss() }} />
+          <style id={FLAKE_STYLE_ID} dangerouslySetInnerHTML={{ __html: extractCss() }} />
         </Head>
         <body>
           <Main />

@@ -150,7 +150,7 @@ class Player {
     }
 
     this.lastIntervalFiredTime = performance.now()
-    this.playInterval = setInterval(() => this.playLoop_(), 16)
+    this.playInterval = setInterval(() => this.playLoop_(), 1)
     // continue playing everything we were in the middle of, but at a lower vol
     this.playing.forEach((note) => this.playNote(note))
     this.notify()
