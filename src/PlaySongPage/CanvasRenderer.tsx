@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect } from 'react'
+import React, { useRef, useCallback } from 'react'
 import { useRAFLoop } from '../hooks'
 import Player from '../player'
 import { SongMeasure, SongNote } from '../types'

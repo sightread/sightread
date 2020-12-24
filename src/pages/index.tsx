@@ -1,8 +1,9 @@
 import * as React from 'react'
-import { CenteringWrapper, Logo, Sizer } from '../utils'
+import { CenteringWrapper, Sizer } from '../utils'
 import { css } from '../flakecss'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Logo } from '../icons'
 
 const DARKER_PURPLE = '#5F18EA' // header.
 const PURPLE = '#7029FB'

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react'
-import { SongMeasure, SongNote } from '../types'
+import { SongNote } from '../types'
 import Player from '../player'
 import Select from '../components/Select'
 import {

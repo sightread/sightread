@@ -1,7 +1,18 @@
 import * as React from 'react'
-import { Sizer, Logo } from '../utils'
+import { Sizer } from '../utils'
 import Link from 'next/link'
+import { css } from '../flakecss'
+import { Logo } from '../icons'
 
+const styles = css({
+  navLink: {
+    color: 'white',
+    textDecoration: 'none',
+    '&:hover': {
+      color: 'rgba(255,255,255,0.7)',
+    },
+  },
+})
 function AppBar({ height }: { height: number }) {
   return (
     <div
@@ -27,18 +38,20 @@ function AppBar({ height }: { height: number }) {
           justifyContent: 'space-between',
         }}
       >
-        <Link href="/freeplay">
-          <a style={{ color: 'white', textDecoration: 'none' }}>Free Play</a>
-        </Link>
-        <Link href="/songs">
-          <a style={{ color: 'white', textDecoration: 'none' }}>Songs</a>
-        </Link>
-        <Link href="/lessons">
-          <a style={{ color: 'white', textDecoration: 'none' }}>Lessons</a>
-        </Link>
-        <span>About</span>
+        <NavLink href="/freeplay">Free Play</NavLink>
+        <NavLink href="/songs">Songs</NavLink>
+        <NavLink href="/lessons">Lessons</NavLink>
+        <NavLink href="/about">About</NavLink>
       </div>
     </div>
+  )
+}
+
+function NavLink({ children, href }: { children: React.ReactNode; href: string }) {
+  return (
+    <Link href={href}>
+      <a className={styles.navLink}>{children}</a>
+    </Link>
   )
 }
 

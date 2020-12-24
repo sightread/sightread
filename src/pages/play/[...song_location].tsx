@@ -18,6 +18,7 @@ import {
   ClockIcon,
   HistoryIcon,
   SoundOnIcon,
+  LoadingIcon,
 } from '../../icons'
 import Player from '../../player'
 import midiKeyboard from '../../midi'
@@ -86,6 +87,9 @@ const classes = css({
     '&:hover path': {
       fill: 'rgba(58, 104, 231, 1)',
     },
+    '&:hover path.outline': {
+      fill: 'black',
+    },
     '& path': {
       cursor: 'pointer',
     },
@@ -99,7 +103,10 @@ const classes = css({
   },
   active: {
     '& path': {
-      fill: 'rgba(58, 104, 231, 1) !important',
+      fill: 'rgba(58, 104, 231, 1)',
+    },
+    '& path.outline': {
+      fill: 'black',
     },
   },
   topbar: {
@@ -229,6 +236,30 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     return type
   }
 
+  let statusIcon
+  if (playing) {
+    statusIcon = (
+      <PauseIcon width={35} height={35} className={classes.topbarIcon} onClick={togglePlaying} />
+    )
+  } else if (canPlay) {
+    statusIcon = (
+      <PlayIcon height={25} width={35} className={classes.topbarIcon} onClick={togglePlaying} />
+    )
+  } else {
+    statusIcon = (
+      <LoadingIcon
+        width={35}
+        height={35}
+        style={{
+          fill: 'white',
+          animation: 'spinner 2s infinite linear',
+          margin: 0,
+          padding: 0,
+        }}
+      />
+    )
+  }
+
   return (
     <div className="App">
       <div
@@ -277,21 +308,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           />
 
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          {playing ? (
-            <PauseIcon
-              width={35}
-              height={35}
-              className={classes.topbarIcon}
-              onClick={togglePlaying}
-            />
-          ) : (
-            <PlayIcon
-              height={25}
-              width={35}
-              className={classes.topbarIcon}
-              onClick={togglePlaying}
-            />
-          )}
+          {statusIcon}
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <BpmDisplay />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
@@ -324,7 +341,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           <ClockIcon
             width={25}
             height={25}
-            className={clsx(classes.figmaIcon, classes.fillWhite)}
+            className={clsx(classes.figmaIcon, classes.fillWhite, waiting && classes.active)}
             onClick={() => {
               setWaiting(!waiting)
               player.setWait(!waiting)
@@ -343,7 +360,11 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             <HistoryIcon
               width={25}
               height={25}
-              className={clsx(classes.figmaIcon, classes.fillWhite)}
+              className={clsx(
+                classes.figmaIcon,
+                classes.fillWhite,
+                rangeSelecting && classes.active,
+              )}
             />
           </span>
 

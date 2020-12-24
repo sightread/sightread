@@ -19,6 +19,7 @@ import {
   SoundOnIcon,
   SoundOffIcon,
   PlayIcon,
+  LoadingIcon,
 } from '../icons'
 import { css } from '../flakecss'
 import { useRouter } from 'next/router'
@@ -110,6 +111,7 @@ const classes = css({
       fill: 'white',
     },
   },
+  modalSpinnerIcon: { fill: 'white', animation: 'spinner 2s infinite linear' },
   buttonContainer: { width: previewWidth, display: 'flex', justifyContent: 'space-between' },
   baseButton: {
     transition: '150ms',
@@ -249,7 +251,7 @@ const controlsOverview = [
   },
   {
     title: 'Wait',
-    caption: 'PauseIcon until you hit the right note.',
+    caption: 'Pause until you hit the right note.',
     icon: <ClockIcon height={35} width={35} />,
   },
   {
@@ -444,20 +446,35 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
               }}
               onClick={handleTogglePlay}
             >
-              {!playing && (
-                <PlayIcon
-                  height={60}
-                  width={60}
-                  className={classes.modalPlayBtn}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (canPlay) {
-                      player.play()
-                      setPlaying(true)
-                    }
-                  }}
-                />
-              )}
+              {!playing &&
+                ((canPlay && (
+                  <PlayIcon
+                    height={60}
+                    width={60}
+                    className={classes.modalPlayBtn}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (canPlay) {
+                        player.play()
+                        setPlaying(true)
+                      }
+                    }}
+                  />
+                )) || (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%,-50%)',
+                      width: 60,
+                      height: 60,
+                      zIndex: 1,
+                    }}
+                  >
+                    <LoadingIcon width={60} height={60} className={classes.modalSpinnerIcon} />
+                  </div>
+                ))}
               <CanvasSongBoard song={song} hand={'both'} />
             </div>
             <Sizer height={16} />

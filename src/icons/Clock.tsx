@@ -1,6 +1,6 @@
 import { IconInput } from './types'
 
-function Clock({ width, height, style, className }: IconInput) {
+function Clock({ width, height, style, className, onClick }: IconInput) {
   return (
     <svg
       className={className}
@@ -8,8 +8,7 @@ function Clock({ width, height, style, className }: IconInput) {
       height={height}
       style={style}
       viewBox="0 0 42 42"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      onClick={onClick}
     >
       <path
         d="M21 0.90625C9.76172 0.90625 0.65625 10.0117 0.65625 21.25C0.65625 32.4883 9.76172 41.5938 21 41.5938C32.2383 41.5938 41.3438 32.4883 41.3438 21.25C41.3438 10.0117 32.2383 0.90625 21 0.90625ZM28.5469 26.582L26.9062 28.6328C26.6602 28.9609 26.332 29.207 25.8398 29.207C25.5938 29.207 25.2656 29.043 25.1016 28.8789L19.6055 24.7773C18.7852 24.2031 18.375 23.3008 18.375 22.2344V9.4375C18.375 8.78125 18.9492 8.125 19.6875 8.125H22.3125C22.9688 8.125 23.625 8.78125 23.625 9.4375V21.25L28.3828 24.7773C28.6289 25.0234 28.875 25.3516 28.875 25.7617C28.875 26.0898 28.7109 26.418 28.5469 26.582Z"

@@ -95,21 +95,17 @@ export default function PianoRoll({
     for (let midiNote of diff) {
       const defaultColor = keyPositions[+midiNote - getNote('A0')].color
       const color = getKeyColor(currPressed, +midiNote, defaultColor)
-      const noteEl = document.getElementById(getNoteId(midiNote))!
-      noteEl.style.backgroundColor = color
+      const noteEl = document.getElementById(getNoteId(midiNote))
+      if (noteEl) {
+        noteEl.style.backgroundColor = color
+      }
     }
     prevPressed.current = currPressed
   }
 
   useEffect(() => {
-    let mounted = true
-    Player.player().subscribe((pressed: any) => {
-      if (mounted) {
-        setNoteColors(pressed)
-      }
-    })
+    Player.player().subscribe(setNoteColors)
     return () => {
-      mounted = false
       Player.player().unsubscribe(setNoteColors)
     }
   }, [getKeyColor])

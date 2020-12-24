@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext, useCallback } from 'react'
 import Player from '../player'
 import { SongNote, SongSettings, TrackSettings } from '../types'
 import midi from '../midi'
-import { useRouter } from 'next/router'
 import { isBrowser } from '../utils'
 
 export function useMousePressed() {
@@ -121,19 +120,4 @@ export function useSongPressedKeys() {
 
 export function useUserPressedKeys() {
   return useContext(UserPressedKeysContext)
-}
-
-export function useQuery(): any {
-  const router = useRouter()
-  if (!isBrowser()) {
-    return [{}, () => {}]
-  }
-  const params = new URLSearchParams(window?.location?.search)
-  return [
-    Object.fromEntries(params.entries()),
-    (key: string, value: string) => {
-      params.set(key, value)
-      router.push(window.location.pathname + '?' + params.toString())
-    },
-  ]
 }
