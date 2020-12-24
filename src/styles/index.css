@@ -1,6 +1,12 @@
 /* * {
   user-select: none;
 } */
+@font-face {
+  font-family: Titillium;
+  src: url('fonts/Titillium_Web/TitilliumWeb-Regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
 
 .SelectSongPage__song:hover {
   background-color: rgb(159 133 221 / 45%);
@@ -11,7 +17,7 @@
 body {
   /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; */
-  font-family: 'Titillium Web', sans-serif;
+  font-family: 'Titillium';
 }
 
 .left-hand.white {

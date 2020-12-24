@@ -1,6 +1,6 @@
 import { IconInput } from './types'
 
-function CancelCircle({ width, height, style, className }: IconInput) {
+function CancelCircleIcon({ width, height, style, className }: IconInput) {
   return (
     <svg
       width={width}
@@ -19,4 +19,4 @@ function CancelCircle({ width, height, style, className }: IconInput) {
   )
 }
 
-export default CancelCircle
+export default CancelCircleIcon

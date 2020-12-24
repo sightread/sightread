@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import { css } from '../flakecss'
-import { ArrowDown, Loading } from '../icons'
+import { ArrowDown, LoadingIcon } from '../icons'
 import clsx from 'clsx'
 
 const classes = css({
@@ -142,7 +142,7 @@ export default function Select({
         onClick={toggleMenu}
       />
       {loading && (
-        <Loading width={15} height={15} className={clsx(classes.loading, classNames?.icon)} />
+        <LoadingIcon width={15} height={15} className={clsx(classes.loading, classNames?.icon)} />
       )}
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'absolute', top: 0, width: '100%' }}>

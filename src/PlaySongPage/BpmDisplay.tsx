@@ -1,6 +1,20 @@
 import { useRef } from 'react'
 import Player from '../player'
 import { useRAFLoop } from '../hooks'
+import { MinusIcon, PlusIcon } from '../icons'
+import { css } from '../flakecss'
+
+const classes = css({
+  figmaIcon: {
+    cursor: 'pointer',
+    '& path': {
+      fill: 'white',
+    },
+    '&:hover path': {
+      fill: 'rgba(58, 104, 231, 1)',
+    },
+  },
+})
 
 export function BpmDisplay() {
   const bpmRef = useRef<HTMLSpanElement>(null)
@@ -20,12 +34,24 @@ export function BpmDisplay() {
     <div
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 110 }}
     >
-      <i className="fas fa-minus" onClick={() => player.decreaseBpm()} />
-      <div style={{ display: 'flex', flexDirection: 'column', color: 'white' }}>
-        <span style={{ fontSize: 24 }} ref={percentRef} />
-        <span style={{ fontSize: 16 }} ref={bpmRef} />
+      <span
+        style={{ display: 'inline-block' }}
+        className={classes.figmaIcon}
+        onClick={() => player.decreaseBpm()}
+      >
+        <MinusIcon height={25} width={25} className={classes.figmaIcon} />
+      </span>
+      <div style={{ display: 'flex', flexDirection: 'column', color: 'white', minWidth: 64 }}>
+        <span style={{ fontSize: 24, textAlign: 'center' }} ref={percentRef} />
+        <span style={{ fontSize: 16, textAlign: 'center' }} ref={bpmRef} />
       </div>
-      <i className="fas fa-plus" onClick={() => player.increaseBpm()} />
+      <span
+        style={{ display: 'inline-block' }}
+        className={classes.figmaIcon}
+        onClick={() => player.increaseBpm()}
+      >
+        <PlusIcon height={25} width={25} className={classes.figmaIcon} />
+      </span>
     </div>
   )
 }

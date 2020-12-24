@@ -1,11 +1,13 @@
 import { IconInput } from './types'
 
-function MusicalNote({ width, height, style }: IconInput) {
+function MusicalNoteIcon({ width, height, style, className, onClick }: IconInput) {
   return (
     <svg
       width={width}
       height={height}
       style={style}
+      className={className}
+      onClick={onClick}
       viewBox="0 0 42 43"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,4 +20,4 @@ function MusicalNote({ width, height, style }: IconInput) {
   )
 }
 
-export default MusicalNote
+export default MusicalNoteIcon

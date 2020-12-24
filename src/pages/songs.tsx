@@ -27,10 +27,10 @@ export default function SelectLessonPage() {
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Songs</h2>
           <SelectSongTable
             columns={[
-              { label: 'TITLE', id: 'name' },
-              { label: 'ARTIST', id: 'artist' },
-              { label: 'DIFFICULTY', id: 'difficulty', format: (v) => 'Easy' },
-              { label: 'LENGTH', id: 'duration', format: formatTime },
+              { label: 'Title', id: 'name' },
+              { label: 'Artist', id: 'artist' },
+              { label: 'Difficult', id: 'difficulty', format: (v) => 'Easy' },
+              { label: 'Length', id: 'duration', format: formatTime },
             ]}
             rows={songs}
             filter={['name', 'artist'] as any}

@@ -26,10 +26,10 @@ export default function SelectLessonPage() {
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Lessons</h2>
           <SelectSongTable
             columns={[
-              { label: 'LESSON', id: 'lesson', style: { width: '15%' } },
-              { label: 'TITLE', id: 'name', style: { width: '50%' } },
+              { label: 'Lesson', id: 'lesson', style: { width: '15%' } },
+              { label: 'Title', id: 'name', style: { width: '50%' } },
               {
-                label: 'DIFFICULTY',
+                label: 'Difficulty',
                 id: 'difficulty',
                 style: { width: '33%' },
                 format: (v) => 'Easy',

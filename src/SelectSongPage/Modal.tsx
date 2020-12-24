@@ -9,15 +9,16 @@ import Player from '../player'
 import Select from '../components/Select'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import {
-  BothHandsSVG,
-  Clock,
-  MuiscalNote,
-  DoubleArrowLoop,
-  CancelCircle,
-  LeftHand,
-  RightHand,
-  SoundOn,
-  SoundOff,
+  BothHandsIcon,
+  ClockIcon,
+  MusicalNoteIcon,
+  DoubleArrowLoopIcon,
+  CancelCircleIcon,
+  LeftHandIcon,
+  RightHandIcon,
+  SoundOnIcon,
+  SoundOffIcon,
+  PlayIcon,
 } from '../icons'
 import { css } from '../flakecss'
 import { useRouter } from 'next/router'
@@ -100,10 +101,13 @@ const classes = css({
     fontSize: 69,
     zIndex: 1,
     cursor: 'pointer',
-    color: 'rgb(176, 176, 176)',
     transition: '150ms',
-    '&:hover': {
-      color: 'white',
+    '& path': {
+      fill: 'rgb(176, 176, 176)',
+      transition: '150ms',
+    },
+    '&:hover path': {
+      fill: 'white',
     },
   },
   buttonContainer: { width: previewWidth, display: 'flex', justifyContent: 'space-between' },
@@ -241,22 +245,22 @@ const controlsOverview = [
   {
     title: 'Hand Select',
     caption: 'Practice left, right, or both hands!',
-    icon: <BothHandsSVG height={35} width={50} />,
+    icon: <BothHandsIcon height={35} width={50} />,
   },
   {
     title: 'Wait',
-    caption: 'Pause until you hit the right note.',
-    icon: <Clock height={35} width={35} />,
+    caption: 'PauseIcon until you hit the right note.',
+    icon: <ClockIcon height={35} width={35} />,
   },
   {
     title: 'Visualization',
     caption: 'Choose between Falling notes or Sheet Music display.',
-    icon: <MuiscalNote height={35} width={35} />,
+    icon: <MusicalNoteIcon height={35} width={35} />,
   },
   {
     title: 'Looping',
     caption: 'Select a range to repeat.',
-    icon: <DoubleArrowLoop width={35} height={35} />,
+    icon: <DoubleArrowLoopIcon width={35} height={35} />,
   },
 ]
 
@@ -407,7 +411,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
     <div className={classes.modalContainer}>
       <div ref={modalRef} className={classes.modalContent}>
         <button className={classes.closeModalButton} onClick={onClose}>
-          <CancelCircle width={30} height={30} className={classes.closeModalIcon} />
+          <CancelCircleIcon width={30} height={30} className={classes.closeModalIcon} />
         </button>
         <div>
           <span className={classes.songTitle}>{name}</span>
@@ -441,8 +445,10 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
               onClick={handleTogglePlay}
             >
               {!playing && (
-                <i
-                  className={`${classes.modalPlayBtn} fas fa-play`}
+                <PlayIcon
+                  height={60}
+                  width={60}
+                  className={classes.modalPlayBtn}
                   onClick={(e) => {
                     e.stopPropagation()
                     if (canPlay) {
@@ -457,7 +463,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
             <Sizer height={16} />
             <div className={classes.buttonContainer}>
               <button className={classes.playNowButton} onClick={handlePlayNow}>
-                Play Now
+                PlayIcon Now
               </button>
               <AdjustIntstrumentsButton active={showInstruments} onClick={handleShowInstruments} />
             </div>
@@ -645,7 +651,7 @@ type ToggleIconProps = {
 function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
   return (
     <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <LeftHand
+      <LeftHandIcon
         height={32}
         width={32}
         className={`${classes.settingsIcon} ${
@@ -661,7 +667,7 @@ function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
 function ToggleRightHand({ on, onClick }: ToggleIconProps) {
   return (
     <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <RightHand
+      <RightHandIcon
         height={32}
         width={32}
         className={`${classes.settingsIcon} ${
@@ -679,7 +685,7 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
     <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {on ? (
         <>
-          <SoundOn
+          <SoundOnIcon
             height={32}
             width={32}
             className={`${classes.settingsIcon} ${
@@ -691,7 +697,7 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
         </>
       ) : (
         <>
-          <SoundOff
+          <SoundOffIcon
             height={32}
             width={32}
             className={`${classes.settingsIcon} ${

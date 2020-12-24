@@ -2,6 +2,8 @@ import * as React from 'react'
 import { useState } from 'react'
 import { Sizer } from '../utils'
 import { MusicFile } from '../../scripts/songdata'
+import { SearchIcon, ExpandDownIcon } from '../icons'
+import { css } from '../flakecss'
 
 type TableColumn = {
   label: string
@@ -35,6 +37,12 @@ function sortBy<T>(fn: (x: T) => number | string, rev: boolean, arr: T[]): T[] {
     return (rev ? -1 : 1) * compare(fn(a), fn(b))
   })
 }
+
+const classes = css({
+  expandIcon: {
+    fill: '#1B0EA6',
+  },
+})
 
 function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTableProps) {
   const [search, saveSearch] = useState('')
@@ -138,6 +146,17 @@ function tableColumnClass(sortCol: number, index: number) {
   return className
 }
 
+function getIcon(sortCol: number, index: number) {
+  const style: React.CSSProperties = { fill: '#1B0EA6', marginLeft: 5 }
+  if (Math.abs(sortCol) === index + 1) {
+    if (sortCol < 0) {
+      style.transform = 'rotate(180deg)'
+    }
+    return <ExpandDownIcon width={15} height={15} style={style} />
+  }
+  return <></>
+}
+
 function TableHead({ columns, sortCol, onSelectCol }: TableHeadProps) {
   const colWidth = (100 / columns.length).toFixed(2)
   return (
@@ -163,8 +182,12 @@ function TableHead({ columns, sortCol, onSelectCol }: TableHeadProps) {
         const paddingLeft = i === 0 ? 30 : 0
         return (
           <div style={{ paddingLeft, width: `${colWidth}%`, ...col.style }} key={col.id}>
-            <span onClick={() => onSelectCol(i + 1)} className={className}>
+            <span
+              onClick={() => onSelectCol(i + 1)}
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
               {col.label}
+              {getIcon(sortCol, i)}
             </span>
           </div>
         )
@@ -191,13 +214,12 @@ function SearchBox({ onSearch }: { onSearch: (val: string) => void }) {
         }}
         placeholder="Search Songs by Title or Artist"
       />
-      <i
-        className="fa fa-search"
+      <SearchIcon
+        height={25}
+        width={25}
         style={{
-          fontSize: 16,
           position: 'absolute',
           left: 10,
-          width: 16,
           top: '50%',
           transform: 'translateY(-50%)',
         }}

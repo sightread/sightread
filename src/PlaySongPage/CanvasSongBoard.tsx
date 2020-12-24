@@ -60,14 +60,13 @@ function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBo
   const { width, height, measureRef } = useSize()
   const player = Player.player()
   const lanes = useMemo(() => getNoteLanes(width), [width])
-  const notesAndMeasures = useMemo(() => getSortedItems(song).filter(isMatchingHand), [song])
+  const notesAndMeasures = useMemo(() => getSortedItems(song).filter(isMatchingHand), [song, hand])
 
   // keeping within component scope since song and hand can change
   function isMatchingHand(item: SongMeasure | SongNote) {
     if (item.type === 'measure') {
       return true
     }
-
     const isLeft = item.track === song?.config.left
     const isRight = item.track === song?.config.right
     return (

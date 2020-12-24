@@ -17,7 +17,7 @@ import { getNote } from '../synth/utils'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { css } from '../flakecss'
 import { useSize } from '../hooks/size'
-import { ArrowLeft } from '../icons'
+import { ArrowLeftIcon } from '../icons'
 import { useRouter } from 'next/router'
 
 function findLastIndex<T>(
@@ -248,7 +248,7 @@ function App() {
           aria-label="left-items"
           style={{ width: '33%', paddingLeft: '20px', boxSizing: 'border-box', cursor: 'pointer' }}
         >
-          <ArrowLeft
+          <ArrowLeftIcon
             className={classes.topbarIcon}
             width={50}
             height={40}

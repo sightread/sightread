@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { FClefSVG, GClefSVG } from '../icons'
+import { FClefSVGIcon, GClefSVGIcon } from '../icons'
 import { Virtualized } from './Virtualized'
 import { Sizer } from '../utils'
 import { PlayableSong, SongNote } from '../types'
@@ -79,9 +79,9 @@ const STEP_NUM: any = {
 
 function ClefSvg({ hand, style }: any) {
   if (hand === 'right') {
-    return <GClefSVG style={{ position: 'absolute', ...style }} />
+    return <GClefSVGIcon style={{ position: 'absolute', ...style }} />
   }
-  return <FClefSVG style={{ position: 'absolute', ...style }} />
+  return <FClefSVGIcon style={{ position: 'absolute', ...style }} />
 }
 
 // Make a staffz

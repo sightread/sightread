@@ -1,8 +1,6 @@
 import '../../player'
 import React, { useState, useEffect, useRef } from 'react'
-import Player from '../../player'
 import { Song, PlayableSong, Hand } from '../../types'
-import { useRAFLoop, useSongPressedKeys, useSelectedSong } from '../../hooks'
 import {
   CanvasSongBoard,
   WindowedStaffBoard,
@@ -10,14 +8,29 @@ import {
   BpmDisplay,
   PianoRoll,
 } from '../../PlaySongPage'
+import {
+  ArrowLeftIcon,
+  PreviousIcon,
+  PauseIcon,
+  PlayIcon,
+  LeftHandIcon,
+  RightHandIcon,
+  ClockIcon,
+  HistoryIcon,
+  SoundOnIcon,
+} from '../../icons'
+import Player from '../../player'
 import midiKeyboard from '../../midi'
-import { useRouter } from 'next/router'
-import { formatTime, getSong, inferHands } from '../../utils'
 import { getSynthStub } from '../../synth'
+import { formatTime, getSong, inferHands } from '../../utils'
+import { useRAFLoop, useSongPressedKeys, useSelectedSong } from '../../hooks'
 import { css } from '../../flakecss'
 import { useSize } from '../../hooks/size'
+import { useRouter } from 'next/router'
 import { GetServerSideProps } from 'next'
 import { default as ErrorPage } from 'next/error'
+import clsx from 'clsx'
+import { MusicalNoteIcon } from '../../icons'
 // const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
 // const pathToSongs =
 
@@ -64,6 +77,36 @@ const palette = {
 }
 
 const classes = css({
+  topbarIcon: {
+    cursor: 'pointer',
+    fill: 'white',
+    '&:hover': {
+      fill: 'rgba(58, 104, 231, 1)',
+    },
+    '& .active ': {
+      fill: 'rgba(58, 104, 231, 1)',
+    },
+  },
+  figmaIcon: {
+    '&:hover path': {
+      fill: 'rgba(58, 104, 231, 1)',
+    },
+    '& path': {
+      cursor: 'pointer',
+    },
+    cursor: 'pointer',
+  },
+  fillWhite: {
+    '& path': {
+      fill: 'white',
+    },
+    fill: 'white',
+  },
+  active: {
+    '& path': {
+      fill: 'rgba(58, 104, 231, 1) !important',
+    },
+  },
   topbar: {
     '& i': {
       color: 'white',
@@ -160,6 +203,18 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     setHand(selected)
   }
 
+  const togglePlaying = () => {
+    if (!playing) {
+      if (canPlay) {
+        player.play()
+        setPlaying(true)
+      }
+    } else {
+      player.pause()
+      setPlaying(false)
+    }
+  }
+
   const getKeyColor = (midiNote: number, type: 'white' | 'black'): string => {
     const song = songSettings?.song
     if (!song || !(midiNote in pressedKeys)) return type
@@ -191,9 +246,10 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           alignItems: 'center',
         }}
       >
-        <i
-          className="fas fa-arrow-left"
-          style={{ fontSize: 30, position: 'relative', left: 15 }}
+        <ArrowLeftIcon
+          className={classes.topbarIcon}
+          height={40}
+          width={50}
           onClick={() => {
             player.pause()
             router.back()
@@ -212,28 +268,32 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <i
-            className="fas fa-step-backward"
+          <PreviousIcon
+            className={classes.topbarIcon}
+            height={40}
+            width={40}
             onClick={() => {
               player.stop()
               setPlaying(false)
             }}
           />
+
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <i
-            className={playing ? 'fas fa-pause' : 'fas fa-play'}
-            onClick={() => {
-              if (!playing) {
-                if (canPlay) {
-                  player.play()
-                  setPlaying(true)
-                }
-              } else {
-                player.pause()
-                setPlaying(false)
-              }
-            }}
-          ></i>
+          {playing ? (
+            <PauseIcon
+              width={35}
+              height={35}
+              className={classes.topbarIcon}
+              onClick={togglePlaying}
+            />
+          ) : (
+            <PlayIcon
+              height={25}
+              width={35}
+              className={classes.topbarIcon}
+              onClick={togglePlaying}
+            />
+          )}
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <BpmDisplay />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
@@ -249,39 +309,50 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <div style={{ width: 44 }}>
-            <i
-              style={{ transform: 'rotateY(180deg)' }}
-              className={`fas fa-hand-paper ${hand === 'left' && 'active'}`}
+            <LeftHandIcon
               onClick={() => handleHand('left')}
+              height={40}
+              width={20}
+              className={clsx(classes.figmaIcon, hand === 'left' && classes.active)}
             />
-            <i
-              className={`fas fa-hand-paper ${hand === 'right' && 'active'}`}
+            <RightHandIcon
               onClick={() => handleHand('right')}
+              height={40}
+              width={20}
+              className={clsx(classes.figmaIcon, hand === 'right' && classes.active)}
             />
           </div>
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <i
-            style={{ width: 24 }}
-            className={`fas fa-clock ${waiting && 'active'}`}
+          <ClockIcon
+            width={25}
+            height={25}
+            className={clsx(classes.figmaIcon, classes.fillWhite)}
             onClick={() => {
               setWaiting(!waiting)
               player.setWait(!waiting)
             }}
           />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <i
-            className={`fas fa-history ${rangeSelecting && 'active'}`}
-            style={{ width: 24 }}
+          <span
+            className={classes.figmaIcon}
+            style={{ display: 'inline-block' }}
             onClick={() => {
               setRangeSelecting(!rangeSelecting)
               setPlaying(false)
               player.pause()
             }}
-          />
+          >
+            <HistoryIcon
+              width={25}
+              height={25}
+              className={clsx(classes.figmaIcon, classes.fillWhite)}
+            />
+          </span>
+
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <i
-            style={{ width: 24 }}
-            className={`fas fa-music ${viz == 'sheet' && 'active'}`}
+          <span
+            className={classes.figmaIcon}
+            style={{ display: 'inline-block' }}
             onClick={() => {
               if (viz === 'falling-notes' || !viz) {
                 router.replace({
@@ -295,11 +366,17 @@ function App({ type, songLocation, viz }: PlaySongProps) {
                 })
               }
             }}
-          />
+          >
+            <MusicalNoteIcon
+              width={25}
+              height={25}
+              className={clsx(classes.topbarIcon, classes.fillWhite)}
+            />
+          </span>
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <i
-            style={{ width: 24 }}
-            className={soundOff ? 'fas fa-volume-off' : 'fas fa-volume-up'}
+          <span
+            className={classes.figmaIcon}
+            style={{ display: 'inline-block' }}
             onClick={() => {
               if (!soundOff) {
                 player.setVolume(0)
@@ -309,7 +386,13 @@ function App({ type, songLocation, viz }: PlaySongProps) {
                 setSoundOff(false)
               }
             }}
-          />
+          >
+            <SoundOnIcon
+              width={25}
+              height={25}
+              className={clsx(classes.figmaIcon, classes.fillWhite)}
+            />
+          </span>
         </div>
         <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
           <SongScrubBar

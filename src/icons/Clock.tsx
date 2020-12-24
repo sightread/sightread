@@ -1,8 +1,9 @@
 import { IconInput } from './types'
 
-function Clock({ width, height, style }: IconInput) {
+function Clock({ width, height, style, className }: IconInput) {
   return (
     <svg
+      className={className}
       width={width}
       height={height}
       style={style}
