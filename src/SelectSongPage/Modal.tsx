@@ -7,7 +7,7 @@ import { SongScrubBar } from '../pages/play/[...song_location]'
 import { getSong, inferHands, Sizer, formatInstrumentName } from '../utils'
 import Player from '../player'
 import Select from '../components/Select'
-import { gmInstruments, InstrumentName } from '../synth/instruments'
+import { gmInstruments } from '../synth/instruments'
 import {
   BothHandsIcon,
   ClockIcon,
@@ -463,7 +463,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
             <Sizer height={16} />
             <div className={classes.buttonContainer}>
               <button className={classes.playNowButton} onClick={handlePlayNow}>
-                PlayIcon Now
+                Play Now
               </button>
               <AdjustIntstrumentsButton active={showInstruments} onClick={handleShowInstruments} />
             </div>

@@ -1,12 +1,4 @@
-import {
-  RefCallback,
-  RefObject,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react'
+import { RefCallback, useCallback, useEffect, useRef, useState } from 'react'
 
 let resizeObserver: ResizeObserver
 let callbacks: WeakMap<Element, Array<(x: Dimensions) => void>>

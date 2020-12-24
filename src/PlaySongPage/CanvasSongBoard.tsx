@@ -1,5 +1,4 @@
-import React, { useRef, useEffect, useMemo } from 'react'
-import Player from '../player'
+import React, { useMemo } from 'react'
 import { CanvasRenderer, Config, CanvasItem } from './CanvasRenderer'
 import { Hand, PlayableSong, SongMeasure, SongNote } from '../types'
 import { getNoteLanes } from './utils'
@@ -58,7 +57,6 @@ function getSortedItems(song: PlayableSong | null): NotesAndMeasures {
 
 function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBoardProps) {
   const { width, height, measureRef } = useSize()
-  const player = Player.player()
   const lanes = useMemo(() => getNoteLanes(width), [width])
   const notesAndMeasures = useMemo(() => getSortedItems(song).filter(isMatchingHand), [song, hand])
 
@@ -76,12 +74,12 @@ function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBo
     )
   }
 
-  function getItemsInView(sortedItems: NotesAndMeasures): NotesAndMeasures {
+  function getItemsInView(sortedItems: NotesAndMeasures, time: number): NotesAndMeasures {
     if (sortedItems.length === 0) {
       return sortedItems
     }
 
-    const viewportStart = getCurrentOffset(player.getTime())
+    const viewportStart = getCurrentOffset(time)
     const viewportEnd = viewportStart + (direction === 'vertical' ? height : width) * 1.5 // overscan a vp
     const firstIndex = sortedItems.findIndex((i) => getItemStartEnd(i).end >= viewportStart)
     // could maybe do a slice after getting the first index to iterate on a shorter arr
@@ -93,19 +91,19 @@ function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBo
     return sortedItems.slice(firstIndex, lastIndex)
   }
 
-  function getItems() {
-    return getItemsInView(notesAndMeasures)
+  function getItems(time: number) {
+    return getItemsInView(notesAndMeasures, time)
   }
 
   // ¯\_(ツ)_/¯
-  function canvasStartPosition(startTime: number) {
-    return height - (startTime - player.getTime()) * PIXELS_PER_SECOND
+  function canvasStartPosition(startTime: number, time: number) {
+    return height - (startTime - time) * PIXELS_PER_SECOND
   }
 
-  function getItemSettings<T extends CanvasItem>(item: T): Config<T> {
+  function getItemSettings<T extends CanvasItem>(item: T, time: number): Config<T> {
     if (item.type === 'measure') {
       return {
-        posY: canvasStartPosition(item.time),
+        posY: Math.floor(canvasStartPosition(item.time, time)),
       } as Config<T>
     }
     const note: SongNote = item as SongNote
@@ -113,9 +111,9 @@ function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBo
     const length = PIXELS_PER_SECOND * note.duration
     return {
       width: lane.width - 2, // accounting for piano key with border 1px
-      posX: lane.left + 1,
+      posX: Math.floor(lane.left + 1),
       color: getKeyColor(note.midiNote, note.track === song?.config.left),
-      posY: canvasStartPosition(item.time) - length,
+      posY: Math.floor(canvasStartPosition(item.time, time) - length),
       length,
     } as Config<T>
   }

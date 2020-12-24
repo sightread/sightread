@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
-import { useUserPressedKeys } from '../hooks'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSongPressedKeys, useUserPressedKeys } from '../hooks'
 import { useSize } from '../hooks/size'
-import { getNote } from '../synth/utils'
+import Player from '../player'
+import { getKey, getNote } from '../synth/utils'
+import { SongNote } from '../types'
 import { isBlack, isBrowser } from '../utils'
 import { useSynth } from './utils'
 
@@ -38,6 +40,20 @@ function createNoteObject(
   }
 }
 
+/**
+ * XORs the keys. Find all the keys that are in one object but not the other.
+ */
+function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
+  let diff = []
+  for (let k in o1) {
+    !(k in o2) && diff.push(k)
+  }
+  for (let k in o2) {
+    !(k in o1) && diff.push(k)
+  }
+  return diff
+}
+
 // 7% as tall as the total width!
 // function getKeyboardHeight(width: number) {
 //   const whiteWidth = width / 52
@@ -62,25 +78,53 @@ function getKeyPositions(width: number) {
   return notes
 }
 
+const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
 export default function PianoRoll({
   getKeyColor,
   activeColor,
 }: {
-  getKeyColor: (midiNote: number, type: 'black' | 'white') => string
+  getKeyColor: (pressedKeys: any, midiNote: number, type: 'black' | 'white') => string
   activeColor: string
 }) {
   const { width, measureRef } = useSize()
+  const prevPressed = useRef({})
+  const keyPositions = useMemo(() => getKeyPositions(width), [width])
 
-  const notes = getKeyPositions(width).map((note: any, i: number) => {
+  const setNoteColors = (currPressed: { [note: number]: SongNote }) => {
+    let diff = diffKeys(prevPressed.current, currPressed)
+    for (let midiNote of diff) {
+      const defaultColor = keyPositions[+midiNote - getNote('A0')].color
+      const color = getKeyColor(currPressed, +midiNote, defaultColor)
+      const noteEl = document.getElementById(getNoteId(midiNote))!
+      noteEl.style.backgroundColor = color
+    }
+    prevPressed.current = currPressed
+  }
+
+  useEffect(() => {
+    let mounted = true
+    Player.player().subscribe((pressed: any) => {
+      if (mounted) {
+        setNoteColors(pressed)
+      }
+    })
+    return () => {
+      mounted = false
+      Player.player().unsubscribe(setNoteColors)
+    }
+  }, [getKeyColor])
+
+  const notes = keyPositions.map((note: any, i: number) => {
     const midiNote = i + getNote('A0')
-    const color = getKeyColor(midiNote, note.color)
+
+    const color = getKeyColor({}, midiNote, note.color)
     return (
       <PianoNote
         left={note.left}
         width={note.width}
         height={note.height}
         color={color}
-        note={i + getNote('A0')}
+        note={midiNote}
         activeColor={activeColor}
         key={i}
       />
@@ -133,6 +177,7 @@ function PianoNote({ left, width, color, height, note, activeColor }: PianoNote)
 
   return (
     <div
+      id={getNoteId(note)}
       style={{
         border: '1px solid #292e49',
         position: 'absolute',

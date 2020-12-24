@@ -1,6 +1,6 @@
 import '../../player'
 import React, { useState, useEffect, useRef } from 'react'
-import { Song, PlayableSong, Hand } from '../../types'
+import { Song, PlayableSong, Hand, SongNote } from '../../types'
 import {
   CanvasSongBoard,
   WindowedStaffBoard,
@@ -21,18 +21,15 @@ import {
 } from '../../icons'
 import Player from '../../player'
 import midiKeyboard from '../../midi'
-import { getSynthStub } from '../../synth'
-import { formatTime, getSong, inferHands } from '../../utils'
-import { useRAFLoop, useSongPressedKeys, useSelectedSong } from '../../hooks'
+import { useRAFLoop, useSelectedSong } from '../../hooks'
+import { useRouter } from 'next/router'
 import { css } from '../../flakecss'
 import { useSize } from '../../hooks/size'
-import { useRouter } from 'next/router'
 import { GetServerSideProps } from 'next'
 import { default as ErrorPage } from 'next/error'
 import clsx from 'clsx'
 import { MusicalNoteIcon } from '../../icons'
-// const steps: any = { A: 0, B: 2, C: 3, D: 5, E: 7, F: 8, G: 10 }
-// const pathToSongs =
+import { formatTime, getSong, inferHands } from '../../utils'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -55,8 +52,6 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     },
   }
 }
-
-let synth = getSynthStub('acoustic_grand_piano')
 
 type viz = 'falling-notes' | 'sheet'
 type PlaySongProps = {
@@ -136,7 +131,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const [songSettings, setSongSettings] = useSelectedSong(songLocation)
   // const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
-  const pressedKeys = useSongPressedKeys()
   const router = useRouter()
   const player = Player.player()
 
@@ -215,7 +209,11 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     }
   }
 
-  const getKeyColor = (midiNote: number, type: 'white' | 'black'): string => {
+  const getKeyColor = (
+    pressedKeys: { [index: number]: SongNote },
+    midiNote: number,
+    type: 'white' | 'black',
+  ): string => {
     const song = songSettings?.song
     if (!song || !(midiNote in pressedKeys)) return type
 

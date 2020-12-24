@@ -317,7 +317,7 @@ function App() {
             boxSizing: 'border-box',
           }}
         >
-          <PianoRoll getKeyColor={(_, t) => t} activeColor={noteColor} />
+          <PianoRoll getKeyColor={(_1, _2, t) => t} activeColor={noteColor} />
         </div>
         {/* {viz === 'falling-notes' && (
           <>

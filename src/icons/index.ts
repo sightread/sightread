@@ -1,5 +1,5 @@
-export { default as GClefSVGIcon } from './GClef'
-export { default as FClefSVGIcon } from './FClef'
+export { default as GClefIcon } from './GClef'
+export { default as FClefIcon } from './FClef'
 export { default as BothHandsIcon } from './BothHands'
 export { default as ClockIcon } from './Clock'
 export { default as MusicalNoteIcon } from './MusicalNote'

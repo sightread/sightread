@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useCallback } from 'react'
+import React, { useRef, useCallback, useEffect } from 'react'
 import { useRAFLoop } from '../hooks'
+import Player from '../player'
 import { SongMeasure, SongNote } from '../types'
 
 type CanvasContext = Canvas | null | undefined
@@ -23,10 +24,10 @@ export type Config<T> = T extends SongMeasure
   : never
 
 type CanvasRendererProps = {
-  getItems: () => CanvasItem[]
+  getItems: (time: number) => CanvasItem[]
   width: number
   height: number
-  itemSettings<T extends CanvasItem>(item: T): Config<T>
+  itemSettings<T extends CanvasItem>(item: T, time: number): Config<T>
 }
 
 const palette = {
@@ -42,29 +43,46 @@ const palette = {
 }
 
 export function CanvasRenderer({ getItems, width, height, itemSettings }: CanvasRendererProps) {
-  const ctx = useRef<CanvasContext>(null)
-  const setContext = useCallback((canvasEl: HTMLCanvasElement) => {
-    if (canvasEl) {
-      ctx.current = canvasEl.getContext('2d')
-    }
-  }, [])
+  const ctxRef = useRef<Canvas>()
+  const setContext = useCallback(
+    (canvasEl: HTMLCanvasElement) => {
+      if (!canvasEl) {
+        return
+      }
+
+      // Canvas will look blurry on Hi-DPI displays since CSS Pixel < real pixel
+      // Use devicePixelRatio to scale the size: https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio.
+      canvasEl.style.width = width + 'px'
+      canvasEl.style.height = height + 'px'
+      const scale = window.devicePixelRatio ?? 1
+      canvasEl.width = Math.floor(width * scale)
+      canvasEl.height = Math.floor(height * scale)
+
+      ctxRef.current = canvasEl.getContext('2d')!
+      // Normalize coordinate system to use css pixels.
+      ctxRef.current!.scale(scale, scale)
+    },
+    [width, height],
+  )
 
   function clearCanvas(ctx: Canvas) {
     ctx.clearRect(0, 0, width, height)
   }
 
   useRAFLoop(() => {
-    if (!ctx.current) {
+    if (!ctxRef.current) {
       return
     }
-
-    clearCanvas(ctx.current)
-    for (const item of getItems()) {
-      renderItem(ctx.current, item)
+    const ctx = ctxRef.current
+    const time = Player.player().getTime()
+    clearCanvas(ctx)
+    for (const item of getItems(time)) {
+      renderItem(ctx, item, time)
     }
   })
-  function renderMeasure(ctx: Canvas, measure: SongMeasure): void {
-    const { posY } = itemSettings(measure)
+
+  function renderMeasure(ctx: Canvas, measure: SongMeasure, time: number): void {
+    const { posY } = itemSettings(measure, time)
     ctx.save()
     ctx.font = '20px Roboto'
     // line
@@ -79,8 +97,8 @@ export function CanvasRenderer({ getItems, width, height, itemSettings }: Canvas
     ctx.restore()
   }
 
-  function renderNote(ctx: Canvas, note: SongNote): void {
-    const config = itemSettings(note)
+  function renderNote(ctx: Canvas, note: SongNote, time: number): void {
+    const config = itemSettings(note, time)
     ctx.save()
     ctx.fillStyle = config.color
     ctx.strokeStyle = config.color
@@ -88,11 +106,11 @@ export function CanvasRenderer({ getItems, width, height, itemSettings }: Canvas
     ctx.restore()
   }
 
-  function renderItem(ctx: Canvas, item: CanvasItem): void {
+  function renderItem(ctx: Canvas, item: CanvasItem, time: number): void {
     if (item.type === 'measure') {
-      return renderMeasure(ctx, item)
+      return renderMeasure(ctx, item, time)
     }
-    return renderNote(ctx, item)
+    return renderNote(ctx, item, time)
   }
   return <canvas ref={setContext} width={width} height={height} />
 }

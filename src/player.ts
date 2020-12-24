@@ -164,7 +164,7 @@ class Player {
   }
 
   stopNotes(notes: Array<SongNote>) {
-    if (notes.length === 0) {
+    if (notes.length === 0 || this.synths.length === 0) {
       return
     }
     for (let note of notes) {
