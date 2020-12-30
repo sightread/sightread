@@ -26,10 +26,16 @@ function AppBar({ height }: { height: number }) {
         margin: '0 auto',
       }}
     >
-      <Logo />
-      <Sizer width={16} />
-      <span style={{ fontWeight: 500, fontSize: 24 }}>SIGHTREAD</span>
-      <Sizer width={60} />
+      <Link href="/">
+        <a
+          style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
+        >
+          <Logo />
+          <Sizer width={16} />
+          <span style={{ fontWeight: 500, fontSize: 24 }}>SIGHTREAD</span>
+          <Sizer width={60} />
+        </a>
+      </Link>
       <div
         style={{
           fontSize: 16,

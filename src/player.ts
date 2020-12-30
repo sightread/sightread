@@ -3,6 +3,7 @@
 import { SongNote, PlayableSong } from './types'
 import { getSynth, Synth } from './synth'
 import midi from './midi'
+import { InstrumentName } from './synth/instruments'
 
 let player: Player
 
@@ -68,7 +69,13 @@ class Player {
       synth?.setMasterVolume(vol)
     })
   }
-
+  setTrackVolume(track: number | string, vol: number) {
+    this.synths?.[+track]?.setMasterVolume(vol)
+  }
+  async setTrackInstrument(track: number | string, instrument: InstrumentName) {
+    const synth = await getSynth(instrument)
+    this.synths[+track] = synth
+  }
   isActiveHand(note: SongNote) {
     return (
       this.hand === 'both' ||

@@ -1,14 +1,21 @@
 import React, { useMemo } from 'react'
 import { CanvasRenderer, Config, CanvasItem } from './CanvasRenderer'
 import { Hand, PlayableSong, SongMeasure, SongNote } from '../types'
-import { getNoteLanes } from './utils'
+import { getNoteLanes, whiteNoteHeight } from './utils'
 import { useSize } from '../hooks/size'
-import { isBlack } from '../utils'
+import { isBlack, pickHex } from '../utils'
 import { getNote } from '../synth/utils'
+
+type HandSettings = {
+  [trackId: string]: {
+    hand: Hand | 'none'
+  }
+}
 
 type SongBoardProps = {
   id?: string
   song: PlayableSong | null
+  handSettings: HandSettings // alt names? trackHandMapping, not sure if sound will be included here yet
   hand: Hand
   direction?: 'vertical' | 'horizontal'
 }
@@ -29,12 +36,15 @@ const palette = {
 
 const PIXELS_PER_SECOND = 150
 
-function getKeyColor(midiNote: number, isLeft: boolean): string {
+function getKeyColor(midiNote: number, hand: Hand | 'none'): string {
   const keyType = isBlack(midiNote) ? 'black' : 'white'
-  if (isLeft) {
+  if (hand === 'both' || hand === 'right') {
+    return palette.rightHand[keyType]
+  } else if (hand === 'left') {
     return palette.leftHand[keyType]
   }
-  return palette.rightHand[keyType]
+  // hands are set to none for this track
+  return 'transparent'
 }
 
 function getItemStartEnd(item: SongNote | SongMeasure) {
@@ -55,23 +65,29 @@ function getSortedItems(song: PlayableSong | null): NotesAndMeasures {
   return [...song.notes, ...song.measures].sort((i1, i2) => i1.time - i2.time)
 }
 
-function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBoardProps) {
+function CanvasSongBoard({ song, handSettings, direction = 'vertical', hand }: SongBoardProps) {
   const { width, height, measureRef } = useSize()
   const lanes = useMemo(() => getNoteLanes(width), [width])
-  const notesAndMeasures = useMemo(() => getSortedItems(song).filter(isMatchingHand), [song, hand])
+  const pianoRollStart = useMemo(() => height - whiteNoteHeight(width), [width])
+  const notesAndMeasures = useMemo(() => getSortedItems(song).filter(isMatchingHand), [
+    song,
+    handSettings,
+  ])
 
   // keeping within component scope since song and hand can change
   function isMatchingHand(item: SongMeasure | SongNote) {
     if (item.type === 'measure') {
       return true
     }
-    const isLeft = item.track === song?.config.left
-    const isRight = item.track === song?.config.right
-    return (
-      (hand === 'both' && (isLeft || isRight)) ||
-      (item.type === 'note' && hand === 'left' && isLeft) ||
-      (item.type === 'note' && hand === 'right' && isRight)
-    )
+    const showLeft = hand === 'both' || hand === 'left'
+    if (handSettings[item.track]?.hand === 'left' && showLeft) {
+      return true
+    }
+    const showRight = hand === 'both' || hand === 'right'
+    if (handSettings[item.track]?.hand === 'right' && showRight) {
+      return true
+    }
+    return false
   }
 
   function getItemsInView(sortedItems: NotesAndMeasures, time: number): NotesAndMeasures {
@@ -100,6 +116,21 @@ function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBo
     return height - (startTime - time) * PIXELS_PER_SECOND
   }
 
+  /**
+    if the note is currently being played 
+    (calculated by if the piano roll is between the note start and end)
+    gets the gradient between white (start) to the not color (end)
+    as a ratio of the fraction of the note that has been played vs still will be played  
+  */
+  function playingNoteColor(color: string, y: number, length: number): string {
+    if (y + length < height || y > height) {
+      return color
+    }
+    const ratio = Math.max((y + length - height) / length, 0.3) // so color is never fully white
+    const grad = pickHex(color, '#ffffff', ratio)
+    return grad
+  }
+
   function getItemSettings<T extends CanvasItem>(item: T, time: number): Config<T> {
     if (item.type === 'measure') {
       return {
@@ -109,11 +140,18 @@ function CanvasSongBoard({ song, hand = 'both', direction = 'vertical' }: SongBo
     const note: SongNote = item as SongNote
     const lane = lanes[note.midiNote - getNote('A0')]
     const length = PIXELS_PER_SECOND * note.duration
+    const posY = Math.floor(canvasStartPosition(item.time, time) - length)
+    const color = playingNoteColor(
+      getKeyColor(note.midiNote, handSettings[note.track].hand),
+      posY,
+      length,
+    )
+
     return {
       width: lane.width - 2, // accounting for piano key with border 1px
       posX: Math.floor(lane.left + 1),
-      color: getKeyColor(note.midiNote, note.track === song?.config.left),
-      posY: Math.floor(canvasStartPosition(item.time, time) - length),
+      posY,
+      color,
       length,
     } as Config<T>
   }

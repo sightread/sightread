@@ -3,11 +3,12 @@ import { useRef, useState, useEffect } from 'react'
 import { PlayableSong, Track, TrackSetting, TrackSettings } from '../types'
 import { useSelectedSong, cachedSettings } from '../hooks'
 import { CanvasSongBoard } from '../PlaySongPage'
+import { getHandSettings, applySettings, getTrackSettings } from '../PlaySongPage/utils'
 import { SongScrubBar } from '../pages/play/[...song_location]'
 import { getSong, inferHands, Sizer, formatInstrumentName } from '../utils'
 import Player from '../player'
 import Select from '../components/Select'
-import { gmInstruments } from '../synth/instruments'
+import { gmInstruments, InstrumentName } from '../synth/instruments'
 import {
   BothHandsIcon,
   ClockIcon,
@@ -135,15 +136,15 @@ const classes = css({
   },
   instrumentsButtnWrapper: {
     width: '55%',
+    margin: 2,
     transition: '150ms',
     height: 40,
-    margin: 2,
   },
   instrumentsButtnWrapperActive: {
     backgroundColor: '#EAEAEA',
     height: '56px',
     borderRadius: '5px 5px 0px 0px',
-    margin: 2,
+    margin: 0,
   },
   playNowButton: {
     color: 'white',
@@ -266,52 +267,16 @@ const controlsOverview = [
   },
 ]
 
-function getHand({ config }: PlayableSong, trackId: number): 'left' | 'right' | 'none' {
-  if (config.left === trackId) {
-    return 'left'
-  }
-  if (config.right === trackId) {
-    return 'right'
-  }
-  return 'none'
-}
-
-function getNotesCount({ notes }: PlayableSong, trackId: number): number {
-  return notes.reduce((acc, note) => {
-    if (note.track === trackId) {
-      return acc + 1
-    }
-    return acc
-  }, 0)
-}
-
-function getTrackSettings(song: PlayableSong): TrackSettings {
-  const tracks = song.tracks
-  return Object.fromEntries(
-    Object.entries(tracks).map(([trackId, track]) => {
-      const t = parseInt(trackId)
-      const hand = getHand(song, t)
-      const count = getNotesCount(song, t)
-      return [
-        t,
-        {
-          track,
-          hand,
-          count,
-          sound: true,
-        },
-      ]
-    }),
-  )
-}
-
+// TODO: have a way to reset to default track settings (adjust instruments)
+// TODO: remove count from trackSettings (notes per track) as it is static
+// TODO: put warning that you will have to return here to change the settings again?
 function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   const { file, name, artist } = (songMeta as any) || {}
   const modalRef = useRef<HTMLDivElement>(null)
   // songSettings is context api for lifting state,
   // but still keeping song + trackSettings for local configuration.
   // then will use setSongSettings before moving to the play song page
-  const [_, setSongSettings] = useSelectedSong(file)
+  const [_, setSongSettings] = useSelectedSong(file) // TODO: cache the song as well?
   const [song, setSong] = useState<PlayableSong | null>(null)
   // if tracks exits on songSettings, then it was  read from localStorage cache
   const [trackSetings, setTrackSettings] = useState<TrackSettings | null>(null)
@@ -321,31 +286,41 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   const router = useRouter()
   const player = Player.player()
 
-  const handlePlayNow = () => {
-    if (!song || !trackSetings) {
-      console.error('Both song and track settings are required.')
+  function setupModal(song: PlayableSong) {
+    setCanPlay(false)
+    setSong(song)
+    const cachedTrackSettings = cachedSettings(file)
+    if (cachedTrackSettings) {
+      setTrackSettings(cachedTrackSettings)
+      // setting the song track program which is used by player to know which synths to init
+      Object.entries(cachedTrackSettings).forEach(([trackId, settings]) => {
+        song.tracks[+trackId].program = gmInstruments.indexOf(settings.instrument)
+      })
+    } else {
+      setTrackSettings(getTrackSettings(song))
+    }
+    player.setSong(song).then(() => {
+      setCanPlay(true)
+      if (cachedTrackSettings) {
+        applySettings(player, cachedTrackSettings)
+      }
+    })
+  }
+
+  useEffect(() => {
+    if (!songMeta || !(songMeta as any).file) {
       return
     }
-
-    setSongSettings(file, { song, tracks: trackSetings })
-    router.push(`/play/${file}`)
-  }
-
-  const handleShowInstruments = () => {
-    setShowInstruments(!showInstruments)
-  }
-
-  const handleTogglePlay = () => {
-    if (playing) {
-      player.pause()
+    getSong(`${(songMeta as any).file}`)
+      .then((song) => inferHands(song, file.includes('lesson')))
+      .then((song: PlayableSong) => {
+        setupModal(song)
+      })
+    return () => {
+      player.stop()
       setPlaying(false)
-    } else {
-      if (canPlay) {
-        player.play()
-        setPlaying(true)
-      }
     }
-  }
+  }, [songMeta, player])
 
   useEffect(() => {
     if (!show) {
@@ -385,25 +360,31 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
     }
   }, [show, onClose, playing])
 
-  useEffect(() => {
-    if (!songMeta || !(songMeta as any).file) {
+  const handlePlayNow = () => {
+    if (!song || !trackSetings) {
+      console.error('Both song and track settings are required.')
       return
     }
-    getSong(`${(songMeta as any).file}`)
-      .then((song) => inferHands(song, file.includes('lesson')))
-      .then((song: PlayableSong) => {
-        setCanPlay(false)
-        setSong(song)
-        setTrackSettings(cachedSettings(file) || getTrackSettings(song))
-        player.setSong(song).then(() => {
-          setCanPlay(true)
-        })
-      })
-    return () => {
-      player.stop()
+
+    setSongSettings(file, { song, tracks: trackSetings })
+    router.push(`/play/${file}`)
+  }
+
+  const handleShowInstruments = () => {
+    setShowInstruments(!showInstruments)
+  }
+
+  const handleTogglePlay = () => {
+    if (playing) {
+      player.pause()
       setPlaying(false)
+    } else {
+      if (canPlay) {
+        player.play()
+        setPlaying(true)
+      }
     }
-  }, [songMeta, player])
+  }
 
   if (!show || !song) {
     return null
@@ -431,7 +412,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
               flex: 1,
             }}
           >
-            <div style={{ position: 'relative', height: 45 }}>
+            <div style={{ position: 'relative', height: 24, minHeight: 24 }}>
               <div className={classes.scrubBarBorder} />
               <SongScrubBar song={song} />
             </div>
@@ -439,9 +420,9 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
               style={{
                 position: 'relative',
                 backgroundColor: '#2e2e2e',
-                height: '100%',
+                height: 340, // TODO, do this less hacky
+                minHeight: 340, // without height and min-height set, causes canvas re-paint on adjust instruments open
                 width: '100%',
-                minHeight: '328px',
                 overflow: 'hidden', // WHY IS THIS NEEDED? // if you want rounded corners, -jake
               }}
               onClick={handleTogglePlay}
@@ -475,7 +456,11 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
                     <LoadingIcon width={60} height={60} className={classes.modalSpinnerIcon} />
                   </div>
                 ))}
-              <CanvasSongBoard song={song} hand={'both'} />
+              <CanvasSongBoard
+                song={song}
+                handSettings={getHandSettings(trackSetings)}
+                hand="both"
+              />
             </div>
             <Sizer height={16} />
             <div className={classes.buttonContainer}>
@@ -540,7 +525,7 @@ function AdjustInstruments({ tracks, setTracks, show }: InstrumentSettingsProps)
           Object.entries(tracks).map(([track, settings]) => {
             return (
               <InstrumentCard
-                {...settings}
+                track={settings}
                 trackId={+track}
                 key={track}
                 setTrack={handleSetTrack}
@@ -552,47 +537,57 @@ function AdjustInstruments({ tracks, setTracks, show }: InstrumentSettingsProps)
   )
 }
 
-function getInstrument(track: Track): string {
-  const { program, instrument, name } = track
-  if (!!program) {
-    return gmInstruments[program]
-  }
-  if (!!instrument) {
-    return instrument
-  }
-  if (!!name) {
-    return name
-  }
-  console.log('error getting instrument from track:', { track }, 'falling back to piano')
-  return 'acoustic_grand_piano'
+type CardProps = {
+  track: TrackSetting
+  key: string
+  trackId: number
+  setTrack: (trackId: number, newTrack: TrackSetting) => void
 }
+type SynthState = { error: boolean; loading: boolean }
 
-type CardProps = TrackSetting & { key: string; trackId: number; setTrack: Function }
+function InstrumentCard({ track, trackId, setTrack }: CardProps) {
+  const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
+  const player = Player.player()
 
-function InstrumentCard({ count, hand, track, sound, trackId, setTrack }: CardProps) {
-  const handleSelectInstrument = (instrument: string) => {
-    setTrack(trackId, { count, hand, track: instrument, sound })
+  const handleSelectInstrument = (instrument: InstrumentName) => {
+    setSynthState({ error: false, loading: true })
+    player
+      .setTrackInstrument(trackId, instrument)
+      .then(() => {
+        setSynthState({ error: false, loading: false })
+        setTrack(trackId, { ...track, instrument })
+      })
+      .catch(() => {
+        setSynthState({ error: true, loading: false })
+      })
+    // setTrack(trackId, { count, hand, track: instrument, sound })
   }
-  const handleSelectHand = (newHand: string) => {
-    if (hand === newHand) {
-      newHand = 'none'
+  const handleSelectHand = (hand: 'left' | 'right' | 'none') => {
+    if (track.hand === hand) {
+      hand = 'none'
     }
-    setTrack(trackId, { count, hand: newHand, sound, track })
+    setTrack(trackId, { ...track, hand })
   }
   const handleSound = (sound: boolean) => {
-    setTrack(trackId, { count, hand, sound, track })
+    player.setTrackVolume(trackId, sound ? 1.0 : 0)
+    setTrack(trackId, { ...track, sound })
   }
   return (
     <span className={classes.instrumentCard}>
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <span style={{}}>Track {trackId + 1}</span>
         <span className={classes.cardLabelDivider}></span>
-        <span>{count} Notes</span>
+        <span>{track.count} Notes</span>
       </div>
-      <InstrumentSelect value={getInstrument(track)} onSelect={handleSelectInstrument} />
+      <InstrumentSelect
+        value={track.instrument}
+        onSelect={handleSelectInstrument}
+        error={synthState.error}
+        loading={synthState.loading}
+      />
       <TrackSettingsSection
-        hand={hand}
-        sound={sound}
+        hand={track.hand}
+        sound={track.sound}
         onSelectHand={handleSelectHand}
         onToggleSound={handleSound}
       />
@@ -600,10 +595,21 @@ function InstrumentCard({ count, hand, track, sound, trackId, setTrack }: CardPr
   )
 }
 
-function InstrumentSelect({ value, onSelect }: { value: string; onSelect: (val: any) => void }) {
-  // console.log({ value })
+function InstrumentSelect({
+  value,
+  error,
+  loading,
+  onSelect,
+}: {
+  value: string
+  error: boolean
+  loading: boolean
+  onSelect: (val: any) => void
+}) {
   return (
     <Select
+      error={error}
+      loading={loading}
       value={value}
       onChange={onSelect}
       options={gmInstruments as any}
@@ -621,7 +627,7 @@ function InstrumentSelect({ value, onSelect }: { value: string; onSelect: (val: 
 type TrackSettingProps = {
   hand: 'left' | 'right' | 'none'
   sound: boolean
-  onSelectHand: (hand: string) => void
+  onSelectHand: (hand: 'left' | 'right' | 'none') => void
   onToggleSound: (sound: boolean) => void
 }
 function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: TrackSettingProps) {

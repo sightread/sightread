@@ -1,4 +1,3 @@
-import '../../player'
 import React, { useState, useEffect, useRef } from 'react'
 import { Song, PlayableSong, Hand, SongNote } from '../../types'
 import {
@@ -8,6 +7,7 @@ import {
   BpmDisplay,
   PianoRoll,
 } from '../../PlaySongPage'
+import { getHandSettings, applySettings, getTrackSettings } from '../../PlaySongPage/utils'
 import {
   ArrowLeftIcon,
   PreviousIcon,
@@ -19,18 +19,20 @@ import {
   HistoryIcon,
   SoundOnIcon,
   LoadingIcon,
+  SoundOffIcon,
 } from '../../icons'
 import Player from '../../player'
 import midiKeyboard from '../../midi'
 import { useRAFLoop, useSelectedSong } from '../../hooks'
-import { useRouter } from 'next/router'
-import { css } from '../../flakecss'
+import { formatTime, getSong, inferHands } from '../../utils'
 import { useSize } from '../../hooks/size'
+import { gmInstruments } from '../../synth/instruments'
+import { MusicalNoteIcon } from '../../icons'
+import { css } from '../../flakecss'
 import { GetServerSideProps } from 'next'
 import { default as ErrorPage } from 'next/error'
+import { useRouter } from 'next/router'
 import clsx from 'clsx'
-import { MusicalNoteIcon } from '../../icons'
-import { formatTime, getSong, inferHands } from '../../utils'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -125,6 +127,7 @@ const classes = css({
     },
   },
 })
+
 function App({ type, songLocation, viz }: PlaySongProps) {
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
@@ -141,6 +144,29 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const router = useRouter()
   const player = Player.player()
 
+  function setupPlayer(song: PlayableSong, songLocation: string) {
+    setCanPlay(false)
+    const cachedSettings = songSettings?.tracks
+    let tracks
+    if (cachedSettings) {
+      tracks = cachedSettings
+      // if cached settings then set the song tracks program
+      // (used by the player to get the correct synths)
+      Object.entries(cachedSettings).forEach(([trackId, settings]) => {
+        song.tracks[+trackId].program = gmInstruments.indexOf(settings.instrument)
+      })
+    } else {
+      tracks = getTrackSettings(song)
+    }
+    setSongSettings(songLocation, { tracks, song })
+    player.setSong(song).then(() => {
+      setCanPlay(true)
+      if (cachedSettings) {
+        applySettings(player, cachedSettings)
+      }
+    })
+  }
+  // Is this doing anything? - jake
   useEffect(() => {
     player.setHand(hand)
   }, [hand])
@@ -156,20 +182,12 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     if (!songLocation || !type) return
 
     if (songSettings?.song) {
-      player.setSong(songSettings.song).then(() => {
-        setCanPlay(true)
-      })
-      return
+      return setupPlayer(songSettings.song, songLocation)
     }
     getSong(songLocation)
       .then((song) => inferHands(song, type === 'lesson'))
       .then((song: PlayableSong) => {
-        setCanPlay(false)
-        const settings = { tracks: songSettings?.tracks ?? {}, song }
-        setSongSettings(songLocation, settings)
-        player.setSong(song).then(() => {
-          setCanPlay(true)
-        })
+        setupPlayer(song, songLocation)
       })
     midiKeyboard.virtualKeyboard = true
 
@@ -204,6 +222,15 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     setHand(selected)
   }
 
+  const handleToggleSound = () => {
+    if (!soundOff) {
+      player.setVolume(0)
+      return setSoundOff(true)
+    }
+    applySettings(player, songSettings?.tracks)
+    setSoundOff(false)
+  }
+
   const togglePlaying = () => {
     if (!playing) {
       if (canPlay) {
@@ -223,15 +250,16 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   ): string => {
     const song = songSettings?.song
     if (!song || !(midiNote in pressedKeys)) return type
-
-    const track = pressedKeys[midiNote].track
-    const shouldShow =
-      hand === 'both' ||
-      (hand === 'left' && track === song?.config.left) ||
-      (hand === 'right' && track === song?.config.right)
-    if (shouldShow) {
-      const hand: 'left' | 'right' = track === song?.config.left ? 'left' : 'right'
-      return palette[hand][type]
+    if (songSettings?.tracks) {
+      const track = pressedKeys[midiNote].track
+      const handForTrack = songSettings.tracks[track].hand
+      if (handForTrack === 'none') {
+        return type
+      }
+      if (hand === handForTrack || hand === 'both') {
+        return palette[handForTrack][type]
+      }
+      return type
     }
     return type
   }
@@ -396,21 +424,21 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           <span
             className={classes.figmaIcon}
             style={{ display: 'inline-block' }}
-            onClick={() => {
-              if (!soundOff) {
-                player.setVolume(0)
-                setSoundOff(true)
-              } else {
-                player.setVolume(1)
-                setSoundOff(false)
-              }
-            }}
+            onClick={handleToggleSound}
           >
-            <SoundOnIcon
-              width={25}
-              height={25}
-              className={clsx(classes.figmaIcon, classes.fillWhite)}
-            />
+            {soundOff ? (
+              <SoundOffIcon
+                width={25}
+                height={25}
+                className={clsx(classes.figmaIcon, classes.fillWhite)}
+              />
+            ) : (
+              <SoundOnIcon
+                width={25}
+                height={25}
+                className={clsx(classes.figmaIcon, classes.fillWhite)}
+              />
+            )}
           </span>
         </div>
         <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
@@ -435,7 +463,11 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           <>
             <RuleLines />
             <div style={{ position: 'relative', flex: 1 }}>
-              <CanvasSongBoard song={songSettings?.song ?? null} hand={hand} />
+              <CanvasSongBoard
+                song={songSettings?.song ?? null}
+                hand={hand}
+                handSettings={getHandSettings(songSettings?.tracks)}
+              />
             </div>
             <div
               style={{

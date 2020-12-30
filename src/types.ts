@@ -1,3 +1,5 @@
+import { InstrumentName } from './synth/instruments'
+
 export type SongNote = {
   type: 'note'
   midiNote: number
@@ -47,6 +49,7 @@ export type TrackSetting = {
   hand: 'left' | 'right' | 'none'
   count?: number
   sound: boolean
+  instrument: InstrumentName
 }
 export type TrackSettings = {
   [key: string]: TrackSetting

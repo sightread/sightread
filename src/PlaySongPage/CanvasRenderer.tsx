@@ -1,4 +1,6 @@
+import { timingSafeEqual } from 'crypto'
 import React, { useRef, useCallback } from 'react'
+import { isReturnStatement, parseConfigFileTextToJson } from 'typescript'
 import { useRAFLoop } from '../hooks'
 import Player from '../player'
 import { SongMeasure, SongNote } from '../types'
@@ -42,8 +44,17 @@ const palette = {
   measure: '#C5C5C5', //'#C5C5C5',
 }
 
+// Idea: could pre-render an array of particle generators to cycle through
+// so dont need to re-create them
+
 export function CanvasRenderer({ getItems, width, height, itemSettings }: CanvasRendererProps) {
   const ctxRef = useRef<Canvas>()
+  // key -> generator (key is x position since this is unique for every unique note)
+  const particleEffects = useRef<Map<number, ParticleGenerator>>(
+    new Map<number, ParticleGenerator>(),
+  )
+  const tempParticles = useRef<Map<number, ParticleGenerator>>(new Map<number, ParticleGenerator>())
+
   const setContext = useCallback(
     (canvasEl: HTMLCanvasElement) => {
       if (!canvasEl) {
@@ -65,10 +76,6 @@ export function CanvasRenderer({ getItems, width, height, itemSettings }: Canvas
     [width, height],
   )
 
-  function clearCanvas(ctx: Canvas) {
-    ctx.clearRect(0, 0, width, height)
-  }
-
   useRAFLoop(() => {
     if (!ctxRef.current) {
       return
@@ -79,7 +86,15 @@ export function CanvasRenderer({ getItems, width, height, itemSettings }: Canvas
     for (const item of getItems(time)) {
       renderItem(ctx, item, time)
     }
+    updateParticles(ctx)
   })
+
+  function renderItem(ctx: Canvas, item: CanvasItem, time: number): void {
+    if (item.type === 'measure') {
+      return renderMeasure(ctx, item, time)
+    }
+    return renderNote(ctx, item, time)
+  }
 
   function renderMeasure(ctx: Canvas, measure: SongMeasure, time: number): void {
     const { posY } = itemSettings(measure, time)
@@ -103,15 +118,34 @@ export function CanvasRenderer({ getItems, width, height, itemSettings }: Canvas
     ctx.fillStyle = config.color
     ctx.strokeStyle = config.color
     roundRect(ctx, config.posX, config.posY, config.width, config.length)
+    applyParticles(ctx, config)
     ctx.restore()
   }
 
-  function renderItem(ctx: Canvas, item: CanvasItem, time: number): void {
-    if (item.type === 'measure') {
-      return renderMeasure(ctx, item, time)
+  function updateParticles(ctx: Canvas): void {
+    particleEffects.current = new Map(tempParticles.current)
+    tempParticles.current.clear()
+    for (const effect of particleEffects.current.values()) {
+      effect.update(ctx)
     }
-    return renderNote(ctx, item, time)
   }
+
+  function applyParticles(ctx: Canvas, config: NoteConfig): void {
+    const { posX } = config
+
+    if (config.posY + config.length < height || config.posY > height) {
+      return
+    }
+
+    const effect: ParticleGenerator =
+      particleEffects.current.get(posX) ?? new ParticleGenerator(posX, height, config.width)
+    tempParticles.current.set(posX, effect)
+  }
+
+  function clearCanvas(ctx: Canvas) {
+    ctx.clearRect(0, 0, width, height)
+  }
+
   return <canvas ref={setContext} width={width} height={height} />
 }
 
@@ -149,4 +183,127 @@ function roundRect(ctx: Canvas, x: number, y: number, width: number, height: num
   ctx.closePath()
   ctx.fill()
   ctx.stroke()
+}
+
+function circle(ctx: Canvas, x: number, y: number, r: number, color: string) {
+  ctx.save()
+  ctx.fillStyle = color
+  ctx.fillRect(x, y, r, r) // if the object is small use rect instead of circle
+  ctx.restore()
+}
+
+const numParticles = 30
+const particleRadius = 2
+const velocity = {
+  x: {
+    min: 0.1,
+    max: 0.3,
+  },
+  y: {
+    min: 0.3,
+    max: 2.4,
+  },
+  opacity: {
+    min: 0.003,
+    max: 0.015,
+  },
+  precision: 5, // num decimal places
+}
+
+class ParticleGenerator {
+  // config: NoteConfig
+  posX: number
+  posY: number
+  width: number
+  particles: Particle[] = []
+
+  constructor(posX: number, posY: number, width: number) {
+    this.posX = posX
+    this.posY = posY
+    this.width = width
+    for (let i = 0; i < numParticles; i++) {
+      this.particles.push(new Particle())
+    }
+  }
+
+  update(ctx: Canvas) {
+    for (const particle of this.particles) {
+      particle.update(ctx, this.posX, this.posY, this.width)
+    }
+  }
+}
+
+function randomNegative(): number {
+  return Math.random() < 0.5 ? -1 : 1
+}
+
+function randDecimal(min: number, max: number, decimalPlaces: number): number {
+  const rand =
+    Math.random() < 0.5
+      ? (1 - Math.random()) * (max - min) + min
+      : Math.random() * (max - min) + min // could be min or max or anything in between
+  const power = Math.pow(10, decimalPlaces)
+  return Math.floor(rand * power) / power
+}
+
+function hexToRgb(hexValue: string): RGB {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexValue)
+  if (!result) {
+    throw new Error(`Invalid hex value ${hexValue}`)
+  }
+  return {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  }
+}
+
+function rgbaString(color: RGB, opacity: number): string {
+  return `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity.toString()})`
+}
+
+type RGB = {
+  r: number
+  g: number
+  b: number
+}
+
+class Particle {
+  __offsetPercent: number // used so particles are spawned at random x vals within the key width
+  // __color: RGB
+  __x: number = 0
+  __y: number = 0
+  __opacity = 1 // will fade out as moves away
+  __dx: number
+  __dy: number
+  __dO: number
+  shouldReset: boolean = false // signal when it should be killed
+  constructor() {
+    // this.__color = hexToRgb(color)
+    this.__offsetPercent = Math.random()
+    this.__dx = randDecimal(velocity.x.min, velocity.x.max, velocity.precision) * randomNegative() // x can go left or right
+    this.__dy = randDecimal(velocity.y.min, velocity.y.max, velocity.precision)
+    this.__dO = randDecimal(velocity.opacity.min, velocity.opacity.max, velocity.precision)
+  }
+  // passing x, w, and h as params makes sure that they are always up to date if the canvas
+  // changes sizes
+  update(ctx: Canvas, posX: number, posY: number, width: number) {
+    const x = width * this.__offsetPercent + this.__x + posX
+    const y = posY + this.__y
+    // const color = rgbaString(this.__color, this.__opacity)
+    const color = `rgba(255, 255, 255, ${this.__opacity.toString()})`
+    circle(ctx, x, y, particleRadius, color)
+    this.__x += this.__dx
+    this.__y -= this.__dy
+    this.__opacity -= this.__dO
+    if (this.__opacity <= 0) {
+      this.reset()
+    }
+  }
+
+  reset(): void {
+    this.__x = 0
+    this.__y = 0
+    this.__opacity = 1
+  }
 }

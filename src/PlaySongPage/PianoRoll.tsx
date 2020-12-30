@@ -112,7 +112,6 @@ export default function PianoRoll({
 
   const notes = keyPositions.map((note: any, i: number) => {
     const midiNote = i + getNote('A0')
-
     const color = getKeyColor({}, midiNote, note.color)
     return (
       <PianoNote
