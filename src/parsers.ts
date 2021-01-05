@@ -1,6 +1,8 @@
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
+import { gmInstruments } from './synth/instruments'
 import { getKey, getNote } from './synth/utils'
 import { Song, SongMeasure, SongNote, Track, Tracks, Bpm } from './types'
+import { formatInstrumentName } from './utils'
 
 export function parseMusicXML(txt: string): Song {
   /*
@@ -249,9 +251,17 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     }
 
     if (midiEvent.subType === 'instrumentName') {
-      tracks[track].instrument = midiEvent.text
+      const instrument = midiEvent.text
+      tracks[track].instrument = instrument
+      if (!tracks[track].program || tracks[track].program === -1) {
+        tracks[track].program = inferProgram(instrument)
+      }
     } else if (midiEvent.subType === 'trackName') {
-      tracks[track].name = midiEvent.text
+      const trackName = midiEvent.text
+      tracks[track].name = trackName
+      if (!tracks[track].program || tracks[track].program === -1) {
+        tracks[track].program = inferProgram(trackName)
+      }
     } else if (midiEvent.subType === 'programChange') {
       tracks[track].program = midiEvent.program
     } else if (midiEvent.subType === 'noteOn') {
@@ -297,10 +307,13 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
   // TODO: evaluate if this is necessary.
   // Removing empty tracks.
   for (let t of Object.keys(tracks).map(Number)) {
-    let note = notes.find((n) => n.track === t)
-    if (!note) {
-      delete tracks[t]
+    if (typeof tracks[t].program === 'undefined') {
+      tracks[t].program = 0
     }
+    // let note = notes.find((n) => n.track === t)
+    // if (!note) {
+    //   delete tracks[t]
+    // }
   }
 
   return {
@@ -311,6 +324,15 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     bpms,
     timeSignature,
   }
+}
+
+function inferProgram(instrumentName: string): number {
+  // TODO: match against simplified versions of all the GM Instruments.
+  // E.g. Piano / Drums vs. "Acoustic Grand" etc.
+  if (instrumentName.toLowerCase().includes('piano')) {
+    return 1
+  }
+  return -1
 }
 
 function getOrderedMidiEvents(parsed: any) {
@@ -410,7 +432,11 @@ export function getHandIndexesForTeachMid(song: Song): { left?: number; right?: 
 
 export function isPiano(t: Track): boolean {
   const program = t.program ?? -1
-  return t.instrument?.toLowerCase()?.includes('piano') || (program > 0 && program < 5)
+  return (
+    t.instrument?.toLowerCase()?.includes('piano') ||
+    t.name?.toLowerCase()?.includes('piano') ||
+    (0 <= program && program <= 6)
+  )
 }
 export function parserInferHands(song: Song): { left: any; right: any } {
   const pianoTracks = Object.values(song.tracks).filter((track) => isPiano(track))

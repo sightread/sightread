@@ -4,68 +4,52 @@
  * @fileoverview
  */
 
+import fs from 'fs'
 const jsdom = require('jsdom')
 const window = new jsdom.JSDOM().window
+const pathJoin = require('path').join
 globalThis.DOMParser = window.DOMParser
 globalThis.NodeFilter = window.NodeFilter
-import { parseMidi, parseMusicXML, isPiano } from '../src/parsers'
 import { Song } from '../src/types'
-import { musicFiles, MusicFile } from './songdata'
-const fs: any = require('fs')
-const pathJoin: any = require('path').join
+import { parseFile, getPianoTracks, last } from './utils'
 
-const baseDir = pathJoin(__dirname, '..', 'public')
+const MIDIS_DIR = '/Users/jake/Music/midis/BitMidi'
+const GOOD_DIR = pathJoin(MIDIS_DIR, 'good')
+const MIDI_FILES = fs.readdirSync(MIDIS_DIR)
 
+const lastGoodFile = last(fs.readdirSync(GOOD_DIR))
+const indexOfLastGoodFile = MIDI_FILES.indexOf(lastGoodFile)
+
+// fs.mkdirSync(GOOD_DIR)
 const defGood: Array<string> = []
-const maybeGood: string[] = []
-const maybeBad: string[] = []
-musicFiles
-  .filter((song) => song.type === 'song')
-  .forEach((musicFile) => {
-    const path = musicFile.file
-    let parsed: Song | null = null
-    if (path.toLowerCase().endsWith('mid')) {
-      try {
-        var buf = new Uint8Array(fs.readFileSync(pathJoin(baseDir, path))).buffer
-        parsed = parseMidi(buf)
-      } catch (err) {
-        console.error(`Error parsing file: ${path}` + err)
-        return
-      }
-    } else if (path.endsWith('xml')) {
-      try {
-        const txt = fs.readFileSync(pathJoin(baseDir, path), { encoding: 'utf-8' })
-        parsed = parseMusicXML(txt)
-      } catch (err) {
-        console.error(`Error parsing file: ${path}` + err)
-        return
-      }
-    }
-    if (!parsed) {
-      return
-    }
+let i = indexOfLastGoodFile == -1 ? 0 : indexOfLastGoodFile
+console.log(`Starting at: ${i}/${MIDI_FILES.length}.`)
 
-    const filename = musicFile.file
-    const len = Object.keys(parsed.tracks).length
-    if (hasExactlyTwoPianoTracks(parsed, filename)) {
-      defGood.push(filename)
-    } else if (len == 2 || len == 3) {
-      // console.log(`File may be good due to ${len} tracks: ${filename}`)
-      maybeGood.push(filename)
-    } else if (musicFile.file.includes('piano')) {
-      maybeGood.push(filename)
-      // console.log(`File include piano in title, may be good: ${filename}`)
-    } else {
-      maybeBad.push(filename)
-    }
-  })
-// console.log(
-//   'These files have exactly two piano tracks, are almost definitely excellent:\n',
-//   defGood.join('\n'),
-// )
+console.log(getPianoTracks(parseFile(pathJoin(GOOD_DIR, 'SERENADE.mid'))))
+const midiPaths = MIDI_FILES.slice(i)
+midiPaths.forEach((filename: string) => {
+  if (i % 100 == 0) {
+    console.log(`Progress: ${i}/${MIDI_FILES.length}.`)
+  }
+  i++
 
-console.log('These files mebbe bad', maybeBad.join('\n'))
+  const path = pathJoin(MIDIS_DIR, filename)
+  let parsed: Song | null = null
+  try {
+    parsed = parseFile(path)
+  } catch (err) {
+    console.log(`Error parsing file: ${path}, error: ${err}`)
+    return
+  }
 
-function hasExactlyTwoPianoTracks(parsed: Song, f: string) {
-  return Object.values(parsed.tracks).filter((t) => isPiano(t)).length === 2
-}
+  if (getPianoTracks(parsed).length == 2) {
+    defGood.push(path)
+    fs.copyFileSync(path, pathJoin(GOOD_DIR, filename))
+  }
+})
+console.log(`Progress: ${i}/${MIDI_FILES.length}.\n`)
+
+console.log(
+  'These files have exactly two piano tracks, are almost definitely excellent:\n',
+  defGood.join('\n'),
+)

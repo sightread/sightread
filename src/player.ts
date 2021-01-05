@@ -77,6 +77,11 @@ class Player {
     this.synths[+track] = synth
   }
   isActiveHand(note: SongNote) {
+    // Not even a L/R hand track.
+    if (this.song.config.left !== note.track && this.song.config.right !== note.track) {
+      return false
+    }
+
     return (
       this.hand === 'both' ||
       (this.hand === 'left' && note.track === this.song.config.left) ||
