@@ -64,9 +64,11 @@ const classes = css({
     float: 'right',
     border: 'none',
     background: 'none',
+    outline: 'none',
   },
   closeModalIcon: {
     transition: '150ms',
+    outline: 'none',
     '&:hover path': {
       fill: palette.purple.dark,
     },

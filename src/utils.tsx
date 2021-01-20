@@ -1,8 +1,9 @@
-import React, { ReactChild } from 'react'
+import React from 'react'
 import { parseMusicXML, parseMidi, getHandIndexesForTeachMid, parserInferHands } from './parsers'
 import { PlayableSong, Song } from './types'
 import { getKey } from './synth/utils'
 import { InstrumentName } from './synth/instruments'
+import { getUploadedSong } from './persist'
 
 export function peek(o: any) {
   console.log(o)
@@ -14,11 +15,16 @@ function Sizer({ height, width }: { height?: number; width?: number }) {
 }
 
 export const isBrowser = () => typeof window === 'object'
+
 /*
  * In development, parse on client.
  * In production, use preparsed songs.
  */
 async function getSong(url: string): Promise<Song> {
+  const localSong = getUploadedSong(url) // if this returns a value then the song was a song uploaded by the user
+  if (localSong) {
+    return localSong
+  }
   if (process.env.NODE_ENV === 'development') {
     if (url.includes('.xml')) {
       const xml = await (await fetch('/' + url)).text()
@@ -124,6 +130,62 @@ export function pickHex(hex1: string, hex2: string, weight: number) {
     Math.round(color1[2] * w1 + color2[2] * w2),
   ]
   return '#' + rgb.map((n) => n.toString(16)).join('')
+}
+
+export function isLocalStorageAvailable(): boolean {
+  if (!isBrowser()) {
+    return false
+  }
+  try {
+    localStorage.setItem('test', 'test that localstorage is working')
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+export function isFileMidi(file: File): boolean {
+  return file.type === 'audio/mid' || file.name.endsWith('.mid')
+}
+
+export function isFileXML(file: File): boolean {
+  return file.name.endsWith('.xml')
+}
+
+export function fileToUint8(file: File): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader()
+    reader.readAsArrayBuffer(file)
+    reader.onloadend = (evt: any) => {
+      if (evt.target.readyState == FileReader.DONE) {
+        const arr = new Uint8Array(evt.target.result)
+        resolve(arr)
+      }
+    }
+    reader.onerror = () => {
+      console.error('Failed to convert file to Uint8: ', reader.error)
+      reader.abort()
+      reject()
+    }
+  })
+}
+
+export function fileToString(file: File): Promise<string | null> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsText(file) // default is utf-8
+    reader.onloadend = () => {
+      if (reader.result) {
+        resolve(reader.result as string)
+      }
+      reject(null)
+    }
+    reader.onerror = () => {
+      console.error('Failed to convert file to string.', reader.error)
+      reader.abort()
+      reject(reader.error)
+    }
+  })
 }
 
 export { Sizer, getSong, formatTime, CenteringWrapper, inferHands, Deferred, isBlack }

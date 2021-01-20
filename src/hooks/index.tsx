@@ -53,7 +53,11 @@ export function SongSettingsProvider({ children }: ProviderProps) {
 
   const handleSetWithCache = (key: string, settings: SongSettings): void => {
     if (isBrowser()) {
-      window.localStorage.setItem(key, JSON.stringify(settings.tracks))
+      try {
+        window.localStorage.setItem(key, JSON.stringify(settings.tracks))
+      } catch (e) {
+        console.error('setItem failed', e)
+      }
     }
     setSongSettings(settings)
   }

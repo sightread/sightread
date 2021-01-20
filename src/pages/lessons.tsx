@@ -22,7 +22,7 @@ export default function SelectLessonPage() {
       </CenteringWrapper>
       <CenteringWrapper backgroundColor={'#F2F2F2'} verticalGutter={60}>
         <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
-          <Sizer height={24} />
+          <Sizer height={64} />
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Lessons</h2>
           <SelectSongTable
             columns={[

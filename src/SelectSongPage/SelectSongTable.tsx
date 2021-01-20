@@ -2,8 +2,16 @@ import * as React from 'react'
 import { useState } from 'react'
 import { Sizer } from '../utils'
 import { MusicFile } from '../../scripts/songdata'
-import { SearchIcon, ExpandDownIcon } from '../icons'
+import {
+  SearchIcon,
+  ExpandDownIcon,
+  PlusIcon,
+  TrashCanIcon,
+  IconWrapper,
+  FilterIcon,
+} from '../icons'
 import { css } from '../flakecss'
+import { palette } from '../styles/common'
 
 type TableColumn = {
   label: string
@@ -17,12 +25,16 @@ type SelectSongTableProps = {
   rows: any[]
   onSelectRow: (row: any) => void
   filter: (keyof MusicFile)[]
+  onCreate?: () => void
+  onDelete?: (item: any | undefined) => void
+  onFilter?: () => void
 }
 
 type TableHeadProps = {
   columns: TableColumn[]
   sortCol: number
   onSelectCol: (index: number) => void
+  hasActionRow: boolean
 }
 
 function compare(a: number | string, b: number | string) {
@@ -42,14 +54,54 @@ const classes = css({
   expandIcon: {
     fill: '#1B0EA6',
   },
+  button: {
+    background: palette.purple.primary,
+    color: 'white',
+    display: 'flex',
+    borderRadius: '5px',
+    alignItems: 'center',
+    fontSize: '16px',
+    width: '150px',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: '200ms',
+    '&:hover': {
+      backgroundColor: palette.purple.dark,
+    },
+  },
+  actionButton: {
+    '&:hover': {
+      backgroundColor: 'white !important',
+    },
+  },
+  filterButton: {
+    marginLeft: '24px',
+    cursor: 'pointer',
+    '&:hover svg': {
+      fill: 'white',
+    },
+    '&:hover': {
+      backgroundColor: palette.purple.primary,
+    },
+  },
 })
 
-function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTableProps) {
+function SelectSongTable({
+  columns,
+  rows,
+  onSelectRow,
+  filter,
+  onCreate,
+  onDelete,
+  onFilter,
+}: SelectSongTableProps) {
   const [search, saveSearch] = useState('')
   const [sortCol, setSortCol] = useState<number>(1)
 
   const cols = columns.map((c) => c.id)
-  const colWidth = (100 / cols.length).toFixed(2)
+  const hasActionRow = !!onDelete
+  const actionRow = hasActionRow ? 10 : 0 // action row will be 10% of width
+  const colWidth = ((100 - actionRow) / cols.length).toFixed(2)
 
   const handleSelectCol = (index: number) => {
     if (sortCol === index) {
@@ -67,7 +119,22 @@ function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTable
   return (
     <>
       <Sizer height={36} />
-      <SearchBox onSearch={saveSearch} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <SearchBox onSearch={saveSearch} />
+          {!!onFilter && (
+            <IconWrapper onClick={onFilter} className={classes.filterButton}>
+              <FilterIcon height={30} width={30} />
+            </IconWrapper>
+          )}
+        </div>
+        {!!onCreate && (
+          <button type="button" className={classes.button} onClick={onCreate}>
+            <PlusIcon width={20} height={20} style={{ fill: 'white', margin: '5px' }} />
+            <span>Add New</span>
+          </button>
+        )}
+      </div>
       <Sizer height={20} />
       <div
         style={{
@@ -83,7 +150,12 @@ function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTable
           contain: 'strict',
         }}
       >
-        <TableHead columns={columns} sortCol={sortCol} onSelectCol={handleSelectCol} />
+        <TableHead
+          columns={columns}
+          sortCol={sortCol}
+          onSelectCol={handleSelectCol}
+          hasActionRow={hasActionRow}
+        />
         <div
           style={{
             overflowY: 'auto',
@@ -94,6 +166,11 @@ function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTable
             width: '100%',
           }}
         >
+          {sorted.length === 0 && (
+            <h2 style={{ fontSize: '24px', textAlign: 'center', paddingTop: '50px' }}>
+              Nothing here yet.
+            </h2>
+          )}
           {sorted.map((row: any) => {
             return (
               <div
@@ -123,6 +200,17 @@ function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTable
                     </span>
                   )
                 })}
+                {!!onDelete && (
+                  <span style={{ width: '10%' }}>
+                    <IconWrapper onClick={() => onDelete(row)} className={classes.actionButton}>
+                      <TrashCanIcon
+                        width={20}
+                        height={20}
+                        style={{ fill: palette.purple.primary }}
+                      />
+                    </IconWrapper>
+                  </span>
+                )}
               </div>
             )
           })}
@@ -135,17 +223,6 @@ function SelectSongTable({ columns, rows, onSelectRow, filter }: SelectSongTable
 
 export default SelectSongTable
 
-function tableColumnClass(sortCol: number, index: number) {
-  let className = ''
-  if (Math.abs(sortCol) === index + 1) {
-    className += 'activeSortHeader'
-    if (sortCol < 0) {
-      className += ' up'
-    }
-  }
-  return className
-}
-
 function getIcon(sortCol: number, index: number) {
   const style: React.CSSProperties = { fill: '#1B0EA6', marginLeft: 5 }
   if (Math.abs(sortCol) === index + 1) {
@@ -157,8 +234,9 @@ function getIcon(sortCol: number, index: number) {
   return <></>
 }
 
-function TableHead({ columns, sortCol, onSelectCol }: TableHeadProps) {
-  const colWidth = (100 / columns.length).toFixed(2)
+function TableHead({ columns, sortCol, onSelectCol, hasActionRow }: TableHeadProps) {
+  const actionRow = hasActionRow ? 10 : 0 // actions buttons take up 10%
+  const colWidth = ((100 - actionRow) / columns.length).toFixed(2)
   return (
     <div
       className="table_header"
@@ -178,7 +256,6 @@ function TableHead({ columns, sortCol, onSelectCol }: TableHeadProps) {
       }}
     >
       {columns.map((col, i) => {
-        const className = tableColumnClass(sortCol, i)
         const paddingLeft = i === 0 ? 30 : 0
         return (
           <div style={{ paddingLeft, width: `${colWidth}%`, ...col.style }} key={col.id}>
@@ -192,6 +269,7 @@ function TableHead({ columns, sortCol, onSelectCol }: TableHeadProps) {
           </div>
         )
       })}
+      {hasActionRow && <div style={{ width: `10%`, height: '100%' }}></div>}
     </div>
   )
 }
