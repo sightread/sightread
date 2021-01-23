@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState, useEffect, CSSProperties } from 'react'
+import { PropsWithChildren, CSSProperties } from 'react'
 import { palette } from '../styles/common'
 import { css } from '../flakecss'
 import { CancelCircleIcon } from '../icons'

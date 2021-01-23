@@ -1,10 +1,9 @@
-import React from 'react'
+import React, { CSSProperties, PropsWithChildren } from 'react'
 import { parseMusicXML, parseMidi, getHandIndexesForTeachMid, parserInferHands } from './parsers'
 import { PlayableSong, Song } from './types'
 import { getKey } from './synth/utils'
 import { InstrumentName } from './synth/instruments'
 import { getUploadedSong } from './persist'
-
 export function peek(o: any) {
   console.log(o)
   return o
@@ -54,6 +53,38 @@ function formatTime(seconds: number) {
     sec = '0' + sec
   }
   return `${min}:${sec}`
+}
+
+type ContainerProps = {
+  maxWidth: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  style?: CSSProperties
+  className?: string
+  component?: string | React.ElementType
+}
+
+const breakpoints = {
+  xs: 600,
+  sm: 960,
+  md: 1280,
+  lg: 1920,
+  xl: 2400,
+}
+
+export function Container({
+  children,
+  maxWidth,
+  style,
+  className = '',
+  component: Component = 'div',
+}: PropsWithChildren<ContainerProps>) {
+  const containerStyle = { boxSizing: 'border-box', position: 'relative', ...style }
+  const innerStyle = { margin: 'auto', maxWidth: breakpoints[maxWidth] }
+
+  return (
+    <Component className={className} style={containerStyle}>
+      <div style={innerStyle}>{children}</div>
+    </Component>
+  )
 }
 
 function CenteringWrapper({ children, backgroundColor = 'white', gutterWidth = 50 }: any) {

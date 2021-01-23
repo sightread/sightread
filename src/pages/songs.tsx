@@ -29,7 +29,6 @@ type LibrarySong = {
   type: 'song'
   duration: number
 }
-
 const library = songManifest.filter((s) => s.type === 'song') as LibrarySong[]
 
 type SelectableSongs = (LibrarySong | UploadedSong)[]

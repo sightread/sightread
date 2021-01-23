@@ -165,3 +165,10 @@ function hash(str: string) {
   }
   return hash
 }
+
+export const mediaQuery = {
+  up: (bp: number) => `@media only screen and (min-width: ${bp}px)`,
+  down: (bp: number) => `@media only screen and (max-width: ${bp}px)`,
+  between: (min: number, max: number) =>
+    `@media only screen and (min-width: ${min}px) and (max-width: ${max}px)`,
+}
