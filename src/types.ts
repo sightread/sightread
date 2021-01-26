@@ -1,16 +1,18 @@
 import { InstrumentName } from './synth/instruments'
 
+export type Pitch = {
+  step: string
+  octave: number
+  alter: number
+}
+
 export type SongNote = {
   type: 'note'
   midiNote: number
   track: number
   time: number
   duration: number
-  pitch: {
-    step: string
-    octave: number
-    alter: number
-  }
+  pitch: Pitch
   velocity?: number
 }
 
@@ -37,7 +39,8 @@ export type Song = {
   measures: Array<SongMeasure>
   notes: Array<SongNote>
   bpms: Array<Bpm>
-  timeSignature: { numerator: number; denominator: number }
+  timeSignature?: { numerator: number; denominator: number }
+  items: Array<SongNote | SongMeasure>
 }
 
 export type Hand = 'both' | 'left' | 'right'
@@ -57,4 +60,10 @@ export type TrackSettings = {
 export type SongSettings = {
   song?: PlayableSong
   tracks: TrackSettings
+}
+
+export type HandSettings = {
+  [trackId: string]: {
+    hand: Hand | 'none'
+  }
 }

@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useRef, useState, useEffect } from 'react'
-import { PlayableSong, Track, TrackSetting, TrackSettings } from '../types'
+import { PlayableSong, TrackSetting, TrackSettings } from '../types'
 import { useSelectedSong, cachedSettings } from '../hooks'
-import { CanvasSongBoard } from '../PlaySongPage'
+import { SongVisualizer } from '../PlaySongPage'
 import { getHandSettings, applySettings, getTrackSettings } from '../PlaySongPage/utils'
 import { SongScrubBar } from '../pages/play/[...song_location]'
 import { getSong, inferHands, Sizer, formatInstrumentName } from '../utils'
@@ -458,10 +458,12 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
                     <LoadingIcon width={60} height={60} className={classes.modalSpinnerIcon} />
                   </div>
                 ))}
-              <CanvasSongBoard
+              <SongVisualizer
                 song={song}
                 handSettings={getHandSettings(trackSetings)}
                 hand="both"
+                visualization="falling-notes"
+                getTime={() => Player.player().getTime()}
               />
             </div>
             <Sizer height={16} />

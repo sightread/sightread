@@ -1,35 +1,17 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react'
-import { SongNote } from '../types'
-import Player from '../player'
+import { PlayableSong, SongNote } from '../types'
 import Select from '../components/Select'
-import {
-  CanvasRenderer,
-  Config,
-  CanvasItem,
-  PianoRoll,
-  BpmDisplay,
-  RuleLines,
-} from '../PlaySongPage'
-import { getNoteLanes, useSynth } from '../PlaySongPage/utils'
+import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from '../PlaySongPage/index'
+import { useSynth } from '../PlaySongPage/utils'
 import midiKeyboard from '../midi'
-import { isBlack, formatInstrumentName } from '../utils'
-import { getNote } from '../synth/utils'
+import { formatInstrumentName } from '../utils'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { css } from '../flakecss'
-import { useSize } from '../hooks/size'
 import { ArrowLeftIcon } from '../icons'
 import { useRouter } from 'next/router'
+import { getPitch } from '../parsers'
+import { request } from 'https'
 
-function findLastIndex<T>(
-  array: Array<T>,
-  predicate: (value: T, index: number, obj: T[]) => boolean,
-): number {
-  let l = array.length
-  while (l--) {
-    if (predicate(array[l], l, array)) return l
-  }
-  return -1
-}
 /**
  * Notes:
  *  - can never go backwards always forward:
@@ -39,19 +21,6 @@ function findLastIndex<T>(
  *  - each loop:
  *      - check items that are in view and mutate the items array
  */
-
-const PIXELS_PER_SECOND = 150
-
-const palette = {
-  black: '#4912d4',
-  white: '#7029fb',
-  measure: '#C5C5C5', //'#C5C5C5',
-}
-
-function getKeyColor(midiNote: number): string {
-  const keyType = isBlack(midiNote) ? 'black' : 'white'
-  return palette[keyType]
-}
 
 const classes = css({
   topbar: {
@@ -78,60 +47,36 @@ const classes = css({
     },
   },
 })
-function getItemStartEnd(item: CanvasItem) {
-  const start = item.time * PIXELS_PER_SECOND
-  if (item.type === 'note') {
-    return { start, end: start + item.duration * PIXELS_PER_SECOND }
-  } else {
-    return { start, end: start }
-  }
-}
-function getCurrentOffset(time: number) {
-  return time * PIXELS_PER_SECOND
-}
 
-type NotesAndMeasures = CanvasItem[]
 type SelectSynth = { loading: boolean; error: boolean }
-function App() {
+function FreePlay() {
   const [selectSynth, setSelectSynth] = useState<SelectSynth>({
     loading: false,
     error: false,
   })
-  const { width, height, measureRef } = useSize()
-  const lanes = useMemo(() => getNoteLanes(width), [width])
-  const router = useRouter()
-  const player = Player.player()
-
   const synth = useSynth()
-  const items = useRef<NotesAndMeasures>([])
-  const playingItems = useRef<number[]>([])
-
-  const time = (): number => -player.getTime()
+  const router = useRouter()
+  const freePlayer = useSingleton(() => new FreePlayer())
   const noteColor = 'red'
 
   // Register ummount fns
   useEffect(() => {
-    player.init()
-    player.startTimeInterval(16)
-
     synth.subscribe((action, note, velocity) => {
       if (action === 'play') {
-        return addNoteToItems(note, velocity)
+        return freePlayer.addNote(note, velocity)
       }
-      return stopNoteInItems(note)
+      return freePlayer.releaseNote(note)
     })
-    return () => {
-      player.stop()
-    }
+    return () => {}
   }, [])
 
   useEffect(() => {
     midiKeyboard.virtualKeyboard = true
-
+    freePlayer.start()
     return function cleanup() {
       midiKeyboard.virtualKeyboard = false
     }
-  }, [player])
+  }, [])
 
   function setSynthInstrument(instrument: InstrumentName) {
     setSelectSynth({ ...selectSynth, loading: true })
@@ -143,90 +88,6 @@ function App() {
       .catch(() => {
         setSelectSynth({ loading: false, error: true })
       })
-  }
-
-  const pitch = { step: 'G', octave: 3, alter: 0 }
-  const track = 1
-  //  TODO what should track and pitch be for a key pressed?
-  function addNoteToItems(note: number, velocity?: number) {
-    const newNote: SongNote = {
-      midiNote: note,
-      velocity: velocity ?? 80,
-      type: 'note',
-      pitch,
-      track,
-      time: time(),
-      duration: 0,
-    }
-    items.current.unshift(newNote)
-    playingItems.current.push(note)
-  }
-  //
-  function stopNoteInItems(note: number): void {
-    playingItems.current = playingItems.current.filter((i) => i !== note)
-  }
-  // ¯\_(ツ)_/¯
-  function canvasStartPosition(startTime: number) {
-    return height - (startTime - time()) * PIXELS_PER_SECOND
-  }
-
-  function getItemsInView(sortedItems: NotesAndMeasures): NotesAndMeasures {
-    if (sortedItems.length === 0) {
-      return sortedItems
-    }
-
-    const viewportStart = getCurrentOffset(time())
-    const viewportEnd = viewportStart + height * 1.5 // overscan a vp
-    let lastIndex = sortedItems.length - 1
-    const lastItemStillInView = getItemStartEnd(sortedItems[lastIndex]).start < viewportEnd
-
-    if (lastItemStillInView) {
-      return sortedItems
-    }
-
-    lastIndex = findLastIndex(sortedItems, (o) => getItemStartEnd(o).start >= viewportStart)
-
-    return sortedItems.slice(0, lastIndex)
-  }
-
-  function getItemSettings<T extends CanvasItem>(item: T): Config<T> {
-    const note = item as SongNote
-    const lane = lanes[note.midiNote - getNote('A0')]
-    const length = PIXELS_PER_SECOND * note.duration
-    return {
-      width: lane.width - 2, // accounting for piano key with border 1px
-      posX: lane.left + 1,
-      color: getKeyColor(note.midiNote),
-      posY: canvasStartPosition(item.time) - length,
-      length,
-    } as Config<T>
-  }
-
-  // relys on the fact the notes are always pushed to the front
-  // so playing notes are the numbers in playingItems and their first
-  // occurence found in note.midiNote
-  function incrementPlayingNotes(
-    notes: NotesAndMeasures,
-    playingItems: number[],
-  ): NotesAndMeasures {
-    for (const num of playingItems) {
-      for (const note of notes) {
-        if (note.type === 'measure') continue
-        if (note.midiNote === num) {
-          const currTime = time()
-          note.duration += note.time - currTime // bc time is negative in freeplay
-          note.time = time()
-          break
-        }
-      }
-    }
-    return notes
-  }
-
-  function getItems(): CanvasItem[] {
-    items.current = getItemsInView(incrementPlayingNotes(items.current, playingItems.current))
-
-    return items.current
   }
 
   return (
@@ -253,7 +114,6 @@ function App() {
             width={50}
             height={40}
             onClick={() => {
-              player.pause()
               router.back()
             }}
           />
@@ -300,14 +160,13 @@ function App() {
       >
         <RuleLines />
         <div style={{ position: 'relative', flex: 1 }}>
-          <div style={{ position: 'absolute', width: '100%', height: '100%' }} ref={measureRef}>
-            <CanvasRenderer
-              getItems={getItems}
-              itemSettings={getItemSettings}
-              width={width}
-              height={height}
-            />
-          </div>
+          <SongVisualizer
+            song={freePlayer.song}
+            visualization="falling-notes"
+            hand="both"
+            handSettings={{ 1: { hand: 'right' } }}
+            getTime={() => freePlayer.getTime()}
+          />
         </div>
         <div
           style={{
@@ -319,47 +178,95 @@ function App() {
         >
           <PianoRoll getKeyColor={(_1, _2, t) => t} activeColor={noteColor} />
         </div>
-        {/* {viz === 'falling-notes' && (
-          <>
-          </>
-        )} */}
-        {/* {viz === 'sheet' && (
-          <>
-            <WindowedStaffBoard song={songSettings?.song ?? null} selectedHand={hand} />
-          </>
-        )} */}
       </div>
     </div>
   )
 }
 
-export default App
-
-function InstrumentPicker({
-  value,
-  onSelect,
-}: {
-  value: InstrumentName
-  onSelect: (value: InstrumentName) => void
-}) {
-  const [state, setState] = useState(value)
-
-  return (
-    <select
-      value={state}
-      onChange={(e) => {
-        const val = e.target.value as InstrumentName
-        setState(val)
-        onSelect(val)
-      }}
-    >
-      {gmInstruments.map((instrument: InstrumentName) => {
-        return (
-          <option key={instrument} value={instrument}>
-            {instrument}
-          </option>
-        )
-      })}
-    </select>
-  )
+function useSingleton<T>(fn: () => T): T {
+  let ref = useRef<T>()
+  if (!ref.current) {
+    ref.current = fn()
+  }
+  return ref.current
 }
+
+class FreePlayer {
+  time: number = 0
+  lastTime: number = 0
+  raf: number | undefined
+  song: PlayableSong
+  active: Map<number, number> // Map from midiNote --> time created.
+
+  constructor() {
+    this.time = Number.MAX_SAFE_INTEGER
+    this.lastTime = 0
+    this.active = new Map()
+    this.song = {
+      bpms: [],
+      tracks: { 1: { instrument: 'piano' } },
+      config: { right: 1 },
+      measures: [],
+      notes: [],
+      duration: 0,
+      items: [],
+    }
+    this.song.items = this.song.notes // Hack
+  }
+
+  start() {
+    this.time = Number.MAX_SAFE_INTEGER
+    this.lastTime = Date.now()
+    this.active.clear()
+    this.loop()
+  }
+  stop() {
+    if (typeof this.raf === 'number') {
+      cancelAnimationFrame(this.raf)
+    }
+  }
+
+  loop() {
+    this.raf = requestAnimationFrame(() => {
+      const now = Date.now()
+      const dt = now - this.lastTime
+      this.time -= dt
+      this.lastTime = now
+
+      // Extend each note.
+      for (let [midiNote, pressedTime] of this.active.entries()) {
+        let note = this.song.notes.find((n) => n.midiNote === midiNote)
+        if (note) {
+          note.time = this.getTime()
+          note.duration = pressedTime - note.time
+        }
+      }
+      this.loop()
+    })
+  }
+
+  addNote(midiNote: number, velocity: number = 80) {
+    const time = this.getTime()
+    const note: SongNote = {
+      midiNote,
+      velocity,
+      type: 'note',
+      pitch: getPitch(midiNote),
+      track: 1,
+      time,
+      duration: 0,
+    }
+    this.song.notes.unshift(note)
+    this.active.set(midiNote, time)
+  }
+  releaseNote(midiNote: number) {
+    this.active.delete(midiNote)
+  }
+
+  // In seconds
+  getTime() {
+    return this.time / 1000
+  }
+}
+
+export default FreePlay

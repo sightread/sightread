@@ -1,8 +1,6 @@
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
-import { gmInstruments } from './synth/instruments'
 import { getKey, getNote } from './synth/utils'
 import { Song, SongMeasure, SongNote, Track, Tracks, Bpm } from './types'
-import { formatInstrumentName } from './utils'
 
 export function parseMusicXML(txt: string): Song {
   /*
@@ -189,6 +187,8 @@ export function parseMusicXML(txt: string): Song {
     measures,
     notes,
     bpms,
+    // TODO: remove notes/measures separately
+    items: [...notes, ...measures].sort((i1, i2) => i1.time - i2.time),
     timeSignature,
   }
 }
@@ -310,19 +310,16 @@ export function parseMidi(midiData: ArrayBufferLike): Song {
     if (typeof tracks[t].program === 'undefined') {
       tracks[t].program = 0
     }
-    // let note = notes.find((n) => n.track === t)
-    // if (!note) {
-    //   delete tracks[t]
-    // }
   }
 
   return {
     duration: currTime,
-    measures: measures,
-    notes: notes,
+    measures: [],
+    notes: [],
     tracks,
     bpms,
     timeSignature,
+    items: [...measures, ...notes].sort((i1, i2) => i1.time - i2.time),
   }
 }
 

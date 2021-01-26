@@ -1,7 +1,7 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { SongNote, PlayableSong } from './types'
-import { getSynth, Synth } from './synth'
+import { SongNote, PlayableSong, SongMeasure } from './types'
+import { getSynth, Synth, Subscription } from './synth'
 import midi from './midi'
 import { InstrumentName } from './synth/instruments'
 
@@ -15,8 +15,8 @@ class Player {
   currentBpm = 0
   currentIndex = 0
   lastIntervalFiredTime = 0
-  notes: Array<any> = []
-  playing: Array<any> = []
+  notes: Array<SongNote> = []
+  playing: Array<SongNote> = []
   synths: Array<Synth> = []
   volume = 1
   handlers: any = {}
@@ -40,6 +40,10 @@ class Player {
     this.wait = wait
   }
 
+  isPlaying() {
+    return !!this.playInterval
+  }
+
   init(): void {
     this.currentBpm = 0
     this.bpmModifier = 1
@@ -52,7 +56,6 @@ class Player {
   async setSong(song: PlayableSong) {
     this.song = song
     this.instrumentsLoaded = false
-    this.notes = song.notes.sort((note1: SongNote, note2) => note1.time - note2.time)
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, { program, instrument }]) => {
@@ -145,10 +148,6 @@ class Player {
   }
 
   getMeasureForTime(time: number) {
-    if (!this.song?.measures) {
-      console.log('measures have not been loaded')
-      return
-    }
     let index = this.song.measures.findIndex((m) => m.time > time) - 1
     if (index < 0) {
       index = this.song.measures.length - 1
@@ -183,15 +182,6 @@ class Player {
       this.synths[note.track].stopNote(note.midiNote)
     }
     this.dirty = true
-  }
-
-  startTimeInterval(interval: number): void {
-    this.lastIntervalFiredTime = performance.now()
-    this.playInterval = setInterval(() => this.timeStep(), interval)
-  }
-
-  timeStep(this: this) {
-    this.updateTime_()
   }
 
   updateTime_() {
@@ -232,8 +222,8 @@ class Player {
     this.stopNotes(this.playing.filter((n) => !stillPlaying(n)))
     this.playing = this.playing.filter(stillPlaying)
 
-    while (this.notes[this.currentIndex]?.time < time) {
-      const note = this.notes[this.currentIndex]
+    while (this.song.notes[this.currentIndex]?.time < time) {
+      const note = this.song.notes[this.currentIndex]
 
       if (this.wait && this.isActiveHand(note)) {
         if (
@@ -274,13 +264,13 @@ class Player {
   seek(time: number) {
     this.stopAllSounds()
     this.currentSongTime = time
-    this.playing = this.notes.filter((note) => {
+    this.playing = this.song.notes.filter((note) => {
       return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
     })
     if (!!this.playInterval) {
       this.playing.forEach((note) => this.playNote(note))
     }
-    this.currentIndex = this.notes.findIndex((note) => note.time > this.currentSongTime)
+    this.currentIndex = this.song.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentBpm = this.getBpmIndexForTime(time)
     this.notify()
   }
@@ -311,6 +301,9 @@ class Player {
 
     const { start, end } = range
     this.range = [Math.min(start, end), Math.max(start, end)]
+  }
+  subscribeToSynths(fn: Subscription) {
+    this.synths.forEach((s) => s.subscribe(fn))
   }
 
   subscribe(fn: Function) {

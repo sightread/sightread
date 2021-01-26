@@ -19,11 +19,10 @@ const baseDir = pathJoin(__dirname, '..', 'public')
 type ParsedMusicFile = MusicFile & { parsedSong: Song }
 const parsedMusic: ParsedMusicFile[] = musicFiles
   .map((musicFile) => {
-    const path = musicFile.file
+    const path = pathJoin(baseDir, musicFile.file)
     if (path.toLowerCase().endsWith('mid')) {
       try {
-        var buf = new Uint8Array(fs.readFileSync(pathJoin(baseDir, path))).buffer
-        const isTeachMidi = musicFile.type === 'lesson'
+        var buf = new Uint8Array(fs.readFileSync(path)).buffer
         return { ...musicFile, parsedSong: parseMidi(buf) }
       } catch (err) {
         console.error(`Error parsing file: ${path}` + err)
@@ -31,7 +30,7 @@ const parsedMusic: ParsedMusicFile[] = musicFiles
     }
     if (path.endsWith('xml')) {
       try {
-        const txt = fs.readFileSync(pathJoin(baseDir, path), { encoding: 'utf-8' })
+        const txt = fs.readFileSync(path, { encoding: 'utf-8' })
         return { ...musicFile, parsedSong: parseMusicXML(txt) }
       } catch (err) {
         console.error(`Error parsing file: ${path}` + err)

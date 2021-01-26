@@ -28,7 +28,7 @@ async function loadInstrument(instrument: InstrumentName) {
     delete downloading[instrument]
     doneDownloadingRes()
   } catch (err) {
-    console.error(`Error fetching soundfont for: ${instrument}`)
+    console.error(`Error fetching soundfont for: ${instrument}`, err)
   }
 }
 
@@ -36,7 +36,7 @@ function isValidInstrument(instrument: InstrumentName | undefined) {
   return instrument && gmInstruments.find((s) => s === instrument)
 }
 
-type Subscription = (action: 'play' | 'stop', note: number, velocity?: number) => void
+export type Subscription = (action: 'play' | 'stop', note: number, velocity?: number) => void
 interface Synth {
   playNote(note: number, velocity?: number): void
   stopNote(note: number, velocity?: number): void

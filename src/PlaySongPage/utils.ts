@@ -3,7 +3,7 @@ import { TrackSettings, PlayableSong, Track } from '../types'
 import Player from '../player'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 
-export function getNoteLanes(width: any) {
+export function getNoteLanes(width: number) {
   const whiteWidth = width / 52
   const blackWidth = whiteWidth / 2
   const blackNotes = [1, 4, 6, 9, 11]
@@ -40,12 +40,12 @@ export function applySettings(player: Player, settings: TrackSettings | undefine
   })
 }
 
-export function getHandSettings(trackSetings: TrackSettings | null | undefined) {
-  if (!trackSetings) {
+export function getHandSettings(trackSettings: TrackSettings | null | undefined) {
+  if (!trackSettings) {
     return {}
   }
   return Object.fromEntries(
-    Object.entries(trackSetings).map(([trackId, settings]) => {
+    Object.entries(trackSettings).map(([trackId, settings]) => {
       return [trackId, { hand: settings.hand }]
     }),
   )

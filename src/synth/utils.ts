@@ -33,11 +33,19 @@ async function parseMidiJsSoundfont(text: string): Promise<{ [key: string]: Audi
   const audioBufferPromises = Object.entries(json).map(async ([key, dataUri]) => {
     const base64 = dataUri.slice(dataUri.indexOf(',') + 1)
     const arrayBuf = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)).buffer
-    const audioBuf = getAudioContext().decodeAudioData(arrayBuf)
+    const audioBuf = decodeAudio(arrayBuf)
     return [key, await audioBuf]
   })
   const audioBuffers = await Promise.all(audioBufferPromises)
   return Object.fromEntries(audioBuffers)
+}
+
+// Makes a promise version that is compatible with Safari.
+// For now, Safari only understands callback version.
+function decodeAudio(arrayBuf: ArrayBuffer) {
+  return new Promise((res, rej) => {
+    getAudioContext().decodeAudioData(arrayBuf, res, rej)
+  })
 }
 
 let AudioContext: AudioContext

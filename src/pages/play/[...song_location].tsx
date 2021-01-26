@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Song, PlayableSong, Hand, SongNote } from '../../types'
-import {
-  CanvasSongBoard,
-  WindowedStaffBoard,
-  RuleLines,
-  BpmDisplay,
-  PianoRoll,
-} from '../../PlaySongPage'
+import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
 import { getHandSettings, applySettings, getTrackSettings } from '../../PlaySongPage/utils'
 import {
   ArrowLeftIcon,
@@ -58,8 +52,8 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
 type viz = 'falling-notes' | 'sheet'
 type PlaySongProps = {
-  type: 'lesson' | 'song' | undefined
-  songLocation: string | undefined
+  type: 'lesson' | 'song'
+  songLocation: string
   viz: viz
 }
 const palette = {
@@ -295,6 +289,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         className={`${classes.topbar}`}
         style={{
           position: 'fixed',
+          top: 0,
           height: 55,
           width: '100vw',
           zIndex: 2,
@@ -404,7 +399,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
               if (viz === 'falling-notes' || !viz) {
                 router.replace({
                   href: router.route,
-                  query: { viz: 'sheet', song_location: router.query.song_location },
+                  query: { viz: 'sheet', song_location: router.query.song_location }, // im confused by this
                 })
               } else {
                 router.replace({
@@ -453,38 +448,34 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         style={{
           backgroundColor: viz === 'falling-notes' ? '#2e2e2e' : 'white',
           width: '100vw',
-          height: '100vh',
+          height: 'calc(100vh - 95px)',
+          marginTop: 95,
           contain: 'strict',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
+        <RuleLines />
+        <div style={{ position: 'relative', flex: 1 }}>
+          <SongVisualizer
+            song={songSettings?.song}
+            visualization={viz}
+            hand={hand}
+            handSettings={getHandSettings(songSettings?.tracks)}
+            getTime={() => Player.player().getTime()}
+          />
+        </div>
         {viz === 'falling-notes' && (
-          <>
-            <RuleLines />
-            <div style={{ position: 'relative', flex: 1 }}>
-              <CanvasSongBoard
-                song={songSettings?.song ?? null}
-                hand={hand}
-                handSettings={getHandSettings(songSettings?.tracks)}
-              />
-            </div>
-            <div
-              style={{
-                position: 'relative',
-                paddingBottom: '7%',
-                width: '100%',
-                boxSizing: 'border-box',
-              }}
-            >
-              <PianoRoll getKeyColor={getKeyColor} activeColor="grey" />
-            </div>
-          </>
-        )}
-        {viz === 'sheet' && (
-          <>
-            <WindowedStaffBoard song={songSettings?.song ?? null} selectedHand={hand} />
-          </>
+          <div
+            style={{
+              position: 'relative',
+              paddingBottom: '7%',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
+            <PianoRoll getKeyColor={getKeyColor} activeColor="grey" />
+          </div>
         )}
       </div>
     </div>

@@ -1,9 +1,10 @@
-import React, { CSSProperties, PropsWithChildren } from 'react'
+import React, { CSSProperties, PropsWithChildren, Ref } from 'react'
 import { parseMusicXML, parseMidi, getHandIndexesForTeachMid, parserInferHands } from './parsers'
-import { PlayableSong, Song } from './types'
+import { PlayableSong, Song, SongMeasure, SongNote } from './types'
 import { getKey } from './synth/utils'
 import { InstrumentName } from './synth/instruments'
 import { getUploadedSong } from './persist'
+
 export function peek(o: any) {
   console.log(o)
   return o
@@ -19,11 +20,12 @@ export const isBrowser = () => typeof window === 'object'
  * In development, parse on client.
  * In production, use preparsed songs.
  */
-async function getSong(url: string): Promise<Song> {
+async function getServerSong(url: string): Promise<Song> {
   const localSong = getUploadedSong(url) // if this returns a value then the song was a song uploaded by the user
   if (localSong) {
     return localSong
   }
+
   if (process.env.NODE_ENV === 'development') {
     if (url.includes('.xml')) {
       const xml = await (await fetch('/' + url)).text()
@@ -35,6 +37,13 @@ async function getSong(url: string): Promise<Song> {
 
   const parsedUrl = '/generated/' + url.replace(/\.(mid|xml)/i, '.json')
   return fetch(parsedUrl).then((res) => res.json())
+}
+
+async function getSong(url: string): Promise<Song> {
+  const song = await getServerSong(url)
+  song.notes = song.items.filter((i) => i.type === 'note') as SongNote[]
+  song.measures = song.items.filter((i) => i.type === 'measure') as SongMeasure[]
+  return song
 }
 
 function inferHands(song: Song, isTeachMidi: boolean): PlayableSong {
@@ -131,7 +140,24 @@ function isBlack(note: number) {
   return getKey(note)?.[1] === 'b'
 }
 
+// Allows you to use multiple ref handlers.
+export function refs<T>(arr: Ref<T>[]) {
+  return (ref: T) => {
+    for (let cb of arr) {
+      if (typeof cb === 'function') {
+        cb(ref)
+      } else {
+        ;(cb as any).current = ref
+      }
+    }
+  }
+}
+
 export function formatInstrumentName(instrument: InstrumentName): string {
+  if (!instrument) {
+    return ''
+  }
+
   return instrument
     .split('_')
     .map((i) => i.charAt(0).toUpperCase() + i.slice(1))
@@ -140,13 +166,13 @@ export function formatInstrumentName(instrument: InstrumentName): string {
 
 function convertHexColorToIntArr(hexString: string): number[] {
   if (hexString.length !== 7 || hexString[0] !== '#') {
-    console.error('invlaid hex value.')
+    console.error('invalid hex value.')
     return []
   }
-  const num1 = parseInt(hexString.slice(1, 3), 16)
-  const num2 = parseInt(hexString.slice(3, 5), 16)
-  const num3 = parseInt(hexString.slice(5), 16)
-  return [num1, num2, num3]
+  const r = parseInt(hexString.slice(1, 3), 16)
+  const g = parseInt(hexString.slice(3, 5), 16)
+  const b = parseInt(hexString.slice(5), 16)
+  return [r, g, b]
 }
 
 // should be rgb value
@@ -160,7 +186,8 @@ export function pickHex(hex1: string, hex2: string, weight: number) {
     Math.round(color1[1] * w1 + color2[1] * w2),
     Math.round(color1[2] * w1 + color2[2] * w2),
   ]
-  return '#' + rgb.map((n) => n.toString(16)).join('')
+
+  return '#' + rgb.map((n) => n.toString(16).padStart(2, '0')).join('')
 }
 
 export function isLocalStorageAvailable(): boolean {
@@ -219,4 +246,25 @@ export function fileToString(file: File): Promise<string | null> {
   })
 }
 
-export { Sizer, getSong, formatTime, CenteringWrapper, inferHands, Deferred, isBlack }
+function shallowEquals(arr1: any[], arr2: any[]) {
+  if (arr1.length !== arr2.length) {
+    return false
+  }
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] != arr2[i]) {
+      return false
+    }
+  }
+  return true
+}
+
+export {
+  Sizer,
+  getSong,
+  formatTime,
+  CenteringWrapper,
+  inferHands,
+  Deferred,
+  isBlack,
+  shallowEquals,
+}

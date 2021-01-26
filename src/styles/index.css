@@ -57,3 +57,18 @@ body {
     transform: rotate(360deg);
   }
 }
+
+.pressed-key-grey {
+  animation-duration: 4s;
+  animation-name: fade-out-grey;
+  animation-timing-function: linear;
+}
+
+@keyframes fade-out-grey {
+  0% {
+    background-color: grey;
+  }
+  100% {
+    background-color: white;
+  }
+}
