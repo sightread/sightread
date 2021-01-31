@@ -1,5 +1,6 @@
 export const palette = {
   purple: {
+    light: '#EEE5FF',
     primary: '#7029fb',
     dark: '#4912d4',
   },

@@ -65,6 +65,8 @@ const classes = css({
     justifyContent: 'center',
     cursor: 'pointer',
     transition: '200ms',
+    border: 'none',
+    padding: 5,
     '&:hover': {
       backgroundColor: palette.purple.dark,
     },

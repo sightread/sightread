@@ -1,5 +1,4 @@
-import * as React from 'react'
-import { useState, useRef } from 'react'
+import AppBar from '../components/AppBar'
 import { Container, Sizer } from '../utils'
 import { css, mediaQuery } from '../flakecss'
 import Image from 'next/image'
@@ -25,27 +24,6 @@ const classes = css({
     padding: '15px 30px',
     width: '100%',
   },
-  appBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    boxSizing: 'border-box',
-    color: 'white',
-  },
-  appBarLarge: {
-    [mediaQuery.down(840)]: {
-      display: 'none',
-    },
-  },
-  appBarSmall: {
-    [mediaQuery.up(841)]: {
-      display: 'none',
-    },
-  },
-  menuIcon: {
-    fill: 'white',
-    cursor: 'pointer',
-  },
   heroOverlay: {
     zIndex: 2,
     position: 'absolute',
@@ -63,26 +41,6 @@ const classes = css({
     color: 'white',
     zIndex: 10,
     position: 'absolute',
-  },
-  navItem: {
-    color: 'white',
-    textDecoration: 'none',
-    fontSize: 24,
-    padding: '0px 24px',
-    transition: '200ms',
-    '&:hover': {
-      color: palette.orange.primary,
-    },
-  },
-  navItemSmall: {
-    color: palette.purple.dark,
-    textDecoration: 'none',
-    fontSize: 24,
-    padding: '0px 24px',
-    transition: '200ms',
-    '&:hover': {
-      color: palette.orange.primary,
-    },
   },
   heroButton: {
     fontSize: 32,
@@ -460,107 +418,6 @@ function LandingPage() {
 }
 
 export default LandingPage
-
-/* Appbar is two appbars, 
-   one for mobile optimization, 
-   they are switched by setting display: none at the media BP
-*/
-function AppBar() {
-  return (
-    <>
-      <div className={clsx(classes.appBarLarge, classes.appBar)}>
-        <span style={{ display: 'flex', alignItems: 'center' }}>
-          <Logo />
-          <Sizer width={16} />
-          <span style={{ fontWeight: 200, fontSize: 24, letterSpacing: 1 }}>SIGHTREAD</span>
-          <Sizer width={50} />
-          <Link href="/songs">
-            <a className={classes.navItem}>Songs</a>
-          </Link>
-          <Link href="/lessons">
-            <a className={classes.navItem}>Lessons</a>
-          </Link>
-          <Link href="/freeplay">
-            <a className={classes.navItem}>Free Play</a>
-          </Link>
-          <Link href="/about">
-            <a className={classes.navItem}>About</a>
-          </Link>
-        </span>
-      </div>
-      <div className={clsx(classes.appBarSmall, classes.appBar)}>
-        <span style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          <Logo />
-          <Sizer width={16} />
-          <span style={{ fontWeight: 200, fontSize: 24, letterSpacing: 1 }}>SIGHTREAD</span>
-        </span>
-        <DropDown target={<MenuIcon height={35} width={35} className={classes.menuIcon} />}>
-          <Link href="/songs">
-            <a className={classes.navItemSmall}>Songs</a>
-          </Link>
-          <Link href="/lessons">
-            <a className={classes.navItemSmall}>Lessons</a>
-          </Link>
-          <Link href="/about">
-            <a className={classes.navItemSmall}>About</a>
-          </Link>
-        </DropDown>
-      </div>
-    </>
-  )
-}
-
-/* used in the mobile appbar menu */
-function DropDown({ children, target }: React.PropsWithChildren<{ target: React.ReactElement }>) {
-  const [open, setOpen] = useState<boolean>(false)
-  const menuRef = useRef<HTMLDivElement | null>(null)
-
-  const toggleOpen = () => {
-    if (!open) {
-      setOpen(true)
-    } else {
-      setOpen(false)
-    }
-  }
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <span onClick={toggleOpen}>{target}</span>
-      <div style={{ position: 'relative' }}>
-        <div
-          ref={menuRef}
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            padding: open ? '10px 0px' : 0,
-            height: open ? '' : 0,
-            backgroundColor: 'white',
-            borderRadius: 8,
-            overflow: 'hidden',
-            transition: '200ms',
-            boxShadow: '0px 0px 10px 0px grey',
-          }}
-        >
-          {React.Children.map(children, (child) => {
-            return (
-              <button
-                style={{
-                  padding: '10px 0px',
-                  width: '100%',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                }}
-              >
-                {child}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 const LIBRARY_SVG = (
   <svg
