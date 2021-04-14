@@ -4,11 +4,23 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "MIT",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "yarn lint && tsc",
     "lint": "eslint . --ext .ts"
   },
-  "dependencies": {},
+  "keywords": [
+    "css",
+    "react",
+    "flakecss",
+    "typescript"
+  ],
+  "bugs": {
+    "url": "https://github.com/sightread/sightread/issues"
+  },
+  "homepage": "https://github.com/sightread/sightread/tree/master/packages/flakecss",
   "browserslist": {
     "production": [
       ">0.2%",
