@@ -1,16 +1,46 @@
 # Flakecss
 
-A minimalist css in javascript renderer.
+A minimalist css in javascript renderer. Our mission
+is to be as small as possible while supporting all of the important use cases.
+
+## Features
+
+- media queries
+- pseudo-classes/pseudo-selectors
+- your favorite css properties
+- SSR
 
 ## Installation
 
 ```shell
-$ npm install flakecss
+$ npm i @sightread/flakecss
 or
-$ yarn add flakecss
+$ yarn add @sightread/flakecss
 ```
 
 ## Usage
+
+flakecss will bundle and insert all calls into a single target element.
+
+##### In your desired target component
+
+```javascript
+import { extractCss, FLAKE_STYLE_ID } from '@sightread/flakecss'
+
+function RootComponent() {
+  // ... some react stuff
+
+  return (
+    <html>
+      <head>
+        ...
+        <style id={FLAKE_STYLE_ID} dangerouslySetInnerHTML={{ __html: extractCss() }} />
+      </head>
+      ...
+    </html>
+  )
+}
+```
 
 ```javascript
 import { css, mediaQuery } from 'flakecss'
@@ -36,7 +66,6 @@ const classes = css({
     },
     '&:hover': {
       backgroundColor: 'white',
-      bo
   },
 })
 
