@@ -22,7 +22,7 @@ import {
   PlayIcon,
   LoadingIcon,
 } from '../icons'
-import { css } from '@sightread/flakecss'
+import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
 
 const previewWidth = 600

@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react'
 import AppBar from '../components/AppBar'
 import { Container, Sizer } from '../utils'
-import { css, mediaQuery } from '@sightread/flakecss'
+import { css, mediaQuery } from '@sightread/flake'
 import { palette } from '../styles/common'
 import { GithubIcon, MailIcon, WarningIcon } from '../icons'
 

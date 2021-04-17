@@ -17,7 +17,7 @@ import Modal from '../components/Modal'
 import { Song } from '../types'
 import { palette } from '../styles/common'
 import { parseMidi, parseMusicXML } from '../parsers'
-import { css } from '@sightread/flakecss'
+import { css } from '@sightread/flake'
 import clsx from 'clsx'
 import { getUploadedLibrary, UploadedSong, isKeyAlreadyUsed, saveSong } from '../persist'
 

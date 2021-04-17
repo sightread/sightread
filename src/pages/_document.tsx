@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
-import { extractCss, FLAKE_STYLE_ID } from '@sightread/flakecss'
+import { extractCss, FLAKE_STYLE_ID } from '@sightread/flake'
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {

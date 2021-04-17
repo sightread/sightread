@@ -10,7 +10,7 @@ import {
   IconWrapper,
   FilterIcon,
 } from '../icons'
-import { css } from '@sightread/flakecss'
+import { css } from '@sightread/flake'
 import { palette } from '../styles/common'
 
 type TableColumn = {

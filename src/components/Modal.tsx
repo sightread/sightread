@@ -1,6 +1,6 @@
 import { PropsWithChildren, CSSProperties } from 'react'
 import { palette } from '../styles/common'
-import { css } from '@sightread/flakecss'
+import { css } from '@sightread/flake'
 import { CancelCircleIcon } from '../icons'
 
 const classes = css({

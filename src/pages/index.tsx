@@ -1,6 +1,6 @@
 import AppBar from '../components/AppBar'
 import { Container, Sizer } from '../utils'
-import { css, mediaQuery } from '@sightread/flakecss'
+import { css, mediaQuery } from '@sightread/flake'
 import Image from 'next/image'
 import Link from 'next/link'
 import {

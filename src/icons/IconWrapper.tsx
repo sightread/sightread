@@ -1,5 +1,5 @@
 import { CSSProperties, MouseEvent } from 'react'
-import { css } from '@sightread/flakecss'
+import { css } from '@sightread/flake'
 
 type IconWrapper = {
   onClick?: (e: MouseEvent) => void

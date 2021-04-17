@@ -1,7 +1,7 @@
 import { useState, useRef, Children } from 'react'
 import { Container, Sizer } from '../utils'
 import { Logo, MenuIcon } from '../icons'
-import { css, mediaQuery } from '@sightread/flakecss'
+import { css, mediaQuery } from '@sightread/flake'
 import { palette } from '../styles/common'
 import Link from 'next/link'
 import clsx from 'clsx'

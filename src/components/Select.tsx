@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState, useRef, useEffect } from 'react'
-import { css } from '@sightread/flakecss'
+import { css } from '@sightread/flake'
 import { ArrowDown, LoadingIcon } from '../icons'
 import clsx from 'clsx'
 

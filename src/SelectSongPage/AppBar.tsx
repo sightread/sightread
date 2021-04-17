@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Sizer } from '../utils'
 import Link from 'next/link'
-import { css } from '@sightread/flakecss'
+import { css } from '@sightread/flake'
 import { Logo } from '../icons'
 
 const styles = css({
