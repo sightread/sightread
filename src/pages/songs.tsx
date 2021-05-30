@@ -10,10 +10,12 @@ import {
   fileToUint8,
   isBrowser,
   isLocalStorageAvailable,
+  Container,
 } from '../utils'
-import { AppBar, SelectSongModal, SelectSongTable } from '../SelectSongPage'
+import { SelectSongModal, SelectSongTable } from '../SelectSongPage'
 import songManifest from '../manifest.json'
 import Modal from '../components/Modal'
+import AppBar from '../components/AppBar'
 import { Song } from '../types'
 import { palette } from '../styles/common'
 import { parseMidi, parseMusicXML } from '../parsers'
@@ -41,6 +43,11 @@ type Filters = {
 }
 
 const classes = css({
+  appBarContainer: {
+    backgroundColor: 'black',
+    padding: '15px 30px',
+    width: '100%',
+  },
   submitButton: {
     border: 'none',
     borderRadius: '5px',
@@ -158,10 +165,16 @@ export default function SelectLessonPage() {
       <Modal show={addNew} onClose={handleCloseAdd} style={{ minWidth: '375px' }}>
         <UploadForm onSuccess={handleUpload} />
       </Modal>
-      <CenteringWrapper backgroundColor={'#292929'}>
-        <AppBar height={60} />
-      </CenteringWrapper>
-      <CenteringWrapper backgroundColor={'#F2F2F2'} verticalGutter={60}>
+      <Container
+        maxWidth="md"
+        className={classes.appBarContainer}
+        style={{ position: 'fixed', top: 0, zIndex: 12, height: 60, backgroundColor: '#292929' }}
+      >
+        <AppBar current="/songs" />
+      </Container>
+      {/* div b/c app bar is fixed, so push everything else down */}
+      <div style={{ padding: 30 }}></div>
+      <Container maxWidth="md" style={{ padding: '0 20px', backgroundColor: '#F2F2F2' }}>
         <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
           <Sizer height={64} />
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Songs</h2>
@@ -182,9 +195,14 @@ export default function SelectLessonPage() {
             onSelectRow={setSelectedSong}
             onCreate={handleAddNew}
             onFilter={handleToggleOpenFilter}
+            smallLayout={{
+              primary: 'name',
+              secondary: 'artist',
+              ternary: 'duration',
+            }}
           />
         </div>
-      </CenteringWrapper>
+      </Container>
     </>
   )
 }

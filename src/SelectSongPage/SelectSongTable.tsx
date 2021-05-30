@@ -10,7 +10,7 @@ import {
   IconWrapper,
   FilterIcon,
 } from '../icons'
-import { css } from '@sightread/flake'
+import { css, mediaQuery } from '@sightread/flake'
 import { palette } from '../styles/common'
 
 type TableColumn = {
@@ -18,6 +18,12 @@ type TableColumn = {
   id: string
   style?: React.CSSProperties
   format?: (value: any) => string | React.ReactNode
+}
+
+type Layout = {
+  primary: string
+  secondary: string
+  ternary?: string
 }
 
 type SelectSongTableProps = {
@@ -28,6 +34,7 @@ type SelectSongTableProps = {
   onCreate?: () => void
   onDelete?: (item: any | undefined) => void
   onFilter?: () => void
+  smallLayout?: Layout
 }
 
 type TableHeadProps = {
@@ -77,7 +84,6 @@ const classes = css({
     },
   },
   filterButton: {
-    marginLeft: '24px',
     cursor: 'pointer',
     '&:hover svg': {
       fill: 'white',
@@ -85,6 +91,25 @@ const classes = css({
     '&:hover': {
       backgroundColor: palette.purple.primary,
     },
+  },
+  largeTable: {
+    [mediaQuery.down(750)]: {
+      display: 'none !important',
+    },
+  },
+  smallTable: {
+    [mediaQuery.up(750)]: {
+      display: 'none !important',
+    },
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    width: '100%',
+    backgroundColor: '#FFF',
+    boxShadow: `0px 0px 5px rgba(0, 0, 0, 0.2)`,
+    borderRadius: 5,
+    overflow: 'hidden',
+    contain: 'strict',
   },
 })
 
@@ -96,6 +121,7 @@ function SelectSongTable({
   onCreate,
   onDelete,
   onFilter,
+  smallLayout,
 }: SelectSongTableProps) {
   const [search, saveSearch] = useState('')
   const [sortCol, setSortCol] = useState<number>(1)
@@ -121,21 +147,31 @@ function SelectSongTable({
   return (
     <>
       <Sizer height={36} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <SearchBox onSearch={saveSearch} />
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+        <SearchBox onSearch={saveSearch} />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            flex: 1,
+            minWidth: 350,
+            margin: '10px 0px',
+          }}
+        >
           {!!onFilter && (
             <IconWrapper onClick={onFilter} className={classes.filterButton}>
               <FilterIcon height={30} width={30} />
             </IconWrapper>
           )}
+          {!!onCreate && (
+            <button type="button" className={classes.button} onClick={onCreate}>
+              <PlusIcon width={20} height={20} style={{ fill: 'white', margin: '5px' }} />
+              <span>Add New</span>
+            </button>
+          )}
         </div>
-        {!!onCreate && (
-          <button type="button" className={classes.button} onClick={onCreate}>
-            <PlusIcon width={20} height={20} style={{ fill: 'white', margin: '5px' }} />
-            <span>Add New</span>
-          </button>
-        )}
       </div>
       <Sizer height={20} />
       <div
@@ -151,6 +187,7 @@ function SelectSongTable({
           overflow: 'hidden',
           contain: 'strict',
         }}
+        className={smallLayout ? classes.largeTable : ''}
       >
         <TableHead
           columns={columns}
@@ -218,12 +255,100 @@ function SelectSongTable({
           })}
         </div>
       </div>
+      {smallLayout && (
+        <div className={classes.smallTable} style={{ flexGrow: 1 }}>
+          <TableHead
+            columns={columns.filter((col) => col.id === smallLayout.primary)}
+            sortCol={sortCol}
+            onSelectCol={handleSelectCol}
+            hasActionRow={hasActionRow}
+          />
+          <div
+            style={{
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              position: 'absolute',
+              top: 30,
+              height: '100%',
+              width: '100%',
+            }}
+          >
+            {sorted.length === 0 && (
+              <h2 style={{ fontSize: '24px', textAlign: 'center', paddingTop: '50px' }}>
+                Nothing here yet.
+              </h2>
+            )}
+            {sorted.map((row: any) => {
+              const f1 = columns.find((c) => c.id === smallLayout.primary)?.format
+              const val1 = row[smallLayout.primary]
+              const f2 = columns.find((c) => c.id === smallLayout.secondary)?.format
+              const val2 = row[smallLayout.secondary]
+              const f3 = columns.find((c) => c.id === smallLayout.ternary)?.format
+              const val3 = smallLayout.ternary ? row[smallLayout.ternary] : null
+              const cellValue = formatSmallCell(
+                f1 ? f1(val1) : val1,
+                f2 ? f2(val2) : val2,
+                f3 ? f3(val3) : val3,
+              )
+              return (
+                <div
+                  onClick={() => onSelectRow(row)}
+                  style={{
+                    position: 'relative',
+                    boxSizing: 'border-box',
+                    fontSize: 14,
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexShrink: 0,
+                    borderBottom: '#d9d5ec solid 1px',
+                  }}
+                  className="SelectSongPage__song"
+                  key={row.file}
+                >
+                  {cellValue}
+                  {!!onDelete && (
+                    <span style={{ width: '10%' }}>
+                      <IconWrapper onClick={() => onDelete(row)} className={classes.actionButton}>
+                        <TrashCanIcon
+                          width={20}
+                          height={20}
+                          style={{ fill: palette.purple.primary }}
+                        />
+                      </IconWrapper>
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
       <Sizer height={60} />
     </>
   )
 }
 
 export default SelectSongTable
+
+function formatSmallCell(val1: any, val2: any, val3: any): JSX.Element {
+  return (
+    <div style={{ padding: '6px 10px', width: '100%' }}>
+      <div style={{ fontSize: 18 }}>{val1}</div>
+      <div
+        style={{
+          color: 'grey',
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: '8px 0px',
+          width: '100%',
+        }}
+      >
+        <span>{val2}</span>
+        {val3 && <span>{val3}</span>}
+      </div>
+    </div>
+  )
+}
 
 function getIcon(sortCol: number, index: number) {
   const style: React.CSSProperties = { fill: '#1B0EA6', marginLeft: 5 }
@@ -278,7 +403,7 @@ function TableHead({ columns, sortCol, onSelectCol, hasActionRow }: TableHeadPro
 
 function SearchBox({ onSearch }: { onSearch: (val: string) => void }) {
   return (
-    <div style={{ position: 'relative', height: 32, width: 300 }}>
+    <div style={{ position: 'relative', height: 32, width: 300, marginRight: 24 }}>
       <input
         type="search"
         onChange={(e: any) => onSearch(e.target.value)}
