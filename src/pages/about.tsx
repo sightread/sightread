@@ -5,6 +5,13 @@ import { css, mediaQuery } from '@sightread/flake'
 import { palette } from '../styles/common'
 import { GithubIcon, MailIcon, WarningIcon } from '../icons'
 
+const centerAll: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+}
+
 const section1BP = 900
 const section2BP = 900
 const classes = css({
@@ -21,54 +28,36 @@ const classes = css({
       color: '#b99af4',
     },
   },
-  section1Left: {
-    [mediaQuery.down(section1BP)]: {
-      width: '100%',
+  issueHeader: {
+    ...centerAll,
+    justifyContent: 'flex-start',
+    fontSize: 32,
+    '& svg': {
+      margin: '12px 32px',
     },
-    [mediaQuery.up(section1BP + 1)]: {
-      width: '50%',
-    },
-  },
-  section1Right: {
-    display: 'flex',
-    [mediaQuery.down(section1BP)]: {
-      paddingTop: '40px',
-      width: '100%',
-    },
-    [mediaQuery.up(section1BP + 1)]: {
-      width: '50%',
+    '& svg path': {
+      fill: palette.purple.primary,
     },
   },
-  section2Left: {
-    boxSizing: 'border-box',
-    [mediaQuery.down(section2BP)]: {
-      width: '100%',
-    },
-    [mediaQuery.up(section2BP + 1)]: {
-      width: '50%',
-      paddingRight: 40,
-    },
-  },
-  section2Right: {
-    display: 'flex',
-    [mediaQuery.down(section2BP)]: {
-      paddingTop: '40px',
-      width: '100%',
-    },
-    [mediaQuery.up(section2BP + 1)]: {
-      width: '40%',
+  roadmapList: {
+    listStyleType: 'square',
+    maxWidth: 720,
+    fontSize: 20,
+    padding: '0px 25px',
+    '& li': {
+      marginBottom: 12,
     },
   },
 })
 
-const APP_MAX_WIDTH = 'md'
+const APP_MAX_WIDTH = 'sm'
 
 export default function About() {
   return (
     <div style={{ position: 'relative' }}>
       <style>{`p{font-size: 19px;}`}</style>
       <Container
-        maxWidth={APP_MAX_WIDTH}
+        maxWidth="md"
         className={classes.appBarContainer}
         style={{ position: 'fixed', top: 0, zIndex: 12, height: 60 }}
       >
@@ -76,107 +65,92 @@ export default function About() {
       </Container>
       <div style={{ padding: 20 }}></div>
       <Sizer height={104} />
-      <Container maxWidth={APP_MAX_WIDTH} component="section" className={classes.gutter}>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          <div className={classes.section1Left}>
+      <div style={{ maxWidth: 650, margin: 'auto', padding: '0 24px' }}>
+        <section>
+          <div style={centerAll}>
             <h2 style={{ fontSize: 48 }}> Our Mission</h2>
-            <Sizer height={32} />
-            <p>
-              We are developers who decided to learn how to play the piano. This app was born out of
-              three things: Our passion for technology. Our desire to understand music from the
-              ground up. No platform on the market quite handled everything we wanted for free.
-            </p>
-            <Sizer height={24} />
-            <p>
-              Our mission remains simply to grow our musical abilities and yours by growing this
-              platform.
-            </p>
+            <MissionSVG width={150} height={100} style={{ margin: '16px 48px' }} />
           </div>
-          <div className={classes.section1Right}>
-            <MissionSVG width={200} height={250} style={{ width: '90%', margin: 'auto' }} />
-          </div>
-        </div>
-      </Container>
-      <Sizer height={64} />
-      <Container maxWidth={APP_MAX_WIDTH} component="section" className={classes.gutter}>
-        <h3 style={{ fontSize: 32, display: 'flex' }}>
-          Submit an Issue <Sizer width={16} />
-          <WarningIcon height={32} width={32} />
-        </h3>
-        <Sizer height={32} />
-        <p style={{ maxWidth: '550px' }}>
-          If you encounter any problems with the site or if you would like to leave feedback (always
-          appreicated), the best way to do so is through:
-        </p>
-        <Sizer height={24} />
-        <p style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-          <GithubIcon height={25} width={25} />
-          <span style={{ margin: '0px 12px' }}>Github:</span>
-          <a
-            href="https://github.com/sightread/community"
-            target="_blank"
-            style={{ wordBreak: 'break-all', textDecoration: 'none' }}
-          >
-            https://github.com/sightread/community
-          </a>
-        </p>
-        <Sizer height={12} />
-        <p style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-          <MailIcon height={25} width={25} />
-          <span style={{ margin: '0px 12px' }}>Email:</span>
-          <a
-            href="mailto:sightreadllc@gmail.com"
-            style={{ wordBreak: 'break-all', textDecoration: 'none' }}
-          >
-            sightreadllc@gmail.com
-          </a>
-        </p>
-      </Container>
-      <Sizer height={80} />
-      <Container maxWidth={APP_MAX_WIDTH} component="section" className={classes.gutter}>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          <div className={classes.section2Left}>
-            <h2 style={{ fontSize: 48 }}> Roadmap</h2>
-            <Sizer height={32} />
-            <p>
-              The following features/updates are ones that we plan on including into the project as
-              soon as possible.
-            </p>
-          </div>
-          <div className={classes.section2Right}>
-            <RoadMapSVG height={200} width={300} style={{ width: '100%' }} />
-          </div>
-        </div>
-        <Sizer height={24} />
-        <div>
-          <ul style={{ listStyleType: 'square', maxWidth: 720, fontSize: 20, padding: '0px 25px' }}>
-            <li>
-              Difficulty adjustment of songs based on user input. For example: adjust max number of
-              notes to play a chord, minimum time between notes, etc.
-            </li>
-            <Sizer height={20} />
-            <li>Expand free play mode with looping and song sharing</li>
-            <Sizer height={20} />
-            <li>Expand lessons with more instructional components</li>
-            <Sizer height={20} />
-            <li>
-              Ability to create an account in order to access personal progress tracking and
-              leaderboard stats
-            </li>
-            <Sizer height={20} />
-            <li>
-              Addition play mode with a small currated list of songs to play in order and must
-              achieve a certain accuracy percent before playing next song.
-            </li>
-            <Sizer height={20} />
-          </ul>
-        </div>
-      </Container>
-      <Sizer height={64} />
-      <Container maxWidth={APP_MAX_WIDTH} component="section" className={classes.gutter}>
-        <div>
-          <h2 style={{ fontSize: 48 }}> Roadmap</h2>
+          <Sizer height={32} />
+          <p>
+            We are developers who decided to learn how to play the piano. This app was born out of
+            three things: Our passion for technology. Our desire to understand music from the ground
+            up. No platform on the market quite handled everything we wanted for free.
+          </p>
           <Sizer height={24} />
+          <p>
+            Our mission remains simply to grow our musical abilities and yours by growing this
+            platform.
+          </p>
+          <Sizer height={64} />
+          <h3 className={classes.issueHeader}>
+            Submit an Issue
+            <WarningIcon height={32} width={32} />
+          </h3>
+          <Sizer height={32} />
+          <p style={{ maxWidth: '550px' }}>
+            If you encounter any problems with the site or if you would like to leave feedback
+            (always appreicated), the best way to do so is through:
+          </p>
+          <Sizer height={24} />
+          <p style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+            <GithubIcon height={25} width={25} />
+            <span style={{ margin: '0px 12px' }}>Github:</span>
+            <a
+              href="https://github.com/sightread/community"
+              target="_blank"
+              style={{ wordBreak: 'break-all', textDecoration: 'none' }}
+            >
+              https://github.com/sightread/community
+            </a>
+          </p>
+          <Sizer height={12} />
+          <p style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+            <MailIcon height={25} width={25} />
+            <span style={{ margin: '0px 12px' }}>Email:</span>
+            <a
+              href="mailto:sightreadllc@gmail.com"
+              style={{ wordBreak: 'break-all', textDecoration: 'none' }}
+            >
+              sightreadllc@gmail.com
+            </a>
+          </p>
+        </section>
+        <Sizer height={80} />
+        <section>
+          <div style={centerAll}>
+            <h2 style={{ fontSize: 48 }}> Roadmap</h2>
+            <RoadMapSVG height={100} width={150} style={{ margin: '16px 48px' }} />
+          </div>
+          <Sizer height={24} />
+          <div>
+            <ul className={classes.roadmapList}>
+              <li>
+                Difficulty adjustment of songs based on user input. For example: adjust max number
+                of notes to play a chord, minimum time between notes, etc.
+              </li>
+              <Sizer height={20} />
+              <li>Expand free play mode with looping and song sharing</li>
+              <Sizer height={20} />
+              <li>Expand lessons with more instructional components</li>
+              <Sizer height={20} />
+              <li>
+                Ability to create an account in order to access personal progress tracking and
+                leaderboard stats
+              </li>
+              <Sizer height={20} />
+              <li>
+                Addition play mode with a small currated list of songs to play in order and must
+                achieve a certain accuracy percent before playing next song.
+              </li>
+              <Sizer height={20} />
+            </ul>
+          </div>
+        </section>
+        <Sizer height={64} />
+        <div>
+          <h2 style={{ fontSize: 48, textAlign: 'center' }}>Major Changes</h2>
+          <Sizer height={48} />
           <p style={{ maxWidth: '650px' }}>
             Signifcant updates can be found as a timeline here. The best way to stay up to date on
             all updates, small to large, is through the github repository.{' '}
@@ -186,7 +160,7 @@ export default function About() {
             <li>No Major changes yet</li>
           </ul>
         </div>
-      </Container>
+      </div>
       <Sizer height={64} />
       <div style={{ width: '100%', height: 32, backgroundColor: palette.purple.primary }}></div>
     </div>
