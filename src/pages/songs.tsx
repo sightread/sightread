@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import {
-  CenteringWrapper,
   formatTime,
   isFileMidi,
   isFileXML,
@@ -190,16 +189,16 @@ export default function SelectLessonPage() {
               { label: 'Difficult', id: 'difficulty', format: (v) => 'Easy' },
               { label: 'Length', id: 'duration', format: formatTime },
             ]}
-            rows={filteredSongs()}
-            filter={['name', 'artist'] as any}
-            onSelectRow={setSelectedSong}
-            onCreate={handleAddNew}
-            onFilter={handleToggleOpenFilter}
             smallLayout={{
               primary: 'name',
               secondary: 'artist',
               ternary: 'duration',
             }}
+            rows={filteredSongs()}
+            filter={['name', 'artist'] as any}
+            onSelectRow={setSelectedSong}
+            onCreate={handleAddNew}
+            onFilter={handleToggleOpenFilter}
           />
         </div>
       </Container>
