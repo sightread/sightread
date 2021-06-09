@@ -1,16 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react'
-import Player from '../player'
-import { SongNote, SongSettings, TrackSettings } from '../types'
-import midi from '../midi'
+import React, { useState, useEffect, useContext, useCallback, useRef } from 'react'
+import { SongSettings, TrackSettings } from '../types'
 import { isBrowser } from '../utils'
-
-export function useMousePressed() {
-  const [isPressed, setIsPressed] = useState(false)
-  window.addEventListener('mousedown', () => setIsPressed(true))
-  window.addEventListener('mouseup', () => setIsPressed(false))
-
-  return isPressed
-}
 
 export function useRAFLoop(fn: Function) {
   const requestRef: any = React.useRef()
@@ -78,50 +68,10 @@ export function useSelectedSong(file: string | null): SongSettingsContext {
   return [songSettings, setSongSettings]
 }
 
-const UserPressedKeysContext = React.createContext<Map<number, number>>(new Map())
-
-export function UserPressedKeysProvider({ children }: ProviderProps) {
-  const [pressedKeys, setPressedKeys] = useState<Map<number, number>>(new Map())
-
-  useEffect(() => {
-    midi.subscribe(setPressedKeys)
-    return () => {
-      midi.unsubscribe(setPressedKeys)
-    }
-  }, [])
-
-  return (
-    <UserPressedKeysContext.Provider value={pressedKeys}>
-      {children}
-    </UserPressedKeysContext.Provider>
-  )
-}
-
-const SongPressedKeysContext = React.createContext<{ [note: number]: SongNote }>({})
-
-export function SongPressedKeysProvider({ children }: any) {
-  const [pressedKeys, setPressedKeys] = useState<{ [note: number]: SongNote }>({})
-
-  useEffect(() => {
-    Player.player().subscribe((keys: any) => {
-      setPressedKeys(keys)
-    })
-    return () => {
-      Player.player().unsubscribe(setPressedKeys)
-    }
-  }, [])
-
-  return (
-    <SongPressedKeysContext.Provider value={pressedKeys}>
-      {children}
-    </SongPressedKeysContext.Provider>
-  )
-}
-
-export function useSongPressedKeys() {
-  return useContext(SongPressedKeysContext)
-}
-
-export function useUserPressedKeys() {
-  return useContext(UserPressedKeysContext)
+export function useSingleton<T>(fn: () => T): T {
+  let ref = useRef<T>()
+  if (!ref.current) {
+    ref.current = fn()
+  }
+  return ref.current
 }

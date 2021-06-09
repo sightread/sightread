@@ -1,6 +1,5 @@
-import { getSynthStub } from './synth'
 import { getNote } from './synth/utils'
-import { useSynth } from './PlaySongPage/utils'
+import { MidiStateEvent } from './types'
 export function refreshMIDIDevices() {
   if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {
     return
@@ -60,10 +59,8 @@ const qwertyKeyConfig: { [key: string]: string } = {
 
 class MidiState {
   octave = 4
-  pressedNotes = new Map<number, number>()
-  synth = useSynth()
+  pressedNotes = new Map<number, { time: number; vel: number }>()
   listeners: Array<Function> = []
-  virtualKeyboard = false
 
   constructor() {
     if (typeof window === 'object') {
@@ -73,25 +70,19 @@ class MidiState {
   }
 
   handleKeyDown(e: KeyboardEvent) {
-    if (!this.virtualKeyboard) {
-      return
-    }
-
     // Some OSes / browsers will automatically repeat a letter when held down.
     // We don't want to count those.
     if (e.repeat) {
       return
     }
 
+    // TODO: what if octave switch while note is held down
+    // must release all currently pressed notes.
     const key = e.key
     if (key === 'ArrowUp') {
       this.octave = Math.min(7, this.octave + 1)
-      this.pressedNotes.clear()
-      this.notify()
     } else if (key === 'ArrowDown') {
       this.octave = Math.max(1, this.octave - 1)
-      this.pressedNotes.clear()
-      this.notify()
     } else if (key in qwertyKeyConfig) {
       const note = qwertyKeyConfig[key]
       this.press(getNote(note + this.octave), 80)
@@ -99,10 +90,6 @@ class MidiState {
   }
 
   handleKeyUp(e: KeyboardEvent) {
-    if (!this.virtualKeyboard) {
-      return
-    }
-
     const key = e.key
     if (key in qwertyKeyConfig) {
       const note = qwertyKeyConfig[key]
@@ -110,29 +97,26 @@ class MidiState {
     }
   }
 
-  getPressedNotes(): Map<number, number> {
+  getPressedNotes(): ReadonlyMap<number, { time: number; vel: number }> {
     return this.pressedNotes
   }
 
   press(note: number, velocity: number) {
-    this.pressedNotes.set(note, Date.now())
-    this.synth?.playNote(note, velocity)
-
-    this.notify()
+    const time = Date.now()
+    this.pressedNotes.set(note, { time, vel: velocity })
+    this.notify({ note, velocity, type: 'down', time })
   }
 
   release(note: number) {
     this.pressedNotes.delete(note)
-    this.synth?.stopNote(note)
-    this.notify()
+    this.notify({ note, type: 'up', time: Date.now() })
   }
 
-  notify() {
-    const clone = new Map(this.pressedNotes)
-    this.listeners.forEach((fn) => fn(clone))
+  notify(e: MidiStateEvent) {
+    this.listeners.forEach((fn) => fn(e))
   }
 
-  subscribe(cb: Function) {
+  subscribe(cb: (e: MidiStateEvent) => void) {
     this.listeners.push(cb)
   }
 
@@ -142,7 +126,7 @@ class MidiState {
   }
 }
 
-const provider = new MidiState()
+const midiState = new MidiState()
 
 function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
   const msg: MidiEvent | null = parseMidiMessage(e)
@@ -152,9 +136,9 @@ function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
   }
   const { note, velocity } = msg
   if (msg.type === 'on' && msg.velocity > 0) {
-    provider.press(note, velocity)
+    midiState.press(note, velocity)
   } else {
-    provider.release(note)
+    midiState.release(note)
   }
 }
-export default provider
+export default midiState

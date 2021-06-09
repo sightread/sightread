@@ -16,8 +16,7 @@ import {
   SoundOffIcon,
 } from '../../icons'
 import Player from '../../player'
-import midiKeyboard from '../../midi'
-import { useRAFLoop, useSelectedSong } from '../../hooks'
+import { useRAFLoop, useSelectedSong, useSingleton } from '../../hooks'
 import { formatTime, getSong, inferHands } from '../../utils'
 import { useSize } from '../../hooks/size'
 import { gmInstruments } from '../../synth/instruments'
@@ -27,6 +26,7 @@ import { GetServerSideProps } from 'next'
 import { default as ErrorPage } from 'next/error'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
+import { getSynthStub } from '../../synth'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -133,10 +133,10 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const [soundOff, setSoundOff] = useState(false)
   const [canPlay, setCanPlay] = useState<boolean>(false)
   const [songSettings, setSongSettings] = useSelectedSong(songLocation)
-  // const [song, setSong] = useState<PlayableSong | null>(null)
   const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
   const player = Player.player()
+  const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
 
   function setupPlayer(song: PlayableSong, songLocation: string) {
     setCanPlay(false)
@@ -183,11 +183,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       .then((song: PlayableSong) => {
         setupPlayer(song, songLocation)
       })
-    midiKeyboard.virtualKeyboard = true
-
-    return function cleanup() {
-      midiKeyboard.virtualKeyboard = false
-    }
   }, [songLocation, player])
 
   useEffect(() => {
@@ -474,7 +469,16 @@ function App({ type, songLocation, viz }: PlaySongProps) {
               boxSizing: 'border-box',
             }}
           >
-            <PianoRoll getKeyColor={getKeyColor} activeColor="grey" />
+            <PianoRoll
+              getKeyColor={getKeyColor}
+              activeColor="grey"
+              onNoteDown={(n: number) => {
+                synth.playNote(n)
+              }}
+              onNoteUp={(n: number) => {
+                synth.stopNote(n)
+              }}
+            />
           </div>
         )}
       </div>

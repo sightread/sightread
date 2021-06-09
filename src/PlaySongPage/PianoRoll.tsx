@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useUserPressedKeys } from '../hooks'
 import { useSize } from '../hooks/size'
+import midiState from '../midi'
 import Player from '../player'
 import { getNote } from '../synth/utils'
 import { SongNote } from '../types'
 import { isBlack, isBrowser } from '../utils'
-import { useSynth } from './utils'
 
 /**
  * XORs the keys. Find all the keys that are in one object but not the other.
@@ -23,13 +22,18 @@ function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
 
+type PianoRollProps = {
+  getKeyColor: (pressedKeys: any, midiNote: number, type: 'black' | 'white') => string
+  activeColor: string
+  onNoteDown?: (midiNote: number) => void
+  onNoteUp?: (midiNote: number) => void
+}
 export default function PianoRoll({
   getKeyColor,
   activeColor,
-}: {
-  getKeyColor: (pressedKeys: any, midiNote: number, type: 'black' | 'white') => string
-  activeColor: string
-}) {
+  onNoteUp,
+  onNoteDown,
+}: PianoRollProps) {
   const { width, measureRef } = useSize()
   const prevPressed = useRef({})
   const keyPositions = useMemo(() => getKeyPositions(width), [width])
@@ -66,6 +70,8 @@ export default function PianoRoll({
         note={midiNote}
         activeColor={activeColor}
         key={i}
+        onNoteDown={onNoteDown}
+        onNoteUp={onNoteUp}
       />
     )
   })
@@ -108,12 +114,21 @@ type PianoNote = {
   height: number
   note: number
   activeColor: string
+  onNoteDown?: (midiNote: number) => void
+  onNoteUp?: (midiNote: number) => void
 }
-function PianoNote({ left, width, color, height, note, activeColor }: PianoNote) {
+function PianoNote({
+  left,
+  width,
+  color,
+  height,
+  note,
+  activeColor,
+  onNoteDown,
+  onNoteUp,
+}: PianoNote) {
   const [userPressed, setUserPressed] = useState(false)
-  const midiKeys: Map<number, number> = useUserPressedKeys()
-  const synth = useSynth()
-
+  const midiKeys = midiState.getPressedNotes()
   let pressed = userPressed || midiKeys.has(note)
 
   return (
@@ -135,20 +150,20 @@ function PianoNote({ left, width, color, height, note, activeColor }: PianoNote)
       }}
       onMouseDown={() => {
         setUserPressed(true)
-        synth.playNote(note)
+        onNoteDown?.(note)
       }}
       onMouseUp={() => {
         setUserPressed(false)
-        synth.stopNote(note)
+        onNoteUp?.(note)
       }}
       onMouseLeave={() => {
         setUserPressed(false)
-        synth.stopNote(note)
+        onNoteUp?.(note)
       }}
       onMouseEnter={() => {
         if (isMouseDown) {
           setUserPressed(true)
-          synth.playNote(note)
+          onNoteDown?.(note)
         }
       }}
     ></div>

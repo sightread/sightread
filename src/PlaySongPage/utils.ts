@@ -1,7 +1,8 @@
-import { getSynthStub } from '../synth'
+import { getSynth, getSynthStub, Synth } from '../synth'
 import { TrackSettings, PlayableSong, Track } from '../types'
 import Player from '../player'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
+import { Ref, useEffect, useRef, useState } from 'react'
 
 export function getNoteLanes(width: number) {
   const whiteWidth = width / 52
@@ -21,10 +22,24 @@ export function getNoteLanes(width: number) {
   return lanes
 }
 
-let synth = getSynthStub('acoustic_grand_piano')
+export function useSynth(
+  instrument: InstrumentName,
+): { loading: boolean; error: boolean; synth: Synth } {
+  const [loadError, setLoadError] = useState({ loading: true, error: false })
 
-export function useSynth() {
-  return synth
+  useEffect(() => {
+    setLoadError({ loading: true, error: false })
+    getSynth(instrument)
+      .then(() => {
+        setLoadError({ loading: false, error: false })
+      })
+      .catch((err) => {
+        console.error(`Could not load synth. Error: ${err}`)
+        setLoadError({ loading: false, error: true })
+      })
+  }, [instrument])
+
+  return { ...loadError, synth: getSynthStub(instrument) }
 }
 
 export function applySettings(player: Player, settings: TrackSettings | undefined): void {
