@@ -123,10 +123,6 @@ const classes = css({
 })
 
 function App({ type, songLocation, viz }: PlaySongProps) {
-  if (!type || !songLocation) {
-    return <ErrorPage statusCode={404} title="Song Not Found :(" />
-  }
-
   const [playing, setPlaying] = useState(false)
   const [waiting, setWaiting] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
@@ -137,6 +133,10 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const router = useRouter()
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
+
+  if (!type || !songLocation) {
+    return <ErrorPage statusCode={404} title="Song Not Found :(" />
+  }
 
   function setupPlayer(song: PlayableSong, songLocation: string) {
     setCanPlay(false)

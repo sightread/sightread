@@ -77,7 +77,7 @@ function FreePlay() {
     return () => {
       midiState.unsubscribe(handleMidiStateEvent)
     }
-  }, [])
+  }, [handleNoteDown, handleNoteUp])
 
   return (
     <div className="App">

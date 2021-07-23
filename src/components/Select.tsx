@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { useState, useRef, useEffect } from 'react'
 import { css } from '@sightread/flake'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { ArrowDown, LoadingIcon } from '../icons'
 import clsx from 'clsx'
 
@@ -111,14 +111,18 @@ export default function Select({
     onChange(val)
     toggleMenu()
   }
-  const handleClickAway = (e: MouseEvent) => {
-    if (!openMenu) {
-      return
-    }
-    if (e.target !== menuRef.current) {
-      setOpenMenu(false)
-    }
-  }
+  const handleClickAway = useCallback(
+    (e: MouseEvent) => {
+      if (!openMenu) {
+        return
+      }
+      if (e.target !== menuRef.current) {
+        setOpenMenu(false)
+      }
+    },
+    [setOpenMenu],
+  )
+
   useEffect(() => {
     window.addEventListener('click', handleClickAway)
     return () => {

@@ -28,7 +28,7 @@ type PianoRollProps = {
   onNoteDown?: (midiNote: number) => void
   onNoteUp?: (midiNote: number) => void
 }
-export default function PianoRoll({
+export function PianoRoll({
   getKeyColor,
   activeColor,
   onNoteUp,
@@ -157,6 +157,9 @@ function PianoNote({
         onNoteUp?.(note)
       }}
       onMouseLeave={() => {
+        if (!userPressed) {
+          return
+        }
         setUserPressed(false)
         onNoteUp?.(note)
       }}
