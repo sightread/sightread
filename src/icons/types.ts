@@ -5,5 +5,5 @@ export type IconInput = {
   height: number | string
   style?: React.CSSProperties
   className?: string
-  onClick?: (event: MouseEvent<SVGSVGElement>) => void
+  onClick?: (event: MouseEvent<SVGElement>) => void
 }

@@ -68,6 +68,7 @@ export function useSelectedSong(file: string | null): SongSettingsContext {
   return [songSettings, setSongSettings]
 }
 
+// TODO: should this just be a useMemo?
 export function useSingleton<T>(fn: () => T): T {
   let ref = useRef<T>()
   if (!ref.current) {

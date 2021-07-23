@@ -147,14 +147,14 @@ function getItemsInView(state: State): CanvasItem[] {
 
   // First get the whole slice of notes in view.
   return getRange(state.items, startPred, endPred).filter((item) => {
-    // Filter out the contiguous notes that may have already clipped below screen.
+    // Filter out the contiguous notes that may have already clipped off screen.
     // As well as non matching items
     return startPred(item) && isMatchingHand(item, state)
   })
 }
 
 /**
- * Get the contigious range starting from the first element that returns true from the startPred
+ * Get the contiguous range starting from the first element that returns true from the startPred
  * until the first element that fails the endPred.
  */
 function getRange<T>(
@@ -229,8 +229,6 @@ function isMatchingHand(item: CanvasItem, state: State) {
         return true
       }
       return false
-    default:
-      throw new Error('isMatching hand received unkown type.')
   }
 }
 
@@ -480,8 +478,6 @@ export function sheetIconProps(icon: 'treble' | 'bass' | 'brace', height: number
         },
       }
     }
-    default:
-      throw new Error('sheetIconProps got an unkown icon')
   }
 }
 

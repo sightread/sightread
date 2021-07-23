@@ -2,7 +2,7 @@ import { getSynth, getSynthStub, Synth } from '../synth'
 import { TrackSettings, PlayableSong, Track } from '../types'
 import Player from '../player'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
-import { Ref, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export function getNoteLanes(width: number) {
   const whiteWidth = width / 52
@@ -28,15 +28,24 @@ export function useSynth(
   const [loadError, setLoadError] = useState({ loading: true, error: false })
 
   useEffect(() => {
+    let cancelled = false
     setLoadError({ loading: true, error: false })
     getSynth(instrument)
       .then(() => {
-        setLoadError({ loading: false, error: false })
+        if (!cancelled) {
+          setLoadError({ loading: false, error: false })
+        }
       })
       .catch((err) => {
+        if (cancelled) {
+          return
+        }
         console.error(`Could not load synth. Error: ${err}`)
         setLoadError({ loading: false, error: true })
       })
+    return () => {
+      cancelled = true
+    }
   }, [instrument])
 
   return { ...loadError, synth: getSynthStub(instrument) }
