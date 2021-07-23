@@ -116,7 +116,7 @@ export default function SelectLessonPage() {
 
   useEffect(() => {
     setSongs(songs.concat(getUploadedLibrary()))
-  }, [])
+  }, [songs])
 
   const handleUpload = () => {
     setSongs(songs.concat(getUploadedLibrary()))
