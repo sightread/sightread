@@ -12,12 +12,10 @@ const centerAll: CSSProperties = {
   justifyContent: 'center',
 }
 
-const section1BP = 900
-const section2BP = 900
 const classes = css({
   appBarContainer: {
-    backgroundColor: 'black',
-    padding: '15px 30px',
+    display: 'flex',
+    backgroundColor: '#292929',
     width: '100%',
   },
   gutter: {
@@ -56,15 +54,10 @@ export default function About() {
   return (
     <div style={{ position: 'relative' }}>
       <style>{`p{font-size: 19px;}`}</style>
-      <Container
-        maxWidth="md"
-        className={classes.appBarContainer}
-        style={{ position: 'fixed', top: 0, zIndex: 12, height: 60 }}
-      >
+      <Container maxWidth="md" className={classes.appBarContainer} style={{ height: 60 }}>
         <AppBar classNames={{ navItem: { lg: classes.navItem } }} />
       </Container>
-      <div style={{ padding: 20 }}></div>
-      <Sizer height={104} />
+      <Sizer height={48} />
       <div style={{ maxWidth: 650, margin: 'auto', padding: '0 24px' }}>
         <section>
           <div style={centerAll}>
@@ -149,7 +142,7 @@ export default function About() {
         </section>
         <Sizer height={64} />
         <div>
-          <h2 style={{ fontSize: 48, textAlign: 'center' }}>Major Changes</h2>
+          <h2 style={{ fontSize: 48, textAlign: 'center' }}>Changelog</h2>
           <Sizer height={48} />
           <p style={{ maxWidth: '650px' }}>
             Signifcant updates can be found as a timeline here. The best way to stay up to date on
