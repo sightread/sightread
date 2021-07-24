@@ -95,16 +95,7 @@ const homeItem: NavItem = { route: '/', label: 'SIGHTREAD' }
 
    navItem: addto the common NavItems
  * */
-export default function AppBar({
-  current,
-  add,
-  classNames,
-}: {
-  current?: string
-  add?: NavItem[]
-  classNames?: Classes
-}) {
-  const nav = navItems.concat(add || [])
+export default function AppBar({ classNames }: { classNames?: Classes }) {
   return (
     <>
       <div className={clsx(classes.appBarLarge, classes.appBar, classNames?.appBar?.lg)}>
@@ -122,7 +113,7 @@ export default function AppBar({
             </a>
           </Link>
           <Sizer width={50} />
-          {nav.map((nav, i) => {
+          {navItems.map((nav, i) => {
             const label = inferLabel(nav)
             return (
               <Link href={nav.route} key={i}>
@@ -144,7 +135,7 @@ export default function AppBar({
           </a>
         </Link>
         <DropDown target={<MenuIcon height={35} width={35} className={classes.menuIcon} />}>
-          {nav.map((nav, i) => {
+          {navItems.map((nav, i) => {
             const label = inferLabel(nav)
             return (
               <Link href={nav.route} key={i}>
