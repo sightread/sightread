@@ -28,15 +28,10 @@ type PianoRollProps = {
   onNoteDown?: (midiNote: number) => void
   onNoteUp?: (midiNote: number) => void
 }
-export function PianoRoll({
-  getKeyColor,
-  activeColor,
-  onNoteUp,
-  onNoteDown,
-}: PianoRollProps) {
+export function PianoRoll({ getKeyColor, activeColor, onNoteUp, onNoteDown }: PianoRollProps) {
   const { width, measureRef } = useSize()
   const prevPressed = useRef({})
-  const keyPositions = useMemo(() => getKeyPositions(width), [width])
+  const keyPositions = useMemo(() => getKeys(width), [width])
 
   useEffect(() => {
     Player.player().subscribe(setNoteColors)
@@ -84,7 +79,8 @@ export function PianoRoll({
   return (
     <div
       style={{
-        position: 'relative',
+        display: 'flex',
+        flexDirection: 'row',
         width: '100%',
         paddingTop: '3.5%', // hack to make it 7% as tall as the width
         paddingBottom: '3.5%',
@@ -107,7 +103,7 @@ let isMouseDown = false
   }
 })()
 
-type PianoNote = {
+type PianoNoteProps = {
   left: number
   width: number
   color: string
@@ -126,7 +122,7 @@ function PianoNote({
   activeColor,
   onNoteDown,
   onNoteUp,
-}: PianoNote) {
+}: PianoNoteProps) {
   const [userPressed, setUserPressed] = useState(false)
   const midiKeys = midiState.getPressedNotes()
   let pressed = userPressed || midiKeys.has(note)
@@ -136,9 +132,8 @@ function PianoNote({
       id={getNoteId(note)}
       style={{
         border: '1px solid #292e49',
-        position: 'absolute',
-        top: 0,
-        left,
+        marginLeft: isBlack(note) ? -(width / 2) : 0,
+        marginRight: isBlack(note) ? -(width / 2) : 0,
         width,
         height,
         backgroundColor: pressed ? activeColor : color,
@@ -174,57 +169,22 @@ function PianoNote({
 }
 
 type PianoKey = {
-  left: number
   width: number
-  color: 'black' | 'white'
   height: number
+  color: 'black' | 'white'
 }
 
-export function createNoteObject(
-  whiteNotes: number,
-  whiteWidth: number,
-  height: number,
-  type: 'black' | 'white',
-): PianoKey {
-  switch (type) {
-    case 'black':
-      return {
-        left: whiteNotes * whiteWidth - whiteWidth / 4,
-        width: whiteWidth / 2,
-        color: 'black',
-        height: height * (2 / 3),
-      }
-    case 'white':
-      return {
-        left: whiteNotes * whiteWidth,
-        height: height,
-        width: whiteWidth,
-        color: 'white',
-      }
-    default:
-      throw new Error('Invalid note type')
-  }
-}
-// 7% as tall as the total width!
-// function getKeyboardHeight(width: number) {
-//   const whiteWidth = width / 52
-//   return (220 / 30) * whiteWidth
-// }
+function getKeys(totalWidth: number): PianoKey[] {
+  const whiteWidth = totalWidth / 52
+  const whiteHeight = (7 + 1 / 3) * whiteWidth
+  const blackWidth = whiteWidth / 2
+  const blackHeight = whiteHeight * (2 / 3)
+  const isBlack = (n: number) => [1, 4, 6, 9, 11].includes(n % 12)
 
-export function getKeyPositions(width: number) {
-  const whiteWidth = width / 52
-  const height = (7 + 1 / 3) * whiteWidth
-
-  const blackNotes = [1, 4, 6, 9, 11]
-  const notes: PianoKey[] = []
-  let totalNotes = 0
-
-  for (var whiteNotes = 0; whiteNotes < 52; whiteNotes++, totalNotes++) {
-    if (blackNotes.includes(totalNotes % 12)) {
-      notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'black'))
-      totalNotes++
+  return Array.from({ length: 88 }).map((_, noteIndex) => {
+    if (isBlack(noteIndex)) {
+      return { width: blackWidth, height: blackHeight, color: 'black' }
     }
-    notes.push(createNoteObject(whiteNotes, whiteWidth, height, 'white'))
-  }
-  return notes
+    return { width: whiteWidth, height: whiteHeight, color: 'white' }
+  })
 }
