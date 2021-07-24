@@ -1,10 +1,13 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { CenteringWrapper, Sizer } from '../utils'
-import { AppBar, SelectSongModal, SelectSongTable } from '../SelectSongPage'
+import { Container, Sizer } from '../utils'
+import { SelectSongModal, SelectSongTable } from '../SelectSongPage'
+import AppBar from 'src/components/AppBar'
+
 import songManifest from '../manifest.json'
 
 const lessons = songManifest.filter((s) => s.type === 'lesson')
+const APP_MAX_WIDTH = 'md'
 
 export default function SelectLessonPage() {
   const [selectedSong, setSelectedSong] = useState<any>('')
@@ -17,10 +20,13 @@ export default function SelectLessonPage() {
           setSelectedSong(null)
         }}
       />
-      <CenteringWrapper backgroundColor={'#292929'}>
-        <AppBar height={60} />
-      </CenteringWrapper>
-      <CenteringWrapper backgroundColor={'#F2F2F2'} verticalGutter={60}>
+      <Container
+        style={{ backgroundColor: '#292929', height: 60, display: 'flex' }}
+        maxWidth={APP_MAX_WIDTH}
+      >
+        <AppBar />
+      </Container>
+      <Container style={{ backgroundColor: '#F2F2F2' }} maxWidth={APP_MAX_WIDTH}>
         <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
           <Sizer height={64} />
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Lessons</h2>
@@ -40,7 +46,7 @@ export default function SelectLessonPage() {
             onSelectRow={setSelectedSong}
           />
         </div>
-      </CenteringWrapper>
+      </Container>
     </>
   )
 }
