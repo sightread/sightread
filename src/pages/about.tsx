@@ -121,7 +121,7 @@ export default function About() {
             <ul className={classes.roadmapList}>
               <li>
                 Difficulty adjustment of songs based on user input. For example: adjust max number
-                of notes to play a chord, minimum time between notes, etc.
+                of notes to play a chord, and minimum time between notes.
               </li>
               <Sizer height={20} />
               <li>Expand free play mode with looping and song sharing</li>
