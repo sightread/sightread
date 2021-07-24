@@ -1,29 +1,16 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSize } from '../hooks/size'
 import midiState from '../midi'
 import Player from '../player'
-import { getNote } from '../synth/utils'
+import { getKey, getNote } from '../synth/utils'
 import { SongNote } from '../types'
-import { isBlack, isBrowser } from '../utils'
+import { diffKeys, isBlack, isBrowser } from '../utils'
 
-/**
- * XORs the keys. Find all the keys that are in one object but not the other.
- */
-function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
-  let diff = []
-  for (let k in o1) {
-    !(k in o2) && diff.push(k)
-  }
-  for (let k in o2) {
-    !(k in o1) && diff.push(k)
-  }
-  return diff
-}
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
 
 type PianoRollProps = {
-  getKeyColor: (pressedKeys: any, midiNote: number, type: 'black' | 'white') => string
+  getKeyColor: (pressedKeys: any, midiNote: number) => string
   activeColor: string
   onNoteDown?: (midiNote: number) => void
   onNoteUp?: (midiNote: number) => void
@@ -31,7 +18,9 @@ type PianoRollProps = {
 export function PianoRoll({ getKeyColor, activeColor, onNoteUp, onNoteDown }: PianoRollProps) {
   const { width, measureRef } = useSize()
   const prevPressed = useRef({})
-  const keyPositions = useMemo(() => getKeys(width), [width])
+  if (!getKeyColor) {
+    getKeyColor = (_, midiNote) => (isBlack(midiNote) ? 'black' : 'white')
+  }
 
   useEffect(() => {
     Player.player().subscribe(setNoteColors)
@@ -43,24 +32,23 @@ export function PianoRoll({ getKeyColor, activeColor, onNoteUp, onNoteDown }: Pi
   function setNoteColors(currPressed: { [note: number]: SongNote }) {
     let diff = diffKeys(prevPressed.current, currPressed)
     for (let midiNote of diff) {
-      const defaultColor = keyPositions[+midiNote - getNote('A0')].color
-      const color = getKeyColor(currPressed, +midiNote, defaultColor)
       const noteEl = document.getElementById(getNoteId(midiNote))
       if (noteEl) {
+        const color = getKeyColor(currPressed, +midiNote)
         noteEl.style.backgroundColor = color
       }
     }
     prevPressed.current = currPressed
   }
 
-  const notes = keyPositions.map((note: any, i: number) => {
+  const sizes = getNoteSizes(width)
+  const notes = Array.from({ length: 88 }).map((_, i: number) => {
     const midiNote = i + getNote('A0')
-    const color = getKeyColor({}, midiNote, note.color)
+    const color = getKeyColor({}, midiNote)
     return (
       <PianoNote
-        left={note.left}
-        width={note.width}
-        height={note.height}
+        width={isBlack(midiNote) ? sizes.blackWidth : sizes.whiteWidth}
+        height={isBlack(midiNote) ? sizes.blackHeight : sizes.whiteHeight}
         color={color}
         note={midiNote}
         activeColor={activeColor}
@@ -104,7 +92,6 @@ let isMouseDown = false
 })()
 
 type PianoNoteProps = {
-  left: number
   width: number
   color: string
   height: number
@@ -114,7 +101,6 @@ type PianoNoteProps = {
   onNoteUp?: (midiNote: number) => void
 }
 function PianoNote({
-  left,
   width,
   color,
   height,
@@ -132,8 +118,7 @@ function PianoNote({
       id={getNoteId(note)}
       style={{
         border: '1px solid #292e49',
-        marginLeft: isBlack(note) ? -(width / 2) : 0,
-        marginRight: isBlack(note) ? -(width / 2) : 0,
+        margin: isBlack(note) ? `0 -${width / 2}px` : 0,
         width,
         height,
         backgroundColor: pressed ? activeColor : color,
@@ -168,23 +153,11 @@ function PianoNote({
   )
 }
 
-type PianoKey = {
-  width: number
-  height: number
-  color: 'black' | 'white'
-}
-
-function getKeys(totalWidth: number): PianoKey[] {
-  const whiteWidth = totalWidth / 52
+function getNoteSizes(width: number) {
+  const whiteWidth = width / 52
   const whiteHeight = (7 + 1 / 3) * whiteWidth
   const blackWidth = whiteWidth / 2
   const blackHeight = whiteHeight * (2 / 3)
-  const isBlack = (n: number) => [1, 4, 6, 9, 11].includes(n % 12)
 
-  return Array.from({ length: 88 }).map((_, noteIndex) => {
-    if (isBlack(noteIndex)) {
-      return { width: blackWidth, height: blackHeight, color: 'black' }
-    }
-    return { width: whiteWidth, height: whiteHeight, color: 'white' }
-  })
+  return { whiteWidth, whiteHeight, blackWidth, blackHeight }
 }

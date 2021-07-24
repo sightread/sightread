@@ -17,7 +17,7 @@ import {
 } from '../../icons'
 import Player from '../../player'
 import { useRAFLoop, useSelectedSong, useSingleton } from '../../hooks'
-import { formatTime, getSong, inferHands } from '../../utils'
+import { formatTime, getSong, inferHands, isBlack } from '../../utils'
 import { useSize } from '../../hooks/size'
 import { gmInstruments } from '../../synth/instruments'
 import { MusicalNoteIcon } from '../../icons'
@@ -232,11 +232,8 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     }
   }
 
-  const getKeyColor = (
-    pressedKeys: { [index: number]: SongNote },
-    midiNote: number,
-    type: 'white' | 'black',
-  ): string => {
+  const getKeyColor = (pressedKeys: { [index: number]: SongNote }, midiNote: number): string => {
+    const type = isBlack(midiNote) ? 'black' : 'white'
     const song = songSettings?.song
     if (!song || !(midiNote in pressedKeys)) return type
     if (songSettings?.tracks) {

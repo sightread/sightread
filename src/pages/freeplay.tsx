@@ -166,7 +166,6 @@ function FreePlay() {
           }}
         >
           <PianoRoll
-            getKeyColor={(_1, _2, t) => t}
             activeColor={noteColor}
             onNoteDown={handleNoteDown}
             onNoteUp={handleNoteUp}
