@@ -211,7 +211,7 @@ function LandingPage() {
       <div style={{ padding: 20 }}></div>
       <div style={{ minHeight: '600px', position: 'relative' }}>
         <div className={classes.heroOverlay}></div>
-        <Image priority src="/images/paino_keys_close.jpg" layout="fill" />
+        <Image priority src="/images/piano_keys_close.jpg" layout="fill"  alt="A Piano"/>
         <div className={classes.heroContent}>
           <h1 style={{ fontSize: 48, textAlign: 'center' }}>Learn to play piano</h1>
           <Sizer height={42} />
@@ -350,7 +350,7 @@ function LandingPage() {
                 boxShadow: '0px 0px 15px 0px lightgrey',
               }}
             >
-              <Image src="/images/falling_notes.PNG" width={420} height={300} />
+              <Image src="/images/falling_notes.PNG" width={420} height={300} alt="Falling notes example."/>
             </div>
           </div>
         </div>

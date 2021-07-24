@@ -120,7 +120,7 @@ export default function Select({
         setOpenMenu(false)
       }
     },
-    [setOpenMenu],
+    [setOpenMenu, openMenu],
   )
 
   useEffect(() => {

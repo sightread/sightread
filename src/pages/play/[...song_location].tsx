@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Song, PlayableSong, Hand, SongNote } from '../../types'
 import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
 import { getHandSettings, applySettings, getTrackSettings } from '../../PlaySongPage/utils'
@@ -134,43 +134,42 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
 
-  if (!type || !songLocation) {
-    return <ErrorPage statusCode={404} title="Song Not Found :(" />
-  }
-
-  function setupPlayer(song: PlayableSong, songLocation: string) {
-    setCanPlay(false)
-    const cachedSettings = songSettings?.tracks
-    let tracks
-    if (cachedSettings) {
-      tracks = cachedSettings
-      // if cached settings then set the song tracks program
-      // (used by the player to get the correct synths)
-      Object.entries(cachedSettings).forEach(([trackId, settings]) => {
-        song.tracks[+trackId].program = gmInstruments.indexOf(settings.instrument)
-      })
-    } else {
-      tracks = getTrackSettings(song)
-    }
-    setSongSettings(songLocation, { tracks, song })
-    player.setSong(song).then(() => {
-      setCanPlay(true)
+  const setupPlayer = useCallback(
+    (song: PlayableSong, songLocation: string) => {
+      setCanPlay(false)
+      const cachedSettings = songSettings?.tracks
+      let tracks
       if (cachedSettings) {
-        applySettings(player, cachedSettings)
+        tracks = cachedSettings
+        // if cached settings then set the song tracks program
+        // (used by the player to get the correct synths)
+        Object.entries(cachedSettings).forEach(([trackId, settings]) => {
+          song.tracks[+trackId].program = gmInstruments.indexOf(settings.instrument)
+        })
+      } else {
+        tracks = getTrackSettings(song)
       }
-    })
-  }
+      setSongSettings(songLocation, { tracks, song })
+      player.setSong(song).then(() => {
+        setCanPlay(true)
+        if (cachedSettings) {
+          applySettings(player, cachedSettings)
+        }
+      })
+    },
+    [player, setSongSettings, songSettings?.tracks],
+  )
   // Is this doing anything? - jake
   useEffect(() => {
     player.setHand(hand)
-  }, [hand])
+  }, [player, hand])
 
   // Register ummount fns
   useEffect(() => {
     return () => {
       player.stop()
     }
-  }, [])
+  }, [player])
 
   useEffect(() => {
     if (!songLocation || !type) return
@@ -183,7 +182,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       .then((song: PlayableSong) => {
         setupPlayer(song, songLocation)
       })
-  }, [songLocation, player])
+  }, [songLocation, player, setupPlayer, songSettings?.song, type])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -202,6 +201,10 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     window.addEventListener('keydown', keyboardHandler, { passive: true })
     return () => window.removeEventListener('keydown', keyboardHandler)
   }, [playing, player, canPlay])
+
+  if (!type || !songLocation) {
+    return <ErrorPage statusCode={404} title="Song Not Found :(" />
+  }
 
   const handleHand = (selected: Hand) => {
     if (hand === selected) {
@@ -501,9 +504,9 @@ export function SongScrubBar({
   const startX = useRef<number>(0)
   const player = Player.player()
 
-  function getProgress(x: number) {
+  const getProgress = useCallback((x: number) => {
     return Math.min(Math.max((x - startX.current) / width, 0), 1)
-  }
+  }, [width])
 
   useRAFLoop(() => {
     if (!divRef.current) {
@@ -526,14 +529,14 @@ export function SongScrubBar({
     if (wrapperRef.current) {
       startX.current = wrapperRef.current.getBoundingClientRect().x
     }
-  }, [wrapperRef.current])
+  }, [])
 
   useEffect(() => {
     if (rangeSelecting) {
       rangeSelection.current = null
       player.setRange(null)
     }
-  }, [rangeSelecting])
+  }, [rangeSelecting, player])
 
   function seekPlayer(e: { clientX: number }) {
     const progress = getProgress(e.clientX)
@@ -568,7 +571,7 @@ export function SongScrubBar({
         window.removeEventListener('mouseup', handleUp)
       }
     }
-  }, [mousePressed, rangeSelecting])
+  }, [mousePressed, rangeSelecting, player, getProgress, setRangeSelecting])
 
   return (
     <div
