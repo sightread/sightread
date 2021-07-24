@@ -32,7 +32,13 @@ export function BpmDisplay() {
 
   return (
     <div
-      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: 110 }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: 110,
+        userSelect: 'none',
+      }}
     >
       <span
         style={{ display: 'inline-block' }}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import { MidiStateEvent, PlayableSong, SongNote } from '../types'
 import Select from '../components/Select'
 import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from '../PlaySongPage/index'
@@ -11,6 +11,7 @@ import { useRouter } from 'next/router'
 import { getPitch } from '../parsers'
 import midiState from '../midi'
 import { useSingleton } from '../hooks'
+import { palette } from 'src/styles/common'
 
 /**
  * Notes:
@@ -53,15 +54,15 @@ function FreePlay() {
   const synthState = useSynth(instrumentName)
   const router = useRouter()
   const freePlayer = useSingleton(() => new FreePlayer())
-  const noteColor = 'red'
+  const noteColor = palette.purple.primary
 
   const handleNoteDown = (note: number, velocity: number = 80) => {
-    synthState.synth?.playNote(note, velocity)
+    synthState.synth.playNote(note, velocity)
     freePlayer.addNote(note, velocity)
   }
 
   const handleNoteUp = (note: number) => {
-    synthState.synth?.stopNote(note)
+    synthState.synth.stopNote(note)
     freePlayer.releaseNote(note)
   }
 
@@ -157,19 +158,8 @@ function FreePlay() {
             getTime={() => freePlayer.getTime()}
           />
         </div>
-        <div
-          style={{
-            position: 'relative',
-            paddingBottom: '7%',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
-        >
-          <PianoRoll
-            activeColor={noteColor}
-            onNoteDown={handleNoteDown}
-            onNoteUp={handleNoteUp}
-          />
+        <div>
+          <PianoRoll activeColor={noteColor} onNoteDown={handleNoteDown} onNoteUp={handleNoteUp} />
         </div>
       </div>
     </div>
