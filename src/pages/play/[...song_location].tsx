@@ -232,22 +232,24 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     }
   }
 
-  const getKeyColor = (pressedKeys: { [index: number]: SongNote }, midiNote: number): string => {
-    const type = isBlack(midiNote) ? 'black' : 'white'
-    const song = songSettings?.song
-    if (!song || !(midiNote in pressedKeys)) return type
-    if (songSettings?.tracks) {
-      const track = pressedKeys[midiNote].track
-      const handForTrack = songSettings.tracks[track].hand
-      if (handForTrack === 'none') {
-        return type
-      }
-      if (hand === handForTrack || hand === 'both') {
-        return palette[handForTrack][type]
-      }
-      return type
+  const getTrackColor = (songNote: SongNote): string | void => {
+    if (!songNote) {
+      return
     }
-    return type
+    const type = isBlack(songNote.midiNote) ? 'black' : 'white'
+    const song = songSettings?.song
+    const tracks = songSettings?.tracks
+    if (!song || !tracks) {
+      return
+    }
+
+    const track = songNote.track
+    const handForTrack = tracks[track].hand
+    if (handForTrack === 'none' || (hand !== handForTrack && hand !== 'both')) {
+      return
+    }
+
+    return palette[handForTrack][type]
   }
 
   let statusIcon
@@ -458,25 +460,16 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           />
         </div>
         {viz === 'falling-notes' && (
-          <div
-            style={{
-              position: 'relative',
-              paddingBottom: '7%',
-              width: '100%',
-              boxSizing: 'border-box',
+          <PianoRoll
+            getTrackColor={getTrackColor}
+            activeColor="grey"
+            onNoteDown={(n: number) => {
+              synth.playNote(n)
             }}
-          >
-            <PianoRoll
-              getKeyColor={getKeyColor}
-              activeColor="grey"
-              onNoteDown={(n: number) => {
-                synth.playNote(n)
-              }}
-              onNoteUp={(n: number) => {
-                synth.stopNote(n)
-              }}
-            />
-          </div>
+            onNoteUp={(n: number) => {
+              synth.stopNote(n)
+            }}
+          />
         )}
       </div>
     </div>
@@ -586,6 +579,7 @@ export function SongScrubBar({
         height: '100%',
         position: 'absolute',
         borderBottom: 'black solid 1px',
+        userSelect: 'none',
       }}
       onMouseDown={(e) => {
         setMousePressed(true)
@@ -627,7 +621,7 @@ export function SongScrubBar({
           style={{
             position: 'absolute',
             height: '100%',
-            width: width,
+            width,
             backgroundColor: '#B0B0B0',
           }}
         />
@@ -635,7 +629,7 @@ export function SongScrubBar({
           style={{
             position: 'absolute',
             height: 'calc(100%)',
-            width: width,
+            width,
             pointerEvents: 'none',
             backgroundColor: 'white',
             left: -width,

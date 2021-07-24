@@ -18,5 +18,4 @@ export default {
 const Template: ComponentStory<typeof PianoRoll> = (args: any) => <PianoRoll {...args} />
 
 export const PianoRollBasic = Template.bind({})
-PianoRollBasic.args = {
-}
+PianoRollBasic.args = {}
