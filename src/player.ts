@@ -1,7 +1,7 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
 import { SongNote, PlayableSong, SongMeasure } from './types'
-import { getSynth, Synth, Subscription } from './synth'
+import { getSynth, Synth } from './synth'
 import midi from './midi'
 import { InstrumentName } from './synth/instruments'
 
@@ -233,7 +233,7 @@ class Player {
           this.currentSongTime = note.time
           return
         }
-        this.lastPressedKeys.set(note.midiNote, midi.getPressedNotes().get(note.midiNote)!)
+        this.lastPressedKeys.set(note.midiNote, midi.getPressedNotes().get(note.midiNote)?.time!)
       }
       this.playing.push(note)
       this.playNote(note)
@@ -301,9 +301,6 @@ class Player {
 
     const { start, end } = range
     this.range = [Math.min(start, end), Math.max(start, end)]
-  }
-  subscribeToSynths(fn: Subscription) {
-    this.synths.forEach((s) => s.subscribe(fn))
   }
 
   subscribe(fn: Function) {

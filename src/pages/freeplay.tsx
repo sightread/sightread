@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useMemo, useState } from 'react'
-import { PlayableSong, SongNote } from '../types'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
+import { MidiStateEvent, PlayableSong, SongNote } from '../types'
 import Select from '../components/Select'
 import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from '../PlaySongPage/index'
 import { useSynth } from '../PlaySongPage/utils'
-import midiKeyboard from '../midi'
-import { formatInstrumentName } from '../utils'
+import { formatInstrumentName, isBrowser } from '../utils'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { css } from '@sightread/flake'
 import { ArrowLeftIcon } from '../icons'
 import { useRouter } from 'next/router'
 import { getPitch } from '../parsers'
-import { request } from 'https'
+import midiState from '../midi'
+import { useSingleton } from '../hooks'
 
 /**
  * Notes:
@@ -48,47 +48,36 @@ const classes = css({
   },
 })
 
-type SelectSynth = { loading: boolean; error: boolean }
 function FreePlay() {
-  const [selectSynth, setSelectSynth] = useState<SelectSynth>({
-    loading: false,
-    error: false,
-  })
-  const synth = useSynth()
+  const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
+  const synthState = useSynth(instrumentName)
   const router = useRouter()
   const freePlayer = useSingleton(() => new FreePlayer())
   const noteColor = 'red'
 
-  // Register ummount fns
-  useEffect(() => {
-    synth.subscribe((action, note, velocity) => {
-      if (action === 'play') {
-        return freePlayer.addNote(note, velocity)
-      }
-      return freePlayer.releaseNote(note)
-    })
-    return () => {}
-  }, [])
+  const handleNoteDown = (note: number, velocity: number = 80) => {
+    synthState.synth?.playNote(note, velocity)
+    freePlayer.addNote(note, velocity)
+  }
+
+  const handleNoteUp = (note: number) => {
+    synthState.synth?.stopNote(note)
+    freePlayer.releaseNote(note)
+  }
 
   useEffect(() => {
-    midiKeyboard.virtualKeyboard = true
-    freePlayer.start()
-    return function cleanup() {
-      midiKeyboard.virtualKeyboard = false
+    const handleMidiStateEvent = (e: MidiStateEvent) => {
+      if (e.type === 'up') {
+        handleNoteUp(e.note)
+      } else {
+        handleNoteDown(e.note, e.velocity)
+      }
+    }
+    midiState.subscribe(handleMidiStateEvent)
+    return () => {
+      midiState.unsubscribe(handleMidiStateEvent)
     }
   }, [])
-
-  function setSynthInstrument(instrument: InstrumentName) {
-    setSelectSynth({ ...selectSynth, loading: true })
-    synth
-      .setInstrument(instrument)
-      .then((res) => {
-        setSelectSynth({ loading: false, error: false })
-      })
-      .catch(() => {
-        setSelectSynth({ loading: false, error: true })
-      })
-  }
 
   return (
     <div className="App">
@@ -137,10 +126,10 @@ function FreePlay() {
         >
           <span style={{ width: '200px', display: 'inline-block' }}>
             <Select
-              loading={selectSynth.loading}
-              error={selectSynth.error}
-              value={synth.getInstrument()}
-              onChange={setSynthInstrument}
+              loading={synthState.loading}
+              error={synthState.error}
+              value={instrumentName}
+              onChange={(name) => setInstrumentName(name)}
               options={gmInstruments as any}
               format={formatInstrumentName}
               display={formatInstrumentName}
@@ -176,19 +165,16 @@ function FreePlay() {
             boxSizing: 'border-box',
           }}
         >
-          <PianoRoll getKeyColor={(_1, _2, t) => t} activeColor={noteColor} />
+          <PianoRoll
+            getKeyColor={(_1, _2, t) => t}
+            activeColor={noteColor}
+            onNoteDown={handleNoteDown}
+            onNoteUp={handleNoteUp}
+          />
         </div>
       </div>
     </div>
   )
-}
-
-function useSingleton<T>(fn: () => T): T {
-  let ref = useRef<T>()
-  if (!ref.current) {
-    ref.current = fn()
-  }
-  return ref.current
 }
 
 class FreePlayer {
@@ -212,6 +198,9 @@ class FreePlayer {
       items: [],
     }
     this.song.items = this.song.notes // Hack
+    if (isBrowser()) {
+      this.loop()
+    }
   }
 
   start() {
@@ -220,6 +209,7 @@ class FreePlayer {
     this.active.clear()
     this.loop()
   }
+
   stop() {
     if (typeof this.raf === 'number') {
       cancelAnimationFrame(this.raf)

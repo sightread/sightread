@@ -2,11 +2,7 @@ import * as React from 'react'
 import '../styles/reset.css'
 import '../styles/index.css'
 import '../styles/SelectSong.css'
-import {
-  SongSettingsProvider,
-  SongPressedKeysProvider,
-  UserPressedKeysProvider,
-} from '../hooks/index'
+import { SongSettingsProvider } from '../hooks/index'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 
@@ -21,11 +17,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>Sightread</title>
       </Head>
       <SongSettingsProvider>
-        <UserPressedKeysProvider>
-          <SongPressedKeysProvider>
-            <Component {...pageProps} />
-          </SongPressedKeysProvider>
-        </UserPressedKeysProvider>
+        <Component {...pageProps} />
       </SongSettingsProvider>
     </>
   )

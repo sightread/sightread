@@ -62,6 +62,13 @@ export type SongSettings = {
   tracks: TrackSettings
 }
 
+export type MidiStateEvent = {
+  type: 'down' | 'up'
+  note: number
+  time: number
+  velocity?: number
+}
+
 export type HandSettings = {
   [trackId: string]: {
     hand: Hand | 'none'
