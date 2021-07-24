@@ -21,11 +21,12 @@ import { useRouter } from 'next/router'
 const classes = css({
   appBarContainer: {
     backgroundColor: palette.purple.primary,
-    padding: '15px 30px',
     width: '100%',
+    display: 'flex',
+    height: 60,
   },
   heroOverlay: {
-    zIndex: 2,
+    zIndex: 1,
     position: 'absolute',
     width: '100%',
     height: '100%',
@@ -39,7 +40,7 @@ const classes = css({
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
-    zIndex: 10,
+    zIndex: 2,
     position: 'absolute',
   },
   heroButton: {
@@ -203,7 +204,7 @@ function LandingPage() {
       <Container
         maxWidth={APP_MAX_WIDTH}
         className={classes.appBarContainer}
-        style={{ position: 'fixed', top: 0, zIndex: 12, height: 60 }}
+        style={{ position: 'fixed', zIndex: 3 }}
       >
         <AppBar />
       </Container>

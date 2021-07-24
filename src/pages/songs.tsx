@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import {
-  CenteringWrapper,
   formatTime,
   isFileMidi,
   isFileXML,
@@ -10,8 +9,9 @@ import {
   fileToUint8,
   isBrowser,
   isLocalStorageAvailable,
+  Container,
 } from '../utils'
-import { AppBar, SelectSongModal, SelectSongTable } from '../SelectSongPage'
+import { SelectSongModal, SelectSongTable } from '../SelectSongPage'
 import songManifest from '../manifest.json'
 import Modal from '../components/Modal'
 import { Song } from '../types'
@@ -20,6 +20,7 @@ import { parseMidi, parseMusicXML } from '../parsers'
 import { css } from '@sightread/flake'
 import clsx from 'clsx'
 import { getUploadedLibrary, UploadedSong, isKeyAlreadyUsed, saveSong } from '../persist'
+import AppBar from 'src/components/AppBar'
 
 type LibrarySong = {
   file: string
@@ -158,10 +159,13 @@ export default function SelectLessonPage() {
       <Modal show={addNew} onClose={handleCloseAdd} style={{ minWidth: '375px' }}>
         <UploadForm onSuccess={handleUpload} />
       </Modal>
-      <CenteringWrapper backgroundColor={'#292929'}>
-        <AppBar height={60} />
-      </CenteringWrapper>
-      <CenteringWrapper backgroundColor={'#F2F2F2'} verticalGutter={60}>
+      <Container
+        style={{ backgroundColor: '#292929', height: 60, display: 'flex' }}
+        maxWidth={'md'}
+      >
+        <AppBar />
+      </Container>
+      <Container style={{ backgroundColor: '#F2F2F2' }} maxWidth={'md'}>
         <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
           <Sizer height={64} />
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Songs</h2>
@@ -184,7 +188,7 @@ export default function SelectLessonPage() {
             onFilter={handleToggleOpenFilter}
           />
         </div>
-      </CenteringWrapper>
+      </Container>
     </>
   )
 }

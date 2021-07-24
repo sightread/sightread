@@ -87,40 +87,12 @@ export function Container({
   component: Component = 'div',
 }: PropsWithChildren<ContainerProps>) {
   const containerStyle = { boxSizing: 'border-box', position: 'relative', ...style }
-  const innerStyle = { margin: 'auto', maxWidth: breakpoints[maxWidth] }
+  const innerStyle = { margin: 'auto', maxWidth: breakpoints[maxWidth], width: '100%' }
 
   return (
     <Component className={className} style={containerStyle}>
       <div style={innerStyle}>{children}</div>
     </Component>
-  )
-}
-
-function CenteringWrapper({ children, backgroundColor = 'white', gutterWidth = 50 }: any) {
-  return (
-    <>
-      <div style={{ position: 'relative', width: '100%' }}>
-        <div
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            backgroundColor,
-            zIndex: -1,
-          }}
-        />
-        <div
-          style={{
-            width: `calc(100vw - ${gutterWidth * 2}px)`,
-            alignItems: 'center',
-            maxWidth: 1024,
-            margin: '0 auto',
-          }}
-        >
-          {children}
-        </div>
-      </div>
-    </>
   )
 }
 
@@ -276,7 +248,6 @@ export {
   Sizer,
   getSong,
   formatTime,
-  CenteringWrapper,
   inferHands,
   Deferred,
   isBlack,
