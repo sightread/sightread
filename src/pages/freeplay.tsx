@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { MidiStateEvent, PlayableSong, SongNote } from '../types'
 import Select from '../components/Select'
 import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from '../PlaySongPage/index'
@@ -56,15 +56,15 @@ function FreePlay() {
   const freePlayer = useSingleton(() => new FreePlayer())
   const noteColor = palette.purple.primary
 
-  const handleNoteDown = (note: number, velocity: number = 80) => {
+  const handleNoteDown = useCallback((note: number, velocity: number = 80) => {
     synthState.synth.playNote(note, velocity)
     freePlayer.addNote(note, velocity)
-  }
+  }, [freePlayer, synthState.synth])
 
-  const handleNoteUp = (note: number) => {
+  const handleNoteUp = useCallback((note: number) => {
     synthState.synth.stopNote(note)
     freePlayer.releaseNote(note)
-  }
+  }, [freePlayer, synthState.synth])
 
   useEffect(() => {
     const handleMidiStateEvent = (e: MidiStateEvent) => {

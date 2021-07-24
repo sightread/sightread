@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react'
 import AppBar from '../components/AppBar'
 import { Container, Sizer } from '../utils'
-import { css, mediaQuery } from '@sightread/flake'
+import { css } from '@sightread/flake'
 import { palette } from '../styles/common'
 import { GithubIcon, MailIcon, WarningIcon } from '../icons'
 
@@ -92,6 +92,7 @@ export default function About() {
             <a
               href="https://github.com/sightread/community"
               target="_blank"
+              rel="noreferrer"
               style={{ wordBreak: 'break-all', textDecoration: 'none' }}
             >
               https://github.com/sightread/community
