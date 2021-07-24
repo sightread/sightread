@@ -15,9 +15,8 @@ export default {
   },
 } as ComponentMeta<typeof PianoRoll>
 
-const Template: ComponentStory<typeof PianoRoll> = (args) => <PianoRoll {...args} />
+const Template: ComponentStory<typeof PianoRoll> = (args: any) => <PianoRoll {...args} />
 
 export const PianoRollBasic = Template.bind({})
 PianoRollBasic.args = {
-  getKeyColor: (_1, _2, type) => type,
 }

@@ -258,6 +258,20 @@ function shallowEquals(arr1: any[], arr2: any[]) {
   return true
 }
 
+/**
+ * XORs the keys. Find all the keys that are in one object but not the other.
+ */
+function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
+  let diff = []
+  for (let k in o1) {
+    !(k in o2) && diff.push(k)
+  }
+  for (let k in o2) {
+    !(k in o1) && diff.push(k)
+  }
+  return diff
+}
+
 export {
   Sizer,
   getSong,
@@ -267,4 +281,5 @@ export {
   Deferred,
   isBlack,
   shallowEquals,
+  diffKeys
 }
