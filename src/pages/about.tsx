@@ -61,7 +61,7 @@ export default function About() {
         className={classes.appBarContainer}
         style={{ position: 'fixed', top: 0, zIndex: 12, height: 60 }}
       >
-        <AppBar classNames={{ navItem: { lg: classes.navItem } }} current="/about" />
+        <AppBar classNames={{ navItem: { lg: classes.navItem } }} />
       </Container>
       <div style={{ padding: 20 }}></div>
       <Sizer height={104} />
