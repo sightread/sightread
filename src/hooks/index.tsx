@@ -32,8 +32,7 @@ type SongSettingsContext = [SongSettings | null, (key: string, value: SongSettin
 const SongSettingsContext = React.createContext<SongSettingsContext>([null, () => {}])
 
 export function cachedSettings(key: string): TrackSettings | null {
-  if (!isBrowser()) return null
-  return JSON.parse(window.localStorage.getItem(key) ?? '')
+  return JSON.parse(window?.localStorage.getItem(key) ?? 'null')
 }
 
 export function SongSettingsProvider({ children }: ProviderProps) {
