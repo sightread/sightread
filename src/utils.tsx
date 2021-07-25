@@ -12,7 +12,7 @@ export function peek(o: any) {
 
 export function range(start: number, end: number) {
   let nums = []
-  
+
   for (let i = start; i <= end; i++) {
     nums.push(i)
   }
@@ -256,21 +256,33 @@ function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
 
 function getNoteSizes(width: number, whiteCount: number) {
   const whiteWidth = width / whiteCount
-  const whiteHeight = (5) * whiteWidth
+  const whiteHeight = 5 * whiteWidth
   const blackWidth = whiteWidth / 2
   const blackHeight = whiteHeight * (2 / 3)
 
   return { whiteWidth, whiteHeight, blackWidth, blackHeight }
 }
 
+function clamp(number: number, { min, max }: { min?: number; max?: number }) {
+  let clamped = number
+  if (max) {
+    clamped = isNaN(clamped) ? max : Math.min(max, clamped)
+  }
+  if (min) {
+    clamped = Math.max(min, clamped)
+  }
+  return clamped
+}
+
 export {
-  Sizer,
-  getSong,
-  getNoteSizes,
-  formatTime,
-  inferHands,
+  clamp,
   Deferred,
+  diffKeys,
+  formatTime,
+  getNoteSizes,
+  getSong,
+  inferHands,
   isBlack,
   shallowEquals,
-  diffKeys
+  Sizer,
 }

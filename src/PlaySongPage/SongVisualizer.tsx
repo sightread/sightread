@@ -18,9 +18,17 @@ type CanvasRendererProps = {
   hand: Hand
   handSettings: HandSettings
   getTime: () => number
+  constrictView?: boolean
 }
 
-function CanvasRenderer({ song, visualization, hand, handSettings, getTime }: CanvasRendererProps) {
+function CanvasRenderer({
+  song,
+  visualization,
+  hand,
+  handSettings,
+  getTime,
+  constrictView,
+}: CanvasRendererProps) {
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
 
@@ -57,6 +65,7 @@ function CanvasRenderer({ song, visualization, hand, handSettings, getTime }: Ca
       ctx: ctxRef.current,
       showParticles: Player.player().isPlaying(),
       items: song.items,
+      constrictView: !!constrictView,
     }
     render(state)
   })

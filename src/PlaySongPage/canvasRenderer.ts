@@ -239,6 +239,7 @@ export type GivenState = {
   ctx: CanvasRenderingContext2D
   showParticles: boolean
   items: CanvasItem[]
+  constrictView?: boolean
 }
 
 type DerivedState = {
@@ -268,8 +269,8 @@ function memo(
 
 const memoedDerivers = {
   lanes: memo(
-    (s: GivenState) => getNoteLanes(s.width, s.items),
-    (s: GivenState) => [s.width],
+    (s: GivenState) => getNoteLanes(s.width, s.constrictView ? s.items : undefined),
+    (s: GivenState) => [s.width, s.items, s.constrictView],
   ),
 }
 

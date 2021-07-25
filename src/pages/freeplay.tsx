@@ -162,6 +162,7 @@ function FreePlay() {
             hand="both"
             handSettings={{ 1: { hand: 'right' } }}
             getTime={() => freePlayer.getTime()}
+            constrictView={true}
           />
         </div>
         <div>

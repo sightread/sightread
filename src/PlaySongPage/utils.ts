@@ -4,25 +4,32 @@ import Player from '../player'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { useEffect, useState } from 'react'
 import { CanvasItem } from 'src/canvas/types'
-import { getNoteSizes, isBlack, range } from 'src/utils'
+import { clamp, getNoteSizes, isBlack, range } from 'src/utils'
 
-export function getSongRange(song: { notes: SongNote[] } | undefined) {
+export function getSongRange(song: { notes: SongNote[] }) {
   const notes = song?.notes ?? []
-  let startNote = notes[0]?.midiNote
-  let endNote = notes[0]?.midiNote
+  let startNote = notes[0]?.midiNote ?? 21
+  let endNote = notes[0]?.midiNote ?? 108
 
   for (let { midiNote } of notes) {
     startNote = Math.min(startNote, midiNote)
     endNote = Math.max(endNote, midiNote)
   }
 
-  return { startNote: startNote - 2, endNote: endNote + 2 }
+  startNote = clamp(startNote - 2, { min: 21, max: 107 })
+  endNote = clamp(endNote + 2, { min: startNote + 1, max: 108 })
+
+  return { startNote, endNote }
 }
 
-export function getNoteLanes(width: number, items: CanvasItem[]) {
-  const { startNote, endNote } = getSongRange({
-    notes: items.filter((item) => item.type === 'note') as SongNote[],
-  })
+export function getNoteLanes(
+  width: number,
+  items: CanvasItem[] | undefined,
+): { [note: number]: { left: number; width: number } } {
+  const notes: SongNote[] = items
+    ? (items.filter((i) => i.type === 'note') as SongNote[])
+    : ([{ midiNote: 21 }, { midiNote: 108 }] as SongNote[])
+  const { startNote, endNote } = getSongRange({ notes })
   const whiteKeysCount = range(startNote, endNote)
     .map((n) => !isBlack(n))
     .filter(Boolean).length
