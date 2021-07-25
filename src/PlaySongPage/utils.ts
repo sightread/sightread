@@ -1,24 +1,46 @@
 import { getSynth, getSynthStub, Synth } from '../synth'
-import { TrackSettings, PlayableSong, Track } from '../types'
+import { TrackSettings, PlayableSong, Track, SongNote } from '../types'
 import Player from '../player'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { useEffect, useState } from 'react'
+import { CanvasItem } from 'src/canvas/types'
+import { isBlack, range } from 'src/utils'
 
-export function getNoteLanes(width: number) {
-  const whiteWidth = width / 52
-  const blackWidth = whiteWidth / 2
-  const blackNotes = [1, 4, 6, 9, 11]
-  const lanes: Array<{ left: number; width: number }> = []
-  let totalNotes = 0
+export function getSongRange(song: { notes: SongNote[] } | undefined) {
+  const notes = song?.notes ?? []
+  let startNote = notes[0]?.midiNote
+  let endNote = notes[0]?.midiNote
 
-  for (var whiteNotes = 0; whiteNotes < 52; whiteNotes++, totalNotes++) {
-    const lane = { width: whiteWidth, left: whiteWidth * whiteNotes }
-    if (blackNotes.includes(totalNotes % 12)) {
-      lanes.push({ width: blackWidth, left: lane.left - blackWidth / 2 })
-      totalNotes++
-    }
-    lanes.push(lane)
+  for (let { midiNote } of notes) {
+    startNote = Math.min(startNote, midiNote)
+    endNote = Math.max(endNote, midiNote)
   }
+
+  return { startNote: startNote - 2, endNote: endNote + 2 }
+}
+
+export function getNoteLanes(width: number, items: CanvasItem[]) {
+  const { startNote, endNote } = getSongRange({
+    notes: items.filter((item) => item.type === 'note') as SongNote[],
+  })
+  const whiteKeysCount = range(startNote, endNote)
+    .map((n) => !isBlack(n))
+    .filter(Boolean).length
+
+  const whiteWidth = width / whiteKeysCount
+  const blackWidth = whiteWidth / 2
+  const lanes: { [midiNote: number]: { left: number; width: number } } = {}
+
+  let whiteNotes = 0
+  for (let note = startNote; note <= endNote; note++) {
+    if (isBlack(note)) {
+      lanes[note] = { width: blackWidth, left: whiteWidth * whiteNotes - blackWidth / 2 }
+    } else {
+      lanes[note] = { width: whiteWidth, left: whiteWidth * whiteNotes }
+      whiteNotes++
+    }
+  }
+
   return lanes
 }
 

@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Song, PlayableSong, Hand, SongNote } from '../../types'
 import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
-import { getHandSettings, applySettings, getTrackSettings } from '../../PlaySongPage/utils'
+import {
+  getHandSettings,
+  applySettings,
+  getTrackSettings,
+  getSongRange,
+} from '../../PlaySongPage/utils'
 import {
   ArrowLeftIcon,
   PreviousIcon,
@@ -133,10 +138,10 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const router = useRouter()
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
+  const [song, setSong] = useState<PlayableSong>()
 
   const setupPlayer = useCallback(
     (song: PlayableSong, songLocation: string) => {
-      console.count('setupPlayer')
       setCanPlay(false)
       const cachedSettings = songSettings?.tracks
       let tracks
@@ -150,7 +155,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       } else {
         tracks = getTrackSettings(song)
       }
-      setSongSettings(songLocation, { tracks, song })
+      setSong(song)
       player.setSong(song).then(() => {
         setCanPlay(true)
         if (cachedSettings) {
@@ -158,7 +163,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         }
       })
     },
-    [player, setSongSettings, songSettings?.tracks],
+    [player, setSongSettings, songSettings],
   )
   // Is this doing anything? - jake
   useEffect(() => {
@@ -176,7 +181,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     if (!songLocation || !type) return
 
     if (songSettings?.song) {
-      setupPlayer(songSettings.song, songLocation)
+      setupPlayer(songSettings?.song, songLocation)
       return
     }
     getSong(songLocation)
@@ -184,7 +189,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       .then((song: PlayableSong) => {
         setupPlayer(song, songLocation)
       })
-  }, [songLocation, player, setupPlayer, songSettings?.song, type])
+  }, [songLocation, player, setupPlayer, songSettings, type])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -242,7 +247,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       return
     }
     const type = isBlack(songNote.midiNote) ? 'black' : 'white'
-    const song = songSettings?.song
     const tracks = songSettings?.tracks
     if (!song || !tracks) {
       return
@@ -281,6 +285,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     )
   }
 
+  const { startNote, endNote } = getSongRange(song)
   return (
     <div className="App">
       <div
@@ -437,7 +442,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         </div>
         <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
           <SongScrubBar
-            song={songSettings?.song ?? null}
+            song={song ?? null}
             rangeSelecting={rangeSelecting}
             setRangeSelecting={setRangeSelecting}
           />
@@ -457,7 +462,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         <RuleLines />
         <div style={{ position: 'relative', flex: 1 }}>
           <SongVisualizer
-            song={songSettings?.song}
+            song={song}
             visualization={viz}
             hand={hand}
             handSettings={getHandSettings(songSettings?.tracks)}
@@ -474,6 +479,8 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             onNoteUp={(n: number) => {
               synth.stopNote(n)
             }}
+            startNote={startNote}
+            endNote={endNote}
           />
         )}
       </div>
