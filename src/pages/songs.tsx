@@ -115,9 +115,11 @@ export default function SelectLessonPage() {
     }
   }, [])
 
+  // TODO: this is a bug if the uploaded library changes, and s will only expand.
+  const uploadedLib = getUploadedLibrary()
   useEffect(() => {
-    setSongs(songs.concat(getUploadedLibrary()))
-  }, [songs])
+    setSongs((s) => s.concat(uploadedLib))
+  }, [uploadedLib])
 
   const handleUpload = () => {
     setSongs(songs.concat(getUploadedLibrary()))

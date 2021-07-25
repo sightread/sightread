@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useContext, useCallback, useRef, useMemo } from 'react'
 import { SongSettings, TrackSettings } from '../types'
 import { isBrowser } from '../utils'
 
@@ -33,15 +33,13 @@ const SongSettingsContext = React.createContext<SongSettingsContext>([null, () =
 
 export function cachedSettings(key: string): TrackSettings | null {
   if (!isBrowser()) return null
-  const cached = window.localStorage.getItem(key)
-  if (!cached) return null
-  return JSON.parse(cached)
+  return JSON.parse(window.localStorage.getItem(key) ?? '')
 }
 
 export function SongSettingsProvider({ children }: ProviderProps) {
   const [songSettings, setSongSettings] = useState<SongSettings | null>(null)
 
-  const handleSetWithCache = (key: string, settings: SongSettings): void => {
+  const handleSetWithCache = useCallback((key: string, settings: SongSettings): void => {
     if (isBrowser()) {
       try {
         window.localStorage.setItem(key, JSON.stringify(settings.tracks))
@@ -50,7 +48,7 @@ export function SongSettingsProvider({ children }: ProviderProps) {
       }
     }
     setSongSettings(settings)
-  }
+  }, [])
 
   return (
     <SongSettingsContext.Provider value={[songSettings, handleSetWithCache]}>
@@ -59,13 +57,20 @@ export function SongSettingsProvider({ children }: ProviderProps) {
   )
 }
 
+// TODO: redo this function, it is awful.
 export function useSelectedSong(file: string | null): SongSettingsContext {
   const [songSettings, setSongSettings] = useContext(SongSettingsContext)
-  if (file) {
-    const cached = cachedSettings(file)
-    if (cached) return [{ ...songSettings, tracks: cached }, setSongSettings]
-  }
-  return [songSettings, setSongSettings]
+  // TODO: solve bug re. inf loop.
+  // const withCachedTrack = useMemo(() => {
+  //   if (file) {
+  //     const cached = cachedSettings(file)
+  //     if (cached) {
+  //       return { ...songSettings, tracks: cached }
+  //     }
+  //   }
+  //   return songSettings
+  // }, [file, songSettings])
+  return [songSettings as any, setSongSettings]
 }
 
 // TODO: should this just be a useMemo?

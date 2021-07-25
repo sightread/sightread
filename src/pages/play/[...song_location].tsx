@@ -136,6 +136,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
 
   const setupPlayer = useCallback(
     (song: PlayableSong, songLocation: string) => {
+      console.count('setupPlayer')
       setCanPlay(false)
       const cachedSettings = songSettings?.tracks
       let tracks
@@ -175,7 +176,8 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     if (!songLocation || !type) return
 
     if (songSettings?.song) {
-      return setupPlayer(songSettings.song, songLocation)
+      setupPlayer(songSettings.song, songLocation)
+      return
     }
     getSong(songLocation)
       .then((song) => inferHands(song, type === 'lesson'))
@@ -504,9 +506,12 @@ export function SongScrubBar({
   const startX = useRef<number>(0)
   const player = Player.player()
 
-  const getProgress = useCallback((x: number) => {
-    return Math.min(Math.max((x - startX.current) / width, 0), 1)
-  }, [width])
+  const getProgress = useCallback(
+    (x: number) => {
+      return Math.min(Math.max((x - startX.current) / width, 0), 1)
+    },
+    [width],
+  )
 
   useRAFLoop(() => {
     if (!divRef.current) {

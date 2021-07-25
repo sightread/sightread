@@ -1,4 +1,5 @@
 import { Song } from './types'
+import { isBrowser } from './utils'
 
 const inMemorySongData: { [key: string]: Song } = {}
 
@@ -46,6 +47,10 @@ export type UploadedSong = {
 let uploadedSongList: UploadedSong[]
 
 export function getUploadedLibrary() {
+  if (!isBrowser()) {
+    return []
+  }
+
   if (uploadedSongList) {
     return uploadedSongList
   }

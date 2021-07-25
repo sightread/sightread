@@ -56,15 +56,21 @@ function FreePlay() {
   const freePlayer = useSingleton(() => new FreePlayer())
   const noteColor = palette.purple.primary
 
-  const handleNoteDown = useCallback((note: number, velocity: number = 80) => {
-    synthState.synth.playNote(note, velocity)
-    freePlayer.addNote(note, velocity)
-  }, [freePlayer, synthState.synth])
+  const handleNoteDown = useCallback(
+    (note: number, velocity: number = 80) => {
+      synthState.synth.playNote(note, velocity)
+      freePlayer.addNote(note, velocity)
+    },
+    [freePlayer, synthState.synth],
+  )
 
-  const handleNoteUp = useCallback((note: number) => {
-    synthState.synth.stopNote(note)
-    freePlayer.releaseNote(note)
-  }, [freePlayer, synthState.synth])
+  const handleNoteUp = useCallback(
+    (note: number) => {
+      synthState.synth.stopNote(note)
+      freePlayer.releaseNote(note)
+    },
+    [freePlayer, synthState.synth],
+  )
 
   useEffect(() => {
     const handleMidiStateEvent = (e: MidiStateEvent) => {
