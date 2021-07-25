@@ -10,6 +10,16 @@ export function peek(o: any) {
   return o
 }
 
+export function range(start: number, end: number) {
+  let nums = []
+  
+  for (let i = start; i <= end; i++) {
+    nums.push(i)
+  }
+
+  return nums
+}
+
 function Sizer({ height, width }: { height?: number; width?: number }) {
   return <div style={{ width, height }} />
 }

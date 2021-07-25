@@ -9,6 +9,12 @@ export default {
   argTypes: {
     onNoteUp: { action: 'Note Up' },
     onNoteDown: { action: 'Note Down' },
+    startNote: {
+      control: { type: 'range', min: 21, max: 108, step: 1 }
+    },
+    endNote: {
+      control: { type: 'range', min: 21, max: 108, step: 1 }
+    }
   },
   parameters: {
     handles: ['click'],
