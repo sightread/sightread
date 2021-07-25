@@ -31,7 +31,11 @@ type ProviderProps = {
 type SongSettingsContext = [SongSettings | null, (key: string, value: SongSettings) => void | null]
 const SongSettingsContext = React.createContext<SongSettingsContext>([null, () => {}])
 
-export function cachedSettings(key: string): TrackSettings | null {
+export function cachedSettings(key: string | null): TrackSettings | null {
+  if (!key) {
+    return null
+  }
+
   return JSON.parse(window?.localStorage.getItem(key) ?? 'null')
 }
 
@@ -59,17 +63,14 @@ export function SongSettingsProvider({ children }: ProviderProps) {
 // TODO: redo this function, it is awful.
 export function useSelectedSong(file: string | null): SongSettingsContext {
   const [songSettings, setSongSettings] = useContext(SongSettingsContext)
-  // TODO: solve bug re. inf loop.
-  // const withCachedTrack = useMemo(() => {
-  //   if (file) {
-  //     const cached = cachedSettings(file)
-  //     if (cached) {
-  //       return { ...songSettings, tracks: cached }
-  //     }
-  //   }
-  //   return songSettings
-  // }, [file, songSettings])
-  return [songSettings as any, setSongSettings]
+  const withSaved = useMemo(() => {
+    const tracks = cachedSettings(file)
+    if (!tracks) {
+      return songSettings
+    }
+    return { song: songSettings?.song, tracks }
+  }, [file])
+  return [withSaved, setSongSettings]
 }
 
 // TODO: should this just be a useMemo?
