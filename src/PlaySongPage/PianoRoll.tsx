@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useSize } from '../hooks/size'
 import midiState from '../midi'
 import Player from '../player'
-import { getKey, getNote } from '../synth/utils'
+import { range } from '../utils'
 import { SongNote } from '../types'
 import { diffKeys, isBlack, isBrowser } from '../utils'
 
@@ -13,12 +13,16 @@ type PianoRollProps = {
   activeColor: string
   onNoteDown?: (midiNote: number) => void
   onNoteUp?: (midiNote: number) => void
+  startNote?: number
+  endNote?: number
 }
 
 // TODO: instead of getTrackColor --> should subscribe to events which include color selection.
-export function PianoRoll({ getTrackColor, activeColor, onNoteUp, onNoteDown }: PianoRollProps) {
+export function PianoRoll({ getTrackColor, activeColor, onNoteUp, onNoteDown, startNote, endNote }: PianoRollProps) {
   const { width, measureRef } = useSize()
   const prevPressed = useRef({})
+  startNote = startNote ?? 21
+  endNote = endNote ?? 108
 
   useEffect(() => {
     Player.player().subscribe(setNoteColors)
@@ -42,15 +46,15 @@ export function PianoRoll({ getTrackColor, activeColor, onNoteUp, onNoteDown }: 
   }
 
   const sizes = getNoteSizes(width)
-  const notes = Array.from({ length: 88 }).map((_, i: number) => {
-    const midiNote = i + getNote('A0')
+  const notes = range(startNote, endNote).map(midiNote => {
+
     return (
       <PianoNote
         width={isBlack(midiNote) ? sizes.blackWidth : sizes.whiteWidth}
         height={isBlack(midiNote) ? sizes.blackHeight : sizes.whiteHeight}
         note={midiNote}
         activeColor={activeColor}
-        key={i}
+        key={midiNote}
         onNoteDown={onNoteDown}
         onNoteUp={onNoteUp}
       />
