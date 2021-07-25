@@ -4,7 +4,7 @@ import Player from '../player'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { useEffect, useState } from 'react'
 import { CanvasItem } from 'src/canvas/types'
-import { isBlack, range } from 'src/utils'
+import { getNoteSizes, isBlack, range } from 'src/utils'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []
@@ -27,8 +27,7 @@ export function getNoteLanes(width: number, items: CanvasItem[]) {
     .map((n) => !isBlack(n))
     .filter(Boolean).length
 
-  const whiteWidth = width / whiteKeysCount
-  const blackWidth = whiteWidth / 2
+  const { whiteWidth, blackWidth } = getNoteSizes(width, whiteKeysCount)
   const lanes: { [midiNote: number]: { left: number; width: number } } = {}
 
   let whiteNotes = 0

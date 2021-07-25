@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useSize } from '../hooks/size'
 import midiState from '../midi'
 import Player from '../player'
-import { range } from '../utils'
+import { getNoteSizes, range } from '../utils'
 import { SongNote } from '../types'
 import { diffKeys, isBlack, isBrowser } from '../utils'
 import { getKey } from 'src/synth/utils'
@@ -163,13 +163,4 @@ function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: P
       )}
     </div>
   )
-}
-
-function getNoteSizes(width: number, whiteCount: number) {
-  const whiteWidth = width / whiteCount
-  const whiteHeight = (7 + 1 / 3) * whiteWidth
-  const blackWidth = whiteWidth / 2
-  const blackHeight = whiteHeight * (2 / 3)
-
-  return { whiteWidth, whiteHeight, blackWidth, blackHeight }
 }

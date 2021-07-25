@@ -5,7 +5,7 @@ function line(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number,
   ctx.stroke()
 }
 
-const radius = 5
+const radius = 10
 const noteCornerRadius = {
   tl: radius,
   tr: radius,

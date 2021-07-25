@@ -1,4 +1,3 @@
-export { WindowedSongBoard } from './WindowedSongboard'
 export { WindowedStaffBoard } from './StaffPage'
 export { PianoRoll } from './PianoRoll'
 export { RuleLines } from './RuleLines'
