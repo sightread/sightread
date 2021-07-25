@@ -23,10 +23,6 @@ type Palette = {
   }
   measure: string
 }
-type FallinNoteLane = {
-  width: number
-  left: number
-}
 
 type SheetIconProps = {
   width: number

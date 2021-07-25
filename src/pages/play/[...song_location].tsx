@@ -163,7 +163,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         }
       })
     },
-    [player, setSongSettings, songSettings],
+    [player, songSettings],
   )
   // Is this doing anything? - jake
   useEffect(() => {
