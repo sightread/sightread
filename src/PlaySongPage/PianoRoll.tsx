@@ -5,6 +5,7 @@ import Player from '../player'
 import { range } from '../utils'
 import { SongNote } from '../types'
 import { diffKeys, isBlack, isBrowser } from '../utils'
+import { getKey } from 'src/synth/utils'
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
 
@@ -18,7 +19,14 @@ type PianoRollProps = {
 }
 
 // TODO: instead of getTrackColor --> should subscribe to events which include color selection.
-export function PianoRoll({ getTrackColor, activeColor, onNoteUp, onNoteDown, startNote, endNote }: PianoRollProps) {
+export function PianoRoll({
+  getTrackColor,
+  activeColor,
+  onNoteUp,
+  onNoteDown,
+  startNote,
+  endNote,
+}: PianoRollProps) {
   const { width, measureRef } = useSize()
   const prevPressed = useRef({})
   startNote = startNote ?? 21
@@ -45,9 +53,11 @@ export function PianoRoll({ getTrackColor, activeColor, onNoteUp, onNoteDown, st
     prevPressed.current = currPressed
   }
 
-  const sizes = getNoteSizes(width)
-  const notes = range(startNote, endNote).map(midiNote => {
-
+  const whiteKeysCount = range(startNote, endNote)
+    .map((n) => !isBlack(n))
+    .filter(Boolean).length
+  const sizes = getNoteSizes(width, whiteKeysCount)
+  const notes = range(startNote, endNote).map((midiNote) => {
     return (
       <PianoNote
         width={isBlack(midiNote) ? sizes.blackWidth : sizes.whiteWidth}
@@ -98,6 +108,7 @@ function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: P
   const midiKeys = midiState.getPressedNotes()
   let pressed = userPressed || midiKeys.has(note)
   const color = isBlack(note) ? 'black' : 'white'
+  const isC = getKey(note).startsWith('C')
 
   return (
     <div
@@ -113,6 +124,9 @@ function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: P
         borderBottomLeftRadius: '8px',
         borderBottomRightRadius: '8px',
         boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
       }}
       onMouseDown={() => {
         setUserPressed(true)
@@ -135,12 +149,24 @@ function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: P
           onNoteDown?.(note)
         }
       }}
-    ></div>
+    >
+      {isC && (
+        <div
+          style={{
+            bottom: 0,
+            opacity: 0.7,
+            paddingBottom: 10,
+          }}
+        >
+          {getKey(note)}
+        </div>
+      )}
+    </div>
   )
 }
 
-function getNoteSizes(width: number) {
-  const whiteWidth = width / 52
+function getNoteSizes(width: number, whiteCount: number) {
+  const whiteWidth = width / whiteCount
   const whiteHeight = (7 + 1 / 3) * whiteWidth
   const blackWidth = whiteWidth / 2
   const blackHeight = whiteHeight * (2 / 3)

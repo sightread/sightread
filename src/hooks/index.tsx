@@ -36,7 +36,7 @@ export function cachedSettings(key: string | null): TrackSettings | null {
     return null
   }
 
-  return JSON.parse(window?.localStorage.getItem(key) ?? 'null')
+  return JSON.parse(globalThis.localStorage?.getItem(key) ?? 'null')
 }
 
 export function SongSettingsProvider({ children }: ProviderProps) {
@@ -69,7 +69,7 @@ export function useSelectedSong(file: string | null): SongSettingsContext {
       return songSettings
     }
     return { song: songSettings?.song, tracks }
-  }, [file])
+  }, [file, songSettings])
   return [withSaved, setSongSettings]
 }
 

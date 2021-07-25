@@ -246,7 +246,7 @@ export type GivenState = {
 }
 
 type DerivedState = {
-  lanes: { left: number; width: number }[]
+  lanes: { [midiNote: number]: { left: number; width: number } }
   viewport: { start: number; end: number }
   // active (currently being played).
   // Pulsing + Particles.
@@ -272,7 +272,7 @@ function memo(
 
 const memoedDerivers = {
   lanes: memo(
-    (s: GivenState) => getNoteLanes(s.width),
+    (s: GivenState) => getNoteLanes(s.width, s.items),
     (s: GivenState) => [s.width],
   ),
 }
@@ -348,7 +348,7 @@ function renderFallingVis(state: State): void {
 
 function renderFallingNote(note: SongNote, state: State): void {
   const { ctx, pps } = state
-  const lane = state.lanes[note.midiNote - getNote('A0')]
+  const lane = state.lanes[note.midiNote]
   const posY = Math.round(getItemStartEnd(note, state).end)
   const posX = Math.round(lane.left + 1)
   const length = Math.round(note.duration * pps)
@@ -556,7 +556,7 @@ class ParticleGenerator {
     ) as SongNote[]
 
     for (let { midiNote } of activeNotes) {
-      const lane = midiNote - getNote('A0')
+      const lane = midiNote
       if (!this.active.has(midiNote)) {
         this.active.set(midiNote, this.getParticles_(lane))
       }
