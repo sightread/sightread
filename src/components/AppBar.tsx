@@ -101,7 +101,19 @@ interface AppBarProps {
 }
 export default function AppBar({ classNames, style }: AppBarProps) {
   return (
-    <Container style={{ height: 60, backgroundColor: '#292929', display: 'flex', ...style }}>
+    <Container
+      style={{
+        // This is a hack that accounts for the sometimes present scrollbar.
+        // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
+        // Credit goes to: https://aykevl.nl/2014/09/fix-jumping-scrollbar
+        paddingLeft: 'calc((100vw - 100%))',
+
+        height: 60,
+        backgroundColor: '#292929',
+        display: 'flex',
+        ...style,
+      }}
+    >
       <div className={clsx(classes.appBarLarge, classes.appBar, classNames?.appBar?.lg)}>
         <span style={{ display: 'flex', alignItems: 'center' }}>
           <Link href={homeItem.route}>
