@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { CanvasItem } from 'src/canvas/types'
 import { clamp, getNoteSizes, isBlack, range } from 'src/utils'
 
-export function getSongRange(song: { notes: SongNote[] }) {
+export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []
   let startNote = notes[0]?.midiNote ?? 21
   let endNote = notes[0]?.midiNote ?? 108
