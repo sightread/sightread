@@ -4,8 +4,8 @@ let keyToNote: { [key: string]: number } = {}
 let noteToKey: { [note: number]: string } = {}
 
 ;(function () {
-  const A0 = 0x15 // first note
-  const C8 = 0x6c // last note
+  const A0 = 21 // first note
+  const C8 = 108 // last note
   const number2key = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
   for (let n = A0; n <= C8; n++) {
     const octave = ((n - 12) / 12) >> 0

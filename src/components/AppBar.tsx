@@ -1,5 +1,5 @@
-import { useState, useRef, Children } from 'react'
-import { Sizer } from '../utils'
+import { useState, useRef, Children, CSSProperties } from 'react'
+import { Container, Sizer } from '../utils'
 import { Logo, MenuIcon } from '../icons'
 import { css, mediaQuery } from '@sightread/flake'
 import { palette } from '../styles/common'
@@ -31,7 +31,7 @@ const classes = css({
     padding: '0px 24px',
     transition: '200ms',
     '&:hover': {
-      color: palette.orange.primary,
+      color: palette.purple.hover,
     },
   },
   navItemSmall: {
@@ -95,9 +95,13 @@ const homeItem: NavItem = { route: '/', label: 'SIGHTREAD' }
 
    navItem: addto the common NavItems
  * */
-export default function AppBar({ classNames }: { classNames?: Classes }) {
+interface AppBarProps {
+  classNames?: Classes
+  style?: CSSProperties
+}
+export default function AppBar({ classNames, style }: AppBarProps) {
   return (
-    <>
+    <Container style={{ height: 60, backgroundColor: '#292929', display: 'flex', ...style }}>
       <div className={clsx(classes.appBarLarge, classes.appBar, classNames?.appBar?.lg)}>
         <span style={{ display: 'flex', alignItems: 'center' }}>
           <Link href={homeItem.route}>
@@ -134,7 +138,16 @@ export default function AppBar({ classNames }: { classNames?: Classes }) {
             <span style={{ fontWeight: 200, fontSize: 24, letterSpacing: 1 }}>SIGHTREAD</span>
           </a>
         </Link>
-        <DropDown target={<MenuIcon height={35} width={35} className={classes.menuIcon} />}>
+        <Dropdown
+          target={
+            <MenuIcon
+              height={35}
+              width={35}
+              className={classes.menuIcon}
+              style={{ paddingRight: 24 }}
+            />
+          }
+        >
           {navItems.map((nav, i) => {
             const label = inferLabel(nav)
             return (
@@ -143,14 +156,18 @@ export default function AppBar({ classNames }: { classNames?: Classes }) {
               </Link>
             )
           })}
-        </DropDown>
+        </Dropdown>
       </div>
-    </>
+    </Container>
   )
 }
 
 /* used in the mobile appbar menu */
-function DropDown({ children, target }: React.PropsWithChildren<{ target: React.ReactElement }>) {
+function Dropdown({
+  children,
+  target,
+  style,
+}: React.PropsWithChildren<{ target: React.ReactElement; style?: CSSProperties }>) {
   const [open, setOpen] = useState<boolean>(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
@@ -159,7 +176,7 @@ function DropDown({ children, target }: React.PropsWithChildren<{ target: React.
   }
 
   return (
-    <div>
+    <div style={style}>
       <span onClick={toggleOpen}>{target}</span>
       <div style={{ position: 'relative' }}>
         <div

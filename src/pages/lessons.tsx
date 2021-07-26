@@ -20,13 +20,8 @@ export default function SelectLessonPage() {
           setSelectedSong(null)
         }}
       />
-      <Container
-        style={{ backgroundColor: '#292929', height: 60, display: 'flex' }}
-        maxWidth={APP_MAX_WIDTH}
-      >
-        <AppBar />
-      </Container>
-      <Container style={{ backgroundColor: '#F2F2F2' }} maxWidth={APP_MAX_WIDTH}>
+      <AppBar />
+      <Container style={{ backgroundColor: '#F2F2F2', padding: '0 24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
           <Sizer height={64} />
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Lessons</h2>

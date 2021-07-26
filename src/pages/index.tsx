@@ -19,12 +19,7 @@ import clsx from 'clsx'
 import { useRouter } from 'next/router'
 
 const classes = css({
-  appBarContainer: {
-    backgroundColor: palette.purple.primary,
-    width: '100%',
-    display: 'flex',
-    height: 60,
-  },
+  appBarContainer: {},
   heroOverlay: {
     zIndex: 1,
     position: 'absolute',
@@ -159,7 +154,6 @@ const classes = css({
   },
 })
 
-const APP_MAX_WIDTH = 'md'
 const ICON_SIZE = 45
 const WHY_SECTION = [
   {
@@ -201,13 +195,13 @@ function LandingPage() {
 
   return (
     <div style={{ position: 'relative' }}>
-      <Container
-        maxWidth={APP_MAX_WIDTH}
-        className={classes.appBarContainer}
-        style={{ position: 'fixed', zIndex: 3 }}
-      >
-        <AppBar />
-      </Container>
+      <AppBar
+        style={{
+          width: '100%',
+          position: 'fixed',
+          zIndex: 3,
+        }}
+      />
       <div style={{ padding: 20 }}></div>
       <div style={{ minHeight: '600px', position: 'relative' }}>
         <div className={classes.heroOverlay}></div>
@@ -230,7 +224,7 @@ function LandingPage() {
           </Link>
         </div>
       </div>
-      <Container maxWidth={APP_MAX_WIDTH} style={{ textAlign: 'center' }} component="section">
+      <Container style={{ textAlign: 'center' }} component="section">
         <Sizer height={80} />
         <h2 style={{ fontSize: '40px' }}>Why Sightread?</h2>
         <Sizer height={24} />
@@ -257,7 +251,6 @@ function LandingPage() {
         <Sizer height={60} />
       </Container>
       <Container
-        maxWidth={APP_MAX_WIDTH}
         style={{
           textAlign: 'center',
           background:
@@ -307,7 +300,6 @@ function LandingPage() {
         </div>
       </Container>
       <Container
-        maxWidth={APP_MAX_WIDTH}
         style={{
           textAlign: 'center',
         }}
@@ -362,7 +354,6 @@ function LandingPage() {
         <Sizer height={50} />
       </Container>
       <Container
-        maxWidth={APP_MAX_WIDTH}
         style={{
           textAlign: 'center',
           background:
@@ -398,7 +389,6 @@ function LandingPage() {
         <Sizer height={40} />
       </Container>
       <Container
-        maxWidth={APP_MAX_WIDTH}
         style={{
           textAlign: 'center',
         }}

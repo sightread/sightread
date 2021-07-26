@@ -27,7 +27,7 @@ function CanvasRenderer({
   hand,
   handSettings,
   getTime,
-  constrictView,
+  constrictView = true,
 }: CanvasRendererProps) {
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()

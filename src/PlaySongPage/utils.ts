@@ -22,10 +22,10 @@ export function getSongRange(song: { notes: SongNote[] } | undefined) {
   return { startNote, endNote }
 }
 
-export function getNoteLanes(
-  width: number,
-  items: CanvasItem[] | undefined,
-): { [note: number]: { left: number; width: number } } {
+interface Lanes {
+  [note: number]: { left: number; width: number }
+}
+export function getNoteLanes(width: number, items: CanvasItem[] | undefined): Lanes {
   const notes: SongNote[] = items
     ? (items.filter((i) => i.type === 'note') as SongNote[])
     : ([{ midiNote: 21 }, { midiNote: 108 }] as SongNote[])
@@ -35,8 +35,7 @@ export function getNoteLanes(
     .filter(Boolean).length
 
   const { whiteWidth, blackWidth } = getNoteSizes(width, whiteKeysCount)
-  const lanes: { [midiNote: number]: { left: number; width: number } } = {}
-
+  const lanes: Lanes = {}
   let whiteNotes = 0
   for (let note = startNote; note <= endNote; note++) {
     if (isBlack(note)) {

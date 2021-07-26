@@ -1,7 +1,6 @@
 import { SongMeasure, SongNote, Hand, PlayableSong } from '../types'
 import { isBlack, isBrowser, pickHex, shallowEquals } from '../utils'
 import { getNoteLanes } from './utils'
-import { getNote } from '../synth/utils'
 import { circle, drawMusicNote, line, roundRect } from '../canvas/utils'
 
 type Canvas = CanvasRenderingContext2D
