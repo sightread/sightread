@@ -7,11 +7,7 @@ export default {
   component: AppBar,
 } as ComponentMeta<typeof AppBar>
 
-const Template: ComponentStory<typeof AppBar> = (args: any) => (
-  <div style={{ height: 60, backgroundColor: 'black', display: 'flex' }}>
-    <AppBar {...args} />
-  </div>
-)
+const Template: ComponentStory<typeof AppBar> = (args: any) => <AppBar {...args} />
 
 export const AppBarBasic = Template.bind({})
 AppBarBasic.args = {}

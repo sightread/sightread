@@ -75,7 +75,6 @@ function formatTime(seconds: number) {
 }
 
 type ContainerProps = {
-  maxWidth: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   style?: CSSProperties
   className?: string
   component?: string | React.ElementType
@@ -91,13 +90,12 @@ const breakpoints = {
 
 export function Container({
   children,
-  maxWidth,
   style,
   className = '',
   component: Component = 'div',
 }: PropsWithChildren<ContainerProps>) {
   const containerStyle = { boxSizing: 'border-box', position: 'relative', ...style }
-  const innerStyle = { margin: 'auto', maxWidth: breakpoints[maxWidth], width: '100%' }
+  const innerStyle = { margin: 'auto', maxWidth: breakpoints.md, width: '100%' }
 
   return (
     <Component className={className} style={containerStyle}>

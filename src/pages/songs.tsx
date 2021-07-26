@@ -161,13 +161,8 @@ export default function SelectLessonPage() {
       <Modal show={addNew} onClose={handleCloseAdd} style={{ minWidth: '375px' }}>
         <UploadForm onSuccess={handleUpload} />
       </Modal>
-      <Container
-        style={{ backgroundColor: '#292929', height: 60, display: 'flex' }}
-        maxWidth={'md'}
-      >
-        <AppBar />
-      </Container>
-      <Container style={{ backgroundColor: '#F2F2F2' }} maxWidth={'md'}>
+      <AppBar style={{ backgroundColor: '#292929', display: 'flex' }} />
+      <Container style={{ backgroundColor: '#F2F2F2', padding: '0 24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
           <Sizer height={64} />
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Songs</h2>

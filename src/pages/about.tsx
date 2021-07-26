@@ -13,11 +13,7 @@ const centerAll: CSSProperties = {
 }
 
 const classes = css({
-  appBarContainer: {
-    display: 'flex',
-    backgroundColor: '#292929',
-    width: '100%',
-  },
+  appBarContainer: {},
   gutter: {
     padding: '0px 54px',
   },
@@ -48,15 +44,11 @@ const classes = css({
   },
 })
 
-const APP_MAX_WIDTH = 'sm'
-
 export default function About() {
   return (
     <div style={{ position: 'relative' }}>
       <style>{`p{font-size: 19px;}`}</style>
-      <Container maxWidth="md" className={classes.appBarContainer} style={{ height: 60 }}>
-        <AppBar classNames={{ navItem: { lg: classes.navItem } }} />
-      </Container>
+      <AppBar classNames={{ navItem: { lg: classes.navItem } }} />
       <Sizer height={48} />
       <div style={{ maxWidth: 650, margin: 'auto', padding: '0 24px' }}>
         <section>
