@@ -401,7 +401,7 @@ function LandingPage() {
           </span>
         </h2>
         <Sizer height={40} />
-        <p style={{ fontSize: 16 }}>Check out our repository and stay stuned!</p>
+        <p style={{ fontSize: 16 }}>Check out our repository and stay tuned!</p>
         <Sizer height={16} />
         <a href="https://github.com/sightread" target="_blank" rel="noreferrer">
           <GithubIcon width={50} height={50} style={{ cursor: 'pointer' }} />
