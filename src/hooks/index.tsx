@@ -83,7 +83,7 @@ export function useSingleton<T>(fn: () => T): T {
 }
 
 export function useWindowWidth(): number {
-  const [windowWidth, setWindowWidth] = useState<number>(0)
+  const [windowWidth, setWindowWidth] = useState<number>(breakpoints.md)
   useEffect(() => {
     const width = window.innerWidth
     setWindowWidth(width)

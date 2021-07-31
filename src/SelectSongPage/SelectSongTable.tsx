@@ -168,11 +168,7 @@ function SelectSongTable<T extends Row>({
             onSelectCol={handleSelectCol}
             rowHeight={rowHeight}
           />
-          {sorted.length === 0 && (
-            <h2 style={{ fontSize: '24px', textAlign: 'center', paddingTop: '50px' }}>
-              Nothing here yet.
-            </h2>
-          )}
+          {sorted.length === 0 && <h2 style={{ fontSize: '24px', padding: 20 }}>No results</h2>}
           {sorted.map((row: T, i) => {
             return (
               <div
