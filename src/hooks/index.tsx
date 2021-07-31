@@ -87,7 +87,12 @@ export function useWindowWidth(): number {
   useEffect(() => {
     const width = window.innerWidth
     setWindowWidth(width)
-    window.onresize = () => setWindowWidth(window.innerWidth)
+    const resizeHandler = () => setWindowWidth(window.innerWidth)
+    window.addEventListener('resize', resizeHandler)
+    return function cleanup() {
+      window.removeEventListener('resize', resizeHandler)
+    }
   }, [])
+
   return windowWidth
 }

@@ -22,7 +22,7 @@ import {
 } from '../../icons'
 import Player from '../../player'
 import { useRAFLoop, useSelectedSong, useSingleton } from '../../hooks'
-import { formatTime, getSong, inferHands, isBlack } from '../../utils'
+import { formatTime, getSong, inferHands, isBlack, peek } from '../../utils'
 import { useSize } from '../../hooks/size'
 import { gmInstruments } from '../../synth/instruments'
 import { MusicalNoteIcon } from '../../icons'
@@ -541,7 +541,7 @@ export function SongScrubBar({
     if (wrapperRef.current) {
       startX.current = wrapperRef.current.getBoundingClientRect().x
     }
-  }, [])
+  }, [width])
 
   useEffect(() => {
     if (rangeSelecting) {
