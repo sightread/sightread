@@ -481,6 +481,8 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             }}
             startNote={startNote}
             endNote={endNote}
+            subscribe={fn => Player.player().subscribe(fn)}
+            unsubscribe={fn => Player.player().unsubscribe(fn)}
           />
         )}
       </div>

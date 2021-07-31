@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MidiStateEvent, PlayableSong, SongNote } from '../types'
 import Select from '../components/Select'
 import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from '../PlaySongPage/index'
@@ -12,6 +12,8 @@ import { getPitch } from '../parsers'
 import midiState from '../midi'
 import { useSingleton } from '../hooks'
 import { palette } from 'src/styles/common'
+import Player from 'src/player'
+import { SubscriptionCallback } from 'src/PlaySongPage/PianoRoll'
 
 /**
  * Notes:
@@ -55,6 +57,7 @@ function FreePlay() {
   const router = useRouter()
   const freePlayer = useSingleton(() => new FreePlayer())
   const noteColor = palette.purple.primary
+  let midiAdapter = useRef<MidiStateAdapter>(new MidiStateAdapter())
 
   const handleNoteDown = useCallback(
     (note: number, velocity: number = 80) => {
@@ -166,11 +169,34 @@ function FreePlay() {
           />
         </div>
         <div>
-          <PianoRoll activeColor={noteColor} onNoteDown={handleNoteDown} onNoteUp={handleNoteUp} />
+          <PianoRoll
+            activeColor={noteColor}
+            onNoteDown={handleNoteDown}
+            onNoteUp={handleNoteUp}
+            subscribe={(fn) => midiAdapter.current.subscribe(fn)}
+            unsubscribe={(fn) => midiAdapter.current.unsubscribe(fn)}
+          />
         </div>
       </div>
     </div>
   )
+}
+
+class MidiStateAdapter {
+  subs = new Map()
+  subscribe(fn: SubscriptionCallback) {
+    this.subs.set(fn, () => {
+      const pressed = midiState.getPressedNotes()
+
+      fn(Object.fromEntries(pressed as any))
+    })
+
+    midiState.subscribe(this.subs.get(fn))
+  }
+
+  unsubscribe(fn: SubscriptionCallback) {
+    midiState.unsubscribe(this.subs.get(fn))
+  }
 }
 
 class FreePlayer {

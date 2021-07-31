@@ -281,12 +281,8 @@ class Player {
   }
 
   getPressedKeys() {
-    let ret: any = {}
-    for (let note of this.playing.filter((n) => this.isActiveTrack(n))) {
-      ret[note.midiNote] = note
-    }
-
-    return ret
+    const activeNotes = this.playing.filter((n) => this.isActiveTrack(n))
+    return Object.fromEntries(activeNotes.map((n) => [n.midiNote, n]))
   }
 
   getDuration() {
