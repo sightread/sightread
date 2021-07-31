@@ -161,13 +161,6 @@ const classes = css({
       backgroundColor: palette.purple.dark,
     },
   },
-  controlsContainer: {
-    padding: '0px 40px',
-    height: '420px',
-    '@media screen and (max-width: 1129px)': {
-      paddingTop: '32px !important',
-    },
-  },
   controlsHeader: {
     fontSize: '20px',
     marginBottom: '15px',
@@ -404,11 +397,13 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
           style={{
             display: 'flex',
             flexWrap: 'wrap',
-            justifyContent: 'center',
-            flexDirection: 'column',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            rowGap: 16,
+            columnGap: 30,
           }}
         >
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', width: '100%' }}>
             <div>
               <span className={classes.songTitle}>{name}</span>
               <span className={classes.artist}>{artist}</span>
@@ -417,13 +412,12 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
               <CancelCircleIcon width={30} height={30} className={classes.closeModalIcon} />
             </button>
           </div>
-          <Sizer height={18} />
           <div
             style={{
               display: 'flex',
               borderRadius: 6,
               flexDirection: 'column',
-              width: '100%',
+              flexGrow: 1,
             }}
           >
             <div style={{ position: 'relative', height: 24, minHeight: 24 }}>
@@ -491,16 +485,16 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
               setTracks={setTrackSettings}
             />
           </div>
-          <div className={classes.controlsContainer}>
+          <div>
             <h3 className={classes.controlsHeader}>Controls Overview</h3>
             <div>
-              {controlsOverview.map((o) => {
+              {controlsOverview.map(({title, icon, caption}) => {
                 return (
-                  <div className={classes.container} key={o.title}>
-                    <span className={classes.iconWrapper}>{o.icon}</span>
+                  <div className={classes.container} key={title}>
+                    <span className={classes.iconWrapper}>{icon}</span>
                     <div className={classes.textWrapper}>
-                      <h4 className={classes.controlTitle}>{o.title}</h4>
-                      <p>{o.caption}</p>
+                      <h4 className={classes.controlTitle}>{title}</h4>
+                      <p>{caption}</p>
                     </div>
                   </div>
                 )
