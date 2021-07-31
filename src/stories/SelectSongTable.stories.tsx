@@ -33,7 +33,7 @@ SelectSongTableBasic.args = {
   ],
   rows,
   filter: ['name', 'artist'],
-  onDelete: null
+  onDelete: null,
 }
 
 export const SelectSongTableOnDelete = Template.bind({})

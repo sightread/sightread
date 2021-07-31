@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { breakpoints, Sizer } from '../utils'
+import { breakpoints, peek, Sizer } from '../utils'
 import {
   SearchIcon,
   ExpandDownIcon,
@@ -134,13 +134,13 @@ function SelectSongTable<T extends Row>({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <SearchBox onSearch={saveSearch} />
-          {!!onFilter && (
+          {!!onFilter && !isSmall && (
             <IconWrapper onClick={onFilter} className={classes.filterButton}>
               <FilterIcon height={30} width={30} />
             </IconWrapper>
           )}
         </div>
-        {!!onCreate && (
+        {!!onCreate && !isSmall && (
           <button type="button" className={classes.button} onClick={onCreate}>
             <PlusIcon width={20} height={20} style={{ fill: 'white', margin: '5px' }} />
             <span>Add New</span>

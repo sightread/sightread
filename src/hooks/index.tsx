@@ -84,13 +84,10 @@ export function useSingleton<T>(fn: () => T): T {
 
 export function useWindowWidth(): number {
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  if (!windowWidth && isBrowser()) {
+  useEffect(() => {
     const width = window.innerWidth
     setWindowWidth(width)
     window.onresize = () => setWindowWidth(window.innerWidth)
-
-    return width
-  }
-
+  }, [])
   return windowWidth
 }
