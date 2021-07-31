@@ -29,7 +29,7 @@ type SelectSongTableProps<T extends Row> = {
   onSelectRow: (row: T) => void
   filter: (keyof T)[]
   onCreate?: () => void
-  onDelete?: (item: T | undefined) => void
+  onDelete?: null | ((item: T | undefined) => void)
   onFilter?: () => void
 }
 
