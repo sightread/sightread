@@ -84,7 +84,7 @@ type ContainerProps = {
   component?: string | React.ElementType
 }
 
-const breakpoints = {
+export const breakpoints = {
   xs: 600,
   sm: 960,
   md: 1280,

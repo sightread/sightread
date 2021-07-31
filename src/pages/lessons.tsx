@@ -27,8 +27,8 @@ export default function SelectLessonPage() {
           <Sizer height={24} />
           <SelectSongTable
             columns={[
-              { label: 'Lesson', id: 'lesson' },
-              { label: 'Title', id: 'name' },
+              { label: 'Lesson', id: 'lesson', keep: true },
+              { label: 'Title', id: 'name', keep: true },
               {
                 label: 'Difficulty',
                 id: 'difficulty',

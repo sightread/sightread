@@ -26,8 +26,8 @@ export const SelectSongTableBasic = Template.bind({})
 const rows = songManifest.filter((s) => s.type === 'song')
 SelectSongTableBasic.args = {
   columns: [
-    { label: 'Title', id: 'name' },
-    { label: 'Artist', id: 'artist' },
+    { label: 'Title', id: 'name', keep: true },
+    { label: 'Artist', id: 'artist', keep: true },
     { label: 'Difficult', id: 'difficulty', format: () => 'Easy' },
     { label: 'Length', id: 'duration', format: formatTime },
   ],
