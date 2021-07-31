@@ -173,19 +173,21 @@ function SelectSongTable<T extends Row>({
               Nothing here yet.
             </h2>
           )}
-          {sorted.map((row: T) => {
+          {sorted.map((row: T, i) => {
             return (
               <div
                 className={classes.tableRow}
                 style={{ display: 'contents' }}
                 onClick={() => onSelectRow(row)}
+                key={`row-${i}`}
               >
-                {columns.map((col, i) => {
+                {columns.map((col, j) => {
                   let cellValue = !!col.format ? col.format(row[col.id]) : row[col.id]
-                  const paddingLeft = i === 0 ? 20 : 0
+                  const paddingLeft = j === 0 ? 20 : 0
                   return (
                     <span
                       className={classes.tableRow}
+                      key={`row-${i}-col-${j}`}
                       style={{
                         position: 'relative',
                         boxSizing: 'border-box',
@@ -197,7 +199,6 @@ function SelectSongTable<T extends Row>({
                         flexShrink: 0,
                         borderBottom: '#d9d5ec solid 1px',
                       }}
-                      key={col.id as string}
                     >
                       {cellValue}
                     </span>
@@ -252,7 +253,7 @@ function TableHead<T, D extends keyof T>({
       {columns.map((col, i) => {
         const marginLeft = i === 0 ? 20 : 0
         return (
-          <div style={{ ...headerStyles }} key={col.id as string}>
+          <div style={{ ...headerStyles }} key={`col-${col.id}`}>
             <span style={{ cursor: 'pointer', marginLeft }} onClick={() => onSelectCol(i + 1)}>
               {col.label}
               {getIcon(sortCol, i)}
