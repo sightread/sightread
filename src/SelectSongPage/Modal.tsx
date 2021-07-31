@@ -24,6 +24,7 @@ import {
 } from '../icons'
 import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
+import clsx from 'clsx'
 
 const palette = {
   purple: {
@@ -692,9 +693,10 @@ function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
       <LeftHandIcon
         height={32}
         width={32}
-        className={`${classes.settingsIcon} ${
-          on ? classes.settingsIconActive : classes.iconInActive
-        }`}
+        className={clsx(
+          classes.settingsIcon,
+          on ? classes.settingsIconActive : classes.iconInActive,
+        )}
         onClick={onClick}
       />
       <span style={labelStyle}>Left Hand</span>
@@ -708,9 +710,10 @@ function ToggleRightHand({ on, onClick }: ToggleIconProps) {
       <RightHandIcon
         height={32}
         width={32}
-        className={`${classes.settingsIcon} ${
-          on ? classes.settingsIconActive : classes.iconInActive
-        }`}
+        className={clsx(
+          classes.settingsIcon,
+          on ? classes.settingsIconActive : classes.iconInActive,
+        )}
         onClick={onClick}
       />
       <span style={labelStyle}>Right Hand</span>
@@ -726,9 +729,10 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
           <SoundOnIcon
             height={32}
             width={32}
-            className={`${classes.settingsIcon} ${
-              on ? classes.settingsIconActive : classes.iconInActive
-            }`}
+            className={clsx(
+              classes.settingsIcon,
+              on ? classes.settingsIconActive : classes.iconInActive,
+            )}
             onClick={onClick}
           />
           <span style={labelStyle}>Sound On</span>
@@ -738,9 +742,10 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
           <SoundOffIcon
             height={32}
             width={32}
-            className={`${classes.settingsIcon} ${
-              on ? classes.settingsIconActive : classes.iconInActive
-            }`}
+            className={clsx(
+              classes.settingsIcon,
+              on ? classes.settingsIconActive : classes.iconInActive,
+            )}
             onClick={onClick}
           />
           <span style={labelStyle}>Sound Off</span>
@@ -753,24 +758,24 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
 function AdjustInstrumentsButton({ active, onClick }: { active: boolean; onClick: () => void }) {
   return (
     <span
-      className={`${classes.instrumentsBtnWrapper} ${
-        active && classes.instrumentsBtnWrapperActive
-      }`}
+      className={clsx(classes.instrumentsBtnWrapper, {
+        [classes.instrumentsBtnWrapperActive]: active,
+      })}
     >
       <button
-        className={`${classes.baseButton} ${
-          active ? classes.instrumentsButtonActive : classes.instrumentsButton
-        }`}
+        className={clsx(
+          classes.baseButton,
+          active ? classes.instrumentsButtonActive : classes.instrumentsButton,
+        )}
         onClick={onClick}
       >
         <span
           style={
-            active
-              ? {
-                  fontWeight: 'bold',
-                  borderBottom: `3px solid ${palette.purple.primary}`,
-                }
-              : {}
+            (active && {
+              fontWeight: 'bold',
+              borderBottom: `3px solid ${palette.purple.primary}`,
+            }) ||
+            {}
           }
         >
           Adjust Instruments
