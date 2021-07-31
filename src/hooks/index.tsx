@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback, useRef, useMemo } from 'react'
 import { SongSettings, TrackSettings } from '../types'
-import { isBrowser } from '../utils'
+import { breakpoints, isBrowser } from '../utils'
 
 export function useRAFLoop(fn: Function) {
   const requestRef: any = React.useRef()
@@ -80,4 +80,17 @@ export function useSingleton<T>(fn: () => T): T {
     ref.current = fn()
   }
   return ref.current
+}
+
+export function useWindowWidth(): number {
+  const [windowWidth, setWindowWidth] = useState<number>(0)
+  if (!windowWidth && isBrowser()) {
+    const width = window.innerWidth
+    setWindowWidth(width)
+    window.onresize = () => setWindowWidth(window.innerWidth)
+
+    return width
+  }
+
+  return windowWidth
 }

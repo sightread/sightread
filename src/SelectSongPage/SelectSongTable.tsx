@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { Sizer } from '../utils'
+import { breakpoints, Sizer } from '../utils'
 import {
   SearchIcon,
   ExpandDownIcon,
@@ -11,11 +11,12 @@ import {
 } from '../icons'
 import { css } from '@sightread/flake'
 import { palette } from '../styles/common'
+import { useWindowWidth } from 'src/hooks'
 
 type TableColumn<T, D extends keyof T = never> = {
   label: string
   id: D
-  style?: React.CSSProperties
+  keep?: boolean
   format?: (value: T[D]) => string | React.ReactNode
 }
 
@@ -36,7 +37,7 @@ type TableHeadProps<T, D extends keyof T> = {
   columns: TableColumn<T, D>[]
   sortCol: number
   onSelectCol: (index: number) => void
-  hasActionRow: boolean
+  rowHeight: number
 }
 
 function compare(a: number | string, b: number | string) {
@@ -107,9 +108,13 @@ function SelectSongTable<T extends Row>({
 }: SelectSongTableProps<T>) {
   const [search, saveSearch] = useState('')
   const [sortCol, setSortCol] = useState(1)
+  const isSmall = useWindowWidth() < breakpoints.sm
+  let rowHeight = 40
 
-  const cols = columns.map((c) => c.id)
-  const hasActionRow = false //!!onDelete
+  if (isSmall) {
+    columns = columns.filter((c) => c.keep)
+    rowHeight = 50
+  }
 
   const handleSelectCol = (index: number) => {
     if (sortCol === index) {
@@ -121,7 +126,7 @@ function SelectSongTable<T extends Row>({
 
   const isSearchMatch = (s: RowValue = '') => String(s).toUpperCase().includes(search.toUpperCase())
   const filtered = !search ? rows : rows.filter((row) => filter.some((f) => isSearchMatch(row[f])))
-  const sortField = cols[Math.abs(sortCol) - 1]
+  const sortField = columns[Math.abs(sortCol) - 1].id
   const sorted = sortBy<T>((row) => row[sortField] ?? 0, sortCol < 0, filtered)
 
   return (
@@ -143,14 +148,14 @@ function SelectSongTable<T extends Row>({
         )}
       </div>
       <Sizer height={16} />
-      <div style={{ position: 'relative', flex: 1 }}>
+      <div style={{ position: 'relative', flexGrow: 1 }}>
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${columns.length}, 1fr)`,
             position: 'absolute',
             width: '100%',
-            height: '100%',
+            maxHeight: '100%',
             backgroundColor: '#FFF',
             boxShadow: `0px 0px 5px rgba(0, 0, 0, 0.2)`,
             borderRadius: 5,
@@ -161,21 +166,22 @@ function SelectSongTable<T extends Row>({
             columns={columns}
             sortCol={sortCol}
             onSelectCol={handleSelectCol}
-            hasActionRow={hasActionRow}
+            rowHeight={rowHeight}
           />
           {sorted.length === 0 && (
             <h2 style={{ fontSize: '24px', textAlign: 'center', paddingTop: '50px' }}>
               Nothing here yet.
             </h2>
           )}
-          {sorted.map((row: any) => {
+          {sorted.map((row: T) => {
             return (
-              <div className={classes.tableRow} style={{ display: 'contents' }}>
+              <div
+                className={classes.tableRow}
+                style={{ display: 'contents' }}
+                onClick={() => onSelectRow(row)}
+              >
                 {columns.map((col, i) => {
-                  let cellValue = row[col.id]
-                  if (!!col.format) {
-                    cellValue = col.format(cellValue)
-                  }
+                  let cellValue = !!col.format ? col.format(row[col.id]) : row[col.id]
                   const paddingLeft = i === 0 ? 20 : 0
                   return (
                     <span
@@ -184,7 +190,7 @@ function SelectSongTable<T extends Row>({
                         position: 'relative',
                         boxSizing: 'border-box',
                         paddingLeft,
-                        height: 35,
+                        height: rowHeight,
                         fontSize: 14,
                         display: 'flex',
                         alignItems: 'center',
@@ -197,8 +203,8 @@ function SelectSongTable<T extends Row>({
                     </span>
                   )
                 })}
-                {hasActionRow && (
-                  <IconWrapper onClick={() => onDelete?.(row)} className={classes.actionButton}>
+                {onDelete && (
+                  <IconWrapper onClick={() => onDelete(row)} className={classes.actionButton}>
                     <TrashCanIcon width={20} height={20} style={{ fill: palette.purple.primary }} />
                   </IconWrapper>
                 )}
@@ -211,8 +217,6 @@ function SelectSongTable<T extends Row>({
   )
 }
 
-export default SelectSongTable
-
 function getIcon(sortCol: number, index: number) {
   const style: React.CSSProperties = { fill: '#1B0EA6', marginLeft: 5 }
   if (Math.abs(sortCol) === index + 1) {
@@ -224,14 +228,19 @@ function getIcon(sortCol: number, index: number) {
   return <></>
 }
 
-function TableHead<T, D extends keyof T>({ columns, sortCol, onSelectCol }: TableHeadProps<T, D>) {
+function TableHead<T, D extends keyof T>({
+  columns,
+  sortCol,
+  onSelectCol,
+  rowHeight,
+}: TableHeadProps<T, D>) {
   const headerStyles: React.CSSProperties = {
     position: 'sticky',
     top: 0,
-    zIndex: 3,
+    zIndex: 2,
     display: 'flex',
     alignItems: 'center',
-    height: 30,
+    height: rowHeight,
     boxSizing: 'border-box',
     fontWeight: 600,
     color: '#1B0EA6',
@@ -243,11 +252,8 @@ function TableHead<T, D extends keyof T>({ columns, sortCol, onSelectCol }: Tabl
       {columns.map((col, i) => {
         const marginLeft = i === 0 ? 20 : 0
         return (
-          <div style={headerStyles} key={col.id as string}>
-            <span
-              onClick={() => onSelectCol(i + 1)}
-              style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginLeft }}
-            >
+          <div style={{ ...headerStyles }} key={col.id as string}>
+            <span style={{ cursor: 'pointer', marginLeft }} onClick={() => onSelectCol(i + 1)}>
               {col.label}
               {getIcon(sortCol, i)}
             </span>
@@ -289,3 +295,5 @@ function SearchBox({ onSearch }: { onSearch: (val: string) => void }) {
     </div>
   )
 }
+
+export default SelectSongTable
