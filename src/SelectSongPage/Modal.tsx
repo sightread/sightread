@@ -488,7 +488,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
           <div>
             <h3 className={classes.controlsHeader}>Controls Overview</h3>
             <div>
-              {controlsOverview.map(({title, icon, caption}) => {
+              {controlsOverview.map(({ title, icon, caption }) => {
                 return (
                   <div className={classes.container} key={title}>
                     <span className={classes.iconWrapper}>{icon}</span>
