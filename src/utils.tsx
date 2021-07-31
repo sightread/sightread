@@ -21,7 +21,7 @@ export function range(start: number, end: number) {
 }
 
 function Sizer({ height, width }: { height?: number; width?: number }) {
-  return <div style={{ width, height }} />
+  return <div style={{ width, height, minWidth: width, minHeight: height }} />
 }
 
 export const isBrowser = () => typeof window === 'object'
@@ -62,7 +62,11 @@ function inferHands(song: Song, isTeachMidi: boolean): PlayableSong {
   return playableSong
 }
 
-function formatTime(seconds: number) {
+function formatTime(seconds: number|string|undefined) {
+  if (typeof seconds === 'string' || seconds === undefined) {
+    throw new Error('Should not call formatTime on a string');
+  }
+
   let min = String(Math.floor(seconds / 60))
   if (min.length === 1) {
     min = '0' + min

@@ -108,6 +108,7 @@ export default function AppBar({ classNames, style }: AppBarProps) {
         // Credit goes to: https://aykevl.nl/2014/09/fix-jumping-scrollbar
         paddingLeft: 'calc((100vw - 100%))',
 
+        zIndex: 3,
         height: 60,
         backgroundColor: '#292929',
         display: 'flex',

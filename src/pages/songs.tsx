@@ -12,10 +12,10 @@ import {
   Container,
 } from '../utils'
 import { SelectSongModal, SelectSongTable } from '../SelectSongPage'
-import songManifest from '../manifest.json'
-import Modal from '../components/Modal'
-import { Song } from '../types'
-import { palette } from '../styles/common'
+import songManifest from 'src/manifest.json'
+import Modal from 'src/components/Modal'
+import { Song } from 'src/types'
+import { palette } from 'src/styles/common'
 import { parseMidi, parseMusicXML } from '../parsers'
 import { css } from '@sightread/flake'
 import clsx from 'clsx'
@@ -143,7 +143,7 @@ export default function SelectLessonPage() {
   }
 
   const filteredSongs = () => {
-    // might make this more complex in futrue (duration, etc.)
+    // might make this more complex in future (duration, etc.)
     return songs.filter((s) => {
       return filters.type === undefined || s.type === filters.type
     })
@@ -164,26 +164,28 @@ export default function SelectLessonPage() {
       <AppBar style={{ backgroundColor: '#292929', display: 'flex' }} />
       <Container style={{ backgroundColor: '#F2F2F2', padding: '0 24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
-          <Sizer height={64} />
+          <Sizer height={24} />
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Songs</h2>
           <FilterPane show={filters.show}>
             <div style={{ display: 'flex' }}>
               <TypeFilter onSelect={handleFilterType} value={filters.type} />
             </div>
           </FilterPane>
+          <Sizer height={24} />
           <SelectSongTable
             columns={[
               { label: 'Title', id: 'name' },
               { label: 'Artist', id: 'artist' },
-              { label: 'Difficult', id: 'difficulty', format: (v) => 'Easy' },
+              { label: 'Difficult', id: 'difficulty', format: () => 'Easy' },
               { label: 'Length', id: 'duration', format: formatTime },
             ]}
             rows={filteredSongs()}
-            filter={['name', 'artist'] as any}
+            filter={['name', 'artist']}
             onSelectRow={setSelectedSong}
             onCreate={handleAddNew}
             onFilter={handleToggleOpenFilter}
           />
+          <Sizer height={60} />
         </div>
       </Container>
     </>
