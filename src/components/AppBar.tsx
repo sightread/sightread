@@ -1,5 +1,5 @@
 import { useState, useRef, Children, CSSProperties } from 'react'
-import { Container, Sizer } from '../utils'
+import { breakpoints, Container, Sizer } from '../utils'
 import { Logo, MenuIcon } from '../icons'
 import { css, mediaQuery } from '@sightread/flake'
 import { palette } from '../styles/common'
@@ -15,12 +15,12 @@ const classes = css({
     color: 'white',
   },
   appBarLarge: {
-    [mediaQuery.down(910)]: {
+    [mediaQuery.down(breakpoints.sm)]: {
       display: 'none',
     },
   },
   appBarSmall: {
-    [mediaQuery.up(911)]: {
+    [mediaQuery.up(breakpoints.sm + 1)]: {
       display: 'none',
     },
   },

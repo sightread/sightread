@@ -25,7 +25,6 @@ import {
 import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
 
-const previewWidth = 600
 const palette = {
   purple: {
     light: '#EDEBF6',
@@ -61,7 +60,7 @@ const classes = css({
   },
   closeModalButton: {
     cursor: 'pointer',
-    float: 'right',
+    marginLeft: 'auto',
     border: 'none',
     background: 'none',
     outline: 'none',
@@ -115,7 +114,7 @@ const classes = css({
     },
   },
   modalSpinnerIcon: { fill: 'white', animation: 'spinner 2s infinite linear' },
-  buttonContainer: { width: previewWidth, display: 'flex', justifyContent: 'space-between' },
+  buttonContainer: { width: '100%', display: 'flex', justifyContent: 'space-between' },
   baseButton: {
     transition: '150ms',
     borderRadius: 5,
@@ -136,13 +135,12 @@ const classes = css({
   instrumentsButtonActive: {
     color: palette.purple.primary,
   },
-  instrumentsButtnWrapper: {
+  instrumentsBtnWrapper: {
     width: '55%',
-    margin: 2,
     transition: '150ms',
     height: 40,
   },
-  instrumentsButtnWrapperActive: {
+  instrumentsBtnWrapperActive: {
     backgroundColor: '#EAEAEA',
     height: '56px',
     borderRadius: '5px 5px 0px 0px',
@@ -394,24 +392,37 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
 
   return (
     <div className={classes.modalContainer}>
-      <div ref={modalRef} className={classes.modalContent}>
-        <button className={classes.closeModalButton} onClick={onClose}>
-          <CancelCircleIcon width={30} height={30} className={classes.closeModalIcon} />
-        </button>
-        <div>
-          <span className={classes.songTitle}>{name}</span>
-          <span className={classes.artist}>{artist}</span>
-        </div>
-        <Sizer height={18} />
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div
+        ref={modalRef}
+        className={classes.modalContent}
+        style={{
+          minWidth: 'min(600px, 80%)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            flexDirection: 'column',
+          }}
+        >
+          <div style={{ display: 'flex' }}>
+            <div>
+              <span className={classes.songTitle}>{name}</span>
+              <span className={classes.artist}>{artist}</span>
+            </div>
+            <button className={classes.closeModalButton} onClick={onClose}>
+              <CancelCircleIcon width={30} height={30} className={classes.closeModalIcon} />
+            </button>
+          </div>
+          <Sizer height={18} />
           <div
             style={{
               display: 'flex',
-              width: previewWidth,
-              minWidth: previewWidth,
               borderRadius: 6,
               flexDirection: 'column',
-              flex: 1,
+              width: '100%',
             }}
           >
             <div style={{ position: 'relative', height: 24, minHeight: 24 }}>
@@ -471,7 +482,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
               <button className={classes.playNowButton} onClick={handlePlayNow}>
                 Play Now
               </button>
-              <AdjustIntstrumentsButton active={showInstruments} onClick={handleShowInstruments} />
+              <AdjustInstrumentsButton active={showInstruments} onClick={handleShowInstruments} />
             </div>
             <AdjustInstruments
               show={showInstruments}
@@ -739,11 +750,11 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
   )
 }
 
-function AdjustIntstrumentsButton({ active, onClick }: { active: boolean; onClick: () => void }) {
+function AdjustInstrumentsButton({ active, onClick }: { active: boolean; onClick: () => void }) {
   return (
     <span
-      className={`${classes.instrumentsButtnWrapper} ${
-        active && classes.instrumentsButtnWrapperActive
+      className={`${classes.instrumentsBtnWrapper} ${
+        active && classes.instrumentsBtnWrapperActive
       }`}
     >
       <button
