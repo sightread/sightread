@@ -42,6 +42,7 @@ export type UploadedSong = {
   duration: number
   file: string
   type: 'upload'
+  difficulty: 'N/A,'
 }
 
 let uploadedSongList: UploadedSong[]
@@ -78,7 +79,7 @@ export function saveSong(song: Song, name: string, artist: string): UploadedSong
     // use in memory as backup
     inMemorySongData[songKey] = song
   }
-  return saveSongToLibrary({ name, artist, duration: song.duration, file, type: 'upload' })
+  return saveSongToLibrary({ name, artist, duration: song.duration, file, type: 'upload', difficulty: 'N/A,' })
 }
 
 /** always pushes to in memory, then saves the list if possible */

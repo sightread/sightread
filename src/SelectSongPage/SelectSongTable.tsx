@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { Sizer } from '../utils'
-import { MusicFile } from '../../scripts/songdata'
 import {
   SearchIcon,
   ExpandDownIcon,
@@ -13,25 +12,28 @@ import {
 import { css } from '@sightread/flake'
 import { palette } from '../styles/common'
 
-type TableColumn = {
+type TableColumn<T, D extends keyof T = never> = {
   label: string
-  id: string
+  id: D
   style?: React.CSSProperties
-  format?: (value: any) => string | React.ReactNode
+  format?: (value: T[D]) => string | React.ReactNode
 }
 
-type SelectSongTableProps = {
-  columns: TableColumn[]
-  rows: any[]
-  onSelectRow: (row: any) => void
-  filter: (keyof MusicFile)[]
+type RowValue = string | number | undefined
+type Row = { [key: string]: RowValue }
+
+type SelectSongTableProps<T extends Row> = {
+  columns: TableColumn<T, keyof T>[]
+  rows: T[]
+  onSelectRow: (row: T) => void
+  filter: (keyof T)[]
   onCreate?: () => void
-  onDelete?: (item: any | undefined) => void
+  onDelete?: (item: T | undefined) => void
   onFilter?: () => void
 }
 
-type TableHeadProps = {
-  columns: TableColumn[]
+type TableHeadProps<T, D extends keyof T> = {
+  columns: TableColumn<T, D>[]
   sortCol: number
   onSelectCol: (index: number) => void
   hasActionRow: boolean
@@ -44,7 +46,7 @@ function compare(a: number | string, b: number | string) {
   return +a - +b
 }
 
-function sortBy<T>(fn: (x: T) => number | string, rev: boolean, arr: T[]): T[] {
+function sortBy<T extends Row>(fn: (x: T) => number | string, rev: boolean, arr: T[]): T[] {
   return arr.sort((a: T, b: T) => {
     return (rev ? -1 : 1) * compare(fn(a), fn(b))
   })
@@ -76,6 +78,12 @@ const classes = css({
       backgroundColor: 'white !important',
     },
   },
+  tableRow: {
+    '&:hover > *': {
+      backgroundColor: 'rgb(159 133 221 / 45%)',
+    },
+    cursor: 'pointer',
+  },
   filterButton: {
     marginLeft: '24px',
     cursor: 'pointer',
@@ -88,7 +96,7 @@ const classes = css({
   },
 })
 
-function SelectSongTable({
+function SelectSongTable<T extends Row>({
   columns,
   rows,
   onSelectRow,
@@ -96,14 +104,12 @@ function SelectSongTable({
   onCreate,
   onDelete,
   onFilter,
-}: SelectSongTableProps) {
+}: SelectSongTableProps<T>) {
   const [search, saveSearch] = useState('')
-  const [sortCol, setSortCol] = useState<number>(1)
+  const [sortCol, setSortCol] = useState(1)
 
   const cols = columns.map((c) => c.id)
-  const hasActionRow = !!onDelete
-  const actionRow = hasActionRow ? 10 : 0 // action row will be 10% of width
-  const colWidth = ((100 - actionRow) / cols.length).toFixed(2)
+  const hasActionRow = false //!!onDelete
 
   const handleSelectCol = (index: number) => {
     if (sortCol === index) {
@@ -113,14 +119,13 @@ function SelectSongTable({
     }
   }
 
-  const isSearchMatch = (s: string) => s.toUpperCase().includes(search.toUpperCase())
+  const isSearchMatch = (s: RowValue = '') => String(s).toUpperCase().includes(search.toUpperCase())
   const filtered = !search ? rows : rows.filter((row) => filter.some((f) => isSearchMatch(row[f])))
   const sortField = cols[Math.abs(sortCol) - 1]
-  const sorted = sortBy((row) => row[sortField], sortCol < 0, filtered)
+  const sorted = sortBy<T>((row) => row[sortField] ?? 0, sortCol < 0, filtered)
 
   return (
     <>
-      <Sizer height={36} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <SearchBox onSearch={saveSearch} />
@@ -137,37 +142,27 @@ function SelectSongTable({
           </button>
         )}
       </div>
-      <Sizer height={20} />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          width: '100%',
-          flexGrow: 1,
-          backgroundColor: '#FFF',
-          boxShadow: `0px 0px 5px rgba(0, 0, 0, 0.2)`,
-          borderRadius: 5,
-          overflow: 'hidden',
-          contain: 'strict',
-        }}
-      >
-        <TableHead
-          columns={columns}
-          sortCol={sortCol}
-          onSelectCol={handleSelectCol}
-          hasActionRow={hasActionRow}
-        />
+      <Sizer height={16} />
+      <div style={{ position: 'relative', flex: 1 }}>
         <div
           style={{
-            overflowY: 'auto',
-            overflowX: 'hidden',
+            display: 'grid',
+            gridTemplateColumns: `repeat(${columns.length}, 1fr)`,
             position: 'absolute',
-            top: 30,
-            height: '100%',
             width: '100%',
+            height: '100%',
+            backgroundColor: '#FFF',
+            boxShadow: `0px 0px 5px rgba(0, 0, 0, 0.2)`,
+            borderRadius: 5,
+            overflowY: 'scroll',
           }}
         >
+          <TableHead
+            columns={columns}
+            sortCol={sortCol}
+            onSelectCol={handleSelectCol}
+            hasActionRow={hasActionRow}
+          />
           {sorted.length === 0 && (
             <h2 style={{ fontSize: '24px', textAlign: 'center', paddingTop: '50px' }}>
               Nothing here yet.
@@ -175,50 +170,43 @@ function SelectSongTable({
           )}
           {sorted.map((row: any) => {
             return (
-              <div
-                onClick={() => onSelectRow(row)}
-                style={{
-                  position: 'relative',
-                  boxSizing: 'border-box',
-                  height: 35,
-                  fontSize: 14,
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexShrink: 0,
-                  borderBottom: '#d9d5ec solid 1px',
-                }}
-                className="SelectSongPage__song"
-                key={row.file}
-              >
+              <div className={classes.tableRow} style={{ display: 'contents' }}>
                 {columns.map((col, i) => {
                   let cellValue = row[col.id]
                   if (!!col.format) {
                     cellValue = col.format(cellValue)
                   }
-                  const paddingLeft = i === 0 ? 30 : 0
+                  const paddingLeft = i === 0 ? 20 : 0
                   return (
-                    <span style={{ paddingLeft, width: `${colWidth}%`, ...col.style }} key={col.id}>
+                    <span
+                      className={classes.tableRow}
+                      style={{
+                        position: 'relative',
+                        boxSizing: 'border-box',
+                        paddingLeft,
+                        height: 35,
+                        fontSize: 14,
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexShrink: 0,
+                        borderBottom: '#d9d5ec solid 1px',
+                      }}
+                      key={col.id as string}
+                    >
                       {cellValue}
                     </span>
                   )
                 })}
-                {!!onDelete && (
-                  <span style={{ width: '10%' }}>
-                    <IconWrapper onClick={() => onDelete(row)} className={classes.actionButton}>
-                      <TrashCanIcon
-                        width={20}
-                        height={20}
-                        style={{ fill: palette.purple.primary }}
-                      />
-                    </IconWrapper>
-                  </span>
+                {hasActionRow && (
+                  <IconWrapper onClick={() => onDelete?.(row)} className={classes.actionButton}>
+                    <TrashCanIcon width={20} height={20} style={{ fill: palette.purple.primary }} />
+                  </IconWrapper>
                 )}
               </div>
             )
           })}
         </div>
       </div>
-      <Sizer height={60} />
     </>
   )
 }
@@ -236,34 +224,29 @@ function getIcon(sortCol: number, index: number) {
   return <></>
 }
 
-function TableHead({ columns, sortCol, onSelectCol, hasActionRow }: TableHeadProps) {
-  const actionRow = hasActionRow ? 10 : 0 // actions buttons take up 10%
-  const colWidth = ((100 - actionRow) / columns.length).toFixed(2)
+function TableHead<T, D extends keyof T>({ columns, sortCol, onSelectCol }: TableHeadProps<T, D>) {
+  const headerStyles: React.CSSProperties = {
+    position: 'sticky',
+    top: 0,
+    zIndex: 3,
+    display: 'flex',
+    alignItems: 'center',
+    height: 30,
+    boxSizing: 'border-box',
+    fontWeight: 600,
+    color: '#1B0EA6',
+    backgroundColor: '#F1F1F1',
+    borderBottom: '#d9d5ec solid 1px',
+  }
   return (
-    <div
-      className="table_header"
-      style={{
-        position: 'sticky',
-        top: 0,
-        display: 'flex',
-        alignItems: 'center',
-        height: 30,
-        boxSizing: 'border-box',
-        fontWeight: 600,
-        color: '#1B0EA6',
-        backgroundColor: '#F1F1F1',
-        flexShrink: 0,
-        borderBottom: '#d9d5ec solid 1px',
-        zIndex: 1,
-      }}
-    >
+    <>
       {columns.map((col, i) => {
-        const paddingLeft = i === 0 ? 30 : 0
+        const marginLeft = i === 0 ? 20 : 0
         return (
-          <div style={{ paddingLeft, width: `${colWidth}%`, ...col.style }} key={col.id}>
+          <div style={headerStyles} key={col.id as string}>
             <span
               onClick={() => onSelectCol(i + 1)}
-              style={{ display: 'flex', alignItems: 'center' }}
+              style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginLeft }}
             >
               {col.label}
               {getIcon(sortCol, i)}
@@ -271,8 +254,7 @@ function TableHead({ columns, sortCol, onSelectCol, hasActionRow }: TableHeadPro
           </div>
         )
       })}
-      {hasActionRow && <div style={{ width: `10%`, height: '100%' }}></div>}
-    </div>
+    </>
   )
 }
 
