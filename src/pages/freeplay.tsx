@@ -3,7 +3,7 @@ import { MidiStateEvent, PlayableSong, SongNote } from '../types'
 import Select from '../components/Select'
 import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from '../PlaySongPage/index'
 import { useSynth } from '../PlaySongPage/utils'
-import { formatInstrumentName, isBrowser } from '../utils'
+import { formatInstrumentName, isBrowser, mapValues } from '../utils'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { css } from '@sightread/flake'
 import { ArrowLeftIcon } from '../icons'
@@ -82,9 +82,8 @@ function FreePlay() {
         handleNoteDown(e.note, e.velocity)
       }
 
-      // TODO: fix types
-      const pressed = midiState.getPressedNotes()
-      keyColorUpdater.current?.(Object.fromEntries(pressed) as any)
+      const pressed = mapValues(Object.fromEntries(midiState.getPressedNotes()), () => ({}))
+      keyColorUpdater.current?.(pressed)
     }
     midiState.subscribe(handleMidiStateEvent)
     return () => {

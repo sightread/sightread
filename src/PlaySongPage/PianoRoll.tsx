@@ -108,8 +108,6 @@ type PianoNoteProps = {
 }
 function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: PianoNoteProps) {
   const [userPressed, setUserPressed] = useState(false)
-  const midiKeys = midiState.getPressedNotes()
-  let pressed = userPressed || midiKeys.has(note)
   const color = isBlack(note) ? 'black' : 'white'
   const isC = getKey(note).startsWith('C')
 
@@ -121,7 +119,7 @@ function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: P
         margin: isBlack(note) ? `0 -${width / 2}px` : 0,
         width,
         height,
-        backgroundColor: pressed ? activeColor : color,
+        backgroundColor: userPressed ? activeColor : color,
         zIndex: isBlack(note) ? 1 : 0,
         userSelect: 'none',
         borderBottomLeftRadius: '8px',
