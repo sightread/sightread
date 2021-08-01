@@ -22,7 +22,7 @@ import {
 } from '../../icons'
 import Player, { PlayerPressedKeys } from '../../player'
 import { useRAFLoop, useSelectedSong, useSingleton } from '../../hooks'
-import { formatTime, getSong, inferHands, isBlack } from '../../utils'
+import { formatTime, getSong, inferHands, isBlack, mapValues } from '../../utils'
 import { useSize } from '../../hooks/size'
 import { gmInstruments } from '../../synth/instruments'
 import { MusicalNoteIcon } from '../../icons'
@@ -33,6 +33,7 @@ import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { getSynthStub } from '../../synth'
 import { SubscriptionCallback } from 'src/PlaySongPage/PianoRoll'
+import midiState from 'src/midi'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -211,6 +212,25 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     return () => window.removeEventListener('keydown', keyboardHandler)
   }, [playing, player, canPlay])
 
+  useEffect(() => {
+    const handleEvent = () => {
+      const pressed = mapValues(player.getPressedKeys(), (note) => {
+        return { color: getTrackColor(note, songSettings?.tracks) }
+      })
+      for (let midiNote of midiState.getPressedNotes().keys()) {
+        pressed[midiNote] = { color: 'grey' }
+      }
+      keyColorUpdater.current?.(pressed)
+    }
+
+    midiState.subscribe(handleEvent)
+    Player.player().subscribe(handleEvent)
+    return function cleanup() {
+      Player.player().unsubscribe(handleEvent)
+      midiState.unsubscribe(handleEvent)
+    }
+  }, [getTrackColor, player, songSettings?.tracks])
+
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
   }
@@ -243,22 +263,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       setPlaying(false)
     }
   }
-
-  useEffect(() => {
-    const handlePlayerEvent = (event: PlayerPressedKeys) => {
-      const pressed = Object.fromEntries(
-        Object.entries(event).map(([midiNote, note]) => [
-          midiNote,
-          { color: getTrackColor(note, songSettings?.tracks) },
-        ]),
-      )
-      keyColorUpdater.current?.(pressed)
-    }
-    Player.player().subscribe(handlePlayerEvent)
-    return () => {
-      Player.player().unsubscribe(handlePlayerEvent)
-    }
-  }, [getTrackColor])
 
   let statusIcon
   if (playing) {
