@@ -20,7 +20,7 @@ import {
   LoadingIcon,
   SoundOffIcon,
 } from '../../icons'
-import Player, { PlayerPressedKeys } from '../../player'
+import Player from '../../player'
 import { useRAFLoop, useSelectedSong, useSingleton } from '../../hooks'
 import { formatTime, getSong, inferHands, isBlack, mapValues } from '../../utils'
 import { useSize } from '../../hooks/size'
@@ -229,7 +229,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       Player.player().unsubscribe(handleEvent)
       midiState.unsubscribe(handleEvent)
     }
-  }, [getTrackColor, player, songSettings?.tracks])
+  }, [player, songSettings?.tracks])
 
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />

@@ -5,11 +5,6 @@ import { getSynth, Synth } from './synth'
 import midi from './midi'
 import { InstrumentName } from './synth/instruments'
 
-export interface PlayerPressedKeys {
-  [note: number]: SongNote
-}
-export type PlayerSubscriptionCb = (e: PlayerPressedKeys) => void
-
 let player: Player
 
 class Player {
@@ -304,10 +299,10 @@ class Player {
     this.range = [Math.min(start, end), Math.max(start, end)]
   }
 
-  subscribe(fn: PlayerSubscriptionCb) {
+  subscribe(fn: () => void) {
     this.listeners.push(fn)
   }
-  unsubscribe(fn: PlayerSubscriptionCb) {
+  unsubscribe(fn: () => void) {
     let i = this.listeners.indexOf(fn)
     this.listeners.splice(i, 1)
   }
