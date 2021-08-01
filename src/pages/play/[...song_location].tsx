@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Song, PlayableSong, Hand, SongNote } from '../../types'
+import { Song, PlayableSong, Hand, SongNote, TrackSetting, TrackSettings } from '../../types'
 import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
 import {
   getHandSettings,
@@ -20,9 +20,9 @@ import {
   LoadingIcon,
   SoundOffIcon,
 } from '../../icons'
-import Player from '../../player'
+import Player, { PlayerPressedKeys } from '../../player'
 import { useRAFLoop, useSelectedSong, useSingleton } from '../../hooks'
-import { formatTime, getSong, inferHands, isBlack, peek } from '../../utils'
+import { formatTime, getSong, inferHands, isBlack } from '../../utils'
 import { useSize } from '../../hooks/size'
 import { gmInstruments } from '../../synth/instruments'
 import { MusicalNoteIcon } from '../../icons'
@@ -32,6 +32,7 @@ import { default as ErrorPage } from 'next/error'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { getSynthStub } from '../../synth'
+import { SubscriptionCallback } from 'src/PlaySongPage/PianoRoll'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -139,9 +140,10 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<PlayableSong>()
+  const keyColorUpdater = useRef<SubscriptionCallback>(null)
 
   const setupPlayer = useCallback(
-    (song: PlayableSong, songLocation: string) => {
+    (song: PlayableSong) => {
       setCanPlay(false)
       const cachedSettings = songSettings?.tracks
       let tracks
@@ -181,13 +183,13 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     if (!songLocation || !type) return
 
     if (songSettings?.song) {
-      setupPlayer(songSettings?.song, songLocation)
+      setupPlayer(songSettings?.song)
       return
     }
     getSong(songLocation)
       .then((song) => inferHands(song, type === 'lesson'))
       .then((song: PlayableSong) => {
-        setupPlayer(song, songLocation)
+        setupPlayer(song)
       })
   }, [songLocation, player, setupPlayer, songSettings, type])
 
@@ -242,24 +244,21 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     }
   }
 
-  const getTrackColor = (songNote: SongNote): string | void => {
-    if (!songNote) {
-      return
+  useEffect(() => {
+    const handlePlayerEvent = (event: PlayerPressedKeys) => {
+      const pressed = Object.fromEntries(
+        Object.entries(event).map(([midiNote, note]) => [
+          midiNote,
+          { color: getTrackColor(note, songSettings?.tracks) },
+        ]),
+      )
+      keyColorUpdater.current?.(pressed)
     }
-    const type = isBlack(songNote.midiNote) ? 'black' : 'white'
-    const tracks = songSettings?.tracks
-    if (!song || !tracks) {
-      return
+    Player.player().subscribe(handlePlayerEvent)
+    return () => {
+      Player.player().unsubscribe(handlePlayerEvent)
     }
-
-    const track = songNote.track
-    const handForTrack = tracks[track].hand
-    if (handForTrack === 'none' || (hand !== handForTrack && hand !== 'both')) {
-      return
-    }
-
-    return palette[handForTrack][type]
-  }
+  }, [getTrackColor])
 
   let statusIcon
   if (playing) {
@@ -471,7 +470,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         </div>
         {viz === 'falling-notes' && (
           <PianoRoll
-            getTrackColor={getTrackColor}
             activeColor="grey"
             onNoteDown={(n: number) => {
               synth.playNote(n)
@@ -481,8 +479,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             }}
             startNote={startNote}
             endNote={endNote}
-            subscribe={fn => Player.player().subscribe(fn)}
-            unsubscribe={fn => Player.player().unsubscribe(fn)}
+            setKeyColorUpdater={(fn) => (keyColorUpdater.current = fn)}
           />
         )}
       </div>
@@ -713,6 +710,14 @@ export function SongScrubBar({
       )}
     </div>
   )
+}
+
+function getTrackColor(songNote: SongNote, tracks: TrackSettings | undefined): string | void {
+  const handForTrack = tracks?.[songNote.track]?.hand
+  if (handForTrack && handForTrack !== 'none') {
+    const type = isBlack(songNote.midiNote) ? 'black' : 'white'
+    return palette[handForTrack][type]
+  }
 }
 
 export default App

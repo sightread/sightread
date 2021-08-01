@@ -130,7 +130,6 @@ const midiState = new MidiState()
 
 function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
   const msg: MidiEvent | null = parseMidiMessage(e)
-  console.log(msg)
   if (!msg) {
     return
   }
@@ -141,4 +140,5 @@ function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
     midiState.release(note)
   }
 }
+
 export default midiState

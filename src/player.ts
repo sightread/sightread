@@ -1,9 +1,14 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { SongNote, PlayableSong, SongMeasure } from './types'
+import { SongNote, PlayableSong } from './types'
 import { getSynth, Synth } from './synth'
 import midi from './midi'
 import { InstrumentName } from './synth/instruments'
+
+export interface PlayerPressedKeys {
+  [note: number]: SongNote
+}
+export type PlayerSubscriptionCb = (e: PlayerPressedKeys) => void
 
 let player: Player
 
@@ -299,10 +304,10 @@ class Player {
     this.range = [Math.min(start, end), Math.max(start, end)]
   }
 
-  subscribe(fn: Function) {
+  subscribe(fn: PlayerSubscriptionCb) {
     this.listeners.push(fn)
   }
-  unsubscribe(fn: Function) {
+  unsubscribe(fn: PlayerSubscriptionCb) {
     let i = this.listeners.indexOf(fn)
     this.listeners.splice(i, 1)
   }
@@ -314,4 +319,5 @@ class Player {
     this.listeners.forEach((fn) => fn(this.getPressedKeys()))
   }
 }
+
 export default Player
