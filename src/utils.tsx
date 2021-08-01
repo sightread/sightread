@@ -62,9 +62,9 @@ function inferHands(song: Song, isTeachMidi: boolean): PlayableSong {
   return playableSong
 }
 
-function formatTime(seconds: number|string|undefined) {
+function formatTime(seconds: number | string | undefined) {
   if (typeof seconds === 'string' || seconds === undefined) {
-    throw new Error('Should not call formatTime on a string');
+    throw new Error('Should not call formatTime on a string')
   }
 
   let min = String(Math.floor(seconds / 60))
@@ -274,6 +274,16 @@ function clamp(number: number, { min, max }: { min?: number; max?: number }) {
     clamped = Math.max(min, clamped)
   }
   return clamped
+}
+
+export function mapValues<From, To>(
+  obj: { [str: string]: From },
+  fn: (t: From, key: string) => To,
+) {
+  return Object.entries(obj).reduce((acc: { [str: string]: To }, [k, v]) => {
+    acc[k] = fn(v, k)
+    return acc
+  }, {})
 }
 
 export {
