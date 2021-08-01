@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Song, PlayableSong, Hand, SongNote, TrackSetting, TrackSettings } from '../../types'
+import {
+  Song,
+  PlayableSong,
+  Hand,
+  SongNote,
+  TrackSetting,
+  TrackSettings,
+  MidiStateEvent,
+} from '../../types'
 import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
 import {
   getHandSettings,
@@ -222,14 +230,22 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       }
       keyColorUpdater.current?.(pressed)
     }
+    const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
+      handleEvent()
+      if (type === 'down') {
+        synth.playNote(note)
+      } else {
+        synth.stopNote(note)
+      }
+    }
 
-    midiState.subscribe(handleEvent)
+    midiState.subscribe(handleMidiEvent)
     Player.player().subscribe(handleEvent)
     return function cleanup() {
       Player.player().unsubscribe(handleEvent)
-      midiState.unsubscribe(handleEvent)
+      midiState.unsubscribe(handleMidiEvent)
     }
-  }, [player, songSettings?.tracks])
+  }, [player, songSettings?.tracks, synth])
 
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
