@@ -258,7 +258,7 @@ function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
 
 function getNoteSizes(width: number, whiteCount: number) {
   const whiteWidth = width / whiteCount
-  const whiteHeight = 5 * whiteWidth
+  const whiteHeight = Math.min(5 * whiteWidth, 250) // max-height: 250
   const blackWidth = whiteWidth / 2
   const blackHeight = whiteHeight * (2 / 3)
 

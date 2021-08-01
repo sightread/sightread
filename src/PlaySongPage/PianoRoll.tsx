@@ -1,36 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSize } from '../hooks/size'
 import midiState from '../midi'
-import Player from '../player'
 import { getNoteSizes, range } from '../utils'
-import { SongNote } from '../types'
 import { diffKeys, isBlack, isBrowser } from '../utils'
 import { getKey } from 'src/synth/utils'
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
 
-export type SubscriptionCallback = (pressedKeys: { [note: number]: SongNote }) => void
+export type SubscriptionCallback =
+  | null
+  | ((pressedKeys: { [note: number]: { color?: string | void } }) => void)
 type PianoRollProps = {
-  getTrackColor?: (songNote: SongNote) => string | void
   activeColor: string
   onNoteDown?: (midiNote: number) => void
   onNoteUp?: (midiNote: number) => void
   startNote?: number
   endNote?: number
-  subscribe?: (cb: SubscriptionCallback) => void
-  unsubscribe?: (cb: SubscriptionCallback) => void
+  setKeyColorUpdater?: (cb: SubscriptionCallback | null) => void
 }
 
-// TODO: instead of getTrackColor --> should subscribe to events which include color selection.
 export function PianoRoll({
-  getTrackColor,
   activeColor,
   onNoteUp,
   onNoteDown,
   startNote,
   endNote,
-  subscribe,
-  unsubscribe,
+  setKeyColorUpdater,
 }: PianoRollProps) {
   const { width, measureRef } = useSize()
   const prevPressed = useRef({})
@@ -38,17 +33,13 @@ export function PianoRoll({
   endNote = endNote ?? 108
 
   useEffect(() => {
-    if (!subscribe || !unsubscribe) {
-      return
+    setKeyColorUpdater?.(setNoteColors)
+    return function cleanup() {
+      setKeyColorUpdater?.(null)
     }
+  }, [setKeyColorUpdater])
 
-    subscribe(setNoteColors)
-    return () => {
-      unsubscribe(setNoteColors)
-    }
-  }, [getTrackColor, subscribe, unsubscribe])
-
-  function setNoteColors(currPressed: { [note: number]: SongNote }) {
+  function setNoteColors(currPressed: { [note: number]: { color?: string | void } }) {
     let diff = diffKeys(prevPressed.current, currPressed)
     for (let midiNote of diff) {
       const noteEl = document.getElementById(getNoteId(midiNote))
@@ -56,12 +47,11 @@ export function PianoRoll({
         continue
       }
 
-      let color = isBlack(midiNote) ? 'black' : 'white'
-      if (midiNote in currPressed) {
-        color = activeColor
-      }
-      const trackColor = getTrackColor?.(currPressed[midiNote] as SongNote)
-      noteEl.style.backgroundColor = trackColor ?? color
+      const defaultColor = isBlack(midiNote) ? 'black' : 'white'
+      const isActive = midiNote in currPressed
+      const color = isActive ? currPressed[midiNote].color ?? activeColor : defaultColor
+
+      noteEl.style.backgroundColor = color
     }
     prevPressed.current = currPressed
   }

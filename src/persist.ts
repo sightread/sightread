@@ -19,7 +19,7 @@ export function isKeyAlreadyUsed(name: string, artist: string): boolean {
   return localStorage.hasOwnProperty(getSongLocalStorageKey(name, artist))
 }
 /* *
- *  If key is for an uploaed songs, check in memory first
+ *  If key is for an upload songs, check in memory first
  *  this means that local storage failed when song was uploaded.
  *  Else check localStorage.
  *  Otherwise return null as it is not a valid uploaded song key.
