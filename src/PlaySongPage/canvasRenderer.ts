@@ -428,17 +428,14 @@ function renderSheetNote(note: SongNote, state: State): void {
 }
 
 function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
-  let canvasY
   const row = getRow(note)
   if (staff === 'treble') {
     const offsetFromBottom = row - getRow(getNote('E4'))
-    canvasY = trebleBottomY(state.height) - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW
-  } else {
-    const topRow = getRow(getNote('A4'))
-    const offsetFromTop = topRow - row
-    canvasY = bassTopY(state.height) + (offsetFromTop / 2) * PIXELS_PER_STAFF_ROW
+    return trebleBottomY(state.height) - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW
   }
-  return canvasY
+  const topRow = getRow(getNote('A4'))
+  const offsetFromTop = topRow - row
+  return bassTopY(state.height) + (offsetFromTop / 2) * PIXELS_PER_STAFF_ROW
 }
 
 function sheetNoteColor(x: number, length: number): string {
