@@ -1,7 +1,9 @@
-import { SongMeasure, SongNote, Hand, PlayableSong } from '../types'
-import { isBlack, isBrowser, pickHex, shallowEquals } from '../utils'
+import { SongMeasure, SongNote, Hand } from '../types'
+import { isBlack, isBrowser, pickHex } from '../utils'
 import { getNoteLanes } from './utils'
 import { circle, drawMusicNote, line, roundRect } from '../canvas/utils'
+import midiState from 'src/midi'
+import { getKey, getNote } from 'src/synth/utils'
 
 type Canvas = CanvasRenderingContext2D
 type CanvasItem = SongMeasure | SongNote
@@ -43,8 +45,8 @@ const PLAY_NOTES_LINE_OFFSET = PIXELS_PER_STAFF_ROW * 4 // offset above and belo
 const PLAY_NOTES_LINE_COLOR = 'rgba(110, 40, 251, 0.43)' // '#7029fb'
 const NOTE_ALPHA = 'A2'
 const STEP_NUM: any = {
-  A: 0,
-  B: 1,
+  A: 7, // A and B start at 0, so A1 > C1
+  B: 8,
   C: 2,
   D: 3,
   E: 4,
@@ -53,7 +55,13 @@ const STEP_NUM: any = {
 }
 
 // There are 52 white keys. 8 notes per octave.
-function getRow(octave: number, step: string): number {
+function getRow(midiNote: number): number {
+  let key = getKey(midiNote)
+  if (key.length === 3) {
+    key = key[0] + key[2]
+  }
+  let octave = parseInt(key[1], 10)
+  let step = key[0]
   return octave * 8 + STEP_NUM[step]
 }
 
@@ -109,7 +117,7 @@ function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
 function renderBackgroundLines(state: State): void {
   const { ctx, width, height } = state
   ctx.fillStyle = 'white'
-  ctx.fillRect(0, 0, PLAY_NOTES_LINE_X + 10, height)
+  ctx.fillRect(0, 0, PLAY_NOTES_LINE_X - 10, height)
   ctx.fillStyle = 'black'
   drawTrebleStaffLines(ctx, width, height)
   drawBassStaffLines(ctx, width, height)
@@ -250,29 +258,6 @@ type DerivedState = {
 }
 type State = Readonly<GivenState & DerivedState>
 
-function memo(
-  fn: Function,
-  getDeps: (...args: any[]) => any[] = (...args) => [args[0]],
-): typeof fn {
-  let lastDeps: any[]
-  let cached: any
-  return (...args: any[]) => {
-    const deps = getDeps(...args)
-    if (!lastDeps || !shallowEquals(deps, lastDeps)) {
-      lastDeps = deps
-      cached = fn(...args)
-    }
-    return cached
-  }
-}
-
-const memoedDerivers = {
-  lanes: memo(
-    (s: GivenState) => getNoteLanes(s.width, s.constrictView ? s.items : undefined),
-    (s: GivenState) => [s.width, s.items, s.constrictView],
-  ),
-}
-
 function getViewport(state: Readonly<GivenState>) {
   if (state.visualization === 'falling-notes') {
     return {
@@ -289,7 +274,7 @@ function getViewport(state: Readonly<GivenState>) {
 
 function deriveState(state: Readonly<GivenState>): State {
   const derived: DerivedState = {
-    lanes: memoedDerivers.lanes(state),
+    lanes: getNoteLanes(state.width, state.constrictView ? state.items : undefined),
     viewport: getViewport(state),
   }
   return { ...state, ...derived }
@@ -405,6 +390,18 @@ function renderSheetVis(state: State): void {
     renderSheetNote(item, state)
   }
   renderBackgroundLines(state)
+  renderMidiPressedKeys(state)
+}
+
+function renderMidiPressedKeys(state: State): void {
+  const { ctx } = state
+  const pressed = midiState.getPressedNotes()
+  for (let note of pressed.keys()) {
+    const staff = note < getNote('C4') ? 'bass' : 'treble'
+    const canvasY = getNoteY(state, staff, note)
+    let canvasX = PLAY_NOTES_LINE_X - 3
+    drawMusicNote(ctx, canvasX, canvasY, 'red')
+  }
 }
 
 function renderSheetNote(note: SongNote, state: State): void {
@@ -413,26 +410,37 @@ function renderSheetNote(note: SongNote, state: State): void {
   const posX = getItemStartEnd(note, state).start
   const color = sheetNoteColor(posX, length)
   const staff = state.hands?.[note.track].hand === 'right' ? 'treble' : 'bass'
-  const pitch = note.pitch
-  const noteRow = getRow(pitch.octave, pitch.step)
 
-  if (staff === 'treble') {
-    const offsetFromBottom = noteRow - getRow(4, 'E')
-    const canvasY = trebleBottomY(state.height) - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW
-    const canvasX = posX + PLAY_NOTES_LINE_X + PLAY_NOTES_WIDTH
-    ctx.fillStyle = color + NOTE_ALPHA
-    ctx.fillRect(canvasX, canvasY + 3, length, 10)
-    drawMusicNote(ctx, canvasX, canvasY, color)
-  } else {
-    const topRow = getRow(4, 'A')
-    const offsetFromTop = topRow - noteRow
-    const canvasY = bassTopY(state.height) + (offsetFromTop / 2) * PIXELS_PER_STAFF_ROW
-    const canvasX = posX + PLAY_NOTES_LINE_X + PLAY_NOTES_WIDTH
-    ctx.fillStyle = color + NOTE_ALPHA
-    ctx.fillRect(canvasX, canvasY + 3, length, 10)
-    drawMusicNote(ctx, canvasX, canvasY, color)
+  let canvasX = posX + PLAY_NOTES_LINE_X + PLAY_NOTES_WIDTH / 2
+  let canvasY = getNoteY(state, staff, note.midiNote)
+
+  ctx.fillStyle = color + NOTE_ALPHA
+  ctx.fillRect(canvasX, canvasY + 3, length - 15, 10)
+  drawMusicNote(ctx, canvasX, canvasY, color)
+
+  const flat = '♭'
+  const sharp = '♯'
+  if (note.pitch.alter !== 0) {
+    const text = note.pitch.alter === -1 ? flat : sharp
+    ctx.font = 'bold 16px serif'
+    ctx.fillText(text, canvasX - 20, canvasY + 11)
   }
 }
+
+function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
+  let canvasY
+  const row = getRow(note)
+  if (staff === 'treble') {
+    const offsetFromBottom = row - getRow(getNote('E4'))
+    canvasY = trebleBottomY(state.height) - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW
+  } else {
+    const topRow = getRow(getNote('A4'))
+    const offsetFromTop = topRow - row
+    canvasY = bassTopY(state.height) + (offsetFromTop / 2) * PIXELS_PER_STAFF_ROW
+  }
+  return canvasY
+}
+
 function sheetNoteColor(x: number, length: number): string {
   const black = '#000000'
   if (x + length < 0 || x >= 0) {
