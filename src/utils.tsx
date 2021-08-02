@@ -230,18 +230,6 @@ export function fileToString(file: File): Promise<string | null> {
   })
 }
 
-function shallowEquals(arr1: any[], arr2: any[]) {
-  if (arr1.length !== arr2.length) {
-    return false
-  }
-  for (let i = 0; i < arr1.length; i++) {
-    if (arr1[i] != arr2[i]) {
-      return false
-    }
-  }
-  return true
-}
-
 /**
  * XORs the keys. Find all the keys that are in one object but not the other.
  */
@@ -295,6 +283,5 @@ export {
   getSong,
   inferHands,
   isBlack,
-  shallowEquals,
   Sizer,
 }
