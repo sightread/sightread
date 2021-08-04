@@ -617,31 +617,13 @@ const lessons: MusicFile[] = [
 const songs: MusicFile[] = [
   {
     file: 'Fur_Elise.mid',
-    name: 'Fur Elise (mid)',
-    artist: 'Beethoven',
-    difficulty: 'Easy',
-  },
-  {
-    file: '3.1.a.Fur_Elise.xml',
-    name: 'Fur Elise (xml)',
-    artist: 'Beethoven',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'flat-fur-elise-1-piano.xml',
-    name: 'Fur Elise (other)',
+    name: 'Fur Elise',
     artist: 'Beethoven',
     difficulty: 'Easy',
   },
   {
     file: 'Abba - Dancing Queen.mid',
     name: 'Dancing Queen',
-    artist: 'Abba',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Abba - The Winner Takes It All - EASY.mid',
-    name: 'The Winner Takes It All',
     artist: 'Abba',
     difficulty: 'Easy',
   },
@@ -679,12 +661,6 @@ const songs: MusicFile[] = [
     file: 'Ariana Grande - Only 1.mid',
     name: 'Only 1',
     artist: 'Ariana Grande',
-    difficulty: 'Easy',
-  },
-  {
-    file: "Assassin's Creed 3 - Main Theme - EASY.mid",
-    name: "Assassin's Creed 3 - Main Theme",
-    artist: 'Lorne Balfe',
     difficulty: 'Easy',
   },
   {
@@ -760,12 +736,6 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Camila Cabello - Havana.mid',
-    name: 'Havana',
-    artist: 'Camila Cabello',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Canon_Rock.xml',
     name: 'Canon Rock',
     artist: 'JerryC',
@@ -802,12 +772,6 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Discord - The Living Tombston.mid',
-    name: 'The Living Tombston',
-    artist: 'Discord',
-    difficulty: 'Easy',
-  },
-  {
     file: "Dua Lipa - Don't Start Now.mid",
     name: "Don't Start Now",
     artist: 'Dua Lipa',
@@ -826,12 +790,6 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Edith Piaf - La Foule (subtitulos en francés y en español).mid',
-    name: 'La Foule',
-    artist: 'Edith Piaf',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Elton John - I am Still Standing.mid',
     name: 'I am Still Standing',
     artist: 'Elton John',
@@ -844,39 +802,15 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Eric Thiman - Flood Time.mid',
-    name: 'Flood Time',
-    artist: 'Eric Thiman',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Evanescence - My Immortal.mid',
     name: 'My Immortal',
     artist: 'Evanescence',
     difficulty: 'Easy',
   },
   {
-    file: 'Franz Gruber - Silent Night - EASY.mid',
-    name: 'Silent Night',
-    artist: 'Franz Gruber',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Fur_Elise.xml',
-    name: 'Fur_Elise.xml',
-    artist: 'Fur_Elise.xml',
-    difficulty: 'Easy',
-  },
-  {
     file: 'GoT.xml',
     name: 'Game Of Thrones Theme Song',
-    artist: '?',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Goodbye+-+Hachiko+Theme.mid',
-    name: 'Goodbye Hachiko Theme',
-    artist: '?',
+    artist: 'Ramin Djawadi',
     difficulty: 'Easy',
   },
   {
@@ -894,19 +828,13 @@ const songs: MusicFile[] = [
   {
     file: 'Happy Birthday - Chopin and Liszt style.mid',
     name: 'Happy Birthday',
-    artist: 'Chopin and Liszt',
+    artist: 'Chopin and Liszt style',
     difficulty: 'Easy',
   },
   {
     file: 'Imagine Dragons - Believer.mid',
     name: 'Believer',
     artist: 'Imagine Dragons',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'James Arthur - Empty Space.mid',
-    name: 'Empty Space',
-    artist: 'James Arthur',
     difficulty: 'Easy',
   },
   {
@@ -922,45 +850,9 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Jem Finer, Shane MacGowan - Fairytale of New York.mid',
-    name: 'Fairytale of New York',
-    artist: 'Jem Finer, Shane MacGowan',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Joe Cocker - You Are So Beautiful.mid',
-    name: 'You Are So Beautiful',
-    artist: 'Joe Cocker',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Joe Hisaishi - Ballade (Brothers).mid',
-    name: 'Ballade (Brothers)',
-    artist: 'Joe Hisaishi',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Joe Hisaishi - Laputa - Castle In The Sky (1986) Main Theme - EASY.mid',
-    name: 'Laputa - Castle In The Sky (1986) Main Theme',
-    artist: 'Joe Hisaishi',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Joe Hisaishi - Summer.mid',
-    name: 'Summer',
-    artist: 'Joe Hisaishi',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Johann Pachelbel - Canon in D - EASY.mid',
     name: 'Canon in D',
     artist: 'Johann Pachelbel',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Johann Strauss - Radetzky March - EASY.mid',
-    name: 'Radetzky March',
-    artist: 'Johann Strauss',
     difficulty: 'Easy',
   },
   {
@@ -976,33 +868,9 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Kodaline - Brother.mid',
-    name: 'Brother',
-    artist: 'Kodaline',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Kung Fu Panda - Oogway Ascends - EASY.mid',
-    name: 'Kung Fu Panda - Oogway Ascends',
-    artist: '',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Lewis Capaldi - Someone You Loved.mid',
-    name: 'Someone You Loved',
-    artist: 'Lewis Capaldi',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Linkin Park - In The End (Mellen Gi _ Tommee Profitt Remix).mid',
     name: 'Linkin Park - In The End (Tommee Profitt Remix)',
     artist: 'Linkin Park',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Lord Huron - The Night We Met - 13 Reasons Why.mid',
-    name: 'The Night We Met - 13 Reasons Why',
-    artist: 'Lord Huron',
     difficulty: 'Easy',
   },
   {
@@ -1021,18 +889,6 @@ const songs: MusicFile[] = [
     file: 'Maroon 5 - Misery.mid',
     name: 'Misery',
     artist: 'Maroon 5',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Melanie Martinez - Cake.mid',
-    name: 'Cake',
-    artist: 'Melanie Martinez',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Melanie Martinez - Soap - EASY.mid',
-    name: 'Soap',
-    artist: 'Melanie Martinez',
     difficulty: 'Easy',
   },
   {
@@ -1072,18 +928,6 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'NF - Let You Down.mid',
-    name: 'Let You Down',
-    artist: 'NF',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'NLE Choppa - Camelot.mid',
-    name: 'Camelot',
-    artist: 'NLE Choppa',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Panic! at the Disco - I Write Sins Not Tragedies.mid',
     name: 'I Write Sins Not Tragedies',
     artist: 'Panic! at the Disco',
@@ -1102,12 +946,6 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Piano Hero 001 - C2C - Down The Road.mid',
-    name: 'Down The Road',
-    artist: 'C2C',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Piano Hero 002 - Deadmau5 - Raise Your Weapon (Madeon Remix).mid',
     name: 'Raise Your Weapon (Madeon Remix)',
     artist: 'Deadmau5',
@@ -1120,27 +958,9 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Piano Hero 005 - Razihel - Bad Boy.mid',
-    name: 'Bad Boy',
-    artist: 'Razihel',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Piano Hero 006 - Savant - Sledgehammer.mid',
-    name: 'Sledgehammer',
-    artist: 'Savant',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Piano Hero 007 - Hardwell - Mad World.mid',
     name: 'Mad World',
     artist: 'Hardwell',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Piano Hero 008 - TheFatRat - Xenogenesis.mid',
-    name: 'Xenogenesis',
-    artist: 'TheFatRat',
     difficulty: 'Easy',
   },
   {
@@ -1153,25 +973,7 @@ const songs: MusicFile[] = [
     file: 'Piano Hero 010 - DragonForce - Through The Fire And Flames.mid',
     name: 'Through The Fire And Flames',
     artist: 'DragonForce',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Piano Hero 011 - Savant - Starfish.mid',
-    name: 'Starfish',
-    artist: 'Savant',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Piano Hero 012 - Knife Party - Bonfire.mid',
-    name: 'Bonfire',
-    artist: 'Knife Party',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Piano Hero 013 - KDrew - Bullseye.mid',
-    name: 'Bullseye',
-    artist: 'KDrew',
-    difficulty: 'Easy',
+    difficulty: 'Hard',
   },
   {
     file: 'Piano Hero 014 - Feed Me - One Click Headshot.mid',
@@ -1194,37 +996,19 @@ const songs: MusicFile[] = [
   {
     file: 'Pokemon_Theme_Song_piano.mid',
     name: 'Pokemon Theme Song',
-    artist: '',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Rachmaninoff - Piano Concerto No.2 op.18 - Piano Solo - EASY.mid',
-    name: 'Piano Concerto No.2 op.18',
-    artist: 'Rachmaninoff',
+    artist: 'John Siegler & Tamara Loeffler',
     difficulty: 'Easy',
   },
   {
     file: 'Requiem for a dream.mid',
     name: 'Requiem for a dream',
-    artist: '',
+    artist: 'Clint Mansell',
     difficulty: 'Easy',
   },
   {
     file: 'RiverFlowsInYou.mid',
     name: 'River Flows In You',
     artist: 'Yiruma',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Ruel - Hard Sometimes.mid',
-    name: 'Hard Sometimes',
-    artist: 'Hard Sometimes',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Ruel - Say.mid',
-    name: 'Ruel - Say.mid',
-    artist: 'Say',
     difficulty: 'Easy',
   },
   {
@@ -1237,12 +1021,6 @@ const songs: MusicFile[] = [
     file: 'Scott-Joplin-The-Entertainer.mid',
     name: 'The Entertainer',
     artist: 'Scott Joplin',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Selena Gomez - Rare.mid',
-    name: 'Rare',
-    artist: 'Selena Gomez',
     difficulty: 'Easy',
   },
   {
@@ -1261,7 +1039,7 @@ const songs: MusicFile[] = [
     file: 'Steven Universe - Amalgam.mid',
     name: 'Amalgam',
     artist: 'Steven Universe',
-    difficulty: 'Easy',
+    difficulty: 'Medium',
   },
   {
     file: 'Steven Universe - Full Theme.mid',
@@ -1290,7 +1068,7 @@ const songs: MusicFile[] = [
   {
     file: 'Stranger Things - Theme.mid',
     name: 'Stranger Things - Theme.mid',
-    artist: '',
+    artist: 'Kyle Dixon & Michael Stein',
     difficulty: 'Easy',
   },
   {
@@ -1320,31 +1098,13 @@ const songs: MusicFile[] = [
   {
     file: 'The Office.xml',
     name: 'The Office Theme Song',
-    artist: '',
+    artist: 'Jay Ferguson',
     difficulty: 'Easy',
   },
   {
     file: 'The Weeknd - Blinding Lights.mid',
     name: 'Blinding Lights',
     artist: 'The Weeknd',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'The Witcher 3 - Blood and Wine.mid',
-    name: 'The Witcher 3 - Blood and Wine.mid',
-    artist: '',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'The-Daydream-Tears.mid',
-    name: 'The Daydream Tears',
-    artist: '',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'The-Godfather-Theme.mid',
-    name: 'The Godfather Theme',
-    artist: '',
     difficulty: 'Easy',
   },
   {
@@ -1360,57 +1120,15 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'Train - Play That Song - EASY.mid',
-    name: 'Play That Song',
-    artist: 'Train',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Twenty One Pilots - Implicit Demand For Proof.mid',
-    name: 'Implicit Demand For Proof.mid',
-    artist: 'Twenty One Pilots',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Twenty One Pilots - Kitchen Sink.mid',
-    name: 'Kitchen Sink',
-    artist: 'Twenty One Pilots',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Twenty One Pilots - Trees - EASY.mid',
     name: 'Trees',
     artist: 'Twenty One Pilots',
     difficulty: 'Easy',
   },
   {
-    file: 'Twenty one Pilots - Truce - Easy.mid',
-    name: 'Truce',
-    artist: 'Twenty one Pilots',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Victory - Two Steps From Hell .mid',
-    name: 'Two Steps From Hell',
-    artist: 'Victory',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'Vittorio Monti - Czardas.mid',
-    name: 'Czardas',
-    artist: 'Vittorio Monti',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'We The Kings - Sad Song.mid',
-    name: 'We The Kings - Sad Song',
-    artist: '',
-    difficulty: 'Easy',
-  },
-  {
     file: 'Westworld_Theme.mid',
     name: 'Westworld Theme.mid',
-    artist: '',
+    artist: 'Ramin Djawadi',
     difficulty: 'Easy',
   },
   {
@@ -1423,12 +1141,6 @@ const songs: MusicFile[] = [
     file: 'Yiruma - Spring Time.mid',
     name: 'Spring Time',
     artist: 'Yiruma',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'adventure-time.mid',
-    name: 'Adventure Time Medley',
-    artist: '',
     difficulty: 'Easy',
   },
   {
@@ -1445,15 +1157,9 @@ const songs: MusicFile[] = [
   },
   {
     file: 'fireflies.mid',
-    name: 'Fireflies (mid)',
-    artist: 'Owl City',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'fireflies.xml',
     name: 'Fireflies',
-    artist: 'Own City',
-    difficulty: 'Easy',
+    artist: 'Owl City',
+    difficulty: 'Medium',
   },
   {
     file: 'lose-yourself.xml',
@@ -1465,12 +1171,6 @@ const songs: MusicFile[] = [
     file: 'moonlight-sonata.xml',
     name: 'Moonlight Sonata',
     artist: 'Beethoven',
-    difficulty: 'Easy',
-  },
-  {
-    file: 'pirates-carribean-medley.xml',
-    name: 'Pirates of the Carribean Medley',
-    artist: '',
     difficulty: 'Easy',
   },
   {
@@ -1489,7 +1189,7 @@ const songs: MusicFile[] = [
     file: 'All_Eyes_On_Me__Bo_Burnham_Easy_Piano.mid',
     name: 'All Eyes On Me',
     artist: 'Bo Burnham',
-    difficulty: 'Easy',
+    difficulty: 'Medium',
   },
   {
     file: 'Sweet Hibiscus Tea.mid',
