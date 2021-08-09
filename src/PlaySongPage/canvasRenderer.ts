@@ -401,6 +401,11 @@ function renderMidiPressedKeys(state: State): void {
     const canvasY = getNoteY(state, staff, note)
     let canvasX = PLAY_NOTES_LINE_X - 3
     drawMusicNote(ctx, canvasX, canvasY, 'red')
+    // isFlat
+    if (getKey(note).length === 3) {
+      const flat = '♭'
+      ctx.fillText(flat, canvasX - 20, canvasY + 11)
+    }
   }
 }
 
