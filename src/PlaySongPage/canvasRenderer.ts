@@ -45,24 +45,21 @@ const PLAY_NOTES_LINE_OFFSET = PIXELS_PER_STAFF_ROW * 4 // offset above and belo
 const PLAY_NOTES_LINE_COLOR = 'rgba(110, 40, 251, 0.43)' // '#7029fb'
 const NOTE_ALPHA = 'A2'
 const STEP_NUM: any = {
-  A: 7, // A and B start at 0, so A1 > C1
-  B: 8,
-  C: 2,
-  D: 3,
-  E: 4,
-  F: 5,
-  G: 6,
+  A: 5, // A and B start at 0, so C1 < A1
+  B: 6,
+  C: 0,
+  D: 1,
+  E: 2,
+  F: 3,
+  G: 4,
 }
 
-// There are 52 white keys. 8 notes per octave.
+// There are 52 white keys. 8 notes per octave (but not going to count the repeating C)
 function getRow(midiNote: number): number {
   let key = getKey(midiNote)
-  if (key.length === 3) {
-    key = key[0] + key[2]
-  }
-  let octave = parseInt(key[1], 10)
+  let octave = parseInt(key[key.length - 1], 10)
   let step = key[0]
-  return octave * 8 + STEP_NUM[step]
+  return octave * 7 + STEP_NUM[step]
 }
 
 /* ==================== SHEET BACKGROUND HELPERS ====================== */
@@ -88,20 +85,20 @@ function bassBottomY(height: number): number {
 
 function drawTrebleStaffLines(ctx: Canvas, width: number, height: number): void {
   const trebleBotttom = trebleBottomY(height)
-  for (let i = 0; i <= 5; i++) {
+  for (let i = 0; i < 5; i++) {
     const y = trebleBotttom - i * PIXELS_PER_STAFF_ROW
     line(ctx, STAFF_START_X, y, width, y)
   }
-  line(ctx, STAFF_START_X, trebleBotttom, STAFF_START_X, trebleBotttom - 5 * PIXELS_PER_STAFF_ROW)
+  line(ctx, STAFF_START_X, trebleBotttom, STAFF_START_X, trebleBotttom - 4 * PIXELS_PER_STAFF_ROW)
 }
 
 function drawBassStaffLines(ctx: Canvas, width: number, height: number): void {
   const bassTop = bassTopY(height)
-  for (let i = 0; i <= 5; i++) {
+  for (let i = 0; i < 5; i++) {
     const y = bassTop + i * PIXELS_PER_STAFF_ROW
     line(ctx, STAFF_START_X, y, width, y)
   }
-  line(ctx, STAFF_START_X, bassTop, STAFF_START_X, bassTop + 5 * PIXELS_PER_STAFF_ROW)
+  line(ctx, STAFF_START_X, bassTop, STAFF_START_X, bassTop + 4 * PIXELS_PER_STAFF_ROW)
 }
 
 function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
@@ -110,6 +107,11 @@ function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
   const bottom = bassBottomY(height) + PLAY_NOTES_LINE_OFFSET
   ctx.lineWidth = PLAY_NOTES_WIDTH
   ctx.strokeStyle = PLAY_NOTES_LINE_COLOR
+  line(ctx, PLAY_NOTES_LINE_X, top, PLAY_NOTES_LINE_X, bottom)
+
+  // Vertical lil bar for center.
+  ctx.strokeStyle = 'rgba(255,0,0,0.3)'
+  ctx.lineWidth = 3
   line(ctx, PLAY_NOTES_LINE_X, top, PLAY_NOTES_LINE_X, bottom)
   ctx.restore()
 }
@@ -430,13 +432,25 @@ function renderSheetNote(note: SongNote, state: State): void {
     ctx.font = 'bold 16px serif'
     ctx.fillText(text, canvasX - 20, canvasY + 11)
   }
+
+  // Temporary debug measure.
+  // TODO: make this a legit setting.
+  if ((window as any)?.DRAW_NOTES) {
+    ctx.font = '9px Arial'
+    ctx.fillStyle = 'white'
+    ctx.fillText(note.pitch.step, canvasX, canvasY + 11)
+  }
 }
 
 function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
   const row = getRow(note)
   if (staff === 'treble') {
     const offsetFromBottom = row - getRow(getNote('E4'))
-    return trebleBottomY(state.height) - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW
+    return (
+      trebleBottomY(state.height) -
+      (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW -
+      PIXELS_PER_STAFF_ROW / 2
+    )
   }
   const topRow = getRow(getNote('A4'))
   const offsetFromTop = topRow - row
