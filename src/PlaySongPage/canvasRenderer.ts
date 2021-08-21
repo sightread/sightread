@@ -1,5 +1,5 @@
 import { SongMeasure, SongNote, Hand } from '../types'
-import { isBlack, isBrowser, pickHex } from '../utils'
+import { clamp, isBlack, isBrowser, pickHex } from '../utils'
 import { getNoteLanes } from './utils'
 import { circle, drawMusicNote, line, roundRect } from '../canvas/utils'
 import midiState from 'src/midi'
@@ -70,7 +70,7 @@ function trebleBottomY(height: number): number {
 
 function trebleTopY(height: number): number {
   const bottom = trebleBottomY(height)
-  return bottom - PIXELS_PER_STAFF_ROW * 5
+  return bottom - PIXELS_PER_STAFF_ROW * 4
 }
 
 function bassTopY(height: number): number {
@@ -80,7 +80,7 @@ function bassTopY(height: number): number {
 
 function bassBottomY(height: number): number {
   const top = bassTopY(height)
-  return top + PIXELS_PER_STAFF_ROW * 5
+  return top + PIXELS_PER_STAFF_ROW * 4
 }
 
 function drawTrebleStaffLines(ctx: Canvas, width: number, height: number): void {
@@ -188,7 +188,7 @@ function getNotePlayedRatio(note: SongNote, state: State): number {
   const itemPos = getItemStartEnd(note, state)
   const noteLen = note.duration * state.pps
   const offset = itemPos.start - state.height
-  return Math.min(Math.max(offset / noteLen, 0), 1)
+  return clamp(offset / noteLen, { min: 0, max: 1 })
 }
 
 function getNoteColor(note: SongNote, state: State): string {
@@ -383,7 +383,9 @@ function renderMeasure(measure: SongMeasure, state: State): void {
   ctx.fillText(measure.number.toString(), 10, posY - 10)
 }
 
-// TODO: reincorporate offdom canvas for background
+// Optimization ideas:
+// - can use offdom canvas (not OffscreenCanvas API) for background since its repainting over and over.
+// - can also treat it all as one giant image that gets partially drawn each frame.
 function renderSheetVis(state: State): void {
   for (const item of getItemsInView(state)) {
     if (item.type === 'measure') {
@@ -395,6 +397,9 @@ function renderSheetVis(state: State): void {
   renderMidiPressedKeys(state)
 }
 
+// TODO pick side based not just on side of C4 but also
+// the current song, i.e. if there are notes that should be played by left or right hand
+// then show it on that hand.
 function renderMidiPressedKeys(state: State): void {
   const { ctx } = state
   const pressed = midiState.getPressedNotes()
@@ -444,17 +449,18 @@ function renderSheetNote(note: SongNote, state: State): void {
 
 function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
   const row = getRow(note)
+  let offsetFromBottom
+  let bottom
   if (staff === 'treble') {
-    const offsetFromBottom = row - getRow(getNote('E4'))
-    return (
-      trebleBottomY(state.height) -
-      (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW -
-      PIXELS_PER_STAFF_ROW / 2
-    )
+    offsetFromBottom = row - getRow(getNote('E4'))
+    bottom = trebleBottomY(state.height)
+  } else {
+    offsetFromBottom = row - getRow(getNote('G3'))
+    bottom = bassBottomY(state.height)
   }
-  const topRow = getRow(getNote('A4'))
-  const offsetFromTop = topRow - row
-  return bassTopY(state.height) + (offsetFromTop / 2) * PIXELS_PER_STAFF_ROW
+
+  // TODO: relative to top instead of bottom for simpler maths.
+  return bottom - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW - PIXELS_PER_STAFF_ROW / 2
 }
 
 function sheetNoteColor(x: number, length: number): string {
@@ -469,7 +475,7 @@ export function sheetIconProps(icon: 'treble' | 'bass' | 'brace', height: number
   switch (icon) {
     case 'treble':
       return {
-        height: PIXELS_PER_STAFF_ROW * 9.5,
+        height: PIXELS_PER_STAFF_ROW * 8.3,
         width: PIXELS_PER_STAFF_ROW * 6.5,
         style: {
           position: 'absolute',
@@ -479,7 +485,7 @@ export function sheetIconProps(icon: 'treble' | 'bass' | 'brace', height: number
       }
     case 'bass':
       return {
-        height: PIXELS_PER_STAFF_ROW * 4.5,
+        height: PIXELS_PER_STAFF_ROW * 3.4,
         width: PIXELS_PER_STAFF_ROW * 4,
         style: {
           position: 'absolute',
@@ -490,7 +496,7 @@ export function sheetIconProps(icon: 'treble' | 'bass' | 'brace', height: number
     case 'brace': {
       return {
         width: 50,
-        height: 100 + 10 * PIXELS_PER_STAFF_ROW,
+        height: 100 + 8 * PIXELS_PER_STAFF_ROW,
         style: {
           position: 'absolute',
           top: trebleTopY(height),
