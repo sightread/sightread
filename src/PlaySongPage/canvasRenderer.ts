@@ -54,7 +54,7 @@ const STEP_NUM: any = {
   G: 4,
 }
 
-// There are 52 white keys. 8 notes per octave (but not going to count the repeating C)
+// There are 52 white keys. 7 (sortof) notes per octave (technically octaves go from C-C...so its 8).
 function getRow(midiNote: number): number {
   let key = getKey(midiNote)
   let octave = parseInt(key[key.length - 1], 10)
