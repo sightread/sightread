@@ -253,15 +253,12 @@ function getNoteSizes(width: number, whiteCount: number) {
   return { whiteWidth, whiteHeight, blackWidth, blackHeight }
 }
 
-function clamp(number: number, { min, max }: { min?: number; max?: number }) {
-  let clamped = number
-  if (max) {
-    clamped = isNaN(clamped) ? max : Math.min(max, clamped)
+function clamp(number: number, { min = number, max = number }) {
+  if (isNaN(number)) {
+    return max
   }
-  if (min) {
-    clamped = Math.max(min, clamped)
-  }
-  return clamped
+
+  return Math.min(Math.max(number, min), max)
 }
 
 export function mapValues<From, To>(
@@ -274,14 +271,4 @@ export function mapValues<From, To>(
   }, {})
 }
 
-export {
-  clamp,
-  Deferred,
-  diffKeys,
-  formatTime,
-  getNoteSizes,
-  getSong,
-  inferHands,
-  isBlack,
-  Sizer,
-}
+export { clamp, Deferred, diffKeys, formatTime, getNoteSizes, getSong, inferHands, isBlack, Sizer }

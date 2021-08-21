@@ -226,14 +226,18 @@ class Player {
       const note = this.song.notes[this.currentIndex]
 
       if (this.wait && this.isActiveHand(note)) {
-        if (
-          !midi.getPressedNotes().has(note.midiNote) ||
-          midi.getPressedNotes().get(note.midiNote) === this.lastPressedKeys.get(note.midiNote)
-        ) {
+        const lastPressedTime = this.lastPressedKeys.get(note.midiNote)
+        const currPressedTime = midi.getPressedNotes().get(note.midiNote)?.time
+        if (currPressedTime && currPressedTime !== lastPressedTime) {
+          this.lastPressedKeys.set(note.midiNote, currPressedTime)
+        }
+
+        const within50Ms = currPressedTime && Date.now() - currPressedTime < 50
+
+        if (!currPressedTime || !within50Ms || currPressedTime === lastPressedTime) {
           this.currentSongTime = note.time
           return
         }
-        this.lastPressedKeys.set(note.midiNote, midi.getPressedNotes().get(note.midiNote)?.time!)
       }
       this.playing.push(note)
       this.playNote(note)

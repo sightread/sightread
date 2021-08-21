@@ -1,5 +1,5 @@
 import { SongMeasure, SongNote, Hand } from '../types'
-import { isBlack, isBrowser, pickHex } from '../utils'
+import { clamp, isBlack, isBrowser, pickHex } from '../utils'
 import { getNoteLanes } from './utils'
 import { circle, drawMusicNote, line, roundRect } from '../canvas/utils'
 import midiState from 'src/midi'
@@ -45,24 +45,21 @@ const PLAY_NOTES_LINE_OFFSET = PIXELS_PER_STAFF_ROW * 4 // offset above and belo
 const PLAY_NOTES_LINE_COLOR = 'rgba(110, 40, 251, 0.43)' // '#7029fb'
 const NOTE_ALPHA = 'A2'
 const STEP_NUM: any = {
-  A: 7, // A and B start at 0, so A1 > C1
-  B: 8,
-  C: 2,
-  D: 3,
-  E: 4,
-  F: 5,
-  G: 6,
+  A: 5, // A and B start at 0, so C1 < A1
+  B: 6,
+  C: 0,
+  D: 1,
+  E: 2,
+  F: 3,
+  G: 4,
 }
 
-// There are 52 white keys. 8 notes per octave.
+// There are 52 white keys. 7 (sortof) notes per octave (technically octaves go from C-C...so its 8).
 function getRow(midiNote: number): number {
   let key = getKey(midiNote)
-  if (key.length === 3) {
-    key = key[0] + key[2]
-  }
-  let octave = parseInt(key[1], 10)
+  let octave = parseInt(key[key.length - 1], 10)
   let step = key[0]
-  return octave * 8 + STEP_NUM[step]
+  return octave * 7 + STEP_NUM[step]
 }
 
 /* ==================== SHEET BACKGROUND HELPERS ====================== */
@@ -73,7 +70,7 @@ function trebleBottomY(height: number): number {
 
 function trebleTopY(height: number): number {
   const bottom = trebleBottomY(height)
-  return bottom - PIXELS_PER_STAFF_ROW * 5
+  return bottom - PIXELS_PER_STAFF_ROW * 4
 }
 
 function bassTopY(height: number): number {
@@ -83,25 +80,25 @@ function bassTopY(height: number): number {
 
 function bassBottomY(height: number): number {
   const top = bassTopY(height)
-  return top + PIXELS_PER_STAFF_ROW * 5
+  return top + PIXELS_PER_STAFF_ROW * 4
 }
 
 function drawTrebleStaffLines(ctx: Canvas, width: number, height: number): void {
   const trebleBotttom = trebleBottomY(height)
-  for (let i = 0; i <= 5; i++) {
+  for (let i = 0; i < 5; i++) {
     const y = trebleBotttom - i * PIXELS_PER_STAFF_ROW
     line(ctx, STAFF_START_X, y, width, y)
   }
-  line(ctx, STAFF_START_X, trebleBotttom, STAFF_START_X, trebleBotttom - 5 * PIXELS_PER_STAFF_ROW)
+  line(ctx, STAFF_START_X, trebleBotttom, STAFF_START_X, trebleBotttom - 4 * PIXELS_PER_STAFF_ROW)
 }
 
 function drawBassStaffLines(ctx: Canvas, width: number, height: number): void {
   const bassTop = bassTopY(height)
-  for (let i = 0; i <= 5; i++) {
+  for (let i = 0; i < 5; i++) {
     const y = bassTop + i * PIXELS_PER_STAFF_ROW
     line(ctx, STAFF_START_X, y, width, y)
   }
-  line(ctx, STAFF_START_X, bassTop, STAFF_START_X, bassTop + 5 * PIXELS_PER_STAFF_ROW)
+  line(ctx, STAFF_START_X, bassTop, STAFF_START_X, bassTop + 4 * PIXELS_PER_STAFF_ROW)
 }
 
 function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
@@ -110,6 +107,11 @@ function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
   const bottom = bassBottomY(height) + PLAY_NOTES_LINE_OFFSET
   ctx.lineWidth = PLAY_NOTES_WIDTH
   ctx.strokeStyle = PLAY_NOTES_LINE_COLOR
+  line(ctx, PLAY_NOTES_LINE_X, top, PLAY_NOTES_LINE_X, bottom)
+
+  // Vertical lil bar for center.
+  ctx.strokeStyle = 'rgba(255,0,0,0.3)'
+  ctx.lineWidth = 3
   line(ctx, PLAY_NOTES_LINE_X, top, PLAY_NOTES_LINE_X, bottom)
   ctx.restore()
 }
@@ -186,7 +188,7 @@ function getNotePlayedRatio(note: SongNote, state: State): number {
   const itemPos = getItemStartEnd(note, state)
   const noteLen = note.duration * state.pps
   const offset = itemPos.start - state.height
-  return Math.min(Math.max(offset / noteLen, 0), 1)
+  return clamp(offset / noteLen, { min: 0, max: 1 })
 }
 
 function getNoteColor(note: SongNote, state: State): string {
@@ -381,7 +383,9 @@ function renderMeasure(measure: SongMeasure, state: State): void {
   ctx.fillText(measure.number.toString(), 10, posY - 10)
 }
 
-// TODO: reincorporate offdom canvas for background
+// Optimization ideas:
+// - can use offdom canvas (not OffscreenCanvas API) for background since its repainting over and over.
+// - can also treat it all as one giant image that gets partially drawn each frame.
 function renderSheetVis(state: State): void {
   for (const item of getItemsInView(state)) {
     if (item.type === 'measure') {
@@ -393,6 +397,9 @@ function renderSheetVis(state: State): void {
   renderMidiPressedKeys(state)
 }
 
+// TODO pick side based not just on side of C4 but also
+// the current song, i.e. if there are notes that should be played by left or right hand
+// then show it on that hand.
 function renderMidiPressedKeys(state: State): void {
   const { ctx } = state
   const pressed = midiState.getPressedNotes()
@@ -401,6 +408,11 @@ function renderMidiPressedKeys(state: State): void {
     const canvasY = getNoteY(state, staff, note)
     let canvasX = PLAY_NOTES_LINE_X - 3
     drawMusicNote(ctx, canvasX, canvasY, 'red')
+    // isFlat
+    if (getKey(note).length === 3) {
+      const flat = '♭'
+      ctx.fillText(flat, canvasX - 20, canvasY + 11)
+    }
   }
 }
 
@@ -425,17 +437,30 @@ function renderSheetNote(note: SongNote, state: State): void {
     ctx.font = 'bold 16px serif'
     ctx.fillText(text, canvasX - 20, canvasY + 11)
   }
+
+  // Temporary debug measure.
+  // TODO: make this a legit setting.
+  if ((window as any)?.DRAW_NOTES) {
+    ctx.font = '9px Arial'
+    ctx.fillStyle = 'white'
+    ctx.fillText(note.pitch.step, canvasX, canvasY + 11)
+  }
 }
 
 function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
   const row = getRow(note)
+  let offsetFromBottom
+  let bottom
   if (staff === 'treble') {
-    const offsetFromBottom = row - getRow(getNote('E4'))
-    return trebleBottomY(state.height) - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW
+    offsetFromBottom = row - getRow(getNote('E4'))
+    bottom = trebleBottomY(state.height)
+  } else {
+    offsetFromBottom = row - getRow(getNote('G3'))
+    bottom = bassBottomY(state.height)
   }
-  const topRow = getRow(getNote('A4'))
-  const offsetFromTop = topRow - row
-  return bassTopY(state.height) + (offsetFromTop / 2) * PIXELS_PER_STAFF_ROW
+
+  // TODO: relative to top instead of bottom for simpler maths.
+  return bottom - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW - PIXELS_PER_STAFF_ROW / 2
 }
 
 function sheetNoteColor(x: number, length: number): string {
@@ -450,7 +475,7 @@ export function sheetIconProps(icon: 'treble' | 'bass' | 'brace', height: number
   switch (icon) {
     case 'treble':
       return {
-        height: PIXELS_PER_STAFF_ROW * 9.5,
+        height: PIXELS_PER_STAFF_ROW * 8.3,
         width: PIXELS_PER_STAFF_ROW * 6.5,
         style: {
           position: 'absolute',
@@ -460,7 +485,7 @@ export function sheetIconProps(icon: 'treble' | 'bass' | 'brace', height: number
       }
     case 'bass':
       return {
-        height: PIXELS_PER_STAFF_ROW * 4.5,
+        height: PIXELS_PER_STAFF_ROW * 3.4,
         width: PIXELS_PER_STAFF_ROW * 4,
         style: {
           position: 'absolute',
@@ -471,7 +496,7 @@ export function sheetIconProps(icon: 'treble' | 'bass' | 'brace', height: number
     case 'brace': {
       return {
         width: 50,
-        height: 100 + 10 * PIXELS_PER_STAFF_ROW,
+        height: 100 + 8 * PIXELS_PER_STAFF_ROW,
         style: {
           position: 'absolute',
           top: trebleTopY(height),
