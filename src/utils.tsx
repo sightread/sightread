@@ -1,9 +1,10 @@
 import React, { CSSProperties, PropsWithChildren, Ref } from 'react'
 import { parseMusicXML, parseMidi, getHandIndexesForTeachMid, parserInferHands } from './parsers'
-import { PlayableSong, Song, SongMeasure, SongNote } from './types'
+import { PlayableSong, Song, SongConfig, SongMeasure, SongNote } from './types'
 import { getKey } from './synth/utils'
 import { InstrumentName } from './synth/instruments'
 import { getUploadedSong } from './persist'
+import { getSongSettings } from './PlaySongPage/utils'
 
 export function peek(o: any) {
   console.log(o)
@@ -44,20 +45,20 @@ async function getServerSong(url: string): Promise<Song> {
   return fetch(parsedUrl).then((res) => res.json())
 }
 
-async function getSong(url: string): Promise<Song> {
+async function getSong(url: string): Promise<PlayableSong> {
   let song = getUploadedSong(url)
   if (!song) {
     song = await getServerSong(url)
   }
   song.notes = song.items.filter((i) => i.type === 'note') as SongNote[]
   song.measures = song.items.filter((i) => i.type === 'measure') as SongMeasure[]
-  return song
+
+  const config = getSongSettings(url, song)
+  return { ...song, config }
 }
 
-function inferHands(song: Song, isTeachMidi: boolean): PlayableSong {
-  let playableSong = song as PlayableSong
-  playableSong.config = isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
-  return playableSong
+function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
+  return isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
 }
 
 function formatTime(seconds: number | string | undefined) {
@@ -269,4 +270,29 @@ export function mapValues<From, To>(
   }, {})
 }
 
-export { clamp, Deferred, diffKeys, formatTime, getNoteSizes, getSong, inferHands, isBlack, Sizer }
+function getHands(song: PlayableSong) {
+  let left
+  let right
+  for (let [id, config] of Object.entries(song.config)) {
+    if (config.hand === 'left') {
+      left = parseInt(id, 10)
+    } else if (config.hand === 'right') {
+      right = parseInt(id, 10)
+    }
+  }
+
+  return { left, right }
+}
+
+export {
+  clamp,
+  Deferred,
+  diffKeys,
+  formatTime,
+  getNoteSizes,
+  getHands,
+  getSong,
+  inferHands,
+  isBlack,
+  Sizer,
+}

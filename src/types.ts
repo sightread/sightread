@@ -47,7 +47,7 @@ export type Hand = 'both' | 'left' | 'right'
 export type SongConfig = {
   [key: number]: TrackSetting
 }
-export type PlayableSong = Song & SongConfig
+export type PlayableSong = Song & { config: SongConfig }
 
 export type TrackSetting = {
   track: Track

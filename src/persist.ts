@@ -1,4 +1,4 @@
-import type { Song, TrackSettings } from './types'
+import type { Song, SongConfig } from './types'
 import { isBrowser } from './utils'
 
 // need the suffix since the file key is already used for the trackSettings
@@ -68,8 +68,12 @@ export function deleteSong(song: UploadedSong) {
   Storage.set(LOCAL_STORAGE_SONG_LIST_KEY, songs)
 }
 
-export function getSongSettings(key: string | null): TrackSettings | null {
-  return Storage.get<TrackSettings>(key)
+export function getPersistedSongSettings(file: string) {
+  return Storage.get<SongConfig>(`${file}/settings`)
+}
+
+export function setSongSettings(file: string, config: SongConfig) {
+  return Storage.set(`${file}/settings`, config)
 }
 
 /**

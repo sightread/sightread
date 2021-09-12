@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Song, PlayableSong, Hand, SongNote, MidiStateEvent } from '../../types'
+import { Song, PlayableSong, Hand, SongNote, MidiStateEvent, SongConfig } from '../../types'
 import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
-import {
-  getHandSettings,
-  applySettings,
-  getTrackSettings,
-  getSongRange,
-} from '../../PlaySongPage/utils'
+import { getHandSettings, getSongRange } from '../../PlaySongPage/utils'
 import {
   ArrowLeftIcon,
   PreviousIcon,
@@ -21,10 +16,9 @@ import {
   SoundOffIcon,
 } from '../../icons'
 import Player from '../../player'
-import { useRAFLoop, useSelectedSong, useSingleton } from '../../hooks'
+import { useRAFLoop, useSingleton } from '../../hooks'
 import { formatTime, getSong, inferHands, isBlack, mapValues } from '../../utils'
 import { useSize } from '../../hooks/size'
-import { gmInstruments } from '../../synth/instruments'
 import { MusicalNoteIcon } from '../../icons'
 import { css } from '@sightread/flake'
 import { GetServerSideProps } from 'next'
@@ -135,7 +129,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const [canPlay, setCanPlay] = useState<boolean>(false)
-  const [songSettings, _setSongSettings] = useSelectedSong(songLocation)
   const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
   const player = Player.player()
@@ -146,27 +139,12 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const setupPlayer = useCallback(
     (song: PlayableSong) => {
       setCanPlay(false)
-      const cachedSettings = songSettings?.tracks
-      let tracks
-      if (cachedSettings) {
-        tracks = cachedSettings
-        // if cached settings then set the song tracks program
-        // (used by the player to get the correct synths)
-        Object.entries(cachedSettings).forEach(([trackId, settings]) => {
-          song.tracks[+trackId].program = gmInstruments.indexOf(settings.instrument)
-        })
-      } else {
-        tracks = getTrackSettings(song)
-      }
       setSong(song)
       player.setSong(song).then(() => {
         setCanPlay(true)
-        if (cachedSettings) {
-          applySettings(player, cachedSettings)
-        }
       })
     },
-    [player, songSettings],
+    [player],
   )
   // Is this doing anything? - jake
   useEffect(() => {
@@ -183,16 +161,10 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   useEffect(() => {
     if (!songLocation || !type) return
 
-    if (songSettings?.song) {
-      setupPlayer(songSettings?.song)
-      return
-    }
-    getSong(songLocation)
-      .then((song) => inferHands(song, type === 'lesson'))
-      .then((song: PlayableSong) => {
-        setupPlayer(song)
-      })
-  }, [songLocation, player, setupPlayer, songSettings, type])
+    getSong(songLocation).then((song: PlayableSong) => {
+      setupPlayer(song)
+    })
+  }, [songLocation, player, setupPlayer, type])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -215,7 +187,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   useEffect(() => {
     const handleEvent = () => {
       const pressed = mapValues(player.getPressedKeys(), (note) => {
-        return { color: getTrackColor(note, songSettings?.tracks) }
+        return { color: getTrackColor(note, song?.config) }
       })
       for (let midiNote of midiState.getPressedNotes().keys()) {
         pressed[midiNote] = { color: 'grey' }
@@ -237,7 +209,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       Player.player().unsubscribe(handleEvent)
       midiState.unsubscribe(handleMidiEvent)
     }
-  }, [player, songSettings?.tracks, synth])
+  }, [player, synth, song])
 
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
@@ -256,7 +228,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       player.setVolume(0)
       return setSoundOff(true)
     }
-    applySettings(player, songSettings?.tracks)
     setSoundOff(false)
   }
 
@@ -476,7 +447,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             song={song}
             visualization={viz}
             hand={hand}
-            handSettings={getHandSettings(songSettings?.tracks)}
+            handSettings={getHandSettings(song)}
             getTime={() => Player.player().getTime()}
           />
         </div>
@@ -724,7 +695,7 @@ export function SongScrubBar({
   )
 }
 
-function getTrackColor(songNote: SongNote, tracks: TrackSettings | undefined): string | void {
+function getTrackColor(songNote: SongNote, tracks: SongConfig | undefined): string | void {
   const handForTrack = tracks?.[songNote.track]?.hand
   if (handForTrack && handForTrack !== 'none') {
     const type = isBlack(songNote.midiNote) ? 'black' : 'white'

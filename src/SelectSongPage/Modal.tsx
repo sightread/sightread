@@ -1,11 +1,10 @@
 import * as React from 'react'
 import { useRef, useState, useEffect } from 'react'
-import { PlayableSong, TrackSetting, TrackSettings } from '../types'
-import { useSelectedSong, cachedSettings } from '../hooks'
+import { PlayableSong, SongConfig, TrackSetting } from '../types'
 import { SongVisualizer } from '../PlaySongPage'
-import { getHandSettings, applySettings, getTrackSettings } from '../PlaySongPage/utils'
+import { getHandSettings } from '../PlaySongPage/utils'
 import { SongScrubBar } from '../pages/play/[...song_location]'
-import { getSong, inferHands, Sizer, formatInstrumentName } from '../utils'
+import { getSong, Sizer, formatInstrumentName } from '../utils'
 import Player from '../player'
 import Select from '../components/Select'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
@@ -264,16 +263,15 @@ const controlsOverview = [
 // TODO: have a way to reset to default track settings (adjust instruments)
 // TODO: remove count from trackSettings (notes per track) as it is static
 // TODO: put warning that you will have to return here to change the settings again?
-function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
-  const { file, name, artist } = (songMeta as any) || {}
+type ModalProps = {
+  show: boolean
+  onClose: () => void
+  songMeta?: { file: string; name: string; artist: string }
+}
+function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalProps) {
+  const { file, name, artist } = songMeta ?? {}
   const modalRef = useRef<HTMLDivElement>(null)
-  // songSettings is context api for lifting state,
-  // but still keeping song + trackSettings for local configuration.
-  // then will use setSongSettings before moving to the play song page
-  const [_, setSongSettings] = useSelectedSong(file) // TODO: cache the song as well?
   const [song, setSong] = useState<PlayableSong | null>(null)
-  // if tracks exits on songSettings, then it was  read from localStorage cache
-  const [trackSetings, setTrackSettings] = useState<TrackSettings | null>(null)
   const [playing, setPlaying] = useState(false)
   const [canPlay, setCanPlay] = useState(false)
   const [showInstruments, setShowInstruments] = useState(false)
@@ -283,21 +281,8 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   function setupModal(song: PlayableSong) {
     setCanPlay(false)
     setSong(song)
-    const cachedTrackSettings = cachedSettings(file)
-    if (cachedTrackSettings) {
-      setTrackSettings(cachedTrackSettings)
-      // setting the song track program which is used by player to know which synths to init
-      Object.entries(cachedTrackSettings).forEach(([trackId, settings]) => {
-        song.tracks[+trackId].program = gmInstruments.indexOf(settings.instrument)
-      })
-    } else {
-      setTrackSettings(getTrackSettings(song))
-    }
     player.setSong(song).then(() => {
       setCanPlay(true)
-      if (cachedTrackSettings) {
-        applySettings(player, cachedTrackSettings)
-      }
     })
   }
 
@@ -305,11 +290,9 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
     if (!songMeta || !(songMeta as any).file) {
       return
     }
-    getSong(`${(songMeta as any).file}`)
-      .then((song) => inferHands(song, file.includes('lesson')))
-      .then((song: PlayableSong) => {
-        setupModal(song)
-      })
+    getSong(`${(songMeta as any).file}`).then((song) => {
+      setupModal(song)
+    })
     return () => {
       player.stop()
       setPlaying(false)
@@ -355,12 +338,11 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
   }, [show, onClose, playing])
 
   const handlePlayNow = () => {
-    if (!song || !trackSetings) {
-      console.error('Both song and track settings are required.')
+    if (!song) {
+      console.error('Song must be loaded to play.')
       return
     }
 
-    setSongSettings(file, { song, tracks: trackSetings })
     router.push(`/play/${file}`)
   }
 
@@ -466,7 +448,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
                 ))}
               <SongVisualizer
                 song={song}
-                handSettings={getHandSettings(trackSetings)}
+                handSettings={getHandSettings(song)}
                 hand="both"
                 visualization="falling-notes"
                 getTime={() => Player.player().getTime()}
@@ -481,8 +463,8 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
             </div>
             <AdjustInstruments
               show={showInstruments}
-              tracks={trackSetings}
-              setTracks={setTrackSettings}
+              tracks={song.config}
+              setTracks={(config) => setSongSettings(songMeta.file, config)}
             />
           </div>
           <div>
@@ -510,8 +492,8 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined } = {}) {
 export default Modal
 
 type InstrumentSettingsProps = {
-  tracks: TrackSettings | null
-  setTracks: Function
+  tracks: SongConfig | null
+  setTracks: (config: SongConfig) => void
   show: boolean
 }
 

@@ -4,6 +4,7 @@ import { SongNote, PlayableSong } from './types'
 import { getSynth, Synth } from './synth'
 import midi from './midi'
 import { InstrumentName } from './synth/instruments'
+import { getHands } from './utils'
 
 let player: Player
 
@@ -28,6 +29,7 @@ class Player {
   lastPressedKeys = new Map<number, number>()
   dirty = false
   instrumentsLoaded = false
+  songHands: { left?: number; right?: number } = {}
 
   static player(): Player {
     if (!player) {
@@ -55,11 +57,14 @@ class Player {
 
   async setSong(song: PlayableSong) {
     this.song = song
+    this.songHands = getHands(song)
     this.instrumentsLoaded = false
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, { program, instrument }]) => {
       synths[+trackId] = getSynth((program ?? instrument ?? 0) as any)
+      const vol = song.config[+trackId].sound ? 1 : 0
+      this.setTrackVolume(+trackId, vol)
     })
     await Promise.all(synths).then((s) => {
       this.instrumentsLoaded = true
@@ -79,21 +84,24 @@ class Player {
     const synth = await getSynth(instrument)
     this.synths[+track] = synth
   }
+
   isActiveHand(note: SongNote) {
+    const { left, right } = this.songHands
+
     // Not even a L/R hand track.
-    if (this.song.config.left !== note.track && this.song.config.right !== note.track) {
+    if (left !== note.track && right !== note.track) {
       return false
     }
 
     return (
       this.hand === 'both' ||
-      (this.hand === 'left' && note.track === this.song.config.left) ||
-      (this.hand === 'right' && note.track === this.song.config.right)
+      (this.hand === 'left' && note.track === left) ||
+      (this.hand === 'right' && note.track === right)
     )
   }
 
   isActiveTrack(note: SongNote) {
-    return this.song.config.left === note.track || this.song.config.right === note.track
+    return this.songHands.left === note.track || this.songHands.right === note.track
   }
 
   getTime() {
