@@ -330,8 +330,7 @@ function defaultUploadState(): UploadFormState {
   if (!isBrowser()) {
     return {}
   }
-  const hasLocalStorage = isLocalStorageAvailable()
-  if (!hasLocalStorage) {
+  if (!isLocalStorageAvailable()) {
     return {
       error:
         'Warning: Due to your current browser, uploaded songs will be lost after leaving the site.',

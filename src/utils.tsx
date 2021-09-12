@@ -31,11 +31,6 @@ export const isBrowser = () => typeof window === 'object'
  * In production, use preparsed songs.
  */
 async function getServerSong(url: string): Promise<Song> {
-  const localSong = getUploadedSong(url) // if this returns a value then the song was a song uploaded by the user
-  if (localSong) {
-    return localSong
-  }
-
   if (process.env.NODE_ENV === 'development') {
     if (url.includes('.xml')) {
       const xml = await (await fetch('/' + url)).text()
@@ -50,7 +45,10 @@ async function getServerSong(url: string): Promise<Song> {
 }
 
 async function getSong(url: string): Promise<Song> {
-  const song = await getServerSong(url)
+  let song = getUploadedSong(url)
+  if (!song) {
+    song = await getServerSong(url)
+  }
   song.notes = song.items.filter((i) => i.type === 'note') as SongNote[]
   song.measures = song.items.filter((i) => i.type === 'measure') as SongMeasure[]
   return song
@@ -179,7 +177,7 @@ export function isLocalStorageAvailable(): boolean {
     return false
   }
   try {
-    localStorage.setItem('test', 'test that localstorage is working')
+    localStorage.setItem('test', 'test')
     return true
   } catch (e) {
     return false

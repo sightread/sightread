@@ -4,7 +4,7 @@ import Player from '../player'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { useEffect, useState } from 'react'
 import { CanvasItem } from 'src/canvas/types'
-import { clamp, getNoteSizes, isBlack, range } from 'src/utils'
+import { clamp, getNoteSizes, isBlack, mapValues, range } from 'src/utils'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []
@@ -113,12 +113,7 @@ export function getHand({ config }: PlayableSong, trackId: number): 'left' | 'ri
 }
 
 export function getNotesCount({ notes }: PlayableSong, trackId: number): number {
-  return notes.reduce((acc, note) => {
-    if (note.track === trackId) {
-      return acc + 1
-    }
-    return acc
-  }, 0)
+  return notes.filter((n) => n.track == trackId).length
 }
 
 function getInstrument(track: Track): InstrumentName {
@@ -127,24 +122,16 @@ function getInstrument(track: Track): InstrumentName {
 
 export function getTrackSettings(song: PlayableSong): TrackSettings {
   const tracks = song.tracks
-  return Object.fromEntries(
-    Object.entries(tracks).map(([trackId, track]) => {
-      const t = parseInt(trackId)
-      const hand = getHand(song, t)
-      const count = getNotesCount(song, t)
-      const instrument = getInstrument(track)
-      return [
-        t,
-        {
-          track,
-          hand,
-          count,
-          instrument,
-          sound: true,
-        },
-      ]
-    }),
-  )
+  return mapValues(tracks, (track, trackId) => {
+    const id = parseInt(trackId)
+    return {
+      track,
+      hand: getHand(song, id),
+      count: getNotesCount(song, id),
+      instrument: getInstrument(track),
+      sound: true,
+    }
+  })
 }
 
 export function whiteNoteHeight(pianoRollContainerWidth: number): number {

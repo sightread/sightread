@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import {
-  Song,
-  PlayableSong,
-  Hand,
-  SongNote,
-  TrackSetting,
-  TrackSettings,
-  MidiStateEvent,
-} from '../../types'
+import { Song, PlayableSong, Hand, SongNote, MidiStateEvent } from '../../types'
 import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
 import {
   getHandSettings,
@@ -143,7 +135,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const [canPlay, setCanPlay] = useState<boolean>(false)
-  const [songSettings, setSongSettings] = useSelectedSong(songLocation)
+  const [songSettings, _setSongSettings] = useSelectedSong(songLocation)
   const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
   const player = Player.player()

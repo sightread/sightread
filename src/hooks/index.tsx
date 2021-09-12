@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback, useRef, useMemo } from 'react'
+import { getSongSettings } from 'src/persist'
 import { SongSettings, TrackSettings } from '../types'
 import { breakpoints, isBrowser } from '../utils'
 
@@ -31,14 +32,6 @@ type ProviderProps = {
 type SongSettingsContext = [SongSettings | null, (key: string, value: SongSettings) => void | null]
 const SongSettingsContext = React.createContext<SongSettingsContext>([null, () => {}])
 
-export function cachedSettings(key: string | null): TrackSettings | null {
-  if (!key) {
-    return null
-  }
-
-  return JSON.parse(globalThis.localStorage?.getItem(key) ?? 'null')
-}
-
 export function SongSettingsProvider({ children }: ProviderProps) {
   const [songSettings, setSongSettings] = useState<SongSettings | null>(null)
 
@@ -64,7 +57,7 @@ export function SongSettingsProvider({ children }: ProviderProps) {
 export function useSelectedSong(file: string | null): SongSettingsContext {
   const [songSettings, setSongSettings] = useContext(SongSettingsContext)
   const withSaved = useMemo(() => {
-    const tracks = cachedSettings(file)
+    const tracks = getSongSettings(file)
     if (!tracks) {
       return songSettings
     }

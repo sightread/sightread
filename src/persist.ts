@@ -1,39 +1,25 @@
-import { Song } from './types'
+import type { Song, TrackSettings } from './types'
 import { isBrowser } from './utils'
-
-const inMemorySongData: { [key: string]: Song } = {}
 
 // need the suffix since the file key is already used for the trackSettings
 // keys should not start with a "/" or else breaks url routing
 const LOCAL_STORAGE_SONG_SUFFIX = 'SONG_DATA'
 const LOCAL_STORAGE_SONG_LIST_KEY = 'UPLOADS/SONG_LIST'
-const UPLOADS_PREFIX = 'UPLOADS'
 
-function getSongKey(name: string, artist: string) {
-  return `${UPLOADS_PREFIX}/${name}/${artist}`
+function getStorageFilename(name: string, artist: string) {
+  return `uploads/${name}/${artist}`
 }
-export function getSongLocalStorageKey(name: string, artist: string): string {
-  return getSongKey(name, artist) + LOCAL_STORAGE_SONG_SUFFIX
+export function getSongStorageKey(name: string, artist: string): string {
+  return getStorageFilename(name, artist) + '/' + LOCAL_STORAGE_SONG_SUFFIX
 }
 export function isKeyAlreadyUsed(name: string, artist: string): boolean {
-  return localStorage.hasOwnProperty(getSongLocalStorageKey(name, artist))
+  const songs = getUploadedLibrary()
+  return !!songs.find((s) => s.name === name && s.artist === artist)
 }
-/* *
- *  If key is for an upload songs, check in memory first
- *  this means that local storage failed when song was uploaded.
- *  Else check localStorage.
- *  Otherwise return null as it is not a valid uploaded song key.
- */
-export function getUploadedSong(fileKey: string): Song | null {
-  const keyIfUploaded = fileKey + LOCAL_STORAGE_SONG_SUFFIX
-  if (keyIfUploaded in inMemorySongData) {
-    return inMemorySongData[keyIfUploaded]
-  }
-  const local = localStorage.getItem(keyIfUploaded)
-  if (local) {
-    return JSON.parse(local) as Song
-  }
-  return null
+
+export function getUploadedSong(file: string): Song | null {
+  const storageKey = file + '/' + LOCAL_STORAGE_SONG_SUFFIX
+  return Storage.get<Song>(storageKey)
 }
 
 export type UploadedSong = {
@@ -45,76 +31,91 @@ export type UploadedSong = {
   difficulty: 'N/A,'
 }
 
-let uploadedSongList: UploadedSong[]
-
 export function getUploadedLibrary() {
-  if (!isBrowser()) {
-    return []
-  }
-
-  if (uploadedSongList) {
-    return uploadedSongList
-  }
-  const storage = localStorage.getItem(LOCAL_STORAGE_SONG_LIST_KEY)
-  if (storage) {
-    uploadedSongList = JSON.parse(storage) as UploadedSong[]
-  } else {
-    uploadedSongList = []
-  }
-  return uploadedSongList
+  return Storage.get<UploadedSong[]>(LOCAL_STORAGE_SONG_LIST_KEY) ?? []
 }
 
-/** Save song should save information to local storage if possible,
- *  if not possible then everything should be done in memory.
+/**
+ * Need to update song index, as well as individual song data.
  */
 export function saveSong(song: Song, name: string, artist: string): UploadedSong {
-  const file = getSongKey(name, artist)
-  const songKey = getSongLocalStorageKey(name, artist)
-  try {
-    // try local storage first (persistent)
-    localStorage.setItem(songKey, JSON.stringify(song))
-  } catch (e) {
-    console.error(e)
-    localStorage.removeItem(songKey)
-    // use in memory as backup
-    inMemorySongData[songKey] = song
+  const songKey = getSongStorageKey(name, artist)
+  const uploadedSong: UploadedSong = {
+    name,
+    artist,
+    duration: song.duration,
+    file: getStorageFilename(name, artist),
+    type: 'upload',
+    difficulty: 'N/A,',
   }
-  return saveSongToLibrary({ name, artist, duration: song.duration, file, type: 'upload', difficulty: 'N/A,' })
+  const songs = getUploadedLibrary().concat(uploadedSong)
+  Storage.set(songKey, JSON.stringify(song))
+  Storage.set(LOCAL_STORAGE_SONG_LIST_KEY, JSON.stringify(songs))
+
+  return uploadedSong
 }
 
-/** always pushes to in memory, then saves the list if possible */
-function saveSongToLibrary(newSong: UploadedSong): UploadedSong {
-  const songList = getUploadedLibrary()
-  songList.push(newSong)
-  try {
-    localStorage.setItem(LOCAL_STORAGE_SONG_LIST_KEY, JSON.stringify(songList))
-  } catch (err) {
-    console.error(err)
-  }
-  return newSong
-}
-
-export function deleteSong(song: UploadedSong): boolean {
+export function deleteSong(song: UploadedSong) {
   const { file, artist, name } = song
-  if (deleteFromSongList(file)) {
-    localStorage.removeItem(getSongLocalStorageKey(name, artist))
-    return true
+  Storage.delete(getSongStorageKey(name, artist))
+
+  const songs = getUploadedLibrary()
+  const indexOfSong = songs.findIndex((song) => song.file == file)
+  if (indexOfSong === -1) {
+    throw new Error(`Key: "${file}" does not exist in uploaded song list.`)
   }
-  return false
+  songs.splice(indexOfSong, 1)
+  Storage.set(LOCAL_STORAGE_SONG_LIST_KEY, songs)
 }
 
-function deleteFromSongList(fileKey: string): boolean {
-  const songList = getUploadedLibrary()
-  const indexOfSong = songList.findIndex((song) => song.file == fileKey)
-  if (indexOfSong === -1) {
-    throw new Error('key given does not exist in uploaded song list.')
+export function getSongSettings(key: string | null): TrackSettings | null {
+  return Storage.get<TrackSettings>(key)
+}
+
+/**
+ * Wraps `LocalStorage` with a few builtin features:
+ * - in-mem lookup for faster successive reads and semi-functional behaviore in no-storage scenarios.
+ * - JSON parse/stringify for reduced boilerplate
+ * - Error swallowing to not crash app
+ */
+class Storage {
+  static cache = new Map()
+
+  static set(key: string, value: any) {
+    // Important that we set the in-mem cache first, so even if persistent storage fails
+    // it is still usable within the same session.
+    this.cache.set(key, value)
+
+    try {
+      localStorage.setItem(key, JSON.stringify(value))
+    } catch (e) {
+      console.error(e)
+    }
   }
-  songList.splice(indexOfSong, 1)
-  try {
-    localStorage.setItem(LOCAL_STORAGE_SONG_LIST_KEY, JSON.stringify(songList))
-    return true
-  } catch (e) {
-    console.error(e)
-    return false
+
+  static get<T>(key: string | null): T | null {
+    if (!isBrowser() || key === null) {
+      return null
+    }
+
+    const cached = this.cache.get(key)
+    if (cached) {
+      return cached as T
+    }
+
+    try {
+      return JSON.parse(localStorage.getItem(key) ?? 'null') as T | null
+    } catch {
+      return null
+    }
+  }
+
+  static delete(key: string) {
+    this.cache.delete(key)
+    try {
+      localStorage.removeItem(key)
+    } catch (e) {
+      console.error(e)
+    }
   }
 }
