@@ -295,7 +295,7 @@ class Player {
   }
 
   getPressedKeys() {
-    const activeNotes = this.playing.filter((n) => this.isActiveTrack(n))
+    const activeNotes = this.playing.filter((n) => this.isActiveHand(n))
     return Object.fromEntries(activeNotes.map((n) => [n.midiNote, n]))
   }
 
