@@ -24,6 +24,7 @@ import {
 import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
+import { setSongSettings } from 'src/persist'
 
 const palette = {
   purple: {
@@ -287,10 +288,10 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
   }
 
   useEffect(() => {
-    if (!songMeta || !(songMeta as any).file) {
+    if (!songMeta?.file) {
       return
     }
-    getSong(`${(songMeta as any).file}`).then((song) => {
+    getSong(`${songMeta.file}`).then((song) => {
       setupModal(song)
     })
     return () => {
@@ -463,8 +464,8 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
             </div>
             <AdjustInstruments
               show={showInstruments}
-              tracks={song.config}
-              setTracks={(config) => setSongSettings(songMeta.file, config)}
+              song={song}
+              setTracks={(config) => songMeta?.file && setSongSettings(songMeta.file, config)}
             />
           </div>
           <div>
@@ -492,18 +493,19 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
 export default Modal
 
 type InstrumentSettingsProps = {
-  tracks: SongConfig | null
+  song: PlayableSong
   setTracks: (config: SongConfig) => void
   show: boolean
 }
 
-function AdjustInstruments({ tracks, setTracks, show }: InstrumentSettingsProps) {
+function AdjustInstruments({ song, setTracks, show }: InstrumentSettingsProps) {
   if (!show) {
     return <Sizer height={35} />
   }
 
-  const handleSetTrack = (trackId: number, newTrack: TrackSetting) => {
-    setTracks({ ...tracks, [trackId]: newTrack })
+  const tracks = song?.config
+  const handleSetTrack = (trackId: number, track: TrackSetting) => {
+    setTracks({ ...tracks, [trackId]: track })
   }
 
   return (
@@ -521,6 +523,7 @@ function AdjustInstruments({ tracks, setTracks, show }: InstrumentSettingsProps)
                 trackId={+track}
                 key={track}
                 setTrack={handleSetTrack}
+                noteCount={song.notes.filter((n) => n.track === +track).length}
               />
             )
           })}
@@ -533,11 +536,12 @@ type CardProps = {
   track: TrackSetting
   key: string
   trackId: number
-  setTrack: (trackId: number, newTrack: TrackSetting) => void
+  setTrack: (trackId: number, track: TrackSetting) => void
+  noteCount: number
 }
 type SynthState = { error: boolean; loading: boolean }
 
-function InstrumentCard({ track, trackId, setTrack }: CardProps) {
+function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
   const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
   const player = Player.player()
 
@@ -569,7 +573,7 @@ function InstrumentCard({ track, trackId, setTrack }: CardProps) {
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <span style={{}}>Track {trackId + 1}</span>
         <span className={classes.cardLabelDivider}></span>
-        <span>{track.count} Notes</span>
+        <span>{noteCount} Notes</span>
       </div>
       <InstrumentSelect
         value={track.instrument}

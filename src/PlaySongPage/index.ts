@@ -1,4 +1,3 @@
-export { WindowedStaffBoard } from './StaffPage'
 export { PianoRoll } from './PianoRoll'
 export { RuleLines } from './RuleLines'
 export { BpmDisplay } from './BpmDisplay'
