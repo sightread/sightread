@@ -1,6 +1,6 @@
 import React, { CSSProperties, PropsWithChildren, Ref } from 'react'
 import { parseMusicXML, parseMidi, getHandIndexesForTeachMid, parserInferHands } from './parsers'
-import { PlayableSong, Song, SongConfig, SongMeasure, SongNote } from './types'
+import { PlayableSong, Song, SongMeasure, SongNote } from './types'
 import { getKey } from './synth/utils'
 import { InstrumentName } from './synth/instruments'
 import { getUploadedSong } from './persist'

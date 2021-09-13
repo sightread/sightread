@@ -17,7 +17,7 @@ import {
 } from '../../icons'
 import Player from '../../player'
 import { useRAFLoop, useSingleton } from '../../hooks'
-import { formatTime, getSong, inferHands, isBlack, mapValues } from '../../utils'
+import { formatTime, getSong, isBlack, mapValues } from '../../utils'
 import { useSize } from '../../hooks/size'
 import { MusicalNoteIcon } from '../../icons'
 import { css } from '@sightread/flake'
