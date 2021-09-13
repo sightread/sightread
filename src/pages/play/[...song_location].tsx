@@ -28,6 +28,7 @@ import clsx from 'clsx'
 import { getSynthStub } from '../../synth'
 import { SubscriptionCallback } from 'src/PlaySongPage/PianoRoll'
 import midiState from 'src/midi'
+import * as wakelock from '../../wakelock'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -135,6 +136,12 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<PlayableSong>()
   const keyColorUpdater = useRef<SubscriptionCallback>(null)
+
+  // Stops screen from dimming during a song.
+  useEffect(() => {
+    wakelock.lock()
+    return () => wakelock.unlock()
+  }, [])
 
   const setupPlayer = useCallback(
     (song: PlayableSong) => {
