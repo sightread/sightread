@@ -61,8 +61,10 @@ class Player {
     this.instrumentsLoaded = false
 
     const synths: Promise<Synth>[] = []
-    Object.entries(song.tracks).forEach(async ([trackId, { program, instrument }]) => {
-      synths[+trackId] = getSynth((program ?? instrument ?? 0) as any)
+    Object.entries(song.tracks).forEach(async ([trackId, config]) => {
+      const instrument =
+        song.config[+trackId].instrument ?? config.program ?? config.instrument ?? 0
+      synths[+trackId] = getSynth(instrument)
       const vol = song.config[+trackId].sound ? 1 : 0
       this.setTrackVolume(+trackId, vol)
     })

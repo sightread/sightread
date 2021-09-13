@@ -72,7 +72,7 @@ export function getPersistedSongSettings(file: string) {
   return Storage.get<SongConfig>(`${file}/settings`)
 }
 
-export function setSongSettings(file: string, config: SongConfig) {
+export function setPersistedSongSettings(file: string, config: SongConfig) {
   return Storage.set(`${file}/settings`, config)
 }
 
@@ -108,7 +108,9 @@ class Storage {
     }
 
     try {
-      return JSON.parse(localStorage.getItem(key) ?? 'null') as T | null
+      const val = JSON.parse(localStorage.getItem(key) ?? 'null') as T | null
+      this.cache.set(key, val)
+      return val
     } catch {
       return null
     }

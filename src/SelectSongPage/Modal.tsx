@@ -24,7 +24,7 @@ import {
 import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
-import { setSongSettings } from 'src/persist'
+import { setPersistedSongSettings } from 'src/persist'
 
 const palette = {
   purple: {
@@ -465,7 +465,13 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
             <AdjustInstruments
               show={showInstruments}
               song={song}
-              setTracks={(config) => songMeta?.file && setSongSettings(songMeta.file, config)}
+              setTracks={(config) => {
+                if (!songMeta?.file) {
+                  return
+                }
+                setPersistedSongSettings(songMeta.file, config)
+                setSong({ ...song, config })
+              }}
             />
           </div>
           <div>
