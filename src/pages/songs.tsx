@@ -97,7 +97,7 @@ const classes = css({
   },
 })
 
-export default function SelectLessonPage() {
+export default function SelectSongPage() {
   const [songs, setSongs] = useState<SelectableSongs>(library)
   const [addNew, setAddNew] = useState<boolean>(false)
   const [selectedSong, setSelectedSong] = useState<any>('')
@@ -116,10 +116,9 @@ export default function SelectLessonPage() {
   }, [])
 
   // TODO: this is a bug if the uploaded library changes, and s will only expand.
-  const uploadedLib = getUploadedLibrary()
   useEffect(() => {
-    setSongs((s) => s.concat(uploadedLib))
-  }, [uploadedLib])
+    setSongs((s) => s.concat(getUploadedLibrary()))
+  }, [getUploadedLibrary()])
 
   const handleUpload = () => {
     setSongs(songs.concat(getUploadedLibrary()))
@@ -142,12 +141,9 @@ export default function SelectLessonPage() {
     return setFilters({ ...filters, type })
   }
 
-  const filteredSongs = () => {
-    // might make this more complex in future (duration, etc.)
-    return songs.filter((s) => {
-      return filters.type === undefined || s.type === filters.type
-    })
-  }
+  const filteredSongs = songs.filter((s) => {
+    return filters.type === undefined || s.type === filters.type
+  })
 
   return (
     <>
@@ -179,7 +175,7 @@ export default function SelectLessonPage() {
               { label: 'Difficult', id: 'difficulty', format: () => 'Easy' },
               { label: 'Length', id: 'duration', format: formatTime },
             ]}
-            rows={filteredSongs()}
+            rows={filteredSongs}
             filter={['name', 'artist']}
             onSelectRow={setSelectedSong}
             onCreate={handleAddNew}
@@ -330,8 +326,7 @@ function defaultUploadState(): UploadFormState {
   if (!isBrowser()) {
     return {}
   }
-  const hasLocalStorage = isLocalStorageAvailable()
-  if (!hasLocalStorage) {
+  if (!isLocalStorageAvailable()) {
     return {
       error:
         'Warning: Due to your current browser, uploaded songs will be lost after leaving the site.',

@@ -435,7 +435,7 @@ export function isPiano(t: Track): boolean {
     (0 <= program && program <= 6)
   )
 }
-export function parserInferHands(song: Song): { left: any; right: any } {
+export function parserInferHands(song: Song): { left: number; right: number } {
   const pianoTracks = Object.values(song.tracks).filter((track) => isPiano(track))
   // TODO: force users to choose tracks in this case.
 

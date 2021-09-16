@@ -1,10 +1,11 @@
 import { getSynth, getSynthStub, Synth } from '../synth'
-import { TrackSettings, PlayableSong, Track, SongNote } from '../types'
+import { Song, Track, SongNote, SongConfig, PlayableSong } from '../types'
 import Player from '../player'
 import { gmInstruments, InstrumentName } from '../synth/instruments'
 import { useEffect, useState } from 'react'
 import { CanvasItem } from 'src/canvas/types'
-import { clamp, getNoteSizes, isBlack, range } from 'src/utils'
+import { clamp, getNoteSizes, inferHands, isBlack, mapValues, range } from 'src/utils'
+import { getPersistedSongSettings } from 'src/persist'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []
@@ -78,73 +79,40 @@ export function useSynth(
   return { ...loadError, synth: getSynthStub(instrument) }
 }
 
-export function applySettings(player: Player, settings: TrackSettings | undefined): void {
-  if (!settings) {
-    return
-  }
-  Object.entries(settings).forEach(([track, config]) => {
-    if (!config.sound) {
-      player.setTrackVolume(track, 0)
-    } else {
-      player.setTrackVolume(track, 1)
-    }
-  })
-}
-
-export function getHandSettings(trackSettings: TrackSettings | null | undefined) {
-  if (!trackSettings) {
+export function getHandSettings(song: PlayableSong | undefined) {
+  if (!song) {
     return {}
   }
-  return Object.fromEntries(
-    Object.entries(trackSettings).map(([trackId, settings]) => {
-      return [trackId, { hand: settings.hand }]
-    }),
-  )
-}
 
-export function getHand({ config }: PlayableSong, trackId: number): 'left' | 'right' | 'none' {
-  if (config.left === trackId) {
-    return 'left'
-  }
-  if (config.right === trackId) {
-    return 'right'
-  }
-  return 'none'
-}
-
-export function getNotesCount({ notes }: PlayableSong, trackId: number): number {
-  return notes.reduce((acc, note) => {
-    if (note.track === trackId) {
-      return acc + 1
-    }
-    return acc
-  }, 0)
+  return mapValues(song.config, (trackSetting) => {
+    return { hand: trackSetting.hand }
+  })
 }
 
 function getInstrument(track: Track): InstrumentName {
   return ((track.instrument || track.name) as InstrumentName) || gmInstruments[track.program ?? 0]
 }
 
-export function getTrackSettings(song: PlayableSong): TrackSettings {
+export function getSongSettings(file: string, song: Song): SongConfig {
+  let persisted = getPersistedSongSettings(file)
+  if (persisted) {
+    return persisted
+  }
+
   const tracks = song.tracks
-  return Object.fromEntries(
-    Object.entries(tracks).map(([trackId, track]) => {
-      const t = parseInt(trackId)
-      const hand = getHand(song, t)
-      const count = getNotesCount(song, t)
-      const instrument = getInstrument(track)
-      return [
-        t,
-        {
-          track,
-          hand,
-          count,
-          instrument,
-          sound: true,
-        },
-      ]
-    }),
-  )
+  const { left, right } = inferHands(song, /* isTeachMid */ file.includes('lesson'))
+
+  return mapValues(tracks, (track, trackId) => {
+    const id = parseInt(trackId)
+    const hand = left === id ? 'left' : right === id ? 'right' : 'none'
+    return {
+      track,
+      hand,
+      count: song.notes.filter((n) => n.track === id).length,
+      instrument: getInstrument(track),
+      sound: true,
+    }
+  })
 }
 
 export function whiteNoteHeight(pianoRollContainerWidth: number): number {

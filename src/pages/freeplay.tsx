@@ -197,7 +197,7 @@ class FreePlayer {
     this.song = {
       bpms: [],
       tracks: { 1: { instrument: 'piano' } },
-      config: { right: 1 },
+      config: { 0: { hand: 'right', sound: true, instrument: 'acoustic_grand_piano', track: {} } },
       measures: [],
       notes: [],
       duration: 0,

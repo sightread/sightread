@@ -44,22 +44,16 @@ export type Song = {
 }
 
 export type Hand = 'both' | 'left' | 'right'
-export type SongConfig = { config: { left?: number; right?: number } }
-export type PlayableSong = Song & SongConfig
+export type SongConfig = {
+  [key: number]: TrackSetting
+}
+export type PlayableSong = Song & { config: SongConfig }
 
 export type TrackSetting = {
   track: Track
   hand: 'left' | 'right' | 'none'
-  count?: number
   sound: boolean
   instrument: InstrumentName
-}
-export type TrackSettings = {
-  [key: string]: TrackSetting
-}
-export type SongSettings = {
-  song?: PlayableSong
-  tracks: TrackSettings
 }
 
 export type MidiStateEvent = {

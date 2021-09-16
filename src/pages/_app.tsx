@@ -2,7 +2,6 @@ import * as React from 'react'
 import '../styles/reset.css'
 import '../styles/index.css'
 import '../styles/SelectSong.css'
-import { SongSettingsProvider } from '../hooks/index'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 
@@ -16,9 +15,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="description" content="sightread" />
         <title>Sightread</title>
       </Head>
-      <SongSettingsProvider>
-        <Component {...pageProps} />
-      </SongSettingsProvider>
+      <Component {...pageProps} />
     </>
   )
 }
