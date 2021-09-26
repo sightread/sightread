@@ -1,4 +1,4 @@
-import { isBrowser } from '../utils'
+import { isBrowser } from 'src/utils'
 import { gmInstruments, InstrumentName } from './instruments'
 import { getAudioContext, getKey, parseMidiJsSoundfont } from './utils'
 

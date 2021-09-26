@@ -33,6 +33,7 @@ export type SongMeasure = {
   time: number
   number: number
 }
+
 export type Song = {
   tracks: Tracks
   duration: number

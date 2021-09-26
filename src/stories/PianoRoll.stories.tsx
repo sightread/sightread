@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import { PianoRoll } from '../PlaySongPage/PianoRoll'
+import { PianoRoll } from 'src/features/PlaySongPage/PianoRoll'
 
 export default {
   title: 'Piano',

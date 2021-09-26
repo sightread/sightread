@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { SelectSongTable } from 'src/SelectSongPage'
+import { SelectSongTable } from 'src/features/SelectSongPage'
 import songManifest from 'src/manifest.json'
 import { formatTime } from 'src/utils'
 

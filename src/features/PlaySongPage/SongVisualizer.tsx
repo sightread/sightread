@@ -1,10 +1,10 @@
 import { useCallback, useRef } from 'react'
-import { Hand, PlayableSong } from '../types'
-import { useSize } from '../hooks/size'
-import { FClefIcon, GClefIcon, SheetBraceIcon } from '../icons'
+import { Hand, PlayableSong } from 'src/types'
+import { useSize } from 'src/hooks/size'
+import { FClefIcon, GClefIcon, SheetBraceIcon } from 'src/icons'
 import { render, sheetIconProps } from './canvasRenderer'
-import { useRAFLoop } from '../hooks'
-import Player from '../player'
+import { useRAFLoop } from 'src/hooks'
+import Player from 'src/player'
 
 type HandSettings = {
   [trackId: string]: {

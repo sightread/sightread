@@ -1,13 +1,13 @@
 import * as React from 'react'
 import { useRef, useState, useEffect } from 'react'
-import { PlayableSong, SongConfig, TrackSetting } from '../types'
-import { SongVisualizer } from '../PlaySongPage'
-import { getHandSettings } from '../PlaySongPage/utils'
-import { SongScrubBar } from '../pages/play/[...song_location]'
-import { getSong, Sizer, formatInstrumentName } from '../utils'
-import Player from '../player'
-import Select from '../components/Select'
-import { gmInstruments, InstrumentName } from '../synth/instruments'
+import { PlayableSong, SongConfig, TrackSetting } from 'src/types'
+import { SongVisualizer } from 'src/features/PlaySongPage'
+import { getHandSettings } from 'src/features/PlaySongPage/utils'
+import { SongScrubBar } from 'src/pages/play/[...song_location]'
+import { getSong, Sizer, formatInstrumentName } from 'src/utils'
+import Player from 'src/player'
+import { Select } from 'src/components'
+import { gmInstruments, InstrumentName } from 'src/synth/instruments'
 import {
   BothHandsIcon,
   ClockIcon,
@@ -20,7 +20,7 @@ import {
   SoundOffIcon,
   PlayIcon,
   LoadingIcon,
-} from '../icons'
+} from 'src/icons'
 import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'

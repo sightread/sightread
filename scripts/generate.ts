@@ -8,7 +8,7 @@ const jsdom = require('jsdom')
 const window = new jsdom.JSDOM().window
 globalThis.DOMParser = window.DOMParser
 globalThis.NodeFilter = window.NodeFilter
-import { parseMidi, parseMusicXML } from '../src/parsers'
+import { parseMidi, parseMusicXML } from '../src/features/parsers'
 import { Song } from '../src/types'
 import { musicFiles, MusicFile } from './songdata'
 const fs: any = require('fs')

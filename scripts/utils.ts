@@ -1,4 +1,4 @@
-import { isPiano, parseMidi, parseMusicXML } from '../src/parsers'
+import { isPiano, parseMidi, parseMusicXML } from '../src/features/parsers'
 import { Song, Track } from '../src/types'
 import fs from 'fs'
 

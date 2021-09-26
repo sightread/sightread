@@ -1,6 +1,6 @@
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
-import { getKey, getNote } from './synth/utils'
-import { Song, SongMeasure, SongNote, Track, Tracks, Bpm } from './types'
+import { getKey, getNote } from 'src/synth/utils'
+import { Song, SongMeasure, SongNote, Track, Tracks, Bpm } from 'src/types'
 
 export function parseMusicXML(txt: string): Song {
   /*

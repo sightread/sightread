@@ -2,7 +2,7 @@
 
 import { SongNote, PlayableSong } from './types'
 import { getSynth, Synth } from './synth'
-import midi from './midi'
+import midi from './features/midi'
 import { InstrumentName } from './synth/instruments'
 import { getHands } from './utils'
 

@@ -1,7 +1,7 @@
 import { PropsWithChildren, CSSProperties } from 'react'
-import { palette } from '../styles/common'
+import { palette } from 'src/styles/common'
 import { css } from '@sightread/flake'
-import { CancelCircleIcon } from '../icons'
+import { CancelCircleIcon } from 'src/icons'
 
 const classes = css({
   modalContainer: {

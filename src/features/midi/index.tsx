@@ -1,5 +1,6 @@
-import { getNote } from './synth/utils'
-import { MidiStateEvent } from './types'
+import { getNote } from 'src/synth/utils'
+import { MidiStateEvent } from 'src/types'
+
 export function refreshMIDIDevices() {
   if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {
     return
@@ -25,6 +26,7 @@ type MidiEvent = {
   velocity: number
   note: number
 }
+
 function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
   const data = event.data
   if (data.length !== 3) {
@@ -85,7 +87,7 @@ class MidiState {
       this.octave = Math.max(1, this.octave - 1)
     } else if (key in qwertyKeyConfig) {
       const note = qwertyKeyConfig[key]
-      this.press(getNote(note + (this.octave)), 80)
+      this.press(getNote(note + this.octave), 80)
     }
   }
 
@@ -93,7 +95,7 @@ class MidiState {
     const key = e.key
     if (key in qwertyKeyConfig) {
       const note = qwertyKeyConfig[key]
-      this.release(getNote(note + (this.octave)))
+      this.release(getNote(note + this.octave))
     }
   }
 

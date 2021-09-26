@@ -1,7 +1,7 @@
 import { useRef } from 'react'
-import Player from '../player'
-import { useRAFLoop } from '../hooks'
-import { MinusIcon, PlusIcon } from '../icons'
+import Player from 'src/player'
+import { useRAFLoop } from 'src/hooks'
+import { MinusIcon, PlusIcon } from 'src/icons'
 import { css } from '@sightread/flake'
 
 const classes = css({

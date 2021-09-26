@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Song, PlayableSong, Hand, SongNote, MidiStateEvent, SongConfig } from '../../types'
-import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
-import { getHandSettings, getSongRange } from '../../PlaySongPage/utils'
+import { Song, PlayableSong, Hand, SongNote, MidiStateEvent, SongConfig } from 'src/types'
+import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from 'src/features/PlaySongPage'
+import { getHandSettings, getSongRange } from 'src/features/PlaySongPage/utils'
 import {
   ArrowLeftIcon,
   PreviousIcon,
@@ -14,21 +14,21 @@ import {
   SoundOnIcon,
   LoadingIcon,
   SoundOffIcon,
-} from '../../icons'
-import Player from '../../player'
-import { useRAFLoop, useSingleton } from '../../hooks'
-import { formatTime, getSong, isBlack, mapValues } from '../../utils'
-import { useSize } from '../../hooks/size'
-import { MusicalNoteIcon } from '../../icons'
+} from 'src/icons'
+import Player from 'src/player'
+import { useRAFLoop, useSingleton } from 'src/hooks'
+import { formatTime, getSong, isBlack, mapValues } from 'src/utils'
+import { useSize } from 'src/hooks/size'
+import { MusicalNoteIcon } from 'src/icons'
 import { css } from '@sightread/flake'
 import { GetServerSideProps } from 'next'
 import { default as ErrorPage } from 'next/error'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
-import { getSynthStub } from '../../synth'
-import { SubscriptionCallback } from 'src/PlaySongPage/PianoRoll'
-import midiState from 'src/midi'
-import * as wakelock from '../../wakelock'
+import { getSynthStub } from 'src/synth'
+import { SubscriptionCallback } from 'src/features/PlaySongPage/PianoRoll'
+import midiState from 'src/features/midi'
+import * as wakelock from 'src/wakelock'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
