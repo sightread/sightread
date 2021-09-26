@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Song, PlayableSong, Hand, SongNote, MidiStateEvent, SongConfig } from 'src/types'
 import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from 'src/features/PlaySongPage'
+import { palette as colors } from 'src/styles/common'
 import { getHandSettings, getSongRange } from 'src/features/PlaySongPage/utils'
 import {
   ArrowLeftIcon,
@@ -14,10 +15,11 @@ import {
   SoundOnIcon,
   LoadingIcon,
   SoundOffIcon,
+  SettingsCog,
 } from 'src/icons'
 import Player from 'src/player'
 import { useRAFLoop, useSingleton } from 'src/hooks'
-import { formatTime, getSong, isBlack, mapValues } from 'src/utils'
+import { formatTime, getSong, isBlack, mapValues, Sizer } from 'src/utils'
 import { useSize } from 'src/hooks/size'
 import { MusicalNoteIcon } from 'src/icons'
 import { css } from '@sightread/flake'
@@ -42,13 +44,8 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     return props
   }
   const type = song_location.includes('lessons') ? 'lesson' : 'song'
-  const viz = query.viz
   return {
-    props: {
-      type,
-      songLocation: song_location.join('/'),
-      viz: viz ?? 'falling-notes',
-    },
+    props: { type, songLocation: song_location.join('/') },
   }
 }
 
@@ -57,17 +54,6 @@ type PlaySongProps = {
   type: 'lesson' | 'song'
   songLocation: string
   viz: viz
-}
-const palette = {
-  right: {
-    black: '#4912d4',
-    white: '#7029fb',
-  },
-  left: {
-    black: '#d74000',
-    white: '#ff6825',
-  },
-  measure: '#C5C5C5', //'#C5C5C5',
 }
 
 const classes = css({
@@ -125,17 +111,17 @@ const classes = css({
 })
 
 function App({ type, songLocation, viz }: PlaySongProps) {
+  const [sidebar, setSidebar] = useState(false)
   const [playing, setPlaying] = useState(false)
-  const [waiting, setWaiting] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const [canPlay, setCanPlay] = useState<boolean>(false)
-  const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<PlayableSong>()
   const keyColorUpdater = useRef<SubscriptionCallback>(null)
+  const [{ hand, waiting }, setSettings] = useState<PlaySettings>({ hand: 'both', waiting: false })
 
   // Stops screen from dimming during a song.
   useEffect(() => {
@@ -153,10 +139,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     },
     [player],
   )
-  // Is this doing anything? - jake
-  useEffect(() => {
-    player.setHand(hand)
-  }, [player, hand])
 
   // Register ummount fns
   useEffect(() => {
@@ -220,14 +202,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
 
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
-  }
-
-  const handleHand = (selected: Hand) => {
-    if (hand === selected) {
-      setHand('both')
-      return
-    }
-    setHand(selected)
   }
 
   const handleToggleSound = () => {
@@ -341,29 +315,11 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <div style={{ width: 44 }}>
-            <LeftHandIcon
-              onClick={() => handleHand('left')}
-              height={40}
-              width={20}
-              className={clsx(classes.figmaIcon, hand === 'left' && classes.active)}
-            />
-            <RightHandIcon
-              onClick={() => handleHand('right')}
-              height={40}
-              width={20}
-              className={clsx(classes.figmaIcon, hand === 'right' && classes.active)}
-            />
-          </div>
-          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <ClockIcon
+          <SettingsCog
             width={25}
             height={25}
-            className={clsx(classes.figmaIcon, classes.fillWhite, waiting && classes.active)}
-            onClick={() => {
-              setWaiting(!waiting)
-              player.setWait(!waiting)
-            }}
+            className={clsx(classes.figmaIcon, classes.fillWhite, sidebar && classes.active)}
+            onClick={() => setSidebar(!sidebar)}
           />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <span
@@ -431,13 +387,33 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             )}
           </span>
         </div>
-        <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
-          <SongScrubBar
-            song={song ?? null}
-            rangeSelecting={rangeSelecting}
-            setRangeSelecting={setRangeSelecting}
-          />
-        </div>
+      </div>
+      <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
+        <SongScrubBar
+          song={song ?? null}
+          rangeSelecting={rangeSelecting}
+          setRangeSelecting={setRangeSelecting}
+        />
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          top: 95,
+          width: 300,
+          height: 'calc(100% - 95px)',
+          right: 0,
+          visibility: sidebar ? 'visible' : 'hidden',
+          zIndex: 2,
+        }}
+      >
+        <SettingsSidebar
+          open={sidebar}
+          onSettings={(settings) => {
+            player.setWait(settings.waiting)
+            player.setHand(settings.hand)
+            setSettings(settings)
+          }}
+        />
       </div>
       <div
         style={{
@@ -704,11 +680,111 @@ export function SongScrubBar({
   )
 }
 
+type PlaySettings = { hand: Hand; waiting: boolean }
+type SidebarProps = {
+  open: boolean
+  onSettings: (settings: PlaySettings) => void
+}
+function SettingsSidebar(props: SidebarProps) {
+  const [waiting, setWaiting] = useState(false)
+  const [hand, setHand] = useState<Hand>('both')
+
+  const handleHand = (selected: Hand) => {
+    if (hand === selected) {
+      setHand('both')
+      return
+    }
+    setHand(selected)
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'white',
+        flexDirection: 'column',
+      }}
+    >
+      <Sizer height={10} />
+      <h3 style={{ fontSize: 24, color: colors.purple.primary, textAlign: 'center' }}>Settings</h3>
+      <Sizer height={36} />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          fontSize: 16,
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          Left hand
+          <input type="checkbox"></input>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          Right hand
+          <input type="checkbox"></input>
+        </div>
+      </div>
+      <Sizer height={36} />
+      <div style={{ fontSize: 16, flexDirection: 'column', textAlign: 'center' }}>
+        <h3 style={{ textAlign: 'center' }}>Visualization</h3>
+        <Sizer height={10} />
+        <div style={{ fontSize: 14 }}>
+          <span> Falling notes </span> <input type="radio"></input>
+        </div>
+        <Sizer height={10} />
+        <div style={{ fontSize: 14 }}>
+          <span> Sheet</span> <input type="radio"></input>
+        </div>
+      </div>
+      <Sizer height={36} />
+      <div style={{ display: 'flex', fontSize: 16, flexDirection: 'column', alignItems: 'center' }}>
+        Wait Mode
+        <input
+          type="checkbox"
+          onClick={() => {
+            // setWaiting(!waiting)
+          }}
+        ></input>
+      </div>
+      <Sizer height={36} />
+      <div
+        style={{
+          display: 'flex',
+          fontSize: 16,
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <h3 style={{ textAlign: 'center' }}>Difficulty scaling</h3>
+        <Sizer height={10} />
+        <span>nps</span> <input type="range"></input>
+        <Sizer height={10} />
+        <span>notes</span> <input type="range"></input>
+      </div>
+    </div>
+  )
+}
+
+const trackColors = {
+  right: {
+    black: '#4912d4',
+    white: '#7029fb',
+  },
+  left: {
+    black: '#d74000',
+    white: '#ff6825',
+  },
+  measure: '#C5C5C5', //'#C5C5C5',
+}
 function getTrackColor(songNote: SongNote, tracks: SongConfig | undefined): string | void {
-  const handForTrack = tracks?.[songNote.track]?.hand
-  if (handForTrack && handForTrack !== 'none') {
+  const hand = tracks?.[songNote.track]?.hand
+  if (hand && hand !== 'none') {
     const type = isBlack(songNote.midiNote) ? 'black' : 'white'
-    return palette[handForTrack][type]
+    return trackColors[hand][type]
   }
 }
 

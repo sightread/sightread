@@ -1,6 +1,6 @@
 import { IconInput } from './types'
 
-export default function MenuIcon({ width, height, style, className, onClick }: IconInput) {
+export default function Menu({ width, height, style, className, onClick }: IconInput) {
   return (
     <svg
       viewBox="0 0 32 32"
