@@ -13,18 +13,6 @@ type HandSettings = {
   }
 }
 
-type Palette = {
-  right: {
-    black: string
-    white: string
-  }
-  left: {
-    black: string
-    white: string
-  }
-  measure: string
-}
-
 type SheetIconProps = {
   width: number
   height: number
@@ -129,7 +117,7 @@ function renderBackgroundLines(state: State): void {
 /* ===================== END SHEET VIS HELPERS ======================== */
 /* ==================================================================== */
 
-const palette: Palette = {
+const palette = {
   right: {
     black: '#4912d4',
     white: '#7029fb',

@@ -36,7 +36,7 @@ export function BpmDisplay() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        width: 110,
+        width: 120,
         userSelect: 'none',
       }}
     >

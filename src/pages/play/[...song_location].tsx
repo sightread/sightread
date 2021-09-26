@@ -278,8 +278,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   return (
     <div className="App">
       <div
-        id="topbar"
-        className={`${classes.topbar}`}
+        className={classes.topbar}
         style={{
           position: 'fixed',
           top: 0,
@@ -289,17 +288,20 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           backgroundColor: '#292929',
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
-        <ArrowLeftIcon
-          className={classes.topbarIcon}
-          height={40}
-          width={50}
-          onClick={() => {
-            player.pause()
-            router.back()
-          }}
-        />
+        <div style={{ width: 250 }}>
+          <ArrowLeftIcon
+            className={classes.topbarIcon}
+            height={40}
+            width={50}
+            onClick={() => {
+              player.pause()
+              router.back()
+            }}
+          />
+        </div>
         <div
           className="nav-buttons"
           style={{
@@ -309,7 +311,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             alignItems: 'center',
             display: 'flex',
             justifyContent: 'space-around',
-            width: 225,
+            width: 230,
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />

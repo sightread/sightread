@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MidiStateEvent, PlayableSong, SongNote } from 'src/types'
 import { Select } from 'src/components'
-import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from 'src/features/PlaySongPage/index'
+import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from 'src/features/PlaySongPage'
 import { useSynth } from 'src/features/PlaySongPage/utils'
 import { formatInstrumentName, isBrowser, mapValues } from 'src/utils'
 import { gmInstruments, InstrumentName } from 'src/synth/instruments'
