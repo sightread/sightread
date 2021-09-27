@@ -29,6 +29,7 @@ import { getSynthStub } from '../../synth'
 import { SubscriptionCallback } from 'src/PlaySongPage/PianoRoll'
 import midiState from 'src/midi'
 import * as wakelock from '../../wakelock'
+import { constrain } from 'src/constraints'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -146,7 +147,8 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const setupPlayer = useCallback(
     (song: PlayableSong) => {
       setCanPlay(false)
-      setSong(song)
+      const constrainedSong = constrain(song, { nps: 99, simultaneous: 1 })
+      setSong(constrainedSong)
       player.setSong(song).then(() => {
         setCanPlay(true)
       })
