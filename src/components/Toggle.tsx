@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { css } from '@sightread/flake'
 import { peek } from 'src/utils'
 
@@ -23,7 +23,7 @@ const classes = css({
     right: 0,
     bottom: 0,
     backgroundColor: '#ccc',
-    transition: '.4s',
+    transition: '400ms',
     borderRadius: 20,
     '&.checked': {
       backgroundColor: '#2196F3',
@@ -33,13 +33,14 @@ const classes = css({
     position: 'absolute',
     height: 15,
     width: 15,
-    left: 4,
-    bottom: 4,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    left: 0,
     borderRadius: '50%',
     backgroundColor: 'white',
-    transition: '.4s',
+    transition: 'left 400ms',
     '&.checked': {
-      left: '60%',
+      left: 'calc(100% - 25px)',
     },
   },
 })
@@ -51,23 +52,24 @@ type ToggleProps = {
   height?: number
 }
 export default function Toggle(props: ToggleProps) {
-  const [checked, setChecked] = useState(!!props.checked)
-  const inputRef = useRef<HTMLInputElement | null>(null)
+  const [checkedState, setChecked] = useState(!!props.checked)
   const width = props.width ?? 50
   const height = props.height ?? 24
+  const isControlled = props.checked != null
+  const checked = isControlled ? props.checked : checkedState
 
-  const handleClick = useCallback(() => {
-    if (!inputRef.current) {
-      return
+  const toggleCheckedAndNotify = useCallback(() => {
+    if (!isControlled) {
+      setChecked(!checked)
     }
-    setChecked((prev) => !prev)
-  }, [])
+    props.onChange?.(!checked)
+  }, [isControlled, checked])
 
   return (
     <label className={classes.switch} style={{ width, height }}>
-      <input type="checkbox" ref={inputRef} onClick={handleClick} />
-      <span className={clsx(classes.slider, { checked })}></span>
-      <span className={clsx(classes.dot, { checked })}></span>
+      <input type="checkbox" onClick={toggleCheckedAndNotify} style={{ margin: 0 }} />
+      <span className={clsx(classes.slider, { checked })} />
+      <span className={clsx(classes.dot, { checked })} style={{ marginLeft: 5, marginRight: 5 }} />
     </label>
   )
 }
