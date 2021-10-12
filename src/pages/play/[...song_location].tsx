@@ -16,9 +16,8 @@ import {
 } from 'src/icons'
 import Player from 'src/player'
 import { useRAFLoop, useSingleton } from 'src/hooks'
-import { formatTime, getSong, isBlack, mapValues, Sizer } from 'src/utils'
+import { formatTime, getSong, isBlack, mapValues, peek, Sizer } from 'src/utils'
 import { useSize } from 'src/hooks/size'
-import { MusicalNoteIcon } from 'src/icons'
 import { css } from '@sightread/flake'
 import { GetServerSideProps } from 'next'
 import { default as ErrorPage } from 'next/error'
@@ -28,6 +27,8 @@ import { getSynthStub } from 'src/synth'
 import { SubscriptionCallback } from 'src/features/PlaySongPage/PianoRoll'
 import midiState from 'src/features/midi'
 import * as wakelock from 'src/wakelock'
+import { Toggle } from 'src/components'
+import { usePersistedState } from 'src/persist'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -46,11 +47,11 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   }
 }
 
-type viz = 'falling-notes' | 'sheet'
+type VisualizationMode = 'falling-notes' | 'sheet'
 type PlaySongProps = {
   type: 'lesson' | 'song'
   songLocation: string
-  viz: viz
+  viz: VisualizationMode
 }
 
 const classes = css({
@@ -118,7 +119,23 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<PlayableSong>()
   const keyColorUpdater = useRef<SubscriptionCallback>(null)
-  const [{ hand, waiting }, setSettings] = useState<PlaySettings>({ hand: 'both', waiting: false })
+  const [playSettings, setPlaySettings] = usePersistedState<PlaySettings>(
+    `${songLocation}/settings`,
+    {
+      left: true,
+      right: true,
+      waiting: false,
+      visualization: 'falling-notes',
+    },
+  )
+  const hand =
+    playSettings.left && playSettings.right
+      ? 'both'
+      : playSettings.left
+      ? 'left'
+      : playSettings.right
+      ? 'right'
+      : 'none'
 
   // Stops screen from dimming during a song.
   useEffect(() => {
@@ -307,7 +324,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             display: 'flex',
             marginLeft: 'auto',
             alignItems: 'center',
-            minWidth: 250,
+            minWidth: 150,
             marginRight: 20,
           }}
         >
@@ -336,31 +353,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
                 classes.fillWhite,
                 rangeSelecting && classes.active,
               )}
-            />
-          </span>
-
-          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <span
-            className={classes.figmaIcon}
-            style={{ display: 'inline-block' }}
-            onClick={() => {
-              if (viz === 'falling-notes' || !viz) {
-                router.replace({
-                  href: router.route,
-                  query: { viz: 'sheet', song_location: router.query.song_location }, // im confused by this
-                })
-              } else {
-                router.replace({
-                  href: router.route,
-                  query: { viz: 'falling-notes', song_location: router.query.song_location },
-                })
-              }
-            }}
-          >
-            <MusicalNoteIcon
-              width={25}
-              height={25}
-              className={clsx(classes.topbarIcon, classes.fillWhite)}
             />
           </span>
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
@@ -403,14 +395,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           zIndex: 2,
         }}
       >
-        <SettingsSidebar
-          open={sidebar}
-          onSettings={(settings) => {
-            player.setWait(settings.waiting)
-            player.setHand(settings.hand)
-            setSettings(settings)
-          }}
-        />
+        <SettingsSidebar open={sidebar} onChange={setPlaySettings} settings={playSettings} />
       </div>
       <div
         style={{
@@ -427,7 +412,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         <div style={{ position: 'relative', flex: 1 }}>
           <SongVisualizer
             song={song}
-            visualization={viz}
+            visualization={playSettings.visualization}
             hand={hand}
             handSettings={getHandSettings(song)}
             getTime={() => Player.player().getTime()}
@@ -558,6 +543,7 @@ export function SongScrubBar({
         height: '100%',
         position: 'absolute',
         borderBottom: 'black solid 1px',
+        boxSizing: 'border-box',
         userSelect: 'none',
       }}
       onMouseDown={(e) => {
@@ -677,21 +663,35 @@ export function SongScrubBar({
   )
 }
 
-type PlaySettings = { hand: Hand; waiting: boolean }
+type PlaySettings = {
+  left: boolean
+  right: boolean
+  waiting: boolean
+  visualization: VisualizationMode
+}
+
 type SidebarProps = {
   open: boolean
-  onSettings: (settings: PlaySettings) => void
+  onChange: (settings: PlaySettings) => void
+  settings: PlaySettings
 }
 function SettingsSidebar(props: SidebarProps) {
-  const [waiting, setWaiting] = useState(false)
-  const [hand, setHand] = useState<Hand>('both')
-
-  const handleHand = (selected: Hand) => {
-    if (hand === selected) {
-      setHand('both')
-      return
+  const { left, right, visualization, waiting } = props.settings
+  const handleHand = (selected: 'left' | 'right') => {
+    if (selected === 'left') {
+      props.onChange({ ...props.settings, left: !props.settings.left })
     }
-    setHand(selected)
+    if (selected === 'right') {
+      props.onChange({ ...props.settings, right: !props.settings.right })
+    }
+  }
+
+  const handleVisualization = (visualization: VisualizationMode) => {
+    props.onChange({ ...props.settings, visualization })
+  }
+
+  const handleWaiting = (waiting: boolean) => {
+    props.onChange({ ...props.settings, waiting })
   }
 
   return (
@@ -703,6 +703,8 @@ function SettingsSidebar(props: SidebarProps) {
         height: '100%',
         backgroundColor: 'white',
         flexDirection: 'column',
+        borderLeft: '1px solid black',
+        boxSizing: 'border-box',
       }}
     >
       <Sizer height={10} />
@@ -718,11 +720,13 @@ function SettingsSidebar(props: SidebarProps) {
       >
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           Left hand
-          <input type="checkbox"></input>
+          <Sizer height={8} />
+          <Toggle checked={left} onChange={() => handleHand('left')} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           Right hand
-          <input type="checkbox"></input>
+          <Sizer height={8} />
+          <Toggle checked={right} onChange={() => handleHand('right')} />
         </div>
       </div>
       <Sizer height={36} />
@@ -730,22 +734,28 @@ function SettingsSidebar(props: SidebarProps) {
         <h3 style={{ textAlign: 'center' }}>Visualization</h3>
         <Sizer height={10} />
         <div style={{ fontSize: 14 }}>
-          <span> Falling notes </span> <input type="radio"></input>
+          <span> Falling notes </span>
+          <input
+            type="radio"
+            checked={visualization === 'falling-notes'}
+            onChange={() => handleVisualization('falling-notes')}
+          />
         </div>
         <Sizer height={10} />
         <div style={{ fontSize: 14 }}>
-          <span> Sheet</span> <input type="radio"></input>
+          <span> Sheet</span>{' '}
+          <input
+            type="radio"
+            checked={visualization === 'sheet'}
+            onChange={() => handleVisualization('sheet')}
+          />
         </div>
       </div>
       <Sizer height={36} />
       <div style={{ display: 'flex', fontSize: 16, flexDirection: 'column', alignItems: 'center' }}>
         Wait Mode
-        <input
-          type="checkbox"
-          onClick={() => {
-            // setWaiting(!waiting)
-          }}
-        ></input>
+        <Sizer height={8} />
+        <Toggle checked={waiting} onChange={handleWaiting} />
       </div>
       <Sizer height={36} />
       <div

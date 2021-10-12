@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react'
 import type { Song, SongConfig } from './types'
 import { isBrowser } from './utils'
 
@@ -31,7 +32,10 @@ export type UploadedSong = {
   difficulty: 'N/A,'
 }
 
-export function getUploadedLibrary() {
+export function getUploadedLibrary(): UploadedSong[] {
+  if (!Storage.has(LOCAL_STORAGE_SONG_LIST_KEY)) {
+    Storage.set<UploadedSong[]>(LOCAL_STORAGE_SONG_LIST_KEY, [])
+  }
   return Storage.get<UploadedSong[]>(LOCAL_STORAGE_SONG_LIST_KEY) ?? []
 }
 
@@ -76,6 +80,18 @@ export function setPersistedSongSettings(file: string, config: SongConfig) {
   return Storage.set(`${file}/settings`, config)
 }
 
+export function usePersistedState<T>(key: string, init: T): [T, (state: T) => void] {
+  const [state, setState] = useState<T>(() => Storage.get<T>(key) ?? init)
+  const setPersistedState = useCallback(
+    (s: T) => {
+      setState(s)
+      Storage.set(key, s)
+    },
+    [key],
+  )
+  return [state, setPersistedState]
+}
+
 /**
  * Wraps `LocalStorage` with a few builtin features:
  * - in-mem lookup for faster successive reads and semi-functional behaviore in no-storage scenarios.
@@ -85,7 +101,10 @@ export function setPersistedSongSettings(file: string, config: SongConfig) {
 class Storage {
   static cache = new Map()
 
-  static set(key: string, value: any) {
+  static set<T>(key: string, value: T) {
+    if (!isBrowser()) {
+      return
+    }
     // Important that we set the in-mem cache first, so even if persistent storage fails
     // it is still usable within the same session.
     this.cache.set(key, value)
@@ -97,23 +116,26 @@ class Storage {
     }
   }
 
+  static has(key: string) {
+    Storage.get(key)
+    return this.cache.get(key) != null
+  }
+
   static get<T>(key: string | null): T | null {
     if (!isBrowser() || key === null) {
       return null
     }
 
-    const cached = this.cache.get(key)
-    if (cached) {
-      return cached as T
+    if (this.cache.has(key)) {
+      return this.cache.get(key) as T
     }
 
+    let val = null
     try {
-      const val = JSON.parse(localStorage.getItem(key) ?? 'null') as T | null
-      this.cache.set(key, val)
-      return val
-    } catch {
-      return null
-    }
+      val = JSON.parse(localStorage.getItem(key) ?? 'null') as T | null
+    } catch {}
+    this.cache.set(key, val)
+    return val
   }
 
   static delete(key: string) {

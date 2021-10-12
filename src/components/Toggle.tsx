@@ -23,7 +23,7 @@ const classes = css({
     right: 0,
     bottom: 0,
     backgroundColor: '#ccc',
-    transition: '400ms',
+    transition: 'left 400ms',
     borderRadius: 20,
     '&.checked': {
       backgroundColor: '#2196F3',
@@ -46,8 +46,8 @@ const classes = css({
 })
 
 type ToggleProps = {
-  checked: boolean
-  onChange: (value: boolean) => void
+  checked?: boolean
+  onChange?: (value: boolean) => void
   width?: number
   height?: number
 }
@@ -57,13 +57,14 @@ export default function Toggle(props: ToggleProps) {
   const height = props.height ?? 24
   const isControlled = props.checked != null
   const checked = isControlled ? props.checked : checkedState
+  const { onChange } = props
 
   const toggleCheckedAndNotify = useCallback(() => {
     if (!isControlled) {
       setChecked(!checked)
     }
-    props.onChange?.(!checked)
-  }, [isControlled, checked])
+    onChange?.(!checked)
+  }, [isControlled, checked, onChange])
 
   return (
     <label className={classes.switch} style={{ width, height }}>

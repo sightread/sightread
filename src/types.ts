@@ -44,7 +44,7 @@ export type Song = {
   items: Array<SongNote | SongMeasure>
 }
 
-export type Hand = 'both' | 'left' | 'right'
+export type Hand = 'both' | 'left' | 'right' | 'none'
 export type SongConfig = {
   [key: number]: TrackSetting
 }
