@@ -4,7 +4,7 @@ import { gmInstruments, InstrumentName } from 'src/synth/instruments'
 import { useEffect, useState } from 'react'
 import { CanvasItem } from 'src/canvas/types'
 import { clamp, getNoteSizes, inferHands, isBlack, mapValues, range } from 'src/utils'
-import { getPersistedSongSettings } from 'src/persist'
+import { getPersistedSongSettings, setPersistedSongSettings } from 'src/persist'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []
@@ -82,8 +82,7 @@ export function getHandSettings(song: PlayableSong | undefined) {
   if (!song) {
     return {}
   }
-
-  return mapValues(song.config, (trackSetting) => {
+  return mapValues(song.config.tracks, (trackSetting) => {
     return { hand: trackSetting.hand }
   })
 }
@@ -98,20 +97,29 @@ export function getSongSettings(file: string, song: Song): SongConfig {
     return persisted
   }
 
-  const tracks = song.tracks
   const { left, right } = inferHands(song, /* isTeachMid */ file.includes('lesson'))
-
-  return mapValues(tracks, (track, trackId) => {
+  const tracks = mapValues(song.tracks, (track, trackId) => {
     const id = parseInt(trackId)
     const hand = left === id ? 'left' : right === id ? 'right' : 'none'
     return {
       track,
-      hand,
+      hand: hand as any,
       count: song.notes.filter((n) => n.track === id).length,
       instrument: getInstrument(track),
       sound: true,
     }
   })
+
+  const songSettings: SongConfig = {
+    left: true,
+    right: true,
+    waiting: false,
+    noteLetter: false,
+    visualization: 'falling-notes',
+    tracks,
+  }
+  setPersistedSongSettings(file, songSettings)
+  return songSettings
 }
 
 export function whiteNoteHeight(pianoRollContainerWidth: number): number {

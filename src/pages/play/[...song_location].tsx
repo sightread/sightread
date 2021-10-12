@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Song, PlayableSong, Hand, SongNote, MidiStateEvent, SongConfig } from 'src/types'
+import {
+  Song,
+  PlayableSong,
+  Hand,
+  SongNote,
+  MidiStateEvent,
+  SongConfig,
+  VisualizationMode,
+} from 'src/types'
 import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from 'src/features/PlaySongPage'
 import { palette as colors } from 'src/styles/common'
 import { getHandSettings, getSongRange } from 'src/features/PlaySongPage/utils'
@@ -29,6 +37,7 @@ import midiState from 'src/features/midi'
 import * as wakelock from 'src/wakelock'
 import { Toggle } from 'src/components'
 import { usePersistedState } from 'src/persist'
+import { useSongSettings } from 'src/hooks/song-config'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -47,7 +56,6 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   }
 }
 
-type VisualizationMode = 'falling-notes' | 'sheet'
 type PlaySongProps = {
   type: 'lesson' | 'song'
   songLocation: string
@@ -108,7 +116,7 @@ const classes = css({
   },
 })
 
-function App({ type, songLocation, viz }: PlaySongProps) {
+function App({ type, songLocation }: PlaySongProps) {
   const [sidebar, setSidebar] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
@@ -119,21 +127,14 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<PlayableSong>()
   const keyColorUpdater = useRef<SubscriptionCallback>(null)
-  const [playSettings, setPlaySettings] = usePersistedState<PlaySettings>(
-    `${songLocation}/settings`,
-    {
-      left: true,
-      right: true,
-      waiting: false,
-      visualization: 'falling-notes',
-    },
-  )
+  const [songConfig, setSongConfig] = useSongSettings(songLocation)
+
   const hand =
-    playSettings.left && playSettings.right
+    songConfig.left && songConfig.right
       ? 'both'
-      : playSettings.left
+      : songConfig.left
       ? 'left'
-      : playSettings.right
+      : songConfig.right
       ? 'right'
       : 'none'
 
@@ -144,12 +145,11 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   }, [])
 
   const setupPlayer = useCallback(
-    (song: PlayableSong) => {
+    async (song: PlayableSong) => {
       setCanPlay(false)
       setSong(song)
-      player.setSong(song).then(() => {
-        setCanPlay(true)
-      })
+      await player.setSong(song)
+      setCanPlay(true)
     },
     [player],
   )
@@ -166,6 +166,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
 
     getSong(songLocation).then((song: PlayableSong) => {
       setupPlayer(song)
+      setSongConfig(song.config)
     })
   }, [songLocation, player, setupPlayer, type])
 
@@ -223,6 +224,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       player.setVolume(0)
       return setSoundOff(true)
     }
+    player.setVolume(1)
     setSoundOff(false)
   }
 
@@ -395,11 +397,11 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           zIndex: 2,
         }}
       >
-        <SettingsSidebar open={sidebar} onChange={setPlaySettings} settings={playSettings} />
+        <SettingsSidebar open={sidebar} onChange={setSongConfig} settings={songConfig} />
       </div>
       <div
         style={{
-          backgroundColor: viz === 'falling-notes' ? '#2e2e2e' : 'white',
+          backgroundColor: songConfig.visualization === 'falling-notes' ? '#2e2e2e' : 'white',
           width: '100vw',
           height: 'calc(100vh - 95px)',
           marginTop: 95,
@@ -412,13 +414,13 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         <div style={{ position: 'relative', flex: 1 }}>
           <SongVisualizer
             song={song}
-            visualization={playSettings.visualization}
+            config={songConfig}
             hand={hand}
             handSettings={getHandSettings(song)}
             getTime={() => Player.player().getTime()}
           />
         </div>
-        {viz === 'falling-notes' && (
+        {songConfig.visualization === 'falling-notes' && (
           <PianoRoll
             activeColor="grey"
             onNoteDown={(n: number) => {
@@ -662,21 +664,19 @@ export function SongScrubBar({
     </div>
   )
 }
-
-type PlaySettings = {
+type SidebarSettings = {
   left: boolean
   right: boolean
   waiting: boolean
   visualization: VisualizationMode
 }
-
 type SidebarProps = {
   open: boolean
-  onChange: (settings: PlaySettings) => void
-  settings: PlaySettings
+  onChange: (settings: SongConfig) => void
+  settings: SongConfig
 }
 function SettingsSidebar(props: SidebarProps) {
-  const { left, right, visualization, waiting } = props.settings
+  const { left, right, visualization, waiting, noteLetter } = props.settings
   const handleHand = (selected: 'left' | 'right') => {
     if (selected === 'left') {
       props.onChange({ ...props.settings, left: !props.settings.left })
@@ -692,6 +692,9 @@ function SettingsSidebar(props: SidebarProps) {
 
   const handleWaiting = (waiting: boolean) => {
     props.onChange({ ...props.settings, waiting })
+  }
+  function handleNotes() {
+    props.onChange({ ...props.settings, noteLetter: !noteLetter })
   }
 
   return (
@@ -758,6 +761,12 @@ function SettingsSidebar(props: SidebarProps) {
         <Toggle checked={waiting} onChange={handleWaiting} />
       </div>
       <Sizer height={36} />
+      <div style={{ display: 'flex', fontSize: 16, flexDirection: 'column', alignItems: 'center' }}>
+        Display note letter
+        <Sizer height={8} />
+        <Toggle checked={noteLetter} onChange={handleNotes} />
+      </div>
+      <Sizer height={36} />
       <div
         style={{
           display: 'flex',
@@ -787,8 +796,9 @@ const trackColors = {
   },
   measure: '#C5C5C5', //'#C5C5C5',
 }
-function getTrackColor(songNote: SongNote, tracks: SongConfig | undefined): string | void {
-  const hand = tracks?.[songNote.track]?.hand
+
+function getTrackColor(songNote: SongNote, songConfig: SongConfig | undefined): string | void {
+  const hand = songConfig?.tracks?.[songNote.track].hand
   if (hand && hand !== 'none') {
     const type = isBlack(songNote.midiNote) ? 'black' : 'white'
     return trackColors[hand][type]

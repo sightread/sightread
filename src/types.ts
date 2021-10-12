@@ -44,9 +44,17 @@ export type Song = {
   items: Array<SongNote | SongMeasure>
 }
 
+export type VisualizationMode = 'falling-notes' | 'sheet'
 export type Hand = 'both' | 'left' | 'right' | 'none'
 export type SongConfig = {
-  [key: number]: TrackSetting
+  left: boolean
+  right: boolean
+  waiting: boolean
+  visualization: VisualizationMode
+  noteLetter: boolean
+  tracks: {
+    [trackId: number]: TrackSetting
+  }
 }
 export type PlayableSong = Song & { config: SongConfig }
 

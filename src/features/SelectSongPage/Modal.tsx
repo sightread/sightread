@@ -25,6 +25,7 @@ import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
 import { setPersistedSongSettings } from 'src/persist'
+import { useSongSettings } from 'src/hooks/song-config'
 
 const palette = {
   purple: {
@@ -273,6 +274,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
   const { file, name, artist } = songMeta ?? {}
   const modalRef = useRef<HTMLDivElement>(null)
   const [song, setSong] = useState<PlayableSong | null>(null)
+  const [songConfig, setSongConfig] = useSongSettings('unknown')
   const [playing, setPlaying] = useState(false)
   const [canPlay, setCanPlay] = useState(false)
   const [showInstruments, setShowInstruments] = useState(false)
@@ -293,6 +295,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
     }
     getSong(`${songMeta.file}`).then((song) => {
       setupModal(song)
+      setSongConfig(song.config)
     })
     return () => {
       player.stop()
@@ -451,7 +454,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
                 song={song}
                 handSettings={getHandSettings(song)}
                 hand="both"
-                visualization="falling-notes"
+                config={songConfig}
                 getTime={() => Player.player().getTime()}
               />
             </div>

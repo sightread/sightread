@@ -280,7 +280,7 @@ export function mapValues<From, To>(
 export function getHands(song: PlayableSong) {
   let left
   let right
-  for (let [id, config] of Object.entries(song.config)) {
+  for (let [id, config] of Object.entries(song.config.tracks)) {
     if (config.hand === 'left') {
       left = parseInt(id, 10)
     } else if (config.hand === 'right') {

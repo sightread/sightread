@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { MidiStateEvent, PlayableSong, SongNote } from 'src/types'
+import { MidiStateEvent, PlayableSong, SongConfig, SongNote } from 'src/types'
 import { Select } from 'src/components'
 import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from 'src/features/PlaySongPage'
 import { useSynth } from 'src/features/PlaySongPage/utils'
@@ -163,7 +163,7 @@ function FreePlay() {
         <div style={{ position: 'relative', flex: 1 }}>
           <SongVisualizer
             song={freePlayer.song}
-            visualization="falling-notes"
+            config={{ visualization: 'falling-notes', noteLetter: false } as SongConfig}
             hand="both"
             handSettings={{ 1: { hand: 'right' } }}
             getTime={() => freePlayer.getTime()}

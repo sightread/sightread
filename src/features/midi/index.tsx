@@ -8,14 +8,12 @@ export function refreshMIDIDevices() {
   window.navigator
     .requestMIDIAccess()
     .then((midiAccess) => {
-      console.log('MIDI Ready!')
       for (let entry of midiAccess.inputs) {
-        console.log('MIDI input device: ' + entry[1].id)
         entry[1].onmidimessage = onMidiMessage
       }
     })
     .catch((error) => {
-      console.log('Error accessing MIDI devices: ' + error)
+      console.error('Error accessing MIDI devices: ' + error)
     })
 }
 

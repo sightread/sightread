@@ -63,9 +63,9 @@ class Player {
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
       const instrument =
-        song.config[+trackId].instrument ?? config.program ?? config.instrument ?? 0
+        song.config.tracks[+trackId]?.instrument ?? config.program ?? config.instrument ?? 0
       synths[+trackId] = getSynth(instrument)
-      const vol = song.config[+trackId].sound ? 1 : 0
+      const vol = song.config.tracks[+trackId]?.sound ? 1 : 0
       this.setTrackVolume(+trackId, vol)
     })
     await Promise.all(synths).then((s) => {
@@ -79,6 +79,7 @@ class Player {
       synth?.setMasterVolume(vol)
     })
   }
+
   setTrackVolume(track: number | string, vol: number) {
     this.synths?.[+track]?.setMasterVolume(vol)
   }
