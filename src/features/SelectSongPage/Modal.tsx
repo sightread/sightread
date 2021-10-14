@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import { PlayableSong, SongConfig, TrackSetting } from 'src/types'
 import { SongVisualizer } from 'src/features/PlaySongPage'
 import { getHandSettings } from 'src/features/PlaySongPage/utils'
@@ -280,6 +280,14 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
   const [showInstruments, setShowInstruments] = useState(false)
   const router = useRouter()
   const player = Player.player()
+  const songConfigOverride = useMemo<SongConfig>(
+    () => ({
+      ...songConfig,
+      visualization: 'falling-notes',
+      wait: false,
+    }),
+    [songConfig],
+  )
 
   function setupModal(song: PlayableSong) {
     setCanPlay(false)
@@ -454,7 +462,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
                 song={song}
                 handSettings={getHandSettings(song)}
                 hand="both"
-                config={songConfig}
+                config={songConfigOverride}
                 getTime={() => Player.player().getTime()}
               />
             </div>

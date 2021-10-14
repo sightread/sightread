@@ -1,6 +1,8 @@
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
-import { getKey, getNote } from 'src/synth/utils'
-import { Song, SongMeasure, SongNote, Track, Tracks, Bpm } from 'src/types'
+
+// Since this is called from Deno as well, we need to use relative paths.
+import { getKey, getNote } from '../../../src/synth/utils'
+import { Song, SongMeasure, SongNote, Track, Tracks, Bpm } from '../../../src/types'
 
 export function parseMusicXML(txt: string): Song {
   /*

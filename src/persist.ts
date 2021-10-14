@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Song, SongConfig } from './types'
 import { isBrowser } from './utils'
 
@@ -81,7 +81,7 @@ export function setPersistedSongSettings(file: string, config: SongConfig) {
 }
 
 export function usePersistedState<T>(key: string, init: T): [T, (state: T) => void] {
-  const [state, setState] = useState<T>(() => Storage.get<T>(key) ?? init)
+  const [state, setState] = useState<T>(init)
   const setPersistedState = useCallback(
     (s: T) => {
       setState(s)
@@ -89,6 +89,16 @@ export function usePersistedState<T>(key: string, init: T): [T, (state: T) => vo
     },
     [key],
   )
+
+  // Since the initial HTML will be set from an SSR and React will only attempt to Hydrate,
+  // we need to ensure any state dependent on storage renders once loaded.
+  // If UX poorly implemented, this can cause a flicker.
+  useEffect(() => setState(Storage.get(key) ?? init), [])
+
+  if (!isBrowser()) {
+    return [init, () => {}]
+  }
+
   return [state, setPersistedState]
 }
 

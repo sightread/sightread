@@ -36,7 +36,6 @@ import { SubscriptionCallback } from 'src/features/PlaySongPage/PianoRoll'
 import midiState from 'src/features/midi'
 import * as wakelock from 'src/wakelock'
 import { Toggle } from 'src/components'
-import { usePersistedState } from 'src/persist'
 import { useSongSettings } from 'src/hooks/song-config'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
@@ -143,6 +142,18 @@ function App({ type, songLocation }: PlaySongProps) {
     wakelock.lock()
     return () => wakelock.unlock()
   }, [])
+
+  // Hack for updating player when config changes.
+  // Maybe move to the onChange? Or is this chill.
+  const { waiting, left, right } = songConfig
+  useEffect(() => {
+    player.setWait(waiting)
+    if (left && right) {
+      player.setHand('both')
+    } else {
+      player.setHand(left ? 'left' : 'right')
+    }
+  }, [player, waiting, left, right])
 
   const setupPlayer = useCallback(
     async (song: PlayableSong) => {
@@ -401,7 +412,7 @@ function App({ type, songLocation }: PlaySongProps) {
       </div>
       <div
         style={{
-          backgroundColor: songConfig.visualization === 'falling-notes' ? '#2e2e2e' : 'white',
+          backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
           width: '100vw',
           height: 'calc(100vh - 95px)',
           marginTop: 95,
@@ -664,12 +675,12 @@ export function SongScrubBar({
     </div>
   )
 }
-type SidebarSettings = {
-  left: boolean
-  right: boolean
-  waiting: boolean
-  visualization: VisualizationMode
-}
+// type SidebarSettings = {
+//   left: boolean
+//   right: boolean
+//   waiting: boolean
+//   visualization: VisualizationMode
+// }
 type SidebarProps = {
   open: boolean
   onChange: (settings: SongConfig) => void

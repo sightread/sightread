@@ -274,13 +274,7 @@ function deriveState(state: Readonly<GivenState>): State {
 export function render(givenState: Readonly<GivenState>) {
   const state = deriveState(givenState)
 
-  if (state.visualization === 'falling-notes') {
-    state.ctx.clearRect(0, 0, state.width, state.height)
-  } else {
-    // TODO: remove these lines so only clearRect is needed.
-    state.ctx.fillStyle = 'white'
-    state.ctx.fillRect(0, 0, state.width, state.height)
-  }
+  state.ctx.clearRect(0, 0, state.width, state.height)
 
   if (state.visualization === 'falling-notes') {
     renderFallingVis(state)
@@ -384,8 +378,6 @@ function renderMeasure(measure: SongMeasure, state: State): void {
 // - can use offdom canvas (not OffscreenCanvas API) for background since its repainting over and over.
 // - can also treat it all as one giant image that gets partially drawn each frame.
 function renderSheetVis(state: State): void {
-  renderBackgroundLines(state)
-
   for (const item of getItemsInView(state)) {
     if (item.type === 'measure') {
       continue
@@ -393,6 +385,7 @@ function renderSheetVis(state: State): void {
     renderSheetNote(item, state)
   }
 
+  renderBackgroundLines(state)
   renderMidiPressedKeys(state)
 }
 
@@ -452,7 +445,7 @@ function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
     offsetFromBottom = row - getRow(getNote('E4'))
     bottom = trebleBottomY(state.height)
   } else {
-    offsetFromBottom = row - getRow(getNote('G3'))
+    offsetFromBottom = row - getRow(getNote('G2'))
     bottom = bassBottomY(state.height)
   }
 
