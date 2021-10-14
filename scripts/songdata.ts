@@ -808,7 +808,7 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
-    file: 'GoT.xml',
+    file: 'Game Of Thrones Theme - Easy.mid',
     name: 'Game Of Thrones Theme Song',
     artist: 'Ramin Djawadi',
     difficulty: 'Easy',
