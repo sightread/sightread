@@ -5,11 +5,10 @@ import {
   getHandIndexesForTeachMid,
   parserInferHands,
 } from '../features/parsers'
-import { PlayableSong, Song, SongMeasure, SongNote } from 'src/types'
+import { PlayableSong, Song, SongConfig, SongMeasure, SongNote } from 'src/types'
 import { getKey } from 'src/synth/utils'
 import { InstrumentName } from 'src/synth/instruments'
 import { getUploadedSong } from 'src/persist'
-import { getSongSettings } from 'src/features/PlaySongPage/utils'
 
 export function peek(o: any) {
   console.log(o)
@@ -52,7 +51,7 @@ async function getServerSong(url: string): Promise<Song> {
   return fetch(parsedUrl).then((res) => res.json())
 }
 
-export async function getSong(url: string): Promise<PlayableSong> {
+export async function getSong(url: string): Promise<Song> {
   let song = getUploadedSong(url)
   if (!song) {
     song = await getServerSong(url)
@@ -60,8 +59,7 @@ export async function getSong(url: string): Promise<PlayableSong> {
   song.notes = song.items.filter((i) => i.type === 'note') as SongNote[]
   song.measures = song.items.filter((i) => i.type === 'measure') as SongMeasure[]
 
-  const config = getSongSettings(url, song)
-  return { ...song, config }
+  return song
 }
 
 export function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
@@ -277,10 +275,10 @@ export function mapValues<From, To>(
   }, {})
 }
 
-export function getHands(song: PlayableSong) {
+export function getHands(songConfig: SongConfig) {
   let left
   let right
-  for (let [id, config] of Object.entries(song.config.tracks)) {
+  for (let [id, config] of Object.entries(songConfig.tracks)) {
     if (config.hand === 'left') {
       left = parseInt(id, 10)
     } else if (config.hand === 'right') {

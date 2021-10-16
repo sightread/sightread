@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react'
-import { Hand, PlayableSong, SongConfig } from 'src/types'
+import { Hand, Song, SongConfig } from 'src/types'
 import { useSize } from 'src/hooks/size'
 import { FClefIcon, GClefIcon, SheetBraceIcon } from 'src/icons'
 import { GivenState, render, sheetIconProps } from './canvasRenderer'
@@ -13,7 +13,7 @@ type HandSettings = {
 }
 
 type CanvasRendererProps = {
-  song: PlayableSong | undefined
+  song: Song | undefined
   config: SongConfig
   hand: Hand
   handSettings: HandSettings

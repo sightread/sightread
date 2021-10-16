@@ -1,4 +1,5 @@
 export { PianoRoll } from './PianoRoll'
 export { RuleLines } from './RuleLines'
 export { BpmDisplay } from './BpmDisplay'
+export { SettingsSidebar } from './SettingsSidebar'
 export { default as SongVisualizer } from './SongVisualizer'

@@ -1,39 +1,24 @@
 import * as React from 'react'
 import { useRef, useState, useEffect, useMemo } from 'react'
-import { PlayableSong, SongConfig, TrackSetting } from 'src/types'
+import { Song, SongConfig } from 'src/types'
 import { SongVisualizer } from 'src/features/PlaySongPage'
-import { getHandSettings } from 'src/features/PlaySongPage/utils'
+import { getHandSettings, getSongSettings } from 'src/features/PlaySongPage/utils'
 import { SongScrubBar } from 'src/pages/play/[...song_location]'
-import { getSong, Sizer, formatInstrumentName } from 'src/utils'
+import { getSong, Sizer } from 'src/utils'
 import Player from 'src/player'
-import { Select } from 'src/components'
-import { gmInstruments, InstrumentName } from 'src/synth/instruments'
 import {
   BothHandsIcon,
   ClockIcon,
   MusicalNoteIcon,
   DoubleArrowLoopIcon,
   CancelCircleIcon,
-  LeftHandIcon,
-  RightHandIcon,
-  SoundOnIcon,
-  SoundOffIcon,
   PlayIcon,
   LoadingIcon,
 } from 'src/icons'
 import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
-import clsx from 'clsx'
-import { setPersistedSongSettings } from 'src/persist'
 import { useSongSettings } from 'src/hooks/song-config'
-
-const palette = {
-  purple: {
-    light: '#EDEBF6',
-    primary: '#7029FA',
-    dark: '#3e0ca0',
-  },
-}
+import { palette } from 'src/styles/common'
 
 const classes = css({
   modalContainer: {
@@ -134,20 +119,6 @@ const classes = css({
       backgroundColor: '#EAEAEA',
     },
   },
-  instrumentsButtonActive: {
-    color: palette.purple.primary,
-  },
-  instrumentsBtnWrapper: {
-    width: '55%',
-    transition: '150ms',
-    height: 40,
-  },
-  instrumentsBtnWrapperActive: {
-    backgroundColor: '#EAEAEA',
-    height: '56px',
-    borderRadius: '5px 5px 0px 0px',
-    margin: 0,
-  },
   playNowButton: {
     color: 'white',
     height: 40,
@@ -177,65 +148,6 @@ const classes = css({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  instrumentsContainer: {
-    margin: '0px -32px',
-    backgroundColor: 'rgb(236 236 236)',
-    padding: '32px',
-    // these widths are so that the adjust instruments container
-    // is the correct size on the responsive layout.
-    '@media screen and (min-width: 1130px)': {
-      width: '164%',
-    },
-    '@media screen and (max-width: 1129px)': {
-      width: '100%',
-    },
-    '@media screen and (min-width: 800px)': {
-      maxWidth: 'calc(100vw - 152px)',
-    },
-  },
-  instrumentsHeader: {
-    fontWeight: 600,
-    fontSize: '16px',
-  },
-  instrumentCard: {
-    width: '280px',
-    backgroundColor: 'white',
-    borderRadius: '6px',
-    margin: '15px',
-  },
-  cardLabelDivider: {
-    width: 2,
-    height: 24,
-    backgroundColor: palette.purple.light,
-    margin: '4px 8px',
-  },
-  instrumentSelect: {
-    borderRadius: 0,
-    width: '100%',
-    border: 'none',
-    height: '50px',
-    backgroundColor: palette.purple.light,
-    fontWeight: 'bold',
-    fontSize: '16px',
-  },
-  selectIcon: {
-    top: 18,
-    right: 15,
-  },
-  instrumentMenu: {
-    top: 30,
-  },
-  settingsIcon: {
-    '& path': {
-      transition: '200ms',
-    },
-    cursor: 'pointer',
-  },
-  settingsIconActive: {
-    '& path': {
-      fill: palette.purple.primary,
-    },
   },
 })
 
@@ -273,11 +185,10 @@ type ModalProps = {
 function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalProps) {
   const { file, name, artist } = songMeta ?? {}
   const modalRef = useRef<HTMLDivElement>(null)
-  const [song, setSong] = useState<PlayableSong | null>(null)
+  const [song, setSong] = useState<Song | null>(null)
   const [songConfig, setSongConfig] = useSongSettings('unknown')
   const [playing, setPlaying] = useState(false)
   const [canPlay, setCanPlay] = useState(false)
-  const [showInstruments, setShowInstruments] = useState(false)
   const router = useRouter()
   const player = Player.player()
   const songConfigOverride = useMemo<SongConfig>(
@@ -289,12 +200,9 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
     [songConfig],
   )
 
-  function setupModal(song: PlayableSong) {
+  function setupModal(song: Song) {
     setCanPlay(false)
     setSong(song)
-    player.setSong(song).then(() => {
-      setCanPlay(true)
-    })
   }
 
   useEffect(() => {
@@ -303,7 +211,11 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
     }
     getSong(`${songMeta.file}`).then((song) => {
       setupModal(song)
-      setSongConfig(song.config)
+      const config = getSongSettings(songMeta.file, song)
+      setSongConfig(config)
+      player.setSong(song, config).then(() => {
+        setCanPlay(true)
+      })
     })
     return () => {
       player.stop()
@@ -358,10 +270,6 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
     router.push(`/play/${file}`)
   }
 
-  const handleShowInstruments = () => {
-    setShowInstruments(!showInstruments)
-  }
-
   const handleTogglePlay = () => {
     if (playing) {
       player.pause()
@@ -385,6 +293,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
         className={classes.modalContent}
         style={{
           minWidth: 'min(600px, 80%)',
+          width: 'min(860px, 80%)',
         }}
       >
         <div
@@ -460,7 +369,7 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
                 ))}
               <SongVisualizer
                 song={song}
-                handSettings={getHandSettings(song)}
+                handSettings={getHandSettings(songConfig)}
                 hand="both"
                 config={songConfigOverride}
                 getTime={() => Player.player().getTime()}
@@ -468,22 +377,15 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
             </div>
             <Sizer height={16} />
             <div className={classes.buttonContainer}>
-              <button className={classes.playNowButton} onClick={handlePlayNow}>
+              <button
+                className={classes.playNowButton}
+                onClick={handlePlayNow}
+                style={{ width: '100%' }}
+              >
                 Play Now
               </button>
-              <AdjustInstrumentsButton active={showInstruments} onClick={handleShowInstruments} />
             </div>
-            <AdjustInstruments
-              show={showInstruments}
-              song={song}
-              setTracks={(config) => {
-                if (!songMeta?.file) {
-                  return
-                }
-                setPersistedSongSettings(songMeta.file, config)
-                setSong({ ...song, config })
-              }}
-            />
+            <Sizer height={16} />
           </div>
           <div>
             <h3 className={classes.controlsHeader}>Controls Overview</h3>
@@ -508,276 +410,3 @@ function Modal({ show = true, onClose = () => {}, songMeta = undefined }: ModalP
 }
 
 export default Modal
-
-type InstrumentSettingsProps = {
-  song: PlayableSong
-  setTracks: (config: SongConfig) => void
-  show: boolean
-}
-
-function AdjustInstruments({ song, setTracks, show }: InstrumentSettingsProps) {
-  if (!show) {
-    return <Sizer height={35} />
-  }
-
-  const tracks = song?.config
-  const handleSetTrack = (trackId: number, track: TrackSetting) => {
-    setTracks({ ...tracks, [trackId]: track })
-  }
-
-  return (
-    <div className={classes.instrumentsContainer}>
-      <h4 className={classes.instrumentsHeader}>
-        Select the track and assign a hand you want to play per track.
-      </h4>
-      <Sizer height={24} />
-      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        {!!tracks &&
-          Object.entries(tracks).map(([track, settings]) => {
-            return (
-              <InstrumentCard
-                track={settings}
-                trackId={+track}
-                key={track}
-                setTrack={handleSetTrack}
-                noteCount={song.notes.filter((n) => n.track === +track).length}
-              />
-            )
-          })}
-      </div>
-    </div>
-  )
-}
-
-type CardProps = {
-  track: TrackSetting
-  key: string
-  trackId: number
-  setTrack: (trackId: number, track: TrackSetting) => void
-  noteCount: number
-}
-type SynthState = { error: boolean; loading: boolean }
-
-function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
-  const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
-  const player = Player.player()
-
-  const handleSelectInstrument = (instrument: InstrumentName) => {
-    setSynthState({ error: false, loading: true })
-    player
-      .setTrackInstrument(trackId, instrument)
-      .then(() => {
-        setSynthState({ error: false, loading: false })
-        setTrack(trackId, { ...track, instrument })
-      })
-      .catch(() => {
-        setSynthState({ error: true, loading: false })
-      })
-    // setTrack(trackId, { count, hand, track: instrument, sound })
-  }
-  const handleSelectHand = (hand: 'left' | 'right' | 'none') => {
-    if (track.hand === hand) {
-      hand = 'none'
-    }
-    setTrack(trackId, { ...track, hand })
-  }
-  const handleSound = (sound: boolean) => {
-    player.setTrackVolume(trackId, sound ? 1.0 : 0)
-    setTrack(trackId, { ...track, sound })
-  }
-  return (
-    <span className={classes.instrumentCard}>
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <span style={{}}>Track {trackId + 1}</span>
-        <span className={classes.cardLabelDivider}></span>
-        <span>{noteCount} Notes</span>
-      </div>
-      <InstrumentSelect
-        value={track.instrument}
-        onSelect={handleSelectInstrument}
-        error={synthState.error}
-        loading={synthState.loading}
-      />
-      <TrackSettingsSection
-        hand={track.hand}
-        sound={track.sound}
-        onSelectHand={handleSelectHand}
-        onToggleSound={handleSound}
-      />
-    </span>
-  )
-}
-
-function InstrumentSelect({
-  value,
-  error,
-  loading,
-  onSelect,
-}: {
-  value: string
-  error: boolean
-  loading: boolean
-  onSelect: (val: any) => void
-}) {
-  return (
-    <Select
-      error={error}
-      loading={loading}
-      value={value}
-      onChange={onSelect}
-      options={gmInstruments as any}
-      classNames={{
-        select: classes.instrumentSelect,
-        icon: classes.selectIcon,
-        menu: classes.instrumentMenu,
-      }}
-      format={formatInstrumentName}
-      display={formatInstrumentName}
-    />
-  )
-}
-
-type TrackSettingProps = {
-  hand: 'left' | 'right' | 'none'
-  sound: boolean
-  onSelectHand: (hand: 'left' | 'right' | 'none') => void
-  onToggleSound: (sound: boolean) => void
-}
-function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: TrackSettingProps) {
-  const handleSound = () => {
-    onToggleSound(!sound)
-  }
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        padding: '15px 10px',
-      }}
-    >
-      <ToggleLeftHand
-        on={hand === 'left'}
-        onClick={() => {
-          onSelectHand('left')
-        }}
-      />
-      <ToggleRightHand
-        on={hand === 'right'}
-        onClick={() => {
-          onSelectHand('right')
-        }}
-      />
-      <ToggleSound on={sound} onClick={handleSound} />
-    </div>
-  )
-}
-
-const labelStyle = {
-  fontSize: '14px',
-  paddingTop: '8px',
-}
-
-type ToggleIconProps = {
-  on: boolean
-  onClick: () => void
-}
-
-function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
-  return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <LeftHandIcon
-        height={32}
-        width={32}
-        className={clsx(
-          classes.settingsIcon,
-          on ? classes.settingsIconActive : classes.iconInActive,
-        )}
-        onClick={onClick}
-      />
-      <span style={labelStyle}>Left Hand</span>
-    </span>
-  )
-}
-
-function ToggleRightHand({ on, onClick }: ToggleIconProps) {
-  return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <RightHandIcon
-        height={32}
-        width={32}
-        className={clsx(
-          classes.settingsIcon,
-          on ? classes.settingsIconActive : classes.iconInActive,
-        )}
-        onClick={onClick}
-      />
-      <span style={labelStyle}>Right Hand</span>
-    </span>
-  )
-}
-
-function ToggleSound({ on, onClick }: ToggleIconProps) {
-  return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {on ? (
-        <>
-          <SoundOnIcon
-            height={32}
-            width={32}
-            className={clsx(
-              classes.settingsIcon,
-              on ? classes.settingsIconActive : classes.iconInActive,
-            )}
-            onClick={onClick}
-          />
-          <span style={labelStyle}>Sound On</span>
-        </>
-      ) : (
-        <>
-          <SoundOffIcon
-            height={32}
-            width={32}
-            className={clsx(
-              classes.settingsIcon,
-              on ? classes.settingsIconActive : classes.iconInActive,
-            )}
-            onClick={onClick}
-          />
-          <span style={labelStyle}>Sound Off</span>
-        </>
-      )}
-    </span>
-  )
-}
-
-function AdjustInstrumentsButton({ active, onClick }: { active: boolean; onClick: () => void }) {
-  return (
-    <span
-      className={clsx(classes.instrumentsBtnWrapper, {
-        [classes.instrumentsBtnWrapperActive]: active,
-      })}
-    >
-      <button
-        className={clsx(
-          classes.baseButton,
-          active ? classes.instrumentsButtonActive : classes.instrumentsButton,
-        )}
-        onClick={onClick}
-      >
-        <span
-          style={
-            (active && {
-              fontWeight: 'bold',
-              borderBottom: `3px solid ${palette.purple.primary}`,
-            }) ||
-            {}
-          }
-        >
-          Adjust Instruments
-        </span>
-      </button>
-    </span>
-  )
-}

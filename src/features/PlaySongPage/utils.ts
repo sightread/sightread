@@ -78,11 +78,11 @@ export function useSynth(
   return { ...loadError, synth: getSynthStub(instrument) }
 }
 
-export function getHandSettings(song: PlayableSong | undefined) {
-  if (!song) {
+export function getHandSettings(config: SongConfig | undefined) {
+  if (!config) {
     return {}
   }
-  return mapValues(song.config.tracks, (trackSetting) => {
+  return mapValues(config.tracks, (trackSetting) => {
     return { hand: trackSetting.hand }
   })
 }
