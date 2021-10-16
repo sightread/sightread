@@ -160,8 +160,6 @@ function App({ type, songLocation }: PlaySongProps) {
     }
   }, [player, waiting, left, right])
 
-  const setupPlayer = useCallback(async (song: Song, config: SongConfig) => {}, [player])
-
   // Register ummount fns
   useEffect(() => {
     return () => {
@@ -179,7 +177,7 @@ function App({ type, songLocation }: PlaySongProps) {
       setSongConfig(config)
       player.setSong(song, config).then(() => setCanPlay(true))
     })
-  }, [songLocation, player, type])
+  }, [songLocation, player, type, setSongConfig])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -224,7 +222,7 @@ function App({ type, songLocation }: PlaySongProps) {
       Player.player().unsubscribe(handleEvent)
       midiState.unsubscribe(handleMidiEvent)
     }
-  }, [player, synth, song])
+  }, [player, synth, song, songConfig])
 
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
@@ -408,7 +406,7 @@ function App({ type, songLocation }: PlaySongProps) {
           zIndex: 2,
         }}
       >
-        <SettingsSidebar open={sidebar} onChange={setSongConfig} settings={songConfig} />
+        <SettingsSidebar open={sidebar} onChange={setSongConfig} config={songConfig} song={song} />
       </div>
       <div
         style={{

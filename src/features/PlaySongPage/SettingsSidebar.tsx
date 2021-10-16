@@ -1,6 +1,6 @@
 import React from 'react'
 import { Toggle } from 'src/components'
-import { SongConfig, VisualizationMode } from 'src/types'
+import { Song, SongConfig, VisualizationMode } from 'src/types'
 import { Sizer } from 'src/utils'
 import { palette as colors } from 'src/styles/common'
 import { AdjustInstruments } from './AdjustInstruments'
@@ -8,29 +8,30 @@ import { AdjustInstruments } from './AdjustInstruments'
 type SidebarProps = {
   open: boolean
   onChange: (settings: SongConfig) => void
-  settings: SongConfig
+  config: SongConfig
+  song?: Song
 }
 
 export function SettingsSidebar(props: SidebarProps) {
-  const { left, right, visualization, waiting, noteLetter } = props.settings
+  const { left, right, visualization, waiting, noteLetter } = props.config
   const handleHand = (selected: 'left' | 'right') => {
     if (selected === 'left') {
-      props.onChange({ ...props.settings, left: !props.settings.left })
+      props.onChange({ ...props.config, left: !props.config.left })
     }
     if (selected === 'right') {
-      props.onChange({ ...props.settings, right: !props.settings.right })
+      props.onChange({ ...props.config, right: !props.config.right })
     }
   }
 
   const handleVisualization = (visualization: VisualizationMode) => {
-    props.onChange({ ...props.settings, visualization })
+    props.onChange({ ...props.config, visualization })
   }
 
   const handleWaiting = (waiting: boolean) => {
-    props.onChange({ ...props.settings, waiting })
+    props.onChange({ ...props.config, waiting })
   }
   function handleNotes() {
-    props.onChange({ ...props.settings, noteLetter: !noteLetter })
+    props.onChange({ ...props.config, noteLetter: !noteLetter })
   }
 
   return (
@@ -120,10 +121,11 @@ export function SettingsSidebar(props: SidebarProps) {
         <Sizer height={36} />
         <h2 style={{ textAlign: 'center', fontSize: 18 }}>Tracks Configuration</h2>
         <AdjustInstruments
-          config={props.settings}
+          config={props.config}
           setTracks={(tracks) => {
-            props.onChange({ ...props.settings, tracks })
+            props.onChange({ ...props.config, tracks })
           }}
+          song={props.song}
         />
       </div>
     </div>

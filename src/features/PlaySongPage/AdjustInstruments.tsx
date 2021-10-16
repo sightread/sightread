@@ -5,7 +5,7 @@ import { Select } from 'src/components'
 import { LeftHandIcon, RightHandIcon, SoundOnIcon, SoundOffIcon } from 'src/icons'
 import Player from 'src/player'
 import { InstrumentName, gmInstruments } from 'src/synth/instruments'
-import { SongConfig, TrackSetting } from 'src/types'
+import { Song, SongConfig, TrackSetting } from 'src/types'
 import { formatInstrumentName } from 'src/utils'
 import { palette } from 'src/styles/common'
 
@@ -58,10 +58,11 @@ const classes = css({
 
 type InstrumentSettingsProps = {
   config: SongConfig
+  song?: Song
   setTracks: (tracks: { [id: number]: TrackSetting }) => void
 }
 
-export function AdjustInstruments({ setTracks, config }: InstrumentSettingsProps) {
+export function AdjustInstruments({ setTracks, config, song }: InstrumentSettingsProps) {
   const tracks = config.tracks
   const handleSetTrack = (trackId: number, track: TrackSetting) => {
     setTracks({ ...tracks, [trackId]: track })
@@ -76,8 +77,7 @@ export function AdjustInstruments({ setTracks, config }: InstrumentSettingsProps
             trackId={+track}
             key={track}
             setTrack={handleSetTrack}
-            //  TODO: implement
-            noteCount={0}
+            noteCount={song?.notes.filter((n) => n.track === +track).length ?? 0}
           />
         )
       })}
@@ -225,10 +225,7 @@ function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
       <LeftHandIcon
         height={32}
         width={32}
-        className={clsx(
-          classes.settingsIcon,
-          on ? classes.settingsIconActive : classes.iconInActive,
-        )}
+        className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
         onClick={onClick}
       />
       <span style={labelStyle}>Left Hand</span>
@@ -242,10 +239,7 @@ function ToggleRightHand({ on, onClick }: ToggleIconProps) {
       <RightHandIcon
         height={32}
         width={32}
-        className={clsx(
-          classes.settingsIcon,
-          on ? classes.settingsIconActive : classes.iconInActive,
-        )}
+        className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
         onClick={onClick}
       />
       <span style={labelStyle}>Right Hand</span>
@@ -253,7 +247,6 @@ function ToggleRightHand({ on, onClick }: ToggleIconProps) {
   )
 }
 
-// TODO: iconInActive doesn't exist
 function ToggleSound({ on, onClick }: ToggleIconProps) {
   return (
     <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -262,10 +255,7 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
           <SoundOnIcon
             height={32}
             width={32}
-            className={clsx(
-              classes.settingsIcon,
-              on ? classes.settingsIconActive : classes.iconInActive,
-            )}
+            className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
             onClick={onClick}
           />
           <span style={labelStyle}>Sound On</span>
@@ -275,10 +265,7 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
           <SoundOffIcon
             height={32}
             width={32}
-            className={clsx(
-              classes.settingsIcon,
-              on ? classes.settingsIconActive : classes.iconInActive,
-            )}
+            className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
             onClick={onClick}
           />
           <span style={labelStyle}>Sound Off</span>

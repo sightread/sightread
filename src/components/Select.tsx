@@ -149,7 +149,7 @@ export default function Select({
         <LoadingIcon width={15} height={15} className={clsx(classes.loading, classNames?.icon)} />
       )}
       <div style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: 0, width: '100%' }}>
+        <div style={{ position: 'absolute', top: 0, width: '100%', zIndex: 1 }}>
           <div
             ref={menuRef}
             style={{ width: '100%' }}
@@ -163,7 +163,7 @@ export default function Select({
               return (
                 <div
                   key={option}
-                  className={`${classes.option} ${classNames?.option}`}
+                  className={clsx(classes.option, classNames?.option)}
                   onClick={() => handleSelect(option)}
                 >
                   {format(option)}

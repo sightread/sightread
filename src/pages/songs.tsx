@@ -115,10 +115,8 @@ export default function SelectSongPage() {
   }, [])
 
   // TODO: this is a bug if the uploaded library changes, and s will only expand.
-  useEffect(() => {
-    // console.count('getUploadedLib')
-    setSongs((s) => s.concat(getUploadedLibrary()))
-  }, [getUploadedLibrary()])
+  const uploadedLibrary = getUploadedLibrary()
+  useEffect(() => setSongs((s) => s.concat(uploadedLibrary)), [uploadedLibrary])
 
   const handleUpload = () => {
     setSongs(songs.concat(getUploadedLibrary()))
