@@ -10,17 +10,16 @@ import {
   isBrowser,
   isLocalStorageAvailable,
   Container,
-} from '../utils'
-import { SelectSongModal, SelectSongTable } from '../SelectSongPage'
+} from 'src/utils'
+import { SelectSongModal, SelectSongTable } from 'src/features/SelectSongPage'
 import songManifest from 'src/manifest.json'
-import Modal from 'src/components/Modal'
 import { Song } from 'src/types'
 import { palette } from 'src/styles/common'
-import { parseMidi, parseMusicXML } from '../parsers'
+import { parseMidi, parseMusicXML } from 'src/features/parsers'
 import { css } from '@sightread/flake'
 import clsx from 'clsx'
-import { getUploadedLibrary, UploadedSong, isKeyAlreadyUsed, saveSong } from '../persist'
-import AppBar from 'src/components/AppBar'
+import { getUploadedLibrary, UploadedSong, isKeyAlreadyUsed, saveSong } from 'src/persist'
+import { AppBar, Modal } from 'src/components'
 
 type LibrarySong = {
   file: string
@@ -116,9 +115,8 @@ export default function SelectSongPage() {
   }, [])
 
   // TODO: this is a bug if the uploaded library changes, and s will only expand.
-  useEffect(() => {
-    setSongs((s) => s.concat(getUploadedLibrary()))
-  }, [getUploadedLibrary()])
+  const uploadedLibrary = getUploadedLibrary()
+  useEffect(() => setSongs((s) => s.concat(uploadedLibrary)), [uploadedLibrary])
 
   const handleUpload = () => {
     setSongs(songs.concat(getUploadedLibrary()))

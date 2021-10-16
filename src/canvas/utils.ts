@@ -1,4 +1,10 @@
-function line(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
+export function line(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+): void {
   ctx.beginPath()
   ctx.moveTo(x1, y1)
   ctx.lineTo(x2, y2)
@@ -12,7 +18,8 @@ const noteCornerRadius = {
   bl: radius,
   br: radius,
 }
-function roundRect(
+
+export function roundRect(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -47,7 +54,7 @@ function roundRect(
   ctx.stroke()
 }
 
-function circle(
+export function circle(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -70,7 +77,7 @@ let getMusicNotePath: () => Path2D = (function () {
   }
 })()
 
-function drawMusicNote(
+export function drawMusicNote(
   ctx: CanvasRenderingContext2D,
   posX: number,
   posY: number,
@@ -82,5 +89,3 @@ function drawMusicNote(
   ctx.fill(getMusicNotePath())
   ctx.translate(-posX + 10, -posY + 3)
 }
-
-export { circle, line, roundRect, drawMusicNote }

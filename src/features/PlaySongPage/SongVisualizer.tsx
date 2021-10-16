@@ -1,10 +1,10 @@
 import { useCallback, useRef } from 'react'
-import { Hand, PlayableSong } from '../types'
-import { useSize } from '../hooks/size'
-import { FClefIcon, GClefIcon, SheetBraceIcon } from '../icons'
-import { render, sheetIconProps } from './canvasRenderer'
-import { useRAFLoop } from '../hooks'
-import Player from '../player'
+import { Hand, Song, SongConfig } from 'src/types'
+import { useSize } from 'src/hooks/size'
+import { FClefIcon, GClefIcon, SheetBraceIcon } from 'src/icons'
+import { GivenState, render, sheetIconProps } from './canvasRenderer'
+import { useRAFLoop } from 'src/hooks'
+import Player from 'src/player'
 
 type HandSettings = {
   [trackId: string]: {
@@ -13,8 +13,8 @@ type HandSettings = {
 }
 
 type CanvasRendererProps = {
-  song: PlayableSong | undefined
-  visualization: 'sheet' | 'falling-notes'
+  song: Song | undefined
+  config: SongConfig
   hand: Hand
   handSettings: HandSettings
   getTime: () => number
@@ -23,7 +23,7 @@ type CanvasRendererProps = {
 
 function CanvasRenderer({
   song,
-  visualization,
+  config,
   hand,
   handSettings,
   getTime,
@@ -54,9 +54,10 @@ function CanvasRenderer({
     if (!ctxRef.current || !song) {
       return
     }
-    const state = {
+    const state: GivenState = {
       time: getTime(),
-      visualization,
+      visualization: config.visualization,
+      drawNotes: config.noteLetter,
       width,
       height,
       pps: 150, // pixels per second
@@ -72,7 +73,7 @@ function CanvasRenderer({
 
   return (
     <div style={{ position: 'absolute', width: '100%', height: '100%' }} ref={measureRef}>
-      {visualization === 'sheet' && (
+      {config.visualization === 'sheet' && (
         <>
           <GClefIcon {...sheetIconProps('treble', height)} />
           <FClefIcon {...sheetIconProps('bass', height)} />

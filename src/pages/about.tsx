@@ -1,9 +1,9 @@
 import React, { CSSProperties } from 'react'
-import AppBar from '../components/AppBar'
-import { Container, Sizer } from '../utils'
+import { AppBar } from 'src/components'
+import { Sizer } from 'src/utils'
 import { css } from '@sightread/flake'
-import { palette } from '../styles/common'
-import { GithubIcon, MailIcon, WarningIcon } from '../icons'
+import { palette } from 'src/styles/common'
+import { GithubIcon, MailIcon, WarningIcon } from 'src/icons'
 
 const centerAll: CSSProperties = {
   display: 'flex',

@@ -1,6 +1,6 @@
 import { IconInput } from './types'
 
-export default function MailIcon({ width, height, style, className, onClick }: IconInput) {
+export default function Mail({ width, height, style, className, onClick }: IconInput) {
   return (
     <svg
       width={width}

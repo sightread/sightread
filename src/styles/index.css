@@ -5,37 +5,8 @@
   font-style: normal;
 }
 
-/* TODO: remove this dumb font shit. */
 body {
-  /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; */
   font-family: 'Titillium';
-}
-
-.left-hand.white {
-  background-color: #ff6825;
-}
-.left-hand.black {
-  background-color: #d74000;
-}
-.right-hand.white {
-  background-color: #7029fb;
-}
-.right-hand.black {
-  background-color: #4912d4;
-}
-
-.activeSortHeader {
-  position: relative;
-}
-.activeSortHeader::after {
-  position: absolute;
-  right: -20px;
-  font-family: 'Font Awesome 5 Free';
-  content: '\f078';
-}
-.activeSortHeader.up::after {
-  content: '\f077';
 }
 
 @keyframes spinner {
@@ -44,20 +15,5 @@ body {
   }
   100% {
     transform: rotate(360deg);
-  }
-}
-
-.pressed-key-grey {
-  animation-duration: 4s;
-  animation-name: fade-out-grey;
-  animation-timing-function: linear;
-}
-
-@keyframes fade-out-grey {
-  0% {
-    background-color: grey;
-  }
-  100% {
-    background-color: white;
   }
 }

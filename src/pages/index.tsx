@@ -1,5 +1,5 @@
-import AppBar from '../components/AppBar'
-import { Container, Sizer } from '../utils'
+import { AppBar } from 'src/components'
+import { Container, Sizer } from 'src/utils'
 import { css, mediaQuery } from '@sightread/flake'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -8,15 +8,12 @@ import {
   CheckMarkIcon,
   FileBoxIcon,
   GithubIcon,
-  Logo,
-  MenuIcon,
   MusicListIcon,
   ProgressIcon,
   ThumbsUpIcon,
-} from '../icons'
-import { palette } from '../styles/common'
+} from 'src/icons'
+import { palette } from 'src/styles/common'
 import clsx from 'clsx'
-import { useRouter } from 'next/router'
 
 const classes = css({
   appBarContainer: {},
@@ -154,26 +151,26 @@ const classes = css({
   },
 })
 
-const ICON_SIZE = 45
-const WHY_SECTION = [
+const iconSize = 45
+const whySection = [
   {
-    icon: <ThumbsUpIcon width={ICON_SIZE} height={ICON_SIZE} />,
+    icon: <ThumbsUpIcon width={iconSize} height={iconSize} />,
     label: 'Quick Start',
     text: 'No account, no installation. Plug in your keyboard and start playing.',
   },
   {
-    icon: <ProgressIcon width={ICON_SIZE} height={ICON_SIZE} />,
+    icon: <ProgressIcon width={iconSize} height={iconSize} />,
     label: 'Difficulty Progression',
     text: 'No matter your skill level, we have the songs for you.',
   },
   {
-    icon: <FileBoxIcon width={ICON_SIZE} height={ICON_SIZE} />,
+    icon: <FileBoxIcon width={iconSize} height={iconSize} />,
     label: 'All in One',
     text: 'We are dedicated to continuously providing features that will help you succeed.',
   },
 ]
 
-const TOOLS_FOR_LEARNING = [
+const toolsForLearning = [
   {
     title: 'Repeat Section',
     text:
@@ -190,9 +187,7 @@ const TOOLS_FOR_LEARNING = [
   },
 ]
 
-function LandingPage() {
-  const router = useRouter()
-
+export default function LandingPage() {
   return (
     <div style={{ position: 'relative' }}>
       <AppBar
@@ -235,7 +230,7 @@ function LandingPage() {
             flexWrap: 'wrap',
           }}
         >
-          {WHY_SECTION.map((section) => {
+          {whySection.map((section) => {
             return (
               <div key={section.label} style={{ width: 350, padding: 45, boxSizing: 'border-box' }}>
                 <div style={{ minHeight: 88 }}>{section.icon}</div>
@@ -296,7 +291,7 @@ function LandingPage() {
               </Link>
             </span>
           </div>
-          <div className={classes.rightSection}>{LIBRARY_SVG}</div>
+          <div className={classes.rightSection}>{LibrarySvg}</div>
         </div>
       </Container>
       <Container
@@ -365,7 +360,7 @@ function LandingPage() {
         <h2 style={{ fontSize: 40 }}>Tools for Learning</h2>
         <Sizer height={8} />
         <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {TOOLS_FOR_LEARNING.map((section, i) => {
+          {toolsForLearning.map((section, i) => {
             return (
               <div className={classes.toolsCard} key={i}>
                 <h3>{section.title}</h3>
@@ -413,9 +408,7 @@ function LandingPage() {
   )
 }
 
-export default LandingPage
-
-const LIBRARY_SVG = (
+const LibrarySvg = (
   <svg
     width="360"
     height="360"

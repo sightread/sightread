@@ -1,10 +1,14 @@
 import React, { CSSProperties, PropsWithChildren, Ref } from 'react'
-import { parseMusicXML, parseMidi, getHandIndexesForTeachMid, parserInferHands } from './parsers'
-import { PlayableSong, Song, SongMeasure, SongNote } from './types'
-import { getKey } from './synth/utils'
-import { InstrumentName } from './synth/instruments'
-import { getUploadedSong } from './persist'
-import { getSongSettings } from './PlaySongPage/utils'
+import {
+  parseMusicXML,
+  parseMidi,
+  getHandIndexesForTeachMid,
+  parserInferHands,
+} from '../features/parsers'
+import { PlayableSong, Song, SongConfig, SongMeasure, SongNote } from 'src/types'
+import { getKey } from 'src/synth/utils'
+import { InstrumentName } from 'src/synth/instruments'
+import { getUploadedSong } from 'src/persist'
 
 export function peek(o: any) {
   console.log(o)
@@ -21,11 +25,13 @@ export function range(start: number, end: number) {
   return nums
 }
 
-function Sizer({ height, width }: { height?: number; width?: number }) {
+export function Sizer({ height, width }: { height?: number; width?: number }) {
   return <div style={{ width, height, minWidth: width, minHeight: height }} />
 }
 
-export const isBrowser = () => typeof window === 'object'
+export function isBrowser() {
+  return typeof window === 'object'
+}
 
 /*
  * In development, parse on client.
@@ -45,7 +51,7 @@ async function getServerSong(url: string): Promise<Song> {
   return fetch(parsedUrl).then((res) => res.json())
 }
 
-async function getSong(url: string): Promise<PlayableSong> {
+export async function getSong(url: string): Promise<Song> {
   let song = getUploadedSong(url)
   if (!song) {
     song = await getServerSong(url)
@@ -53,15 +59,14 @@ async function getSong(url: string): Promise<PlayableSong> {
   song.notes = song.items.filter((i) => i.type === 'note') as SongNote[]
   song.measures = song.items.filter((i) => i.type === 'measure') as SongMeasure[]
 
-  const config = getSongSettings(url, song)
-  return { ...song, config }
+  return song
 }
 
-function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
+export function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
   return isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
 }
 
-function formatTime(seconds: number | string | undefined) {
+export function formatTime(seconds: number | string | undefined) {
   if (typeof seconds === 'string' || seconds === undefined) {
     throw new Error('Should not call formatTime on a string')
   }
@@ -107,7 +112,7 @@ export function Container({
   )
 }
 
-class Deferred<T> {
+export class Deferred<T> {
   promise: Promise<T>
   resolve!: (value: T | PromiseLike<T>) => void
   reject!: (value: T | PromiseLike<T>) => void
@@ -119,7 +124,7 @@ class Deferred<T> {
   }
 }
 
-function isBlack(note: number) {
+export function isBlack(note: number) {
   return getKey(note)?.[1] === 'b'
 }
 
@@ -232,7 +237,7 @@ export function fileToString(file: File): Promise<string | null> {
 /**
  * XORs the keys. Find all the keys that are in one object but not the other.
  */
-function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
+export function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
   let diff = []
   for (let k in o1) {
     !(k in o2) && diff.push(k)
@@ -243,7 +248,7 @@ function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
   return diff
 }
 
-function getNoteSizes(width: number, whiteCount: number) {
+export function getNoteSizes(width: number, whiteCount: number) {
   const whiteWidth = width / whiteCount
   const whiteHeight = Math.min(5 * whiteWidth, 250) // max-height: 250
   const blackWidth = whiteWidth / 2
@@ -252,7 +257,7 @@ function getNoteSizes(width: number, whiteCount: number) {
   return { whiteWidth, whiteHeight, blackWidth, blackHeight }
 }
 
-function clamp(number: number, { min = number, max = number }) {
+export function clamp(number: number, { min = number, max = number }) {
   if (isNaN(number)) {
     return max
   }
@@ -270,10 +275,10 @@ export function mapValues<From, To>(
   }, {})
 }
 
-function getHands(song: PlayableSong) {
+export function getHands(songConfig: SongConfig) {
   let left
   let right
-  for (let [id, config] of Object.entries(song.config)) {
+  for (let [id, config] of Object.entries(songConfig.tracks)) {
     if (config.hand === 'left') {
       left = parseInt(id, 10)
     } else if (config.hand === 'right') {
@@ -282,17 +287,4 @@ function getHands(song: PlayableSong) {
   }
 
   return { left, right }
-}
-
-export {
-  clamp,
-  Deferred,
-  diffKeys,
-  formatTime,
-  getNoteSizes,
-  getHands,
-  getSong,
-  inferHands,
-  isBlack,
-  Sizer,
 }

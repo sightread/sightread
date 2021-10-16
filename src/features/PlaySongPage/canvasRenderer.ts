@@ -1,8 +1,8 @@
-import { SongMeasure, SongNote, Hand } from '../types'
-import { clamp, isBlack, isBrowser, pickHex } from '../utils'
+import { SongMeasure, SongNote, Hand } from 'src/types'
+import { clamp, isBlack, isBrowser, pickHex } from 'src/utils'
 import { getNoteLanes } from './utils'
-import { circle, drawMusicNote, line, roundRect } from '../canvas/utils'
-import midiState from 'src/midi'
+import { circle, drawMusicNote, line, roundRect } from 'src/canvas/utils'
+import midiState from 'src/features/midi'
 import { getKey, getNote } from 'src/synth/utils'
 
 type Canvas = CanvasRenderingContext2D
@@ -11,18 +11,6 @@ type HandSettings = {
   [trackId: string]: {
     hand: Hand | 'none'
   }
-}
-
-type Palette = {
-  right: {
-    black: string
-    white: string
-  }
-  left: {
-    black: string
-    white: string
-  }
-  measure: string
 }
 
 type SheetIconProps = {
@@ -118,8 +106,6 @@ function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
 
 function renderBackgroundLines(state: State): void {
   const { ctx, width, height } = state
-  ctx.fillStyle = 'white'
-  ctx.fillRect(0, 0, PLAY_NOTES_LINE_X - 10, height)
   ctx.fillStyle = 'black'
   drawTrebleStaffLines(ctx, width, height)
   drawBassStaffLines(ctx, width, height)
@@ -129,7 +115,7 @@ function renderBackgroundLines(state: State): void {
 /* ===================== END SHEET VIS HELPERS ======================== */
 /* ==================================================================== */
 
-const palette: Palette = {
+const palette = {
   right: {
     black: '#4912d4',
     white: '#7029fb',
@@ -239,6 +225,7 @@ function isMatchingHand(item: CanvasItem, state: State) {
 
 export type GivenState = {
   time: number
+  drawNotes: boolean
   visualization: 'falling-notes' | 'sheet'
   width: number
   height: number
@@ -284,7 +271,9 @@ function deriveState(state: Readonly<GivenState>): State {
 
 export function render(givenState: Readonly<GivenState>) {
   const state = deriveState(givenState)
+
   state.ctx.clearRect(0, 0, state.width, state.height)
+
   if (state.visualization === 'falling-notes') {
     renderFallingVis(state)
   } else {
@@ -387,13 +376,13 @@ function renderMeasure(measure: SongMeasure, state: State): void {
 // - can use offdom canvas (not OffscreenCanvas API) for background since its repainting over and over.
 // - can also treat it all as one giant image that gets partially drawn each frame.
 function renderSheetVis(state: State): void {
+  renderBackgroundLines(state)
   for (const item of getItemsInView(state)) {
     if (item.type === 'measure') {
       continue
     }
     renderSheetNote(item, state)
   }
-  renderBackgroundLines(state)
   renderMidiPressedKeys(state)
 }
 
@@ -427,7 +416,13 @@ function renderSheetNote(note: SongNote, state: State): void {
   let canvasY = getNoteY(state, staff, note.midiNote)
 
   ctx.fillStyle = color + NOTE_ALPHA
-  ctx.fillRect(canvasX, canvasY + 3, length - 15, 10)
+  const trailLength = length - 15 - (canvasX > PLAY_NOTES_LINE_X ? 0 : PLAY_NOTES_LINE_X - canvasX)
+  ctx.fillRect(Math.max(canvasX, PLAY_NOTES_LINE_X), canvasY + 3, trailLength, 10)
+
+  // Return after drawing the tail for the notes that have already crossed.
+  if (canvasX < PLAY_NOTES_LINE_X - 10) {
+    return
+  }
   drawMusicNote(ctx, canvasX, canvasY, color)
 
   const flat = '♭'
@@ -438,9 +433,7 @@ function renderSheetNote(note: SongNote, state: State): void {
     ctx.fillText(text, canvasX - 20, canvasY + 11)
   }
 
-  // Temporary debug measure.
-  // TODO: make this a legit setting.
-  if ((window as any)?.DRAW_NOTES) {
+  if (state.drawNotes) {
     ctx.font = '9px Arial'
     ctx.fillStyle = 'white'
     ctx.fillText(note.pitch.step, canvasX, canvasY + 11)
@@ -455,7 +448,7 @@ function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
     offsetFromBottom = row - getRow(getNote('E4'))
     bottom = trebleBottomY(state.height)
   } else {
-    offsetFromBottom = row - getRow(getNote('G3'))
+    offsetFromBottom = row - getRow(getNote('G2'))
     bottom = bassBottomY(state.height)
   }
 

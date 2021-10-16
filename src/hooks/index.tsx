@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { breakpoints } from '../utils'
+import { breakpoints } from 'src/utils'
 
 export function useRAFLoop(fn: Function) {
   const requestRef: any = React.useRef()
@@ -21,10 +21,6 @@ export function useRAFLoop(fn: Function) {
     requestRef.current = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(requestRef.current)
   }, [animate]) // Make sure the effect runs only once
-}
-
-type ProviderProps = {
-  children: React.ReactNode
 }
 
 // TODO: should this just be a useMemo?

@@ -1,34 +1,47 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Song, PlayableSong, Hand, SongNote, MidiStateEvent, SongConfig } from '../../types'
-import { RuleLines, BpmDisplay, PianoRoll, SongVisualizer } from '../../PlaySongPage'
-import { getHandSettings, getSongRange } from '../../PlaySongPage/utils'
+import {
+  Song,
+  PlayableSong,
+  Hand,
+  SongNote,
+  MidiStateEvent,
+  SongConfig,
+  VisualizationMode,
+} from 'src/types'
+import {
+  RuleLines,
+  BpmDisplay,
+  PianoRoll,
+  SongVisualizer,
+  SettingsSidebar,
+} from 'src/features/PlaySongPage'
+import { getHandSettings, getSongRange, getSongSettings } from 'src/features/PlaySongPage/utils'
 import {
   ArrowLeftIcon,
   PreviousIcon,
   PauseIcon,
   PlayIcon,
-  LeftHandIcon,
-  RightHandIcon,
-  ClockIcon,
   HistoryIcon,
   SoundOnIcon,
   LoadingIcon,
   SoundOffIcon,
-} from '../../icons'
-import Player from '../../player'
-import { useRAFLoop, useSingleton } from '../../hooks'
-import { formatTime, getSong, isBlack, mapValues } from '../../utils'
-import { useSize } from '../../hooks/size'
-import { MusicalNoteIcon } from '../../icons'
+  SettingsCog,
+} from 'src/icons'
+import Player from 'src/player'
+import { useRAFLoop, useSingleton } from 'src/hooks'
+import { formatTime, getSong, isBlack, mapValues, peek, Sizer } from 'src/utils'
+import { useSize } from 'src/hooks/size'
 import { css } from '@sightread/flake'
 import { GetServerSideProps } from 'next'
 import { default as ErrorPage } from 'next/error'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
-import { getSynthStub } from '../../synth'
-import { SubscriptionCallback } from 'src/PlaySongPage/PianoRoll'
-import midiState from 'src/midi'
-import * as wakelock from '../../wakelock'
+import { getSynthStub } from 'src/synth'
+import { SubscriptionCallback } from 'src/features/PlaySongPage/PianoRoll'
+import midiState from 'src/features/midi'
+import * as wakelock from 'src/wakelock'
+import { Toggle } from 'src/components'
+import { useSongSettings } from 'src/hooks/song-config'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {
@@ -42,32 +55,15 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     return props
   }
   const type = song_location.includes('lessons') ? 'lesson' : 'song'
-  const viz = query.viz
   return {
-    props: {
-      type,
-      songLocation: song_location.join('/'),
-      viz: viz ?? 'falling-notes',
-    },
+    props: { type, songLocation: song_location.join('/') },
   }
 }
 
-type viz = 'falling-notes' | 'sheet'
 type PlaySongProps = {
   type: 'lesson' | 'song'
   songLocation: string
-  viz: viz
-}
-const palette = {
-  right: {
-    black: '#4912d4',
-    white: '#7029fb',
-  },
-  left: {
-    black: '#d74000',
-    white: '#ff6825',
-  },
-  measure: '#C5C5C5', //'#C5C5C5',
+  viz: VisualizationMode
 }
 
 const classes = css({
@@ -124,18 +120,27 @@ const classes = css({
   },
 })
 
-function App({ type, songLocation, viz }: PlaySongProps) {
+function App({ type, songLocation }: PlaySongProps) {
+  const [sidebar, setSidebar] = useState(false)
   const [playing, setPlaying] = useState(false)
-  const [waiting, setWaiting] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const [canPlay, setCanPlay] = useState<boolean>(false)
-  const [hand, setHand] = useState<Hand>('both')
   const router = useRouter()
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
-  const [song, setSong] = useState<PlayableSong>()
+  const [song, setSong] = useState<Song>()
   const keyColorUpdater = useRef<SubscriptionCallback>(null)
+  const [songConfig, setSongConfig] = useSongSettings(songLocation)
+
+  const hand =
+    songConfig.left && songConfig.right
+      ? 'both'
+      : songConfig.left
+      ? 'left'
+      : songConfig.right
+      ? 'right'
+      : 'none'
 
   // Stops screen from dimming during a song.
   useEffect(() => {
@@ -143,20 +148,17 @@ function App({ type, songLocation, viz }: PlaySongProps) {
     return () => wakelock.unlock()
   }, [])
 
-  const setupPlayer = useCallback(
-    (song: PlayableSong) => {
-      setCanPlay(false)
-      setSong(song)
-      player.setSong(song).then(() => {
-        setCanPlay(true)
-      })
-    },
-    [player],
-  )
-  // Is this doing anything? - jake
+  // Hack for updating player when config changes.
+  // Maybe move to the onChange? Or is this chill.
+  const { waiting, left, right } = songConfig
   useEffect(() => {
-    player.setHand(hand)
-  }, [player, hand])
+    player.setWait(waiting)
+    if (left && right) {
+      player.setHand('both')
+    } else {
+      player.setHand(left ? 'left' : 'right')
+    }
+  }, [player, waiting, left, right])
 
   // Register ummount fns
   useEffect(() => {
@@ -168,10 +170,14 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   useEffect(() => {
     if (!songLocation || !type) return
 
-    getSong(songLocation).then((song: PlayableSong) => {
-      setupPlayer(song)
+    setCanPlay(false)
+    getSong(songLocation).then((song: Song) => {
+      const config = getSongSettings(songLocation, song)
+      setSong(song)
+      setSongConfig(config)
+      player.setSong(song, config).then(() => setCanPlay(true))
     })
-  }, [songLocation, player, setupPlayer, type])
+  }, [songLocation, player, type, setSongConfig])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -194,7 +200,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   useEffect(() => {
     const handleEvent = () => {
       const pressed = mapValues(player.getPressedKeys(), (note) => {
-        return { color: getTrackColor(note, song?.config) }
+        return { color: getTrackColor(note, songConfig) }
       })
       for (let midiNote of midiState.getPressedNotes().keys()) {
         pressed[midiNote] = { color: 'grey' }
@@ -216,18 +222,10 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       Player.player().unsubscribe(handleEvent)
       midiState.unsubscribe(handleMidiEvent)
     }
-  }, [player, synth, song])
+  }, [player, synth, song, songConfig])
 
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
-  }
-
-  const handleHand = (selected: Hand) => {
-    if (hand === selected) {
-      setHand('both')
-      return
-    }
-    setHand(selected)
   }
 
   const handleToggleSound = () => {
@@ -235,6 +233,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
       player.setVolume(0)
       return setSoundOff(true)
     }
+    player.setVolume(1)
     setSoundOff(false)
   }
 
@@ -278,8 +277,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
   return (
     <div className="App">
       <div
-        id="topbar"
-        className={`${classes.topbar}`}
+        className={classes.topbar}
         style={{
           position: 'fixed',
           top: 0,
@@ -289,17 +287,20 @@ function App({ type, songLocation, viz }: PlaySongProps) {
           backgroundColor: '#292929',
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
-        <ArrowLeftIcon
-          className={classes.topbarIcon}
-          height={40}
-          width={50}
-          onClick={() => {
-            player.pause()
-            router.back()
-          }}
-        />
+        <div style={{ width: 250 }}>
+          <ArrowLeftIcon
+            className={classes.topbarIcon}
+            height={40}
+            width={50}
+            onClick={() => {
+              player.pause()
+              router.back()
+            }}
+          />
+        </div>
         <div
           className="nav-buttons"
           style={{
@@ -309,7 +310,7 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             alignItems: 'center',
             display: 'flex',
             justifyContent: 'space-around',
-            width: 225,
+            width: 230,
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
@@ -334,34 +335,16 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             display: 'flex',
             marginLeft: 'auto',
             alignItems: 'center',
-            minWidth: 250,
+            minWidth: 150,
             marginRight: 20,
           }}
         >
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <div style={{ width: 44 }}>
-            <LeftHandIcon
-              onClick={() => handleHand('left')}
-              height={40}
-              width={20}
-              className={clsx(classes.figmaIcon, hand === 'left' && classes.active)}
-            />
-            <RightHandIcon
-              onClick={() => handleHand('right')}
-              height={40}
-              width={20}
-              className={clsx(classes.figmaIcon, hand === 'right' && classes.active)}
-            />
-          </div>
-          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <ClockIcon
+          <SettingsCog
             width={25}
             height={25}
-            className={clsx(classes.figmaIcon, classes.fillWhite, waiting && classes.active)}
-            onClick={() => {
-              setWaiting(!waiting)
-              player.setWait(!waiting)
-            }}
+            className={clsx(classes.figmaIcon, classes.fillWhite, sidebar && classes.active)}
+            onClick={() => setSidebar(!sidebar)}
           />
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
           <span
@@ -381,31 +364,6 @@ function App({ type, songLocation, viz }: PlaySongProps) {
                 classes.fillWhite,
                 rangeSelecting && classes.active,
               )}
-            />
-          </span>
-
-          <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-          <span
-            className={classes.figmaIcon}
-            style={{ display: 'inline-block' }}
-            onClick={() => {
-              if (viz === 'falling-notes' || !viz) {
-                router.replace({
-                  href: router.route,
-                  query: { viz: 'sheet', song_location: router.query.song_location }, // im confused by this
-                })
-              } else {
-                router.replace({
-                  href: router.route,
-                  query: { viz: 'falling-notes', song_location: router.query.song_location },
-                })
-              }
-            }}
-          >
-            <MusicalNoteIcon
-              width={25}
-              height={25}
-              className={clsx(classes.topbarIcon, classes.fillWhite)}
             />
           </span>
           <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
@@ -429,17 +387,30 @@ function App({ type, songLocation, viz }: PlaySongProps) {
             )}
           </span>
         </div>
-        <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
-          <SongScrubBar
-            song={song ?? null}
-            rangeSelecting={rangeSelecting}
-            setRangeSelecting={setRangeSelecting}
-          />
-        </div>
+      </div>
+      <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
+        <SongScrubBar
+          song={song ?? null}
+          rangeSelecting={rangeSelecting}
+          setRangeSelecting={setRangeSelecting}
+        />
       </div>
       <div
         style={{
-          backgroundColor: viz === 'falling-notes' ? '#2e2e2e' : 'white',
+          position: 'absolute',
+          top: 95,
+          width: 300,
+          height: 'calc(100% - 95px)',
+          right: 0,
+          visibility: sidebar ? 'visible' : 'hidden',
+          zIndex: 2,
+        }}
+      >
+        <SettingsSidebar open={sidebar} onChange={setSongConfig} config={songConfig} song={song} />
+      </div>
+      <div
+        style={{
+          backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
           width: '100vw',
           height: 'calc(100vh - 95px)',
           marginTop: 95,
@@ -452,13 +423,13 @@ function App({ type, songLocation, viz }: PlaySongProps) {
         <div style={{ position: 'relative', flex: 1 }}>
           <SongVisualizer
             song={song}
-            visualization={viz}
+            config={songConfig}
             hand={hand}
-            handSettings={getHandSettings(song)}
+            handSettings={getHandSettings(songConfig)}
             getTime={() => Player.player().getTime()}
           />
         </div>
-        {viz === 'falling-notes' && (
+        {songConfig.visualization === 'falling-notes' && (
           <PianoRoll
             activeColor="grey"
             onNoteDown={(n: number) => {
@@ -583,6 +554,7 @@ export function SongScrubBar({
         height: '100%',
         position: 'absolute',
         borderBottom: 'black solid 1px',
+        boxSizing: 'border-box',
         userSelect: 'none',
       }}
       onMouseDown={(e) => {
@@ -702,11 +674,23 @@ export function SongScrubBar({
   )
 }
 
-function getTrackColor(songNote: SongNote, tracks: SongConfig | undefined): string | void {
-  const handForTrack = tracks?.[songNote.track]?.hand
-  if (handForTrack && handForTrack !== 'none') {
+const trackColors = {
+  right: {
+    black: '#4912d4',
+    white: '#7029fb',
+  },
+  left: {
+    black: '#d74000',
+    white: '#ff6825',
+  },
+  measure: '#C5C5C5', //'#C5C5C5',
+}
+
+function getTrackColor(songNote: SongNote, songConfig: SongConfig | undefined): string | void {
+  const hand = songConfig?.tracks?.[songNote.track].hand
+  if (hand && hand !== 'none') {
     const type = isBlack(songNote.midiNote) ? 'black' : 'white'
-    return palette[handForTrack][type]
+    return trackColors[hand][type]
   }
 }
 

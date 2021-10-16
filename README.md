@@ -1,12 +1,22 @@
-# sightread
+# [sightread](http://sightread.dev)
 
-Synthesia clone. See [here](https://sightread.now.sh/).
+A Synthesia clone for the web.
+See it [live](https://sightread.dev/).
 
 **goal**
-Gamify learning to sight read sheet music for piano.
+Gamify learning to sight read piano sheet music.
 
-**potential modes**
+## Development
 
-- Learn a song
-- Campaign (Go on tour)
-- Practice?
+To start the app
+
+```
+npm install
+npm run dev
+```
+
+To start Storybook:
+
+```
+npm run storybook
+```

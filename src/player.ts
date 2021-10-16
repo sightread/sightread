@@ -1,15 +1,15 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 
-import { SongNote, PlayableSong } from './types'
+import { SongNote, PlayableSong, Song, SongConfig } from './types'
 import { getSynth, Synth } from './synth'
-import midi from './midi'
+import midi from './features/midi'
 import { InstrumentName } from './synth/instruments'
 import { getHands } from './utils'
 
 let player: Player
 
 class Player {
-  song!: PlayableSong
+  song!: Song
   playInterval: any = null
   currentSongTime = 0
   // right now assuming bpm means quarter notes per minute
@@ -55,17 +55,17 @@ class Player {
     this.playing = []
   }
 
-  async setSong(song: PlayableSong) {
+  async setSong(song: Song, songConfig: SongConfig) {
     this.song = song
-    this.songHands = getHands(song)
+    this.songHands = getHands(songConfig)
     this.instrumentsLoaded = false
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
       const instrument =
-        song.config[+trackId].instrument ?? config.program ?? config.instrument ?? 0
+        songConfig.tracks[+trackId]?.instrument ?? config.program ?? config.instrument ?? 0
       synths[+trackId] = getSynth(instrument)
-      const vol = song.config[+trackId].sound ? 1 : 0
+      const vol = songConfig.tracks[+trackId]?.sound ? 1 : 0
       this.setTrackVolume(+trackId, vol)
     })
     await Promise.all(synths).then((s) => {
@@ -79,6 +79,7 @@ class Player {
       synth?.setMasterVolume(vol)
     })
   }
+
   setTrackVolume(track: number | string, vol: number) {
     this.synths?.[+track]?.setMasterVolume(vol)
   }
