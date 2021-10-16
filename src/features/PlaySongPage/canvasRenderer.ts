@@ -106,8 +106,6 @@ function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
 
 function renderBackgroundLines(state: State): void {
   const { ctx, width, height } = state
-  ctx.fillStyle = 'white'
-  ctx.fillRect(0, 0, PLAY_NOTES_LINE_X - 10, height)
   ctx.fillStyle = 'black'
   drawTrebleStaffLines(ctx, width, height)
   drawBassStaffLines(ctx, width, height)
@@ -378,14 +376,13 @@ function renderMeasure(measure: SongMeasure, state: State): void {
 // - can use offdom canvas (not OffscreenCanvas API) for background since its repainting over and over.
 // - can also treat it all as one giant image that gets partially drawn each frame.
 function renderSheetVis(state: State): void {
+  renderBackgroundLines(state)
   for (const item of getItemsInView(state)) {
     if (item.type === 'measure') {
       continue
     }
     renderSheetNote(item, state)
   }
-
-  renderBackgroundLines(state)
   renderMidiPressedKeys(state)
 }
 
@@ -419,7 +416,13 @@ function renderSheetNote(note: SongNote, state: State): void {
   let canvasY = getNoteY(state, staff, note.midiNote)
 
   ctx.fillStyle = color + NOTE_ALPHA
-  ctx.fillRect(canvasX, canvasY + 3, length - 15, 10)
+  const trailLength = length - 15 - (canvasX > PLAY_NOTES_LINE_X ? 0 : PLAY_NOTES_LINE_X - canvasX)
+  ctx.fillRect(Math.max(canvasX, PLAY_NOTES_LINE_X), canvasY + 3, trailLength, 10)
+
+  // Return after drawing the tail for the notes that have already crossed.
+  if (canvasX < PLAY_NOTES_LINE_X - 10) {
+    return
+  }
   drawMusicNote(ctx, canvasX, canvasY, color)
 
   const flat = '♭'
