@@ -1,5 +1,5 @@
-import { AppBar } from 'src/components'
-import { Container, Sizer } from 'src/utils'
+import { AppBar } from '@/components'
+import { Container, Sizer } from '@/utils'
 import { css, mediaQuery } from '@sightread/flake'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,8 +11,8 @@ import {
   MusicListIcon,
   ProgressIcon,
   ThumbsUpIcon,
-} from 'src/icons'
-import { palette } from 'src/styles/common'
+} from '@/icons'
+import { palette } from '@/styles/common'
 import clsx from 'clsx'
 
 const classes = css({

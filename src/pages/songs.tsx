@@ -10,16 +10,16 @@ import {
   isBrowser,
   isLocalStorageAvailable,
   Container,
-} from 'src/utils'
-import { SelectSongModal, SelectSongTable } from 'src/features/SelectSongPage'
-import songManifest from 'src/manifest.json'
-import { Song } from 'src/types'
-import { palette } from 'src/styles/common'
-import { parseMidi, parseMusicXML } from 'src/features/parsers'
+} from '@/utils'
+import { SelectSongModal, SelectSongTable } from '@/features/SelectSongPage'
+import songManifest from '@/manifest.json'
+import { Song } from '@/types'
+import { palette } from '@/styles/common'
+import { parseMidi, parseMusicXML } from '@/features/parsers'
 import { css } from '@sightread/flake'
 import clsx from 'clsx'
-import { getUploadedLibrary, UploadedSong, isKeyAlreadyUsed, saveSong } from 'src/persist'
-import { AppBar, Modal } from 'src/components'
+import { getUploadedLibrary, UploadedSong, isKeyAlreadyUsed, saveSong } from '@/persist'
+import { AppBar, Modal } from '@/components'
 
 type LibrarySong = {
   file: string

@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { useRef, useState, useEffect, useMemo } from 'react'
-import { Song, SongConfig } from 'src/types'
-import { SongVisualizer } from 'src/features/PlaySongPage'
-import { getHandSettings, getSongSettings } from 'src/features/PlaySongPage/utils'
-import { SongScrubBar } from 'src/pages/play/[...song_location]'
-import { getSong, Sizer } from 'src/utils'
-import Player from 'src/player'
+import { Song, SongConfig } from '@/types'
+import { SongVisualizer } from '@/features/PlaySongPage'
+import { getHandSettings, getSongSettings } from '@/features/PlaySongPage/utils'
+import { SongScrubBar } from '@/pages/play/[...song_location]'
+import { getSong, Sizer } from '@/utils'
+import Player from '@/player'
 import {
   BothHandsIcon,
   ClockIcon,
@@ -14,11 +14,11 @@ import {
   CancelCircleIcon,
   PlayIcon,
   LoadingIcon,
-} from 'src/icons'
+} from '@/icons'
 import { css } from '@sightread/flake'
 import { useRouter } from 'next/router'
-import { useSongSettings } from 'src/hooks/song-config'
-import { palette } from 'src/styles/common'
+import { useSongSettings } from '@/hooks/song-config'
+import { palette } from '@/styles/common'
 
 const classes = css({
   modalContainer: {

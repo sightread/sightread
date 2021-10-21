@@ -1,5 +1,5 @@
-import { getNote } from 'src/synth/utils'
-import { MidiStateEvent } from 'src/types'
+import { getNote } from '@/synth/utils'
+import { MidiStateEvent } from '@/types'
 
 export function refreshMIDIDevices() {
   if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {

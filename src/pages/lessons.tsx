@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { Container, Sizer } from 'src/utils'
-import { SelectSongModal, SelectSongTable } from 'src/features/SelectSongPage'
-import { AppBar } from 'src/components'
+import { Container, Sizer } from '@/utils'
+import { SelectSongModal, SelectSongTable } from '@/features/SelectSongPage'
+import { AppBar } from '@/components'
 
-import songManifest from 'src/manifest.json'
+import songManifest from '@/manifest.json'
 
 const lessons = songManifest.filter((s) => s.type === 'lesson')
 

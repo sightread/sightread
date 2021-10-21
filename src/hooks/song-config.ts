@@ -1,5 +1,5 @@
-import { usePersistedState } from 'src/persist'
-import { SongConfig } from 'src/types'
+import { usePersistedState } from '@/persist'
+import { SongConfig } from '@/types'
 
 export function useSongSettings(file: string) {
   return usePersistedState<SongConfig>(`${file}/settings`, {

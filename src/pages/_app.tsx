@@ -1,7 +1,7 @@
 import * as React from 'react'
-import 'src/styles/reset.css'
-import 'src/styles/index.css'
-import 'src/styles/SelectSong.css'
+import '@/styles/reset.css'
+import '@/styles/index.css'
+import '@/styles/SelectSong.css'
 import type { AppProps } from 'next/app'
 import Head from 'next/head'
 

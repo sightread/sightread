@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { css } from '@sightread/flake'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { ArrowDown, LoadingIcon } from 'src/icons'
+import { ArrowDown, LoadingIcon } from '@/icons'
 import clsx from 'clsx'
 
 const classes = css({

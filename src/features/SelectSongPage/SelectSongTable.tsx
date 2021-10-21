@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { breakpoints, peek, Sizer } from 'src/utils'
+import { breakpoints, peek, Sizer } from '@/utils'
 import {
   SearchIcon,
   ExpandDownIcon,
@@ -8,10 +8,10 @@ import {
   TrashCanIcon,
   IconWrapper,
   FilterIcon,
-} from 'src/icons'
+} from '@/icons'
 import { css } from '@sightread/flake'
-import { palette } from 'src/styles/common'
-import { useWindowWidth } from 'src/hooks'
+import { palette } from '@/styles/common'
+import { useWindowWidth } from '@/hooks'
 
 type TableColumn<T, D extends keyof T = never> = {
   label: string

@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { css } from '@sightread/flake'
-import { peek } from 'src/utils'
+import { peek } from '@/utils'
 
 const classes = css({
   switch: {
