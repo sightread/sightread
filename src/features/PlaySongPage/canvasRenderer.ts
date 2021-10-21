@@ -1,9 +1,9 @@
-import { SongMeasure, SongNote, Hand } from 'src/types'
-import { clamp, isBlack, isBrowser, pickHex } from 'src/utils'
+import { SongMeasure, SongNote, Hand } from '@/types'
+import { clamp, isBlack, isBrowser, pickHex } from '@/utils'
 import { getNoteLanes } from './utils'
-import { circle, drawMusicNote, line, roundRect } from 'src/canvas/utils'
-import midiState from 'src/features/midi'
-import { getKey, getNote } from 'src/synth/utils'
+import { circle, drawMusicNote, line, roundRect } from '@/canvas/utils'
+import midiState from '@/features/midi'
+import { getKey, getNote } from '@/synth/utils'
 
 type Canvas = CanvasRenderingContext2D
 type CanvasItem = SongMeasure | SongNote

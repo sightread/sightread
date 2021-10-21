@@ -1,8 +1,8 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { SelectSongTable } from 'src/features/SelectSongPage'
-import songManifest from 'src/manifest.json'
-import { formatTime } from 'src/utils'
+import { SelectSongTable } from '@/features/SelectSongPage'
+import songManifest from '@/manifest.json'
+import { formatTime } from '@/utils'
 
 export default {
   title: 'SelectSongTable',

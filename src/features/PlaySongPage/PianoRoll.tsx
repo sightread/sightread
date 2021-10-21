@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSize } from 'src/hooks/size'
-import { getNoteSizes, range } from 'src/utils'
-import { diffKeys, isBlack, isBrowser } from 'src/utils'
-import { getKey } from 'src/synth/utils'
+import { useSize } from '@/hooks/size'
+import { getNoteSizes, range } from '@/utils'
+import { diffKeys, isBlack, isBrowser } from '@/utils'
+import { getKey } from '@/synth/utils'
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
 

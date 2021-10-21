@@ -7,15 +7,15 @@ import {
   MidiStateEvent,
   SongConfig,
   VisualizationMode,
-} from 'src/types'
+} from '@/types'
 import {
   RuleLines,
   BpmDisplay,
   PianoRoll,
   SongVisualizer,
   SettingsSidebar,
-} from 'src/features/PlaySongPage'
-import { getHandSettings, getSongRange, getSongSettings } from 'src/features/PlaySongPage/utils'
+} from '@/features/PlaySongPage'
+import { getHandSettings, getSongRange, getSongSettings } from '@/features/PlaySongPage/utils'
 import {
   ArrowLeftIcon,
   PreviousIcon,
@@ -26,22 +26,22 @@ import {
   LoadingIcon,
   SoundOffIcon,
   SettingsCog,
-} from 'src/icons'
-import Player from 'src/player'
-import { useRAFLoop, useSingleton } from 'src/hooks'
-import { formatTime, getSong, isBlack, mapValues, peek, Sizer } from 'src/utils'
-import { useSize } from 'src/hooks/size'
+} from '@/icons'
+import Player from '@/player'
+import { useRAFLoop, useSingleton } from '@/hooks'
+import { formatTime, getSong, isBlack, mapValues, peek, Sizer } from '@/utils'
+import { useSize } from '@/hooks/size'
 import { css } from '@sightread/flake'
 import { GetServerSideProps } from 'next'
 import { default as ErrorPage } from 'next/error'
 import { useRouter } from 'next/router'
 import clsx from 'clsx'
-import { getSynthStub } from 'src/synth'
-import { SubscriptionCallback } from 'src/features/PlaySongPage/PianoRoll'
-import midiState from 'src/features/midi'
-import * as wakelock from 'src/wakelock'
-import { Toggle } from 'src/components'
-import { useSongSettings } from 'src/hooks/song-config'
+import { getSynthStub } from '@/synth'
+import { SubscriptionCallback } from '@/features/PlaySongPage/PianoRoll'
+import midiState from '@/features/midi'
+import * as wakelock from '@/wakelock'
+import { Toggle } from '@/components'
+import { useSongSettings } from '@/hooks/song-config'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const props = {

@@ -1,10 +1,10 @@
-import { getSynth, getSynthStub, Synth } from 'src/synth'
-import { Song, Track, SongNote, SongConfig, PlayableSong } from 'src/types'
-import { gmInstruments, InstrumentName } from 'src/synth/instruments'
+import { getSynth, getSynthStub, Synth } from '@/synth'
+import { Song, Track, SongNote, SongConfig, PlayableSong } from '@/types'
+import { gmInstruments, InstrumentName } from '@/synth/instruments'
 import { useEffect, useState } from 'react'
-import { CanvasItem } from 'src/canvas/types'
-import { clamp, getNoteSizes, inferHands, isBlack, mapValues, range } from 'src/utils'
-import { getPersistedSongSettings, setPersistedSongSettings } from 'src/persist'
+import { CanvasItem } from '@/canvas/types'
+import { clamp, getNoteSizes, inferHands, isBlack, mapValues, range } from '@/utils'
+import { getPersistedSongSettings, setPersistedSongSettings } from '@/persist'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []

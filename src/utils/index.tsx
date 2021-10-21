@@ -5,10 +5,10 @@ import {
   getHandIndexesForTeachMid,
   parserInferHands,
 } from '../features/parsers'
-import { PlayableSong, Song, SongConfig, SongMeasure, SongNote } from 'src/types'
-import { getKey } from 'src/synth/utils'
-import { InstrumentName } from 'src/synth/instruments'
-import { getUploadedSong } from 'src/persist'
+import { PlayableSong, Song, SongConfig, SongMeasure, SongNote } from '@/types'
+import { getKey } from '@/synth/utils'
+import { InstrumentName } from '@/synth/instruments'
+import { getUploadedSong } from '@/persist'
 
 export function peek(o: any) {
   console.log(o)

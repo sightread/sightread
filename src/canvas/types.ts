@@ -1,4 +1,4 @@
-import { SongMeasure, SongNote } from 'src/types'
+import { SongMeasure, SongNote } from '@/types'
 
 export type Canvas = CanvasRenderingContext2D
 export type CanvasItem = SongMeasure | SongNote

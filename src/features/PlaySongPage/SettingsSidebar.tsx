@@ -1,8 +1,8 @@
 import React from 'react'
-import { Toggle } from 'src/components'
-import { Song, SongConfig, VisualizationMode } from 'src/types'
-import { Sizer } from 'src/utils'
-import { palette as colors } from 'src/styles/common'
+import { Toggle } from '@/components'
+import { Song, SongConfig, VisualizationMode } from '@/types'
+import { Sizer } from '@/utils'
+import { palette as colors } from '@/styles/common'
 import { AdjustInstruments } from './AdjustInstruments'
 
 type SidebarProps = {

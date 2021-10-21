@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { breakpoints } from 'src/utils'
+import { breakpoints } from '@/utils'
 
 export function useRAFLoop(fn: Function) {
   const requestRef: any = React.useRef()

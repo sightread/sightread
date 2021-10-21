@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import clsx from 'clsx'
 import { css } from '@sightread/flake'
-import { Select } from 'src/components'
-import { LeftHandIcon, RightHandIcon, SoundOnIcon, SoundOffIcon } from 'src/icons'
-import Player from 'src/player'
-import { InstrumentName, gmInstruments } from 'src/synth/instruments'
-import { Song, SongConfig, TrackSetting } from 'src/types'
-import { formatInstrumentName } from 'src/utils'
-import { palette } from 'src/styles/common'
+import { Select } from '@/components'
+import { LeftHandIcon, RightHandIcon, SoundOnIcon, SoundOffIcon } from '@/icons'
+import Player from '@/player'
+import { InstrumentName, gmInstruments } from '@/synth/instruments'
+import { Song, SongConfig, TrackSetting } from '@/types'
+import { formatInstrumentName } from '@/utils'
+import { palette } from '@/styles/common'
 
 const classes = css({
   instrumentsHeader: {

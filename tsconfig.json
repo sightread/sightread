@@ -6,12 +6,7 @@
     "jsx": "preserve",
     "sourceMap": true,
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext",
-      "es2019"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext", "es2019"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -23,12 +18,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "downlevelIteration": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }
