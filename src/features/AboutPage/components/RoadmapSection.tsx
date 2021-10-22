@@ -1,7 +1,7 @@
 import { Sizer } from '@/utils'
 import { css } from '@sightread/flake'
 import RoadMapSVG from './RoadmapSVG'
-import { centerAll } from './styles'
+import { centerAll } from '../utils/styles'
 
 const classes = css({
   roadmapList: {

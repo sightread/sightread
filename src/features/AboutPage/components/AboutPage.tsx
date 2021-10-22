@@ -28,7 +28,7 @@ const classes = css({
   },
 })
 
-export default function About() {
+export default function AboutPage() {
   return (
     <div style={{ position: 'relative' }}>
       <style>{`p{font-size: 19px;}`}</style>

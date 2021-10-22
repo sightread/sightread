@@ -1,10 +1,10 @@
-import React, { CSSProperties } from 'react'
+import React from 'react'
 import { Sizer } from '@/utils'
 import { palette } from '@/styles/common'
 import { GithubIcon, MailIcon, WarningIcon } from '@/icons'
 import { css } from '@sightread/flake'
 import MissionSVG from './MissionSVG'
-import { centerAll } from './styles'
+import { centerAll } from '../utils/styles'
 
 const classes = css({
   issueHeader: {

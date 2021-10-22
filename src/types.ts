@@ -56,7 +56,6 @@ export type SongConfig = {
     [trackId: number]: TrackSetting
   }
 }
-export type PlayableSong = Song & { config: SongConfig }
 
 export type TrackSetting = {
   track: Track
