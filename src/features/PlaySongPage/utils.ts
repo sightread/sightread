@@ -1,5 +1,5 @@
 import { getSynth, getSynthStub, Synth } from '@/synth'
-import { Song, Track, SongNote, SongConfig, PlayableSong } from '@/types'
+import { Song, Track, SongNote, SongConfig } from '@/types'
 import { gmInstruments, InstrumentName } from '@/synth/instruments'
 import { useEffect, useState } from 'react'
 import { CanvasItem } from '@/canvas/types'

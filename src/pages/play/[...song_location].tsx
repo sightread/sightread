@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import {
-  Song,
-  PlayableSong,
-  Hand,
-  SongNote,
-  MidiStateEvent,
-  SongConfig,
-  VisualizationMode,
-} from '@/types'
+import { Song, Hand, SongNote, MidiStateEvent, SongConfig, VisualizationMode } from '@/types'
 import {
   RuleLines,
   BpmDisplay,
@@ -40,7 +32,6 @@ import { getSynthStub } from '@/synth'
 import { SubscriptionCallback } from '@/features/PlaySongPage/PianoRoll'
 import midiState from '@/features/midi'
 import * as wakelock from '@/wakelock'
-import { Toggle } from '@/components'
 import { useSongSettings } from '@/hooks/song-config'
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {

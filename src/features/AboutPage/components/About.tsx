@@ -3,9 +3,9 @@ import { AppBar } from '@/components'
 import { Sizer } from '@/utils'
 import { css } from '@sightread/flake'
 import { palette } from '@/styles/common'
+import ChangelogSection from './ChangelogSection'
 import MissionSection from './MissionSection'
 import RoadmapSection from './RoadmapSection'
-import ChangelogSection from './ChangelogSection'
 
 const classes = css({
   appBarContainer: {},

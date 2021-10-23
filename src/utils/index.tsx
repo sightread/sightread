@@ -5,7 +5,7 @@ import {
   getHandIndexesForTeachMid,
   parserInferHands,
 } from '../features/parsers'
-import { PlayableSong, Song, SongConfig, SongMeasure, SongNote } from '@/types'
+import { Song, SongConfig, SongMeasure, SongNote } from '@/types'
 import { getKey } from '@/synth/utils'
 import { InstrumentName } from '@/synth/instruments'
 import { getUploadedSong } from '@/persist'
@@ -41,10 +41,10 @@ async function getServerSong(url: string): Promise<Song> {
   if (process.env.NODE_ENV === 'development') {
     if (url.includes('.xml')) {
       const xml = await (await fetch('/' + url)).text()
-      return parseMusicXML(xml) as PlayableSong
+      return parseMusicXML(xml) as Song
     }
     const buffer = await (await fetch('/' + url)).arrayBuffer()
-    return parseMidi(buffer) as PlayableSong
+    return parseMidi(buffer) as Song
   }
 
   const parsedUrl = '/generated/' + url.replace(/\.(mid|xml)/i, '.json')

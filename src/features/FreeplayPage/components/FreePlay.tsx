@@ -1,49 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MidiStateEvent, SongConfig } from '@/types'
-import { Select } from '@/components'
-import { PianoRoll, BpmDisplay, RuleLines, SongVisualizer } from '@/features/PlaySongPage'
+import { PianoRoll, RuleLines, SongVisualizer } from '@/features/PlaySongPage'
 import { useSynth } from '@/features/PlaySongPage/utils'
-import { formatInstrumentName, mapValues } from '@/utils'
-import { gmInstruments, InstrumentName } from '@/synth/instruments'
-import { ArrowLeftIcon } from '@/icons'
-import { useRouter } from 'next/router'
+import { mapValues } from '@/utils'
+import { InstrumentName } from '@/synth/instruments'
 import midiState from '@/features/midi'
 import { useSingleton } from '@/hooks'
 import { palette } from '@/styles/common'
 import { SubscriptionCallback } from '@/features/PlaySongPage/PianoRoll'
-import FreePlayer from './utils/freePlayer'
-import { css } from '@sightread/flake'
-
-const classes = css({
-  topbar: {
-    '& i': {
-      color: 'white',
-      cursor: 'pointer',
-      transition: 'color 0.1s',
-      fontSize: 24,
-      width: 22,
-    },
-    '& i:hover': {
-      color: 'rgba(58, 104, 231, 1)',
-    },
-    '& i.active': {
-      color: 'rgba(58, 104, 231, 1)',
-    },
-  },
-  topbarIcon: {
-    fill: 'white',
-    cursor: 'pointer',
-    transition: '100ms',
-    '&:hover': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-  },
-})
+import FreePlayer from '../utils/freePlayer'
+import TopBar from './TopBar'
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
   const synthState = useSynth(instrumentName)
-  const router = useRouter()
   const freePlayer = useSingleton(() => new FreePlayer())
   const noteColor = palette.purple.primary
   const keyColorUpdater = useRef<SubscriptionCallback>(null)
@@ -83,62 +53,12 @@ export default function FreePlay() {
 
   return (
     <div className="App">
-      <div
-        id="topbar"
-        className={`${classes.topbar}`}
-        style={{
-          position: 'fixed',
-          height: 55,
-          width: '100vw',
-          zIndex: 2,
-          backgroundColor: '#292929',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          aria-label="left-items"
-          style={{ width: '33%', paddingLeft: '20px', boxSizing: 'border-box', cursor: 'pointer' }}
-        >
-          <ArrowLeftIcon
-            className={classes.topbarIcon}
-            width={50}
-            height={40}
-            onClick={() => {
-              router.back()
-            }}
-          />
-        </div>
-        <div
-          aria-label="center-items"
-          className="nav-buttons"
-          style={{ width: '33%', display: 'flex', justifyContent: 'center' }}
-        >
-          <BpmDisplay />
-        </div>
-        <div
-          aria-label="right-items"
-          style={{
-            width: '34%',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            paddingRight: '20px',
-            boxSizing: 'border-box',
-          }}
-        >
-          <span style={{ width: '200px', display: 'inline-block' }}>
-            <Select
-              loading={synthState.loading}
-              error={synthState.error}
-              value={instrumentName}
-              onChange={(name) => setInstrumentName(name)}
-              options={gmInstruments as any}
-              format={formatInstrumentName}
-              display={formatInstrumentName}
-            />
-          </span>
-        </div>
-      </div>
+      <TopBar
+        isLoading={synthState.loading}
+        isError={synthState.error}
+        value={instrumentName}
+        onChange={(name) => setInstrumentName(name)}
+      />
       <div
         style={{
           backgroundColor: '#2e2e2e',
