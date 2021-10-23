@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { Container, Sizer } from '@/utils'
-import { SelectSongModal, SelectSongTable } from '@/features/SelectSongPage'
-import { AppBar } from '@/components'
+import { SongPreviewModal } from '@/features/SongPreviewModal'
+import { AppBar, Table } from '@/components'
 
 import songManifest from '@/manifest.json'
 
@@ -12,7 +12,7 @@ export default function SelectLessonPage() {
   const [selectedSong, setSelectedSong] = useState<any>('')
   return (
     <>
-      <SelectSongModal
+      <SongPreviewModal
         show={!!selectedSong}
         songMeta={selectedSong}
         onClose={() => {
@@ -25,7 +25,7 @@ export default function SelectLessonPage() {
           <Sizer height={24} />
           <h2 style={{ fontSize: 36, fontWeight: 200 }}>Lessons</h2>
           <Sizer height={24} />
-          <SelectSongTable
+          <Table
             columns={[
               { label: 'Lesson', id: 'lesson', keep: true },
               { label: 'Title', id: 'name', keep: true },
@@ -35,6 +35,7 @@ export default function SelectLessonPage() {
                 format: (v: any) => 'Easy',
               },
             ]}
+            searchBoxPlaceholder="Search Songs by Title"
             rows={lessons}
             filter={['name'] as any}
             onSelectRow={setSelectedSong}

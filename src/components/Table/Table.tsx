@@ -1,57 +1,14 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { breakpoints, peek, Sizer } from '@/utils'
-import {
-  SearchIcon,
-  ExpandDownIcon,
-  PlusIcon,
-  TrashCanIcon,
-  IconWrapper,
-  FilterIcon,
-} from '@/icons'
+import { breakpoints, Sizer } from '@/utils'
+import { PlusIcon, TrashCanIcon, IconWrapper, FilterIcon } from '@/icons'
 import { css } from '@sightread/flake'
 import { palette } from '@/styles/common'
 import { useWindowWidth } from '@/hooks'
-
-type TableColumn<T, D extends keyof T = never> = {
-  label: string
-  id: D
-  keep?: boolean
-  format?: (value: T[D]) => string | React.ReactNode
-}
-
-type RowValue = string | number | undefined
-type Row = { [key: string]: RowValue }
-
-type SelectSongTableProps<T extends Row> = {
-  columns: TableColumn<T, keyof T>[]
-  rows: T[]
-  onSelectRow: (row: T) => void
-  filter: (keyof T)[]
-  onCreate?: () => void
-  onDelete?: null | ((item: T | undefined) => void)
-  onFilter?: () => void
-}
-
-type TableHeadProps<T, D extends keyof T> = {
-  columns: TableColumn<T, D>[]
-  sortCol: number
-  onSelectCol: (index: number) => void
-  rowHeight: number
-}
-
-function compare(a: number | string, b: number | string) {
-  if (typeof a === 'string') {
-    return a.localeCompare(b + '')
-  }
-  return +a - +b
-}
-
-function sortBy<T extends Row>(fn: (x: T) => number | string, rev: boolean, arr: T[]): T[] {
-  return arr.sort((a: T, b: T) => {
-    return (rev ? -1 : 1) * compare(fn(a), fn(b))
-  })
-}
+import { TableProps, Row, RowValue } from './types'
+import { sortBy } from './utils'
+import { SearchBox } from './SearchBox'
+import { TableHead } from './TableHead'
 
 const classes = css({
   expandIcon: {
@@ -97,15 +54,16 @@ const classes = css({
   },
 })
 
-function SelectSongTable<T extends Row>({
+export default function Table<T extends Row>({
   columns,
   rows,
+  searchBoxPlaceholder,
   onSelectRow,
   filter,
   onCreate,
   onDelete,
   onFilter,
-}: SelectSongTableProps<T>) {
+}: TableProps<T>) {
   const [search, saveSearch] = useState('')
   const [sortCol, setSortCol] = useState(1)
   const isSmall = useWindowWidth() < breakpoints.sm
@@ -133,7 +91,7 @@ function SelectSongTable<T extends Row>({
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <SearchBox onSearch={saveSearch} />
+          <SearchBox placeholder={searchBoxPlaceholder} onSearch={saveSearch} />
           {!!onFilter && !isSmall && (
             <IconWrapper onClick={onFilter} className={classes.filterButton}>
               <FilterIcon height={30} width={30} />
@@ -213,84 +171,3 @@ function SelectSongTable<T extends Row>({
     </>
   )
 }
-
-function getIcon(sortCol: number, index: number) {
-  const style: React.CSSProperties = { fill: '#1B0EA6', marginLeft: 5 }
-  if (Math.abs(sortCol) === index + 1) {
-    if (sortCol < 0) {
-      style.transform = 'rotate(180deg)'
-    }
-    return <ExpandDownIcon width={15} height={15} style={style} />
-  }
-  return <></>
-}
-
-function TableHead<T, D extends keyof T>({
-  columns,
-  sortCol,
-  onSelectCol,
-  rowHeight,
-}: TableHeadProps<T, D>) {
-  const headerStyles: React.CSSProperties = {
-    position: 'sticky',
-    top: 0,
-    zIndex: 2,
-    display: 'flex',
-    alignItems: 'center',
-    height: rowHeight,
-    boxSizing: 'border-box',
-    fontWeight: 600,
-    color: '#1B0EA6',
-    backgroundColor: '#F1F1F1',
-    borderBottom: '#d9d5ec solid 1px',
-  }
-  return (
-    <>
-      {columns.map((col, i) => {
-        const marginLeft = i === 0 ? 20 : 0
-        return (
-          <div style={{ ...headerStyles }} key={`col-${col.id}`}>
-            <span style={{ cursor: 'pointer', marginLeft }} onClick={() => onSelectCol(i + 1)}>
-              {col.label}
-              {getIcon(sortCol, i)}
-            </span>
-          </div>
-        )
-      })}
-    </>
-  )
-}
-
-function SearchBox({ onSearch }: { onSearch: (val: string) => void }) {
-  return (
-    <div style={{ position: 'relative', height: 32, width: 300 }}>
-      <input
-        type="search"
-        onChange={(e: any) => onSearch(e.target.value)}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          paddingLeft: 40,
-          backgroundColor: '#F9F9F9',
-          borderRadius: '5px',
-          boxShadow: 'inset 0px 1px 4px rgba(0, 0, 0, 0.25)',
-          border: 'none',
-        }}
-        placeholder="Search Songs by Title or Artist"
-      />
-      <SearchIcon
-        height={25}
-        width={25}
-        style={{
-          position: 'absolute',
-          left: 10,
-          top: '50%',
-          transform: 'translateY(-50%)',
-        }}
-      />
-    </div>
-  )
-}
-
-export default SelectSongTable

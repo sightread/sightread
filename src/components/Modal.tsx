@@ -1,4 +1,4 @@
-import { PropsWithChildren, CSSProperties } from 'react'
+import { PropsWithChildren, CSSProperties, useEffect, useRef } from 'react'
 import { palette } from '@/styles/common'
 import { css } from '@sightread/flake'
 import { CancelCircleIcon } from '@/icons'
@@ -18,33 +18,33 @@ const classes = css({
     height: '100%' /* Full height */,
     overflow: 'auto' /* Enable scroll if needed */,
     backgroundColor: 'rgba(126,126,126, 0.65)' /* Fallback color */,
-    transition: '300ms',
-    opacity: 1,
   },
   modalContent: {
     border: '1px solid #888',
     maxWidth: 1100,
-    padding: '40px 32px 32px 32px',
+    padding: '0 32px 0px 32px',
     margin: 'auto',
     backgroundColor: 'white',
     zIndex: 2,
     borderRadius: 5,
-    position: 'relative',
+  },
+  closeButtonWrapper: {
+    padding: '16px 0 0 0',
+    display: 'flex',
+    '& button': {
+      justifyContent: 'flex-end',
+    },
   },
   closeModalButton: {
     cursor: 'pointer',
-    float: 'right',
+    marginLeft: 'auto',
     border: 'none',
     background: 'none',
-    position: 'absolute',
-    top: '5px',
-    right: '2px',
-    '&:focus': {
-      outline: 'none',
-    },
+    outline: 'none',
   },
   closeModalIcon: {
     transition: '150ms',
+    outline: 'none',
     '&:hover path': {
       fill: palette.purple.dark,
     },
@@ -57,41 +57,62 @@ type ModalProps = {
   style?: CSSProperties
 }
 
-function Modal({ show, children, onClose, style }: PropsWithChildren<ModalProps>) {
+export default function Modal({ show, children, onClose, style }: PropsWithChildren<ModalProps>) {
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!show) {
+      return
+    }
+
+    function outsideClickHandler(e: MouseEvent) {
+      if (!modalRef.current) {
+        return
+      }
+      if (!modalRef.current.contains(e.target as Node)) {
+        if (onClose) {
+          onClose()
+        }
+      }
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!modalRef.current || !onClose) {
+        return
+      }
+      const keyPressed = e.key
+
+      if (keyPressed === 'Escape') {
+        return onClose()
+      }
+    }
+    window.addEventListener('mousedown', outsideClickHandler)
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('mousedown', outsideClickHandler)
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  })
   const handleClose = () => {
     if (onClose) {
       onClose()
     }
   }
 
-  const modalStyle = () => {
-    if (!show) {
-      return { opacity: 0, zIndex: -100, display: 'none' }
-    }
-    return { opacity: 1, zIndex: 10 }
-  }
-
-  const handleOuterClick = () => {
-    if (onClose) {
-      onClose()
-    }
+  if (!show) {
+    return null
   }
 
   return (
-    <div className={classes.modalContainer} style={modalStyle()} onClick={handleOuterClick}>
-      <div
-        //   ref={modalRef}
-        className={classes.modalContent}
-        style={{ zIndex: 11, ...style }}
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-      >
-        <button className={classes.closeModalButton} onClick={handleClose}>
-          <CancelCircleIcon width={30} height={30} className={classes.closeModalIcon} />
-        </button>
+    <div className={classes.modalContainer}>
+      <div ref={modalRef} className={classes.modalContent} style={style}>
+        <div className={classes.closeButtonWrapper}>
+          <button className={classes.closeModalButton} onClick={handleClose}>
+            <CancelCircleIcon width={30} height={30} className={classes.closeModalIcon} />
+          </button>
+        </div>
         {children}
       </div>
     </div>
   )
 }
-
-export default Modal

@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { useState, useEffect } from 'react'
 import { formatTime, Sizer, Container } from '@/utils'
-import { SelectSongModal, SelectSongTable } from '@/features/SelectSongPage'
+import { SongPreviewModal } from '@/features/SongPreviewModal'
 import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/persist'
-import { AppBar, Modal } from '@/components'
+import { AppBar, Modal, Table } from '@/components'
 import { LibrarySong, Filters, SelectableSongs } from '../types'
 import FilterPane from './Filter/FilterPane'
 import TypeFilter from './Filter/TypeFilter'
@@ -62,7 +62,7 @@ export default function SelectSongPage() {
 
   return (
     <>
-      <SelectSongModal
+      <SongPreviewModal
         show={!!selectedSong}
         songMeta={selectedSong}
         onClose={() => {
@@ -83,13 +83,14 @@ export default function SelectSongPage() {
             </div>
           </FilterPane>
           <Sizer height={24} />
-          <SelectSongTable
+          <Table
             columns={[
               { label: 'Title', id: 'name', keep: true },
               { label: 'Artist', id: 'artist', keep: true },
               { label: 'Difficult', id: 'difficulty', format: () => 'Easy' },
               { label: 'Length', id: 'duration', format: formatTime },
             ]}
+            searchBoxPlaceholder="Search Songs by Title or Artist"
             rows={filteredSongs}
             filter={['name', 'artist']}
             onSelectRow={setSelectedSong}
