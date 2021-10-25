@@ -1,4 +1,4 @@
-import { getNote } from '@/synth/utils'
+import { getNote } from '@/features/synth'
 import { MidiStateEvent } from '@/types'
 
 export function refreshMIDIDevices() {

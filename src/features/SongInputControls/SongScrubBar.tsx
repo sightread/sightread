@@ -3,7 +3,7 @@ import { formatTime } from '@/utils'
 import { useRAFLoop } from '@/hooks'
 import { useSize } from '@/hooks/size'
 import { Song } from '@/types'
-import Player from '@/player'
+import Player from '@/features/player'
 
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure

@@ -1,47 +1,14 @@
 import { isBrowser } from '@/utils'
-import { gmInstruments, InstrumentName } from './instruments'
-import { getAudioContext, getKey, parseMidiJsSoundfont } from './utils'
-
-type SoundFont = { [key: string]: AudioBuffer }
-const soundfonts: { [key in InstrumentName]?: SoundFont } = {}
-const downloading: { [key in InstrumentName]?: Promise<void> } = {}
-
-async function loadInstrument(instrument: InstrumentName) {
-  // Already downloaded.
-  if (soundfonts[instrument]) {
-    return Promise.resolve()
-  }
-  // In-progress already.
-  if (downloading[instrument]) {
-    return downloading[instrument]
-  }
-
-  // Original link:https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/${instrument}-mp3.js
-  const sfFetch = fetch(`/soundfonts/FluidR3_GM/${instrument}-mp3.js`)
-
-  let doneDownloadingRes: any
-  downloading[instrument] = new Promise((res) => (doneDownloadingRes = res))
-  try {
-    let sf = await parseMidiJsSoundfont(await (await sfFetch).text())
-    soundfonts[instrument] = sf
-    delete downloading[instrument]
-    doneDownloadingRes()
-  } catch (err) {
-    console.error(`Error fetching soundfont for: ${instrument}`, err)
-  }
-}
+import gmInstruments from './instruments'
+import { getAudioContext, getKey } from './utils'
+import { SoundFont, Synth, InstrumentName } from './types'
+import { loadInstrument, soundfonts } from './loadInstrument'
 
 function isValidInstrument(instrument: InstrumentName | undefined) {
   return instrument && gmInstruments.find((s) => s === instrument)
 }
-interface Synth {
-  playNote(note: number, velocity?: number): void
-  stopNote(note: number, velocity?: number): void
-  setMasterVolume(vol: number): void
-  getInstrument(): InstrumentName
-}
 
-async function getSynth(instrument: InstrumentName | number): Promise<Synth> {
+export async function getSynth(instrument: InstrumentName | number): Promise<Synth> {
   if (!isBrowser()) {
     return {
       playNote() {},
@@ -65,7 +32,7 @@ async function getSynth(instrument: InstrumentName | number): Promise<Synth> {
   return new InstrumentSynth(instrument)
 }
 
-function getSynthStub(instrument: InstrumentName | number): Synth {
+export function getSynthStub(instrument: InstrumentName | number): Synth {
   return new SynthStub(instrument)
 }
 
@@ -164,6 +131,3 @@ class InstrumentSynth implements Synth {
     return this.instrument
   }
 }
-
-export { getSynth, getSynthStub }
-export type { Synth }

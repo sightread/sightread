@@ -1,4 +1,4 @@
-import { UploadedSong } from '@/persist'
+import { UploadedSong } from '@/features/persist'
 
 export type LibrarySong = {
   file: string

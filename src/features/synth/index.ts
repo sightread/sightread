@@ -1,0 +1,5 @@
+export type { Synth, InstrumentName } from './types'
+export { getSynth, getSynthStub } from './getSynth'
+export { getNote, getKey } from './utils'
+export { default as gmInstruments } from './instruments'
+export { useSynth } from './hooks'

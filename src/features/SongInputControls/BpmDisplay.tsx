@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import Player from '@/player'
+import Player from '@/features/player'
 import { useRAFLoop } from '@/hooks'
 import { MinusIcon, PlusIcon } from '@/icons'
 import { css } from '@sightread/flake'

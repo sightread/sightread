@@ -1,8 +1,8 @@
 import { Song, Track, SongNote, SongConfig } from '@/types'
-import { gmInstruments, InstrumentName } from '@/synth/instruments'
-import { CanvasItem } from '@/canvas/types'
+import { gmInstruments, InstrumentName } from '@/features/synth'
+import { CanvasItem } from '@/features/htmlCanvas'
 import { clamp, getNoteSizes, inferHands, isBlack, mapValues, range } from '@/utils'
-import { getPersistedSongSettings, setPersistedSongSettings } from '@/persist'
+import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []

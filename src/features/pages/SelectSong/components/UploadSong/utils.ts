@@ -7,7 +7,7 @@ import {
   isBrowser,
   isLocalStorageAvailable,
 } from '@/utils'
-import { isKeyAlreadyUsed, UploadedSong, saveSong } from '@/persist'
+import { isKeyAlreadyUsed, UploadedSong, saveSong } from '@/features/persist'
 import { parseMidi, parseMusicXML } from '@/features/parsers'
 import { UploadSong, UploadFormState } from './types'
 

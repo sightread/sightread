@@ -1,4 +1,4 @@
-import 'src/player'
+import '@/features/player'
 import React, { useState, useRef, useMemo } from 'react'
 import { useRAFLoop } from '@/hooks'
 import { useSize } from '@/hooks/size'

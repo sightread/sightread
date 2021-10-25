@@ -4,11 +4,11 @@ import {
   parseMidi,
   getHandIndexesForTeachMid,
   parserInferHands,
-} from '../features/parsers'
+} from '@/features/parsers'
 import { Song, SongConfig, SongMeasure, SongNote } from '@/types'
-import { getKey } from '@/synth/utils'
-import { InstrumentName } from '@/synth/instruments'
-import { getUploadedSong } from '@/persist'
+import { getKey } from '@/features/synth'
+import { InstrumentName } from '@/features/synth'
+import { getUploadedSong } from '@/features/persist'
 
 export function peek(o: any) {
   console.log(o)

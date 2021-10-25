@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { InstrumentName } from '@/synth/instruments'
-import { Synth, getSynth, getSynthStub } from '@/synth'
+import { InstrumentName } from '@/features/synth'
+import { Synth, getSynth, getSynthStub } from '@/features/synth'
 
-export default function useSynth(
+export function useSynth(
   instrument: InstrumentName,
 ): { loading: boolean; error: boolean; synth: Synth } {
   const [loadError, setLoadError] = useState({ loading: true, error: false })

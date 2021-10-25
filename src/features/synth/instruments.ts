@@ -129,7 +129,4 @@ const gmInstruments = [
   'gunshot',
 ] as const
 
-type InstrumentName = typeof gmInstruments[number]
-
-export { gmInstruments }
-export type { InstrumentName }
+export default gmInstruments

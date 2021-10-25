@@ -1,4 +1,4 @@
-import { InstrumentName } from './synth/instruments'
+import { InstrumentName } from '@/features/synth'
 
 export type Pitch = {
   step: string

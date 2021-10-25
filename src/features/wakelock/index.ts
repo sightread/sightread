@@ -1,4 +1,4 @@
-import { isBrowser } from './utils'
+import { isBrowser } from '../../utils'
 
 let wakeLock: null | { release: () => void } = null
 

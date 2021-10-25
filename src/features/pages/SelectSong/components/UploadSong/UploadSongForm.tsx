@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { defaultUploadState, prevent } from './utils'
-import { UploadedSong } from '@/persist'
+import { UploadedSong } from '@/features/persist'
 import { UploadFormState } from './types'
 import { UploadSong } from './types'
 import { uploadSong } from './utils'

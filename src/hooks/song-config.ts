@@ -1,4 +1,4 @@
-import { usePersistedState } from '@/persist'
+import { usePersistedState } from '@/features/persist'
 import { SongConfig } from '@/types'
 
 export function useSongSettings(file: string) {

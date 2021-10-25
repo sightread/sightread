@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useSize } from '@/hooks/size'
 import { getNoteSizes, range } from '@/utils'
 import { diffKeys, isBlack, isBrowser } from '@/utils'
-import { getKey } from '@/synth/utils'
+import { getKey } from '@/features/synth'
 import { PianoRollProps } from './types'
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`

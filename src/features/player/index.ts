@@ -1,10 +1,9 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-
-import { SongNote, PlayableSong, Song, SongConfig } from './types'
-import { getSynth, Synth } from './synth'
-import midi from './features/midi'
-import { InstrumentName } from './synth/instruments'
-import { getHands } from './utils'
+import { SongNote, Song, SongConfig } from '@/types'
+import { InstrumentName } from '@/features/synth'
+import { getHands } from '@/utils'
+import { getSynth, Synth } from '../synth'
+import midi from '../midi'
 
 let player: Player
 

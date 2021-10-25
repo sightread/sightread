@@ -1,7 +1,7 @@
 // The provide a key from midi note number to the key.
 // E.g. A0 --> 0, C8 --> 108.
-let keyToNote: { [key: string]: number } = {}
-let noteToKey: { [note: number]: string } = {}
+const keyToNote: { [key: string]: number } = {}
+const noteToKey: { [note: number]: string } = {}
 
 ;(function () {
   const A0 = 21 // first note
