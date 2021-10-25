@@ -1,3 +1,3 @@
-import { SelectSongPage } from '@/features/SelectSongPage'
+import { SelectSong } from '@/features/pages'
 
-export default SelectSongPage
+export default SelectSong

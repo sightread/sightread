@@ -1,3 +1,3 @@
-import { FreeplayPage } from '@/features/FreeplayPage'
+import { Freeplay } from '@/features/pages'
 
-export default FreeplayPage
+export default Freeplay

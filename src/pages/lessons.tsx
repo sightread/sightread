@@ -1,3 +1,3 @@
-import { SelectLessonPage } from '@/features/SelectLessonPage'
+import { SelectLesson } from '@/features/pages'
 
-export default SelectLessonPage
+export default SelectLesson

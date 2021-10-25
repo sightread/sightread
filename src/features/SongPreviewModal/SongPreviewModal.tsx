@@ -1,13 +1,12 @@
 import * as React from 'react'
-import { useCallback, useRef, useState, useEffect, useMemo } from 'react'
+import { useCallback, useState, useEffect, useMemo } from 'react'
 import { Song, SongConfig } from '@/types'
-import { SongVisualizer } from '@/features/PlaySongPage'
-import { getHandSettings, getSongSettings } from '@/features/PlaySongPage/utils'
-import { SongScrubBar } from '@/pages/play/[...song_location]'
+import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
+import { SongScrubBar } from '../SongInputControls'
 import { getSong, Sizer } from '@/utils'
 import Player from '@/player'
 import { BothHandsIcon, ClockIcon, MusicalNoteIcon, DoubleArrowLoopIcon } from '@/icons'
-import { css } from '@sightread/flake'
+import { css, mediaQuery } from '@sightread/flake'
 import { useRouter } from 'next/router'
 import { useSongSettings } from '@/hooks/song-config'
 import { palette } from '@/styles/common'
@@ -37,6 +36,15 @@ const classes = css({
     zIndex: 5,
     pointerEvents: 'none',
     borderRadius: 5,
+  },
+  modalContent: {
+    [mediaQuery.up(450)]: {
+      minWidth: 'min(600px, 80%)',
+      width: 'min(600px, 80%)',
+    },
+    [mediaQuery.down(450)]: {
+      padding: '0px 16px 0px 16px',
+    },
   },
   buttonContainer: {
     width: '100%',
@@ -216,14 +224,7 @@ export default function SongPreviewModal({
   }
 
   return (
-    <Modal
-      show={show && !!song}
-      onClose={handleClose}
-      style={{
-        minWidth: 'min(600px, 80%)',
-        width: 'min(860px, 80%)',
-      }}
-    >
+    <Modal show={show && !!song} onClose={handleClose} classNames={classes.modalContent} style={{}}>
       <div
         style={{
           display: 'flex',

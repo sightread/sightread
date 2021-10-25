@@ -1,0 +1,7 @@
+export { default as Freeplay } from './Freeplay'
+export { default as Home } from './Home'
+export { default as SelectLesson } from './SelectLesson'
+export { default as SelectSong } from './SelectSong'
+export { default as About } from './About'
+export { default as PlaySong } from './PlaySong'
+export type { PlaySongProps } from './PlaySong/types'
