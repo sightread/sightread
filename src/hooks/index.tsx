@@ -1,4 +1,4 @@
-export { default as useWindthWidth } from './useWindowWidth'
+export { default as useWindowWidth } from './useWindowWidth'
 export { default as useRAFLoop } from './useRafLoop'
 export { default as useSingleton } from './useSingleton'
 export { default as useSize } from './size'

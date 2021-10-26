@@ -20,8 +20,14 @@ import { SubscriptionCallback, PianoRoll } from '@/features/SongInputControls'
 import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
 import { useSongSettings } from '@/hooks'
-import { PlaySongProps } from './types'
 import { useRouter } from 'next/router'
+import { VisualizationMode } from '@/types'
+
+export type PlaySongProps = {
+  type: 'lesson' | 'song'
+  songLocation: string
+  viz: VisualizationMode
+}
 
 const classes = css({
   topbarIcon: {
@@ -77,7 +83,7 @@ const classes = css({
   },
 })
 
-export default function PlaySongPage({ type, songLocation }: PlaySongProps) {
+export function PlaySong({ type, songLocation }: PlaySongProps) {
   const [sidebar, setSidebar] = useState(false)
   const [isPlaying, setPlaying] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)

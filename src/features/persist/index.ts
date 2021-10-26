@@ -8,4 +8,4 @@ export {
   getPersistedSongSettings,
   saveSong,
   setPersistedSongSettings,
-} from './storage'
+} from './persistence'

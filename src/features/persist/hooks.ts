@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { isBrowser } from '@/utils'
-import Storage from './localStorageWrapper'
+import Storage from './storage'
 
 export function usePersistedState<T>(key: string, init: T): [T, (state: T) => void] {
   const [state, setState] = useState<T>(init)
