@@ -19,7 +19,7 @@ import { getSynthStub } from '@/features/synth'
 import { SubscriptionCallback, PianoRoll } from '@/features/SongInputControls'
 import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
-import { useSongSettings } from '@/hooks/song-config'
+import { useSongSettings } from '@/hooks'
 import { PlaySongProps } from './types'
 import { useRouter } from 'next/router'
 

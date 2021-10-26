@@ -107,9 +107,7 @@ export default function Modal({
     }
   })
   const handleClose = () => {
-    if (onClose) {
-      onClose()
-    }
+    onClose?.()
   }
 
   if (!show) {

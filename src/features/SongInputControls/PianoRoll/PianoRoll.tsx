@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSize } from '@/hooks/size'
+import { useSize } from '@/hooks'
 import { getNoteSizes, range } from '@/utils'
 import { diffKeys, isBlack, isBrowser } from '@/utils'
 import { getKey } from '@/features/synth'

@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { formatTime } from '@/utils'
-import { useRAFLoop } from '@/hooks'
-import { useSize } from '@/hooks/size'
+import { useRAFLoop, useSize } from '@/hooks'
 import { Song } from '@/types'
 import Player from '@/features/player'
 

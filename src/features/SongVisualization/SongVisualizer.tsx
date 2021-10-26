@@ -1,9 +1,8 @@
 import { useCallback, useRef } from 'react'
 import { Hand, Song, SongConfig } from '@/types'
-import { useSize } from '@/hooks/size'
 import { FClefIcon, GClefIcon, SheetBraceIcon } from '@/icons'
 import { GivenState, render, sheetIconProps } from './canvasRenderer'
-import { useRAFLoop } from '@/hooks'
+import { useRAFLoop, useSize } from '@/hooks'
 import Player from '@/features/player'
 
 type HandSettings = {

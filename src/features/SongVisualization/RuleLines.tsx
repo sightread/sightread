@@ -1,4 +1,4 @@
-import { useSize } from '@/hooks/size'
+import { useSize } from '@/hooks'
 
 export default function RuleLines() {
   const { width, height, measureRef } = useSize()

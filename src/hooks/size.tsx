@@ -53,7 +53,7 @@ function removeItem(arr: Array<any>, val: any) {
  * const {width, height} = useSize(ref);
  */
 type Dimensions = { width: number; height: number }
-export function useSize(): Dimensions & { measureRef: RefCallback<Element> } {
+export default function useSize(): Dimensions & { measureRef: RefCallback<Element> } {
   const [size, setSize] = useState<Dimensions | null>(null)
   const mountedRef = useRef(true)
   const refCb = useCallback((element: Element) => {
