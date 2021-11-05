@@ -8,7 +8,7 @@ import {
   isLocalStorageAvailable,
 } from '@/utils'
 import { isKeyAlreadyUsed, UploadedSong, saveSong } from '@/features/persist'
-import { parseMidi, parseMusicXML } from '@/features/parsers'
+import { parseMidi, parseMusicXml } from '@/features/parsers'
 import { UploadSong, UploadFormState } from './types'
 
 export async function convertFileToSong(file: File): Promise<Song> {
@@ -20,7 +20,7 @@ export async function convertFileToSong(file: File): Promise<Song> {
     if (!rawString) {
       throw new Error('failed to convert file to string')
     }
-    return parseMusicXML(rawString)
+    return parseMusicXml(rawString)
   }
   throw new Error('Unkown file type, valid types are audio/mid or .xml files.')
 }

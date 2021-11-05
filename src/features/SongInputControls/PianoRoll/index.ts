@@ -1,3 +1,2 @@
-export { PianoRoll } from './PianoRoll'
-export type { PianoRollProps } from './PianoRoll'
-export type { SubscriptionCallback } from './types'
+export { default as PianoRoll } from './PianoRoll'
+export type { PianoRollProps, SubscriptionCallback } from './PianoRoll'

@@ -1,6 +1,5 @@
-import { Song, Track, SongNote, SongConfig } from '@/types'
+import { Song, Track, SongNote, SongConfig, SongMeasure } from '@/types'
 import { gmInstruments, InstrumentName } from '@/features/synth'
-import { CanvasItem } from '@/features/htmlCanvas'
 import { clamp, getNoteSizes, inferHands, isBlack, mapValues, range } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
 
@@ -23,6 +22,7 @@ export function getSongRange(song: { notes: SongNote[] } | undefined) {
 interface Lanes {
   [note: number]: { left: number; width: number }
 }
+type CanvasItem = SongMeasure | SongNote
 export function getNoteLanes(width: number, items: CanvasItem[] | undefined): Lanes {
   const notes: SongNote[] = items
     ? (items.filter((i) => i.type === 'note') as SongNote[])

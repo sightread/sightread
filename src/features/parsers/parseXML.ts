@@ -1,8 +1,8 @@
 // Since this is called from Deno as well, we need to use relative paths.
 import { getNote } from '../synth/utils'
-import { Song, SongMeasure, SongNote, Track, Tracks, Bpm } from '../../../src/types'
+import { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../types'
 
-export default function parseMusicXML(txt: string): Song {
+export default function parseMusicXml(txt: string): Song {
   /*
    * TODO:
    * - Handle alternative time signatures

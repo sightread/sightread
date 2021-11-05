@@ -1,5 +1,5 @@
 export { default as useWindowWidth } from './useWindowWidth'
 export { default as useRAFLoop } from './useRafLoop'
 export { default as useSingleton } from './useSingleton'
-export { default as useSize } from './size'
-export { default as useSongSettings } from './song-config'
+export { default as useSize } from './useSize'
+export { default as useSongSettings } from './useSongSettings'

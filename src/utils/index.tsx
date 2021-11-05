@@ -1,6 +1,6 @@
 import React, { CSSProperties, PropsWithChildren, Ref } from 'react'
 import {
-  parseMusicXML,
+  parseMusicXml,
   parseMidi,
   getHandIndexesForTeachMid,
   parserInferHands,
@@ -40,7 +40,7 @@ async function getServerSong(url: string): Promise<Song> {
   if (process.env.NODE_ENV === 'development') {
     if (url.includes('.xml')) {
       const xml = await (await fetch('/' + url)).text()
-      return parseMusicXML(xml) as Song
+      return parseMusicXml(xml) as Song
     }
     const buffer = await (await fetch('/' + url)).arrayBuffer()
     return parseMidi(buffer) as Song

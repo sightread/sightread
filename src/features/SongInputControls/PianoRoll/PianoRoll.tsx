@@ -3,9 +3,12 @@ import { useSize } from '@/hooks'
 import { getNoteSizes, range } from '@/utils'
 import { diffKeys, isBlack, isBrowser } from '@/utils'
 import { getKey } from '@/features/synth'
-import { SubscriptionCallback } from './types'
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
+
+export type SubscriptionCallback =
+  | null
+  | ((pressedKeys: { [note: number]: { color?: string | void } }) => void)
 
 export type PianoRollProps = {
   activeColor: string
@@ -16,7 +19,7 @@ export type PianoRollProps = {
   setKeyColorUpdater?: (cb: SubscriptionCallback | null) => void
 }
 
-export function PianoRoll({
+export default function PianoRoll({
   activeColor,
   onNoteUp,
   onNoteDown,
