@@ -1,4 +1,4 @@
-import { InstrumentName } from './synth/instruments'
+import { InstrumentName } from '@/features/synth'
 
 export type Pitch = {
   step: string
@@ -56,7 +56,6 @@ export type SongConfig = {
     [trackId: number]: TrackSetting
   }
 }
-export type PlayableSong = Song & { config: SongConfig }
 
 export type TrackSetting = {
   track: Track

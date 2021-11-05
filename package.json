@@ -38,8 +38,7 @@
     "lint": "next lint",
     "format": "prettier --write src/**/*.ts*",
     "gen": "cd scripts && ts-node generate.ts && cd ..",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "storybook": "start-storybook -p 6006"
   },
   "eslintConfig": {
     "extends": "react-app"

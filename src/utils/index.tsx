@@ -1,14 +1,13 @@
 import React, { CSSProperties, PropsWithChildren, Ref } from 'react'
 import {
-  parseMusicXML,
+  parseMusicXml,
   parseMidi,
   getHandIndexesForTeachMid,
   parserInferHands,
-} from '../features/parsers'
-import { PlayableSong, Song, SongConfig, SongMeasure, SongNote } from 'src/types'
-import { getKey } from 'src/synth/utils'
-import { InstrumentName } from 'src/synth/instruments'
-import { getUploadedSong } from 'src/persist'
+} from '@/features/parsers'
+import { Song, SongConfig, SongMeasure, SongNote } from '@/types'
+import { getKey, InstrumentName } from '@/features/synth'
+import { getUploadedSong } from '@/features/persist'
 
 export function peek(o: any) {
   console.log(o)
@@ -41,10 +40,10 @@ async function getServerSong(url: string): Promise<Song> {
   if (process.env.NODE_ENV === 'development') {
     if (url.includes('.xml')) {
       const xml = await (await fetch('/' + url)).text()
-      return parseMusicXML(xml) as PlayableSong
+      return parseMusicXml(xml) as Song
     }
     const buffer = await (await fetch('/' + url)).arrayBuffer()
-    return parseMidi(buffer) as PlayableSong
+    return parseMidi(buffer) as Song
   }
 
   const parsedUrl = '/generated/' + url.replace(/\.(mid|xml)/i, '.json')

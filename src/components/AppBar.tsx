@@ -1,8 +1,8 @@
 import { useState, useRef, Children, CSSProperties } from 'react'
-import { breakpoints, Container, Sizer } from 'src/utils'
-import { Logo, MenuIcon } from 'src/icons'
+import { breakpoints, Container, Sizer } from '@/utils'
+import { Logo, MenuIcon } from '@/icons'
 import { css, mediaQuery } from '@sightread/flake'
-import { palette } from 'src/styles/common'
+import { palette } from '@/styles/common'
 import Link from 'next/link'
 import clsx from 'clsx'
 

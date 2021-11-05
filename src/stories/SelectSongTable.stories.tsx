@@ -1,15 +1,15 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { SelectSongTable } from 'src/features/SelectSongPage'
-import songManifest from 'src/manifest.json'
-import { formatTime } from 'src/utils'
+import { Table } from '@/components'
+import songManifest from '@/manifest.json'
+import { formatTime } from '@/utils'
 
 export default {
-  title: 'SelectSongTable',
-  component: SelectSongTable,
-} as ComponentMeta<typeof SelectSongTable>
+  title: 'Table',
+  component: Table,
+} as ComponentMeta<typeof Table>
 
-const Template: ComponentStory<typeof SelectSongTable> = (args: any) => (
+const Template: ComponentStory<typeof Table> = (args: any) => (
   <div
     style={{
       display: 'flex',
@@ -17,14 +17,14 @@ const Template: ComponentStory<typeof SelectSongTable> = (args: any) => (
       height: 500,
     }}
   >
-    <SelectSongTable {...args} />
+    <Table {...args} />
   </div>
 )
 
-export const SelectSongTableBasic = Template.bind({})
+export const TableBasic = Template.bind({})
 
 const rows = songManifest.filter((s) => s.type === 'song')
-SelectSongTableBasic.args = {
+TableBasic.args = {
   columns: [
     { label: 'Title', id: 'name', keep: true },
     { label: 'Artist', id: 'artist', keep: true },
@@ -36,9 +36,9 @@ SelectSongTableBasic.args = {
   onDelete: null,
 }
 
-export const SelectSongTableOnDelete = Template.bind({})
+export const TableOnDelete = Template.bind({})
 
-SelectSongTableOnDelete.args = {
+TableOnDelete.args = {
   columns: [
     { label: 'Title', id: 'name' },
     { label: 'Artist', id: 'artist' },
