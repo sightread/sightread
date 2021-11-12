@@ -1,5 +1,5 @@
 import React from 'react'
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { Story, Meta } from '@storybook/react'
 import { Table } from '@/components'
 import songManifest from '@/manifest.json'
 import { formatTime } from '@/utils'
@@ -7,9 +7,9 @@ import { formatTime } from '@/utils'
 export default {
   title: 'Table',
   component: Table,
-} as ComponentMeta<typeof Table>
+} as Meta<typeof Table>
 
-const Template: ComponentStory<typeof Table> = (args: any) => (
+const Template: Story<typeof Table> = (args: any) => (
   <div
     style={{
       display: 'flex',
@@ -47,5 +47,5 @@ TableOnDelete.args = {
   ],
   rows,
   filter: ['name', 'artist'],
-  onDelete: (row) => console.log(`Deleting: ${row}`),
+  onDelete: (row: any) => console.log(`Deleting: ${row}`),
 }

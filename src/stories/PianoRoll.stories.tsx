@@ -1,5 +1,5 @@
 import React from 'react'
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { Story, Meta } from '@storybook/react'
 
 import { PianoRoll } from '@/features/SongInputControls/PianoRoll'
 
@@ -19,9 +19,9 @@ export default {
   parameters: {
     handles: ['click'],
   },
-} as ComponentMeta<typeof PianoRoll>
+} as Meta<typeof PianoRoll>
 
-const Template: ComponentStory<typeof PianoRoll> = (args: any) => <PianoRoll {...args} />
+const Template: Story<typeof PianoRoll> = (args: any) => <PianoRoll {...args} />
 
 export const PianoRollBasic = Template.bind({})
 PianoRollBasic.args = {}
