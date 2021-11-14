@@ -5,7 +5,6 @@ import { circle, drawMusicNote, line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
 import { getKey, getNote } from '@/features/synth'
 
-type Canvas = CanvasRenderingContext2D
 type CanvasItem = SongMeasure | SongNote
 type HandSettings = {
   [trackId: string]: {
@@ -42,6 +41,11 @@ const STEP_NUM: any = {
   G: 4,
 }
 
+const CLEFS = {
+  treble: { bottomRow: getRow(getNote('E4')), topRow: getRow(getNote('F5')) },
+  bass: { bottomRow: getRow(getNote('G2')), topRow: getRow(getNote('A3')) },
+}
+
 // There are 52 white keys. 7 (sortof) notes per octave (technically octaves go from C-C...so its 8).
 function getRow(midiNote: number): number {
   let key = getKey(midiNote)
@@ -71,25 +75,27 @@ function bassBottomY(height: number): number {
   return top + PIXELS_PER_STAFF_ROW * 4
 }
 
-function drawTrebleStaffLines(ctx: Canvas, width: number, height: number): void {
-  const trebleBotttom = trebleBottomY(height)
-  for (let i = 0; i < 5; i++) {
-    const y = trebleBotttom - i * PIXELS_PER_STAFF_ROW
+function drawStaffLines(state: State, clef: 'bass' | 'treble'): void {
+  const { ctx, width } = state
+  const { bottomRow, topRow } = CLEFS[clef]
+
+  for (let row = bottomRow; row <= topRow; row += 2) {
+    const y = getRowY(state, clef, row)
     line(ctx, STAFF_START_X, y, width, y)
   }
-  line(ctx, STAFF_START_X, trebleBotttom, STAFF_START_X, trebleBotttom - 4 * PIXELS_PER_STAFF_ROW)
+
+  // Vertical line.
+  line(
+    ctx,
+    STAFF_START_X,
+    getRowY(state, clef, bottomRow),
+    STAFF_START_X,
+    getRowY(state, clef, topRow),
+  )
 }
 
-function drawBassStaffLines(ctx: Canvas, width: number, height: number): void {
-  const bassTop = bassTopY(height)
-  for (let i = 0; i < 5; i++) {
-    const y = bassTop + i * PIXELS_PER_STAFF_ROW
-    line(ctx, STAFF_START_X, y, width, y)
-  }
-  line(ctx, STAFF_START_X, bassTop, STAFF_START_X, bassTop + 4 * PIXELS_PER_STAFF_ROW)
-}
-
-function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
+function drawPlayNotesLine(state: State): void {
+  const { ctx, height } = state
   ctx.save()
   const top = trebleTopY(height) - PLAY_NOTES_LINE_OFFSET
   const bottom = bassBottomY(height) + PLAY_NOTES_LINE_OFFSET
@@ -105,11 +111,10 @@ function drawPlayNotesLine(ctx: Canvas, width: number, height: number): void {
 }
 
 function renderBackgroundLines(state: State): void {
-  const { ctx, width, height } = state
-  ctx.fillStyle = 'black'
-  drawTrebleStaffLines(ctx, width, height)
-  drawBassStaffLines(ctx, width, height)
-  drawPlayNotesLine(ctx, width, height)
+  state.ctx.lineWidth = 2
+  drawStaffLines(state, 'treble')
+  drawStaffLines(state, 'bass')
+  drawPlayNotesLine(state)
 }
 
 /* ===================== END SHEET VIS HELPERS ======================== */
@@ -423,6 +428,22 @@ function renderSheetNote(note: SongNote, state: State): void {
   if (canvasX < PLAY_NOTES_LINE_X - 10) {
     return
   }
+
+  // Draw extra lines. Must happen before the MusicNote.
+  const noteRow = getRow(note.midiNote)
+  const { topRow, bottomRow } = CLEFS[staff]
+  if (noteRow > topRow) {
+    for (let row = topRow + 2; row <= noteRow; row += 2) {
+      const y = getRowY(state, staff, row)
+      line(ctx, canvasX - 13, y, canvasX + 20, y)
+    }
+  } else if (noteRow < bottomRow) {
+    for (let row = bottomRow - 2; row >= noteRow; row -= 2) {
+      const y = getRowY(state, staff, row)
+      line(ctx, canvasX - 13, y, canvasX + 20, y)
+    }
+  }
+
   drawMusicNote(ctx, canvasX, canvasY, color)
 
   const flat = '♭'
@@ -441,7 +462,10 @@ function renderSheetNote(note: SongNote, state: State): void {
 }
 
 function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
-  const row = getRow(note)
+  return getRowY(state, staff, getRow(note)) - PIXELS_PER_STAFF_ROW / 2
+}
+
+function getRowY(state: State, staff: 'bass' | 'treble', row: number) {
   let offsetFromBottom
   let bottom
   if (staff === 'treble') {
@@ -453,7 +477,7 @@ function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
   }
 
   // TODO: relative to top instead of bottom for simpler maths.
-  return bottom - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW - PIXELS_PER_STAFF_ROW / 2
+  return bottom - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW
 }
 
 function sheetNoteColor(x: number, length: number): string {
