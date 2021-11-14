@@ -111,6 +111,7 @@ function drawPlayNotesLine(state: State): void {
 }
 
 function renderBackgroundLines(state: State): void {
+  state.ctx.lineWidth = 2
   drawStaffLines(state, 'treble')
   drawStaffLines(state, 'bass')
   drawPlayNotesLine(state)
@@ -380,7 +381,6 @@ function renderMeasure(measure: SongMeasure, state: State): void {
 // - can use offdom canvas (not OffscreenCanvas API) for background since its repainting over and over.
 // - can also treat it all as one giant image that gets partially drawn each frame.
 function renderSheetVis(state: State): void {
-  state.ctx.lineWidth = 2
   renderBackgroundLines(state)
   for (const item of getItemsInView(state)) {
     if (item.type === 'measure') {
@@ -428,9 +428,8 @@ function renderSheetNote(note: SongNote, state: State): void {
   if (canvasX < PLAY_NOTES_LINE_X - 10) {
     return
   }
-  drawMusicNote(ctx, canvasX, canvasY, color)
 
-  // Draw extra lines
+  // Draw extra lines. Must happen before the MusicNote.
   const noteRow = getRow(note.midiNote)
   const { topRow, bottomRow } = CLEFS[staff]
   if (noteRow > topRow) {
@@ -444,6 +443,8 @@ function renderSheetNote(note: SongNote, state: State): void {
       line(ctx, canvasX - 13, y, canvasX + 20, y)
     }
   }
+
+  drawMusicNote(ctx, canvasX, canvasY, color)
 
   const flat = '♭'
   const sharp = '♯'
