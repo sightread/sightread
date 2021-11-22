@@ -1,23 +1,31 @@
 import { getNote } from '@/features/synth'
 import { MidiStateEvent } from '@/types'
+import { sleep } from '@/utils'
 
-export function refreshMIDIDevices() {
+// TODO: create ui for selecting midi device instead of grabbing
+// all of them.
+
+export async function pollForMIDIDevice() {
   if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {
     return
   }
-  window.navigator
-    .requestMIDIAccess()
-    .then((midiAccess) => {
-      for (let entry of midiAccess.inputs) {
-        entry[1].onmidimessage = onMidiMessage
+  while (true) {
+    try {
+      const midiAccess = await window.navigator.requestMIDIAccess()
+      if (midiAccess.inputs.size) {
+        for (let entry of midiAccess.inputs) {
+          entry[1].onmidimessage = onMidiMessage
+        }
       }
-    })
-    .catch((error) => {
+      return
+    } catch (error) {
       console.error('Error accessing MIDI devices: ' + error)
-    })
+    }
+    await sleep(1000)
+  }
 }
 
-refreshMIDIDevices()
+pollForMIDIDevice()
 
 type MidiEvent = {
   type: 'on' | 'off'
