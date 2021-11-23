@@ -14,6 +14,10 @@ export function peek(o: any) {
   return o
 }
 
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export function range(start: number, end: number) {
   let nums = []
 

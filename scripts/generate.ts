@@ -8,7 +8,7 @@ const jsdom = require('jsdom')
 const window = new jsdom.JSDOM().window
 globalThis.DOMParser = window.DOMParser
 globalThis.NodeFilter = window.NodeFilter
-import { parseMidi, parseMusicXML } from '../src/features/parsers'
+import { parseMidi, parseMusicXml } from '../src/features/parsers'
 import { Song } from '../src/types'
 import { musicFiles, MusicFile } from './songdata'
 const fs: any = require('fs')
@@ -31,7 +31,7 @@ const parsedMusic: ParsedMusicFile[] = musicFiles
     if (path.endsWith('xml')) {
       try {
         const txt = fs.readFileSync(path, { encoding: 'utf-8' })
-        return { ...musicFile, parsedSong: parseMusicXML(txt) }
+        return { ...musicFile, parsedSong: parseMusicXml(txt) }
       } catch (err) {
         console.error(`Error parsing file: ${path}` + err)
       }

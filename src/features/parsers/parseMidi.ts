@@ -5,7 +5,7 @@ import { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
 import { NoteKey } from './types'
 import { getPitch } from './utils'
 
-export default function parseMidi(midiData: ArrayBufferLike): Song {
+export default function parseMidi(midiData: ArrayBuffer): Song {
   const parsed = parseMidiFile(midiData)
 
   const bpms: Array<Bpm> = []
