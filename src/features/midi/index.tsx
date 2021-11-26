@@ -15,6 +15,7 @@ export async function setupMidiDeviceListeners() {
         entry[1].onmidimessage = onMidiMessage
       }
     }
+
     attachListeners(midiAccess.inputs)
     midiAccess.addEventListener('statechange', () => {
       attachListeners(midiAccess.inputs)

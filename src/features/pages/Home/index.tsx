@@ -20,7 +20,6 @@ export default function LandingPage() {
       <HeroBanner />
       <WhySightreadSection />
       <LibrarySection />
-      <WhySightreadSection />
       <ToolsForLearningSection />
       <Footer />
       <div style={{ backgroundColor: palette.purple.primary, height: 24, width: '100%' }}></div>
