@@ -1186,6 +1186,12 @@ const songs: MusicFile[] = [
     difficulty: 'Easy',
   },
   {
+    file: 'Pans_Labyrinth_Lullaby.mid',
+    name: 'Pans Labrynth Lullaby',
+    artist: 'Javier Navarrete',
+    difficulty: 'Easy',
+  },
+  {
     file: 'All_Eyes_On_Me__Bo_Burnham_Easy_Piano.mid',
     name: 'All Eyes On Me',
     artist: 'Bo Burnham',
