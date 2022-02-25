@@ -1239,6 +1239,18 @@ const songs: MusicFile[] = [
     artist: 'Sports',
     difficulty: 'Easy',
   },
+  {
+    file: "Bloom.People_Can't_Stop_Chillin_Added.mid",
+    name: "Bloom: People Can't Stop Chilling With Accompaniments",
+    artist: 'Sports',
+    difficulty: 'Easy',
+  },
+  {
+    file: 'Kingdom Hearts - Simple and Clean (antonlab).mid',
+    name: 'Simple and Clean',
+    artist: 'Kingdom Hearts (antonlab)',
+    difficulty: 'Easy',
+  },
 ].map((elem) => ({ ...elem, type: 'song', file: 'music/songs/' + elem.file }))
 
 const musicFiles: MusicFile[] = songs.concat(lessons)
