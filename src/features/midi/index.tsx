@@ -86,10 +86,10 @@ class MidiState {
 
     // TODO: what if octave switch while note is held down
     // must release all currently pressed notes.
-    const key = e.key
-    if (key === 'ArrowUp') {
+    const key = e.key.toLowerCase()
+    if (key === 'arrowup') {
       this.octave = Math.min(7, this.octave + 1)
-    } else if (key === 'ArrowDown') {
+    } else if (key === 'arrowdown') {
       this.octave = Math.max(1, this.octave - 1)
     } else if (key in qwertyKeyConfig) {
       const note = qwertyKeyConfig[key]
@@ -98,7 +98,7 @@ class MidiState {
   }
 
   handleKeyUp(e: KeyboardEvent) {
-    const key = e.key
+    const key = e.key.toLowerCase()
     if (key in qwertyKeyConfig) {
       const note = qwertyKeyConfig[key]
       this.release(getNote(note + this.octave))
