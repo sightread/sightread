@@ -76,16 +76,3 @@ let getMusicNotePath: () => Path2D = (function () {
     return svg
   }
 })()
-
-export function drawMusicNote(
-  ctx: CanvasRenderingContext2D,
-  posX: number,
-  posY: number,
-  color: string,
-): void {
-  ctx.translate(posX - 10, posY - 3)
-  ctx.fillStyle = color
-  ctx.beginPath
-  ctx.fill(getMusicNotePath())
-  ctx.translate(-posX + 10, -posY + 3)
-}

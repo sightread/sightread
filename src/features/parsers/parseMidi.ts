@@ -2,6 +2,7 @@
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
 // Since this is called from Deno as well, we need to use relative paths.
 import { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
+import { getKeySignatureFromMidi, KEY_SIGNATURE } from '../theory'
 import { NoteKey } from './types'
 import { getPitch } from './utils'
 
@@ -19,6 +20,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
   let measures: SongMeasure[] = []
   let lastMeasureTickedAt = -Infinity
   let timeSignature = { numerator: 4, denominator: 4 }
+  let keySignature: KEY_SIGNATURE = 'C'
   const ticksPerMeasure = () =>
     ticksPerBeat * (timeSignature.numerator / timeSignature.denominator) * 4
 
@@ -89,6 +91,9 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
       bpms.push({ time: currTime, bpm })
     } else if (midiEvent.subType === 'timeSignature') {
       timeSignature = midiEvent
+    } else if (midiEvent.subType === 'keySignature') {
+      // TODO: also do something with the scale?
+      keySignature = getKeySignatureFromMidi(midiEvent.key, midiEvent.scale)
     }
   }
 
@@ -113,6 +118,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
     tracks,
     bpms,
     timeSignature,
+    keySignature,
     items: [...measures, ...notes].sort((i1, i2) => i1.time - i2.time),
   }
 }

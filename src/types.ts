@@ -1,4 +1,5 @@
 import { InstrumentName } from '@/features/synth'
+import { KEY_SIGNATURE } from './features/theory'
 
 export type Pitch = {
   step: string
@@ -41,6 +42,7 @@ export type Song = {
   notes: Array<SongNote>
   bpms: Array<Bpm>
   timeSignature?: { numerator: number; denominator: number }
+  keySignature: KEY_SIGNATURE
   items: Array<SongNote | SongMeasure>
 }
 

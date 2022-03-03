@@ -1,9 +1,11 @@
 import { SongMeasure, SongNote, Hand } from '@/types'
 import { clamp, isBlack, isBrowser, pickHex } from '@/utils'
 import { getNoteLanes } from './utils'
-import { circle, drawMusicNote, line, roundRect } from '@/features/drawing'
+import { circle, line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
 import { getKey, getNote } from '@/features/synth'
+import { getKeyAlterations, KEY_SIGNATURE, Note } from '../theory'
+import { getAccidental } from '../synth/utils'
 
 type CanvasItem = SongMeasure | SongNote
 type HandSettings = {
@@ -12,21 +14,11 @@ type HandSettings = {
   }
 }
 
-type SheetIconProps = {
-  width: number
-  height: number
-  style: {
-    left: number
-    position: 'absolute'
-    top: number
-  }
-}
-
 /* =================== START SHEET VIS HELPERS ======================== */
 /* ==================================================================== */
 const PIXELS_PER_STAFF_ROW = 16
 const STAFF_START_X = 150
-const PLAY_NOTES_LINE_X = 250
+const PLAY_NOTES_LINE_X = 400
 const PLAY_NOTES_WIDTH = 20
 const PLAY_NOTES_LINE_OFFSET = PIXELS_PER_STAFF_ROW * 4 // offset above and below the staff lines
 const PLAY_NOTES_LINE_COLOR = 'rgba(110, 40, 251, 0.43)' // '#7029fb'
@@ -40,6 +32,8 @@ const STEP_NUM: any = {
   F: 3,
   G: 4,
 }
+const FLAT_UNICODE = '♭'
+const SHARP_UNICODE = '♯'
 
 const CLEFS = {
   treble: { bottomRow: getRow(getNote('E4')), topRow: getRow(getNote('F5')) },
@@ -47,8 +41,8 @@ const CLEFS = {
 }
 
 // There are 52 white keys. 7 (sortof) notes per octave (technically octaves go from C-C...so its 8).
-function getRow(midiNote: number): number {
-  let key = getKey(midiNote)
+function getRow(midiNote: number, keySignature?: KEY_SIGNATURE): number {
+  let key = getKey(midiNote, keySignature)
   let octave = parseInt(key[key.length - 1], 10)
   let step = key[0]
   return octave * 7 + STEP_NUM[step]
@@ -79,8 +73,9 @@ function drawStaffLines(state: State, clef: 'bass' | 'treble'): void {
   const { ctx, width } = state
   const { bottomRow, topRow } = CLEFS[clef]
 
+  const lineWidth = 2
   for (let row = bottomRow; row <= topRow; row += 2) {
-    const y = getRowY(state, clef, row)
+    const y = getRowY(state, clef, row) + lineWidth / 2
     line(ctx, STAFF_START_X, y, width, y)
   }
 
@@ -88,9 +83,9 @@ function drawStaffLines(state: State, clef: 'bass' | 'treble'): void {
   line(
     ctx,
     STAFF_START_X,
-    getRowY(state, clef, bottomRow),
-    STAFF_START_X,
     getRowY(state, clef, topRow),
+    STAFF_START_X,
+    getRowY(state, clef, bottomRow) + lineWidth,
   )
 }
 
@@ -241,6 +236,7 @@ export type GivenState = {
   showParticles: boolean
   items: CanvasItem[]
   constrictView?: boolean
+  keySignature: KEY_SIGNATURE
 }
 
 type DerivedState = {
@@ -382,6 +378,10 @@ function renderMeasure(measure: SongMeasure, state: State): void {
 // - can also treat it all as one giant image that gets partially drawn each frame.
 function renderSheetVis(state: State): void {
   renderBackgroundLines(state)
+  drawGClef(state)
+  drawFClef(state)
+  drawKeySignature(state)
+  drawCurlyBrace(state)
   for (const item of getItemsInView(state)) {
     if (item.type === 'measure') {
       continue
@@ -401,11 +401,11 @@ function renderMidiPressedKeys(state: State): void {
     const staff = note < getNote('C4') ? 'bass' : 'treble'
     const canvasY = getNoteY(state, staff, note)
     let canvasX = PLAY_NOTES_LINE_X - 3
-    drawMusicNote(ctx, canvasX, canvasY, 'red')
+    drawMusicNote(state, canvasX, canvasY, 'red')
     // isFlat
     if (getKey(note).length === 3) {
-      const flat = '♭'
-      ctx.fillText(flat, canvasX - 20, canvasY + 11)
+      ctx.fillStyle = 'black'
+      ctx.fillText(FLAT_UNICODE, canvasX - 20, canvasY + 11)
     }
   }
 }
@@ -422,7 +422,13 @@ function renderSheetNote(note: SongNote, state: State): void {
 
   ctx.fillStyle = color + NOTE_ALPHA
   const trailLength = length - 15 - (canvasX > PLAY_NOTES_LINE_X ? 0 : PLAY_NOTES_LINE_X - canvasX)
-  ctx.fillRect(Math.max(canvasX, PLAY_NOTES_LINE_X), canvasY + 3, trailLength, 10)
+  const trailHeight = 10
+  ctx.fillRect(
+    Math.max(canvasX, PLAY_NOTES_LINE_X),
+    canvasY - trailHeight / 2,
+    trailLength,
+    trailHeight,
+  )
 
   // Return after drawing the tail for the notes that have already crossed.
   if (canvasX < PLAY_NOTES_LINE_X - 10) {
@@ -430,7 +436,7 @@ function renderSheetNote(note: SongNote, state: State): void {
   }
 
   // Draw extra lines. Must happen before the MusicNote.
-  const noteRow = getRow(note.midiNote)
+  const noteRow = getRow(note.midiNote, state.keySignature)
   const { topRow, bottomRow } = CLEFS[staff]
   if (noteRow > topRow) {
     for (let row = topRow + 2; row <= noteRow; row += 2) {
@@ -444,25 +450,27 @@ function renderSheetNote(note: SongNote, state: State): void {
     }
   }
 
-  drawMusicNote(ctx, canvasX, canvasY, color)
+  drawMusicNote(state, canvasX, canvasY, color)
 
-  const flat = '♭'
-  const sharp = '♯'
-  if (note.pitch.alter !== 0) {
-    const text = note.pitch.alter === -1 ? flat : sharp
+  const key = getKey(note.midiNote, state.keySignature)
+  const step = key[0]
+  const accidental = getAccidental(note.midiNote, state.keySignature)
+  if (accidental) {
+    const accidentalMap = { natural: '♮', sharp: SHARP_UNICODE, flat: FLAT_UNICODE }
+    const text = accidentalMap[accidental]
     ctx.font = 'bold 16px serif'
-    ctx.fillText(text, canvasX - 20, canvasY + 11)
+    ctx.fillText(text, canvasX - 20, canvasY + 3)
   }
 
   if (state.drawNotes) {
-    ctx.font = '9px Arial'
+    ctx.font = '9px serif'
     ctx.fillStyle = 'white'
-    ctx.fillText(note.pitch.step, canvasX, canvasY + 11)
+    ctx.fillText(step, canvasX, canvasY + 3)
   }
 }
 
 function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
-  return getRowY(state, staff, getRow(note)) - PIXELS_PER_STAFF_ROW / 2
+  return getRowY(state, staff, getRow(note, state.keySignature))
 }
 
 function getRowY(state: State, staff: 'bass' | 'treble', row: number) {
@@ -488,40 +496,158 @@ function sheetNoteColor(x: number, length: number): string {
   const ratio = Math.max((x + length) / length, 0.15) // idk why but lower causes orange
   return pickHex(palette.right.white, black, ratio)
 }
-export function sheetIconProps(icon: 'treble' | 'bass' | 'brace', height: number): SheetIconProps {
-  switch (icon) {
-    case 'treble':
-      return {
-        height: PIXELS_PER_STAFF_ROW * 8.3,
-        width: PIXELS_PER_STAFF_ROW * 6.5,
-        style: {
-          position: 'absolute',
-          top: trebleTopY(height) - PIXELS_PER_STAFF_ROW * 2,
-          left: STAFF_START_X - PIXELS_PER_STAFF_ROW,
-        },
-      }
-    case 'bass':
-      return {
-        height: PIXELS_PER_STAFF_ROW * 3.4,
-        width: PIXELS_PER_STAFF_ROW * 4,
-        style: {
-          position: 'absolute',
-          top: bassTopY(height),
-          left: STAFF_START_X + PIXELS_PER_STAFF_ROW - 5,
-        },
-      }
-    case 'brace': {
-      return {
-        width: 50,
-        height: 100 + 8 * PIXELS_PER_STAFF_ROW,
-        style: {
-          position: 'absolute',
-          top: trebleTopY(height),
-          left: STAFF_START_X - 50,
-        },
+
+type MusicPath = {
+  height: number
+  width: number
+  path2D: Path2D
+}
+const MusicPaths = (() => {
+  if (!isBrowser()) {
+    return
+  }
+
+  return {
+    GClef: {
+      // Source: https://upload.wikimedia.org/wikipedia/commons/e/e8/G-clef.svg
+      height: 75,
+      width: 44,
+      path2D: new Path2D(
+        'M12 3.5c.4 3.2-2 5.7-4 7.7-1 1-.2.2-.7.6l-.3-2a13 13 0 0 1 4.3-8.1c.3.6.5.6.7 1.8zm.7 16.2a5.7 5.7 0 0 0-4.3-1L7.8 15c2.3-2.3 4.9-5 5-8.5 0-2.2-.2-4.7-1.6-6.5-1.7.1-3 2.2-3.8 3.4-1.5 2.7-1.2 6-.6 8.8-.8 1-2 1.8-2.7 2.7-2.4 2.4-4.5 5.5-4 9a8 8 0 0 0 9.6 7.3c.3 2.2 1 4.6.1 6.8-.7 1.6-2.7 3-4.3 2.2l-.5-.3c1.1-.3 2-1 2.3-1.6C8 37 6.9 34.7 5 35c-2 0-3 3-1.6 4.7 1.3 1.5 3.8 1.3 5.4.3 1.8-1.2 2-3.6 1.9-5.6l-.5-3.4 1.2-.4c2.7-1 4.4-4.3 3.6-7.1-.3-1.5-1-3-2.3-3.8zm.6 5.7c.2 2-1 4.3-3.1 5l-.3-1.5c-.5-2.4-.7-5-1.1-7.5 1.6-.1 3.5.6 4 2.2.3.6.4 1.2.5 1.8zM8 30.6c-2.5.2-5-1.6-5.6-4a7 7 0 0 1 .8-6.6c1.1-1.7 2.6-3 4-4.5l.6 3.4c-3 .8-5 4.7-3.2 7.4.5.8 2 2.3 2.7 1.7-1-.7-2-1.9-1.8-3.3 0-1.2 1.4-2.9 2.7-3.2.4 3 1 6.1 1.3 9a8 8 0 0 1-1.5.1z',
+      ),
+    },
+    FClef: {
+      // Source: https://upload.wikimedia.org/wikipedia/commons/c/c5/FClef.svg
+      height: 20,
+      width: 18,
+      path2D: new Path2D(
+        'M17.31 3.15c.01.36-.15.73-.43.98-.36.32-.9.4-1.36.22a1.27 1.27 0 0 1-.8-1.09 1.28 1.28 0 0 1 1.36-1.41 1.26 1.26 0 0 1 1.23 1.3zm0 5.84c.01.37-.15.74-.43.98-.36.33-.9.4-1.36.23a1.27 1.27 0 0 1-.8-1.1c-.03-.37.1-.75.36-1.02.25-.28.63-.4 1-.39.48.02.92.35 1.12.78.08.16.11.34.11.52zm-4.28-1.78a10.51 10.51 0 0 1-3.21 7.54c-2.5 2.49-5.75 4.07-9.07 5.13-.44.24-1.1-.08-.41-.4 1.34-.61 2.73-1.14 3.96-1.96 2.72-1.68 5.02-4.33 5.57-7.56.33-1.96.24-4-.25-5.94-.36-1.42-1.35-2.88-2.9-3.1a4.61 4.61 0 0 0-3.93 1.3 2.53 2.53 0 0 0-.7 1.87c.6-.47.57-.42 1.06-.64a2.2 2.2 0 0 1 2.93 1.47c.3 1.15.07 2.61-1.07 3.22-1.18.65-2.93.38-3.6-.89A4.81 4.81 0 0 1 2.7 1.27C4.5-.23 7.13-.3 9.25.48c2.19.81 3.49 3.08 3.7 5.32.06.47.08.94.08 1.41z',
+      ),
+    },
+    CurlyBrace: {
+      // Source: https://upload.wikimedia.org/wikipedia/commons/e/ec/Curly_bracket_left.svg
+      width: 23,
+      height: 232,
+      path2D: new Path2D(
+        'm18 5.5 2-3L21 1l-3 1-4.5 5-3 6-2 5-1 4-1 7-.5 7v12l2 15.5 1.5 8 1 10.5v12.5l-.5 4-.5 3-1 3L6 110l-2 3.5-2 2h2.5l.5-.5 6-10.5L14.5 94c.4-1.2 1.17-5.5 1.5-7.5l.5-8.5v-5l-.5-5.5-1-8.5-2-15.5-1-10c-.5-5 0-9 0-9.5s.5-4.5 1-6.5c.4-1.6 1.17-4 1.5-5l1-2.5 1-2L18 5.5Zm-13 115L2.5 117l-.5-.5h2.5l5 5.5 3 6 2 5 1 4 1 7 .5 7v12l-2 15.5-1.5 8-1 10.5v12.5l.5 4 .5 3 1 3L17 225l2 3.5 2 2-2-.5-1-1-6-9.5L8.5 209c-.4-1.2-1.17-5.5-1.5-7.5l-.5-8.5v-5l.5-5.5 1-8.5 2-15.5 1-10c.5-5 0-9 0-9.5s-.5-4.5-1-6.5c-.4-1.6-1.17-4-1.5-5l-1-2.5-1-2-1.5-2.5Z',
+      ),
+    },
+    Note: {
+      width: 42,
+      height: 43,
+      path2D: new Path2D(
+        'M22.4811 6.42107C24.4811 10.4211 21.0371 15.6763 15.4811 17.9211C9.48114 19.9211 5.48114 18.921 2.98114 15.421C1.48114 11.421 4.48114 6.92102 10.0411 3.9855C15.9811 2.42107 20.4811 2.42107 22.4811 6.42107Z',
+      ),
+    },
+    Sharp: {
+      // Source: https://upload.wikimedia.org/wikipedia/commons/a/a6/Sharp.svg
+      width: 6,
+      height: 9,
+      path2D: new Path2D(
+        'M1.9 12.15v-4.7l2-.55v4.68l-2 .57zm3.94-1.13-1.37.39V6.73l1.37-.38V4.4l-1.37.39V0H3.9v4.93l-2 .58V.86h-.53v4.82L0 6.07v1.95l1.38-.39v4.67L0 12.7v1.94l1.38-.39V19h.53v-4.93l2-.55v4.63h.56v-4.8l1.37-.39v-1.94z',
+      ),
+    },
+  }
+})()!
+
+function drawPaths(
+  state: State,
+  musicPath: typeof MusicPaths.FClef,
+  x: number,
+  y: number,
+  opts?: { width?: number; height?: number; color?: string },
+) {
+  const { ctx } = state
+  const { width, height, color } = opts ?? {}
+  ctx.save()
+  ctx.translate(x, y)
+  if (color) {
+    ctx.fillStyle = color
+  }
+  if (width || height) {
+    let widthRatio = 1
+    let heightRatio = 1
+    if (width) {
+      widthRatio = width / musicPath.width
+      // Assume autoscale
+      if (!height) {
+        heightRatio = widthRatio
       }
     }
+    if (height) {
+      heightRatio = height / musicPath.height
+      if (!width) {
+        widthRatio = heightRatio
+      }
+    }
+    ctx.scale(widthRatio, heightRatio)
   }
+  ctx.fill(musicPath.path2D)
+  ctx.restore()
+}
+
+function drawKeySignature(state: State) {
+  const { ctx, keySignature } = state
+  ctx.save()
+  const fontSize = 10
+  ctx.font = `bold ${fontSize}px serif`
+  ctx.textBaseline = 'middle'
+  ctx.textAlign = 'center'
+  const alterations = getKeyAlterations(keySignature)
+
+  let order: Note[] =
+    alterations.type === 'sharp'
+      ? ['F', 'C', 'G', 'D', 'A', 'E', 'B']
+      : ['B', 'E', 'A', 'D', 'G', 'C', 'F']
+
+  for (let i = 0; i < order.length; i++) {
+    const note = order[i]
+    if (!alterations.notes.has(note)) {
+      continue
+    }
+
+    let trebleY = getNoteY(state, 'treble', getNote(note + (note != 'A' ? '5' : '4')))
+    let bassY = getNoteY(state, 'bass', getNote(note + (note != 'A' ? '3' : '2')))
+    let accidentalPath = alterations.type === 'flat' ? MusicPaths.Sharp : MusicPaths.Sharp
+
+    const height = PIXELS_PER_STAFF_ROW
+    const width = 10
+    drawPaths(state, accidentalPath, STAFF_START_X + 70 + width * i, trebleY - height, {
+      height,
+      width,
+    })
+    drawPaths(state, accidentalPath, STAFF_START_X + 70 + width * i, bassY - height, {
+      height,
+      width,
+    })
+  }
+  ctx.restore()
+}
+
+function drawFClef(state: State) {
+  drawPaths(state, MusicPaths.FClef, STAFF_START_X + PIXELS_PER_STAFF_ROW, bassTopY(state.height), {
+    height: 56,
+  })
+}
+
+function drawMusicNote(state: State, x: number, y: number, color: string) {
+  drawPaths(state, MusicPaths.Note, x - 10, y - 11, { color })
+}
+
+function drawGClef(state: State) {
+  drawPaths(
+    state,
+    MusicPaths.GClef,
+    STAFF_START_X + PIXELS_PER_STAFF_ROW,
+    trebleTopY(state.height) - PIXELS_PER_STAFF_ROW * 1.5,
+    { height: 210 },
+  )
+}
+
+function drawCurlyBrace(state: State) {
+  drawPaths(state, MusicPaths.CurlyBrace, STAFF_START_X - 30, trebleTopY(state.height) + 1, {
+    height: 230,
+  })
 }
 
 const numParticles = 30

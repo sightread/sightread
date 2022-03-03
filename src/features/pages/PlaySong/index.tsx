@@ -145,6 +145,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
       if (evt.code === 'Space') {
+        evt.preventDefault()
         if (isPlaying) {
           player.pause()
           setPlaying(false)
@@ -172,7 +173,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
     }
     const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
       handleEvent()
-      if (type === 'down') {
+      if (type === 'down' && !soundOff) {
         synth.playNote(note)
       } else {
         synth.stopNote(note)
@@ -185,7 +186,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
       Player.player().unsubscribe(handleEvent)
       midiState.unsubscribe(handleMidiEvent)
     }
-  }, [player, synth, song, songConfig])
+  }, [player, synth, song, songConfig, soundOff])
 
   if (!type || !songLocation) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />

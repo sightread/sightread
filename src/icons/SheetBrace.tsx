@@ -2,7 +2,7 @@ import { IconInput } from './types'
 
 function SheetBraceIcon({ width, height, style }: IconInput) {
   return (
-    <svg width={width} height={height} style={style} viewBox="0 0 23 232" fill="none">
+    <svg viewBox="0 0 23 232" fill="none">
       <path
         d="M18 5.5L20 2.5L21 1L18 2L13.5 7L10.5 13L8.5 18L7.5 22L6.5 29L6 36V42.5V48L8 63.5L9.5 71.5L10.5 82V90.5V94.5L10 98.5L9.5 101.5L8.5 104.5L6 110L4 113.5L2 115.5H4.5L5 115L11 104.5L14.5 94C14.9 92.8 15.6667 88.5 16 86.5L16.5 78V73L16 67.5L15 59L13 43.5L12 33.5C11.5 28.5 12 24.5 12 24C12 23.5 12.5 19.5 13 17.5C13.4 15.9 14.1667 13.5 14.5 12.5L15.5 10L16.5 8L18 5.5Z"
         fill="black"

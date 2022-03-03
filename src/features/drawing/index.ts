@@ -1,1 +1,1 @@
-export { line, roundRect, circle, drawMusicNote } from './utils'
+export { line, roundRect, circle } from './utils'

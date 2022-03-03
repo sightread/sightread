@@ -1,25 +1,57 @@
 // The provide a key from midi note number to the key.
+
+import { getKeyAlterations, KEY_SIGNATURE, Note } from '../theory'
+
 // E.g. A0 --> 0, C8 --> 108.
 const keyToNote: { [key: string]: number } = {}
-const noteToKey: { [note: number]: string } = {}
+const noteToKeyFlat: { [note: number]: string } = {}
+const noteToKeySharp: { [note: number]: string } = {}
 
 ;(function () {
   const A0 = 21 // first note
   const C8 = 108 // last note
-  const number2key = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+  const number2keyFlat = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+  const number2keySharp = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
   for (let n = A0; n <= C8; n++) {
     const octave = ((n - 12) / 12) >> 0
-    const name = number2key[n % 12] + octave
-    keyToNote[name] = n
-    noteToKey[n] = name
+    const nameFlat = number2keyFlat[n % 12] + octave
+    const nameSharp = number2keySharp[n % 12] + octave
+    keyToNote[nameFlat] = n
+    noteToKeyFlat[n] = nameFlat
+    noteToKeySharp[n] = nameSharp
   }
 })()
 
 function getNote(key: string): number {
   return keyToNote[key]
 }
-function getKey(note: number): string {
-  return noteToKey[note]
+
+function getKey(note: number, keySignature?: KEY_SIGNATURE): string {
+  if (keySignature && getKeyAlterations(keySignature ?? 'C').type === 'sharp') {
+    return noteToKeySharp[note]
+  }
+  return noteToKeyFlat[note]
+}
+
+export function getAccidental(
+  note: number,
+  keySignature?: KEY_SIGNATURE,
+): 'flat' | 'sharp' | 'natural' | null {
+  const alterations = getKeyAlterations(keySignature ?? 'C')
+  const key = getKey(note, keySignature)
+  const step = key[0] as Note
+
+  if (key.length === 2) {
+    if (alterations.notes.has(step)) {
+      return 'natural'
+    }
+  } else if (key.length === 3) {
+    if (!alterations.notes.has(step)) {
+      return alterations.type
+    }
+  }
+
+  return null
 }
 
 // convert a MIDI.js javascript soundfont file to json

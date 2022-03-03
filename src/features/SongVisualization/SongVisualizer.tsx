@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react'
 import { Hand, Song, SongConfig } from '@/types'
-import { FClefIcon, GClefIcon, SheetBraceIcon } from '@/icons'
-import { GivenState, render, sheetIconProps } from './canvasRenderer'
+import { GivenState, render } from './canvasRenderer'
 import { useRAFLoop, useSize } from '@/hooks'
 import Player from '@/features/player'
+import { getKeyAlterations, getKeySignatureFromMidi } from '../theory'
 
 type HandSettings = {
   [trackId: string]: {
@@ -66,19 +66,13 @@ function CanvasRenderer({
       showParticles: Player.player().isPlaying(),
       items: song.items,
       constrictView: !!constrictView,
+      keySignature: song.keySignature,
     }
     render(state)
   })
 
   return (
     <div style={{ position: 'absolute', width: '100%', height: '100%' }} ref={measureRef}>
-      {config.visualization === 'sheet' && (
-        <>
-          <GClefIcon {...sheetIconProps('treble', height)} />
-          <FClefIcon {...sheetIconProps('bass', height)} />
-          <SheetBraceIcon {...sheetIconProps('brace', height)} />
-        </>
-      )}
       <canvas ref={setupCanvas} width={width} height={height} />
     </div>
   )
