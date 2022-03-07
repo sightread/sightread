@@ -1,6 +1,6 @@
 // The provide a key from midi note number to the key.
 
-import { getKeyAlterations, KEY_SIGNATURE, Note } from '../theory'
+import { keyToNotes, KEY_SIGNATURE, Note } from '../theory'
 
 // E.g. A0 --> 0, C8 --> 108.
 const keyToNote: { [key: string]: number } = {}
@@ -26,32 +26,12 @@ function getNote(key: string): number {
   return keyToNote[key]
 }
 
-function getKey(note: number, keySignature?: KEY_SIGNATURE): string {
-  if (keySignature && getKeyAlterations(keySignature ?? 'C').type === 'sharp') {
-    return noteToKeySharp[note]
-  }
-  return noteToKeyFlat[note]
+function getKey(note: number, keySignature: KEY_SIGNATURE = 'C'): string {
+  return keyToNotes[keySignature][note % 12]
 }
 
-export function getAccidental(
-  note: number,
-  keySignature?: KEY_SIGNATURE,
-): 'flat' | 'sharp' | 'natural' | null {
-  const alterations = getKeyAlterations(keySignature ?? 'C')
-  const key = getKey(note, keySignature)
-  const step = key[0] as Note
-
-  if (key.length === 2) {
-    if (alterations.notes.has(step)) {
-      return 'natural'
-    }
-  } else if (key.length === 3) {
-    if (!alterations.notes.has(step)) {
-      return alterations.type
-    }
-  }
-
-  return null
+export function getOctave(note: number): number {
+  return Math.floor((note - 12) / 12)
 }
 
 // convert a MIDI.js javascript soundfont file to json

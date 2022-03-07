@@ -5,6 +5,42 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: Leland;
+  src: url('fonts/Leland/Leland.otf') format('opentype');
+  font-feature-settings: 'ccmp';
+}
+
+@font-face {
+  font-family: LelandText;
+  src: url('fonts/Leland/LelandText.otf') format('opentype');
+  font-feature-settings: 'ccmp';
+}
+
+@font-face {
+  font-family: Bravura;
+  src: url('fonts/Bravura/Bravura.otf');
+  font-feature-settings: 'ccmp';
+}
+
+@font-face {
+  font-family: BravuraText;
+  src: url('fonts/Bravura/BravuraText.otf') format('opentype');
+  font-feature-settings: 'ccmp';
+}
+
+@font-face {
+  font-family: Gootville;
+  src: url('fonts/GootVille/Gootville.otf') format('opentype');
+  font-feature-settings: 'ccmp';
+}
+
+@font-face {
+  font-family: GootvilleText;
+  src: url('fonts/GootVille/GootvilleText.otf') format('opentype');
+  font-feature-settings: 'ccmp';
+}
+
 body {
   font-family: 'Titillium';
 }

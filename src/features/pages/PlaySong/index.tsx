@@ -157,7 +157,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
         }
       }
     }
-    window.addEventListener('keydown', keyboardHandler, { passive: true })
+    window.addEventListener('keydown', keyboardHandler)
     return () => window.removeEventListener('keydown', keyboardHandler)
   }, [isPlaying, player, isLoading])
 

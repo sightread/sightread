@@ -3,6 +3,7 @@ import gmInstruments from './instruments'
 import { getAudioContext, getKey } from './utils'
 import { SoundFont, Synth, InstrumentName } from './types'
 import { loadInstrument, soundfonts } from './loadInstrument'
+import { getKeyForSoundfont } from '../theory'
 
 function isValidInstrument(instrument: InstrumentName | undefined) {
   return instrument && gmInstruments.find((s) => s === instrument)
@@ -88,7 +89,7 @@ class InstrumentSynth implements Synth {
   }
 
   playNote(note: number, velocity = 127 / 2) {
-    const key = getKey(note)
+    const key = getKeyForSoundfont(note)
     const sourceNode = this.audioContext.createBufferSource()
     sourceNode.buffer = this.soundfont[key]
 

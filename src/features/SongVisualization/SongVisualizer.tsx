@@ -3,7 +3,6 @@ import { Hand, Song, SongConfig } from '@/types'
 import { GivenState, render } from './canvasRenderer'
 import { useRAFLoop, useSize } from '@/hooks'
 import Player from '@/features/player'
-import { getKeyAlterations, getKeySignatureFromMidi } from '../theory'
 
 type HandSettings = {
   [trackId: string]: {
@@ -67,6 +66,7 @@ function CanvasRenderer({
       items: song.items,
       constrictView: !!constrictView,
       keySignature: song.keySignature,
+      timeSignature: song.timeSignature,
     }
     render(state)
   })

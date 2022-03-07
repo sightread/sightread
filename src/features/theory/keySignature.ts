@@ -1,3 +1,6 @@
+import { getKey, getNote } from '../synth'
+import { getOctave } from '../synth/utils'
+
 export type KEY_SIGNATURE =
   | 'Cb'
   | 'Gb'
@@ -33,6 +36,27 @@ type KeyAlterationMap = {
 export type KeyAlterations = {
   type: 'sharp' | 'flat'
   notes: Set<Note>
+}
+
+export const keyToNotes: { [sig in KEY_SIGNATURE]: string[] } = {
+  // Sharps
+  C: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+  G: ['C', 'C#', 'D', 'D#', 'E', 'F♮', 'F', 'G', 'G#', 'A', 'A#', 'B'],
+  D: ['C♮', 'C', 'D', 'D#', 'E', 'F♮', 'F', 'G', 'G#', 'A', 'A#', 'B'],
+  A: ['C♮', 'C', 'D', 'D#', 'E', 'F♮', 'F', 'G♮', 'G', 'A', 'A#', 'B'],
+  E: ['C♮', 'C', 'D♮', 'D', 'E', 'F♮', 'F', 'G♮', 'G', 'A', 'A#', 'B'],
+  B: ['C♮', 'C', 'D♮', 'D', 'E', 'F♮', 'F', 'G♮', 'G', 'A♮', 'A', 'B'],
+  'F#': ['C♮', 'C', 'D♮', 'D', 'E♮', 'E', 'F', 'G♮', 'G', 'A♮', 'A', 'B'],
+  'C#': ['B', 'C', 'D♮', 'D', 'E♮', 'E', 'F', 'G♮', 'G', 'A♮', 'A', 'B♮'],
+
+  // Flats
+  F: ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B', 'B♮'],
+  Bb: ['C', 'D♭', 'D', 'E', 'E♮', 'F', 'G♭', 'G', 'A♭', 'A', 'B', 'B♮'],
+  Eb: ['C', 'D♭', 'D', 'E', 'E♮', 'F', 'G♭', 'G', 'A', 'A♮', 'B', 'B♮'],
+  Ab: ['C', 'D', 'D♮', 'E', 'E♮', 'F', 'G♭', 'G', 'A', 'A♮', 'B', 'B♮'],
+  Db: ['C', 'D', 'D♮', 'E', 'E♮', 'F', 'G', 'G♮', 'A', 'A♮', 'B', 'B♮'],
+  Gb: ['C♮', 'D', 'D♮', 'E', 'E♮', 'F', 'G', 'G♮', 'A', 'A♮', 'B', 'C'],
+  Cb: ['C♮', 'D', 'D♮', 'E', 'E', 'F♮', 'G', 'G♮', 'A', 'A♮', 'B', 'C'],
 }
 
 let keyAlterationMap: KeyAlterationMap = getKeyAlterationMap()
@@ -85,4 +109,21 @@ export function getKeyAlterations(key: KEY_SIGNATURE): KeyAlterations {
 
 export function getKeySignatureFromMidi(key: number, scale: number): KEY_SIGNATURE {
   return midiToSigMap[key]
+}
+
+export function getKeyForSoundfont(note: number) {
+  const soundFontIndex = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+  return soundFontIndex[note % 12] + getOctave(note)
+}
+
+if (typeof window !== 'undefined') {
+  ;(window as any).getNote = getNote
+  ;(window as any).getKey = getKey
+}
+
+function circleOfFifths(fifth: number) {
+  fifth = fifth % 8
+  const cScale = [0, 2, 4, 5, 7, 9, 11]
+  const fifthSemitones = 7
+  return cScale.map((n) => (((n + fifth * fifthSemitones) % 12) + 12) % 12)
 }
