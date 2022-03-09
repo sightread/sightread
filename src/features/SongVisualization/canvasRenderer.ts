@@ -17,8 +17,10 @@ type HandSettings = {
 
 /* =================== START SHEET VIS HELPERS ======================== */
 /* ==================================================================== */
-const MUSIC_FONT = 'BravuraText'
-const PIXELS_PER_STAFF_ROW = 16
+const MUSIC_FONT = 'Leland'
+const STAFF_FIVE_LINES_HEIGHT = 80
+const STAFF_SPACE = STAFF_FIVE_LINES_HEIGHT / 4
+const PIXELS_PER_STAFF_ROW = STAFF_SPACE
 const STAFF_START_X = 150
 const PLAY_NOTES_LINE_X = 400
 const PLAY_NOTES_WIDTH = 20
@@ -68,42 +70,54 @@ function getRow(midiNote: number, keySignature?: KEY_SIGNATURE): number {
 /* ==================== SHEET BACKGROUND HELPERS ====================== */
 function trebleBottomY(height: number): number {
   const center = Math.round(height / 2)
-  return center // 50px above the center
+  return center - 50
 }
 
 function trebleTopY(height: number): number {
   const bottom = trebleBottomY(height)
-  return bottom - PIXELS_PER_STAFF_ROW * 4
+  return bottom - STAFF_FIVE_LINES_HEIGHT
 }
 
 function bassTopY(height: number): number {
   const center = Math.round(height / 2)
-  return center + 100
+  return center + 50
 }
 
 function bassBottomY(height: number): number {
   const top = bassTopY(height)
-  return top + PIXELS_PER_STAFF_ROW * 4
+  return top + STAFF_FIVE_LINES_HEIGHT
+}
+
+function drawStaffConnectingLine(state: State): void {
+  const { ctx } = state
+  ctx.save()
+  ctx.lineWidth = 3
+  line(ctx, STAFF_START_X, trebleTopY(state.height), STAFF_START_X, bassBottomY(state.height))
+  ctx.restore()
 }
 
 function drawStaffLines(state: State, clef: 'bass' | 'treble'): void {
   const { ctx, width } = state
   const { bottomRow, topRow } = CLEFS[clef]
+  ctx.save()
 
-  const lineWidth = 2
+  let lineWidth = 1.5
+  ctx.lineWidth = lineWidth
   for (let row = bottomRow; row <= topRow; row += 2) {
-    const y = getRowY(state, clef, row) + lineWidth / 2
+    const y = getRowY(state, clef, row) - lineWidth / 2
     line(ctx, STAFF_START_X, y, width, y)
   }
 
   // Vertical line.
+  ctx.lineWidth = 3
   line(
     ctx,
     STAFF_START_X,
-    getRowY(state, clef, topRow),
+    getRowY(state, clef, topRow) - 1.5,
     STAFF_START_X,
-    getRowY(state, clef, bottomRow) + lineWidth,
+    getRowY(state, clef, bottomRow),
   )
+  ctx.restore()
 }
 
 function drawPlayNotesLine(state: State): void {
@@ -120,13 +134,6 @@ function drawPlayNotesLine(state: State): void {
   ctx.lineWidth = 3
   line(ctx, PLAY_NOTES_LINE_X, top, PLAY_NOTES_LINE_X, bottom)
   ctx.restore()
-}
-
-function renderBackgroundLines(state: State): void {
-  state.ctx.lineWidth = 2
-  drawStaffLines(state, 'treble')
-  drawStaffLines(state, 'bass')
-  drawPlayNotesLine(state)
 }
 
 /* ===================== END SHEET VIS HELPERS ======================== */
@@ -392,51 +399,16 @@ function renderMeasure(measure: SongMeasure, state: State): void {
 }
 
 function drawStatics(state: State) {
-  const { ctx } = state
-  ctx.save()
-  ctx.lineWidth = 4
-
-  ctx.fillStyle = 'black'
-  ctx.font = `285px ${MUSIC_FONT}`
-  ctx.fillText(
-    glyphs.brace,
-    STAFF_START_X - 25,
-    bassTopY(state.height),
-    state.width - STAFF_START_X,
-  )
-
-  const fontSize = 80
-  ctx.font = `${fontSize}px ${MUSIC_FONT}`
-  const staffGlyph = (glyphs.staff5Lines + ' ').repeat(400)
-  ctx.fillText(staffGlyph, STAFF_START_X, trebleTopY(state.height), state.width - STAFF_START_X)
-  ctx.fillText(staffGlyph, STAFF_START_X, bassTopY(state.height), state.width - STAFF_START_X)
-  ctx.fillText(
-    ' ' + glyphs.gClef,
-    STAFF_START_X,
-    trebleTopY(state.height),
-    state.width - STAFF_START_X,
-  )
-  const keySignatureText = getKeySignatureText(state, 'treble')
-  const timeSignatureText = getTimeSignatureText(state)
-  ctx.fillText(
-    keySignatureText + '--' + timeSignatureText,
-    STAFF_START_X + 70,
-    trebleTopY(state.height),
-  )
-  ctx.fillText(
-    keySignatureText + '--' + timeSignatureText,
-    STAFF_START_X + 70,
-    bassTopY(state.height),
-  )
-
-  ctx.fillText(
-    ' ' + glyphs.fClef,
-    STAFF_START_X,
-    bassTopY(state.height),
-    state.width - STAFF_START_X,
-  )
+  drawCurlyBrace(state)
+  drawStaffLines(state, 'bass')
+  drawStaffLines(state, 'treble')
+  drawStaffConnectingLine(state)
+  drawFClef(state)
+  drawGClef(state)
+  drawKeySignature(state, 'bass')
+  drawKeySignature(state, 'treble')
+  // drawRuler(state)
   drawPlayNotesLine(state)
-  ctx.restore()
 }
 
 // Optimization ideas:
@@ -505,11 +477,8 @@ function renderSheetNote(note: SongNote, state: State): void {
   const { topRow, bottomRow } = CLEFS[staff]
   if (noteRow > topRow) {
     for (let row = topRow + 2; row <= noteRow; row += 2) {
-      // const y = getRowY(state, staff, row)
-      // line(ctx, canvasX - 13, y, canvasX + 20, y)
-      const start = staff == 'treble' ? trebleTopY(state.height) : bassTopY(state.height)
-      const offset = getNoteOffset(state, note.midiNote, staff)
-      ctx.fillText(glyphs.legerLine, canvasX, start + offset)
+      const y = getRowY(state, staff, row)
+      line(ctx, canvasX - 13, y, canvasX + 20, y)
     }
   } else if (noteRow < bottomRow) {
     for (let row = bottomRow - 2; row >= noteRow; row -= 2) {
@@ -518,26 +487,11 @@ function renderSheetNote(note: SongNote, state: State): void {
     }
   }
 
-  const oldFont = ctx.font
   ctx.font = `${PIXELS_PER_STAFF_ROW * 5}px ${MUSIC_FONT}`
   ctx.fillStyle = color
   const key = getKey(note.midiNote, state.keySignature)
   const step = key[0]
-  let notehead = glyphs.noteheadBlack
-  const noteY =
-    (staff === 'treble' ? trebleTopY(state.height) : bassTopY(state.height)) +
-    getNoteOffset(state, note.midiNote, staff)
-  if (state.drawNotes) {
-    notehead = (glyphs as any)[`note${step}Black`]
-    // See implementation notes on
-    // https://w3c.github.io/smufl/latest/tables/note-name-noteheads.html
-    ctx.fillStyle = 'white'
-    ctx.fillText(glyphs.noteEmptyBlack, canvasX, noteY)
-    ctx.fillStyle = 'black'
-  }
-  ctx.fillText(notehead, canvasX, noteY)
-  ctx.font = oldFont
-  // drawMusicNote(state, canvasX, canvasY, color)
+  drawMusicNote(state, canvasX, canvasY, color)
 
   // const accidental = getAccidental(note.midiNote, state.keySignature)
   const accidental = key.length == 2 && key[1]
@@ -548,12 +502,12 @@ function renderSheetNote(note: SongNote, state: State): void {
     ctx.fillStyle = 'black'
     ctx.fillText(text, canvasX - 20, canvasY + 3)
   }
+  if (state.drawNotes) {
+    ctx.font = '9px serif'
+    ctx.fillStyle = 'white'
+    ctx.fillText(step, canvasX, canvasY + 3)
+  }
   ctx.restore()
-}
-
-function getNoteOffset(state: State, note: number, staff: 'bass' | 'treble') {
-  const { middleRow } = CLEFS[staff]
-  return (PIXELS_PER_STAFF_ROW / 2) * (middleRow - getRow(note, state.keySignature))
 }
 
 function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
@@ -565,14 +519,15 @@ function getRowY(state: State, staff: 'bass' | 'treble', row: number) {
   let bottom
   if (staff === 'treble') {
     offsetFromBottom = row - getRow(getNote('E4'))
-    bottom = trebleTopY(state.height)
+    bottom = trebleBottomY(state.height)
   } else {
     offsetFromBottom = row - getRow(getNote('G2'))
-    bottom = bassTopY(state.height)
+    bottom = bassBottomY(state.height)
   }
 
   // TODO: relative to top instead of bottom for simpler maths.
-  return bottom - (offsetFromBottom / 2) * PIXELS_PER_STAFF_ROW
+  const pixelsPerRow = STAFF_FIVE_LINES_HEIGHT / 8
+  return bottom - offsetFromBottom * pixelsPerRow
 }
 
 function sheetNoteColor(x: number, length: number): string {
@@ -684,7 +639,24 @@ function getTimeSignatureText(state: State) {
 
   return `${glyphs.timeSigCombNumerator}${numeratorGlyph}${glyphs.timeSigCombDenominator}${denominatorGlyph}`
 }
-function getKeySignatureText(state: State, staff: 'treble' | 'bass') {
+
+function drawKeySignature(state: State, staff: 'treble' | 'bass') {
+  const { ctx, keySignature } = state
+  ctx.save()
+  const type = getKeyAlterations(keySignature).type
+  const symbol = type === 'flat' ? glyphs.accidentalFlat : glyphs.accidentalSharp
+
+  const size = STAFF_FIVE_LINES_HEIGHT
+  let x = STAFF_START_X + STAFF_SPACE * 4 // account for clef.
+  for (let note of getKeySignatureNotes(state, staff)) {
+    ctx.font = `${size}px ${MUSIC_FONT}`
+    ctx.fillText(symbol, x, getNoteY({ ...state, keySignature: 'C' }, staff, getNote(note)))
+    x += STAFF_SPACE
+  }
+  ctx.restore()
+}
+
+function getKeySignatureNotes(state: State, staff: 'treble' | 'bass') {
   const { keySignature } = state
   const alterations = getKeyAlterations(keySignature)
   let order: Note[] =
@@ -695,52 +667,56 @@ function getKeySignatureText(state: State, staff: 'treble' | 'bass') {
   return order
     .filter((note) => alterations.notes.has(note))
     .map((note) => {
-      let octave = staff === 'treble' ? 5 : 4
+      let octave = staff === 'treble' ? 5 : 3
       if (note === 'A' || note === 'B') {
         octave--
       }
 
-      const { middleRow } = CLEFS[staff]
-      const diff = getRow(getNote(note + octave)) - middleRow
-      let prefix = ''
-      if (diff < 0) {
-        prefix = (glyphs as any)['staffPosLower' + Math.abs(diff)]
-      } else if (diff > 0) {
-        prefix = (glyphs as any)['staffPosRaise' + diff]
-      }
-
-      const symbol = alterations.type === 'sharp' ? glyphs.accidentalSharp : glyphs.accidentalFlat
-      return prefix + symbol
+      return note + octave
     })
-    .join('-')
-}
-
-function drawFClef(state: State) {
-  drawPaths(state, MusicPaths.FClef, STAFF_START_X + PIXELS_PER_STAFF_ROW, bassTopY(state.height), {
-    height: 56,
-  })
 }
 
 function drawMusicNote(state: State, x: number, y: number, color: string) {
   drawPaths(state, MusicPaths.Note, x - 10, y - 11, { color })
 }
 
-function drawGClef(state: State) {
+function drawSymbol(state: State, symbol: string, x: number, y: number, size: number) {
   const { ctx } = state
   ctx.save()
-  ctx.font = `150px Arial`
-  ctx.textBaseline = 'top'
-
-  const x = STAFF_START_X + PIXELS_PER_STAFF_ROW
-  const y = trebleTopY(state.height) - 38
-  ctx.fillText(UNICODE_SYMBOLS.TREBL_CLEF, x, y)
+  ctx.font = `${size}px ${MUSIC_FONT}`
+  ctx.fillText(symbol, x, y)
   ctx.restore()
 }
 
+function drawGClef(state: State) {
+  const x = STAFF_START_X + 10
+  const y = getNoteY(state, 'treble', getNote('G4'))
+  drawSymbol(state, glyphs.gClef, x, y, STAFF_FIVE_LINES_HEIGHT)
+}
+
+function drawFClef(state: State) {
+  const x = STAFF_START_X + 10
+  const y = getNoteY({ ...state, keySignature: 'C' }, 'bass', getNote('F3'))
+  drawSymbol(state, glyphs.fClef, x, y, STAFF_FIVE_LINES_HEIGHT)
+}
+
 function drawCurlyBrace(state: State) {
-  drawPaths(state, MusicPaths.CurlyBrace, STAFF_START_X - 30, trebleTopY(state.height) + 1, {
-    height: 230,
-  })
+  const size = STAFF_FIVE_LINES_HEIGHT * 2 + 100
+  const x = STAFF_START_X - 25
+  const y = state.height / 2 + size / 2
+  drawSymbol(state, glyphs.brace, x, y, size)
+}
+
+function drawRuler(state: State) {
+  const { ctx } = state
+  ctx.save()
+  ctx.strokeStyle = 'rgb(0,0,0,0.1)'
+  ctx.font = '12px Arial'
+  for (let i = 0; i < state.height; i += 25) {
+    ctx.fillText(`${i}`, 0, i)
+    line(ctx, 0, i, state.width, i)
+  }
+  ctx.restore()
 }
 
 const numParticles = 30
