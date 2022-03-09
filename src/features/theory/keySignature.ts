@@ -1,6 +1,3 @@
-import { getKey, getNote } from '../synth'
-import { getOctave } from '../synth/utils'
-
 export type KEY_SIGNATURE =
   | 'Cb'
   | 'Gb'
@@ -126,4 +123,39 @@ function circleOfFifths(fifth: number) {
   const cScale = [0, 2, 4, 5, 7, 9, 11]
   const fifthSemitones = 7
   return cScale.map((n) => (((n + fifth * fifthSemitones) % 12) + 12) % 12)
+}
+
+//
+//  TO BE MOVED
+
+// E.g. A0 --> 0, C8 --> 108.
+const keyToNote: { [key: string]: number } = {}
+const noteToKeyFlat: { [note: number]: string } = {}
+const noteToKeySharp: { [note: number]: string } = {}
+
+;(function () {
+  const A0 = 21 // first note
+  const C8 = 108 // last note
+  const number2keyFlat = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+  const number2keySharp = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+  for (let n = A0; n <= C8; n++) {
+    const octave = ((n - 12) / 12) >> 0
+    const nameFlat = number2keyFlat[n % 12] + octave
+    const nameSharp = number2keySharp[n % 12] + octave
+    keyToNote[nameFlat] = n
+    noteToKeyFlat[n] = nameFlat
+    noteToKeySharp[n] = nameSharp
+  }
+})()
+
+export function getNote(key: string): number {
+  return keyToNote[key]
+}
+
+export function getKey(note: number, keySignature: KEY_SIGNATURE = 'C'): string {
+  return keyToNotes[keySignature][note % 12]
+}
+
+export function getOctave(note: number): number {
+  return Math.floor((note - 12) / 12)
 }

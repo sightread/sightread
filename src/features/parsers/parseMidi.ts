@@ -1,9 +1,9 @@
 // TODO: replace jasmid with own parser.
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
 // Since this is called from Deno as well, we need to use relative paths.
-import { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
+import type { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
+import type { NoteKey } from './types'
 import { getKeySignatureFromMidi, KEY_SIGNATURE } from '../theory'
-import { NoteKey } from './types'
 import { getPitch } from './utils'
 
 export default function parseMidi(midiData: ArrayBuffer): Song {
@@ -33,7 +33,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
   for (let orderedEvent of orderedEvents) {
     const midiEvent: MidiEvent = orderedEvent.event
     const track: number = orderedEvent.track
-    const noteKey = (num: number): NoteKey => (`${track}-${num}` as unknown) as NoteKey
+    const noteKey = (num: number): NoteKey => `${track}-${num}` as unknown as NoteKey
 
     currTick += orderedEvent.ticksToEvent
     currTime += calcWallDuration(orderedEvent.ticksToEvent)

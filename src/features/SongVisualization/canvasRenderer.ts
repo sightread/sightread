@@ -3,9 +3,9 @@ import { clamp, isBlack, isBrowser, pickHex } from '@/utils'
 import { getNoteLanes } from './utils'
 import { circle, line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
-import { getKey, getNote } from '@/features/synth'
-import { getKeyAlterations, KEY_SIGNATURE, Note } from '../theory'
-import { getOctave } from '../synth/utils'
+// import { getKey, getNote } from '@/features/synth'
+import { getKey, getKeyAlterations, getNote, getOctave, KEY_SIGNATURE, Note } from '../theory'
+// import { getOctave } from '../synth/utils'
 import glyphs from '../theory/glyphs'
 
 type CanvasItem = SongMeasure | SongNote

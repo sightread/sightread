@@ -6,7 +6,7 @@ import {
   parserInferHands,
 } from '@/features/parsers'
 import { Song, SongConfig, SongMeasure, SongNote } from '@/types'
-import { getKey, InstrumentName } from '@/features/synth'
+import { InstrumentName } from '@/features/synth'
 import { getUploadedSong } from '@/features/persist'
 
 export function peek(o: any) {

@@ -1,4 +1,4 @@
-import { getNote } from '@/features/synth'
+import { getNote } from '@/features/theory'
 import { MidiStateEvent } from '@/types'
 
 // TODO: create ui for selecting midi device instead of grabbing
