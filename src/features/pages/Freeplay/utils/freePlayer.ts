@@ -21,6 +21,7 @@ export default class FreePlayer {
       notes: [],
       duration: 0,
       items: [],
+      keySignature: 'C',
     }
     this.song.items = this.song.notes // Hack
     if (isBrowser()) {
