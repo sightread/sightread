@@ -21,10 +21,9 @@ const MUSIC_FONT = 'Leland'
 const STAFF_FIVE_LINES_HEIGHT = 80
 const STAFF_SPACE = STAFF_FIVE_LINES_HEIGHT / 4
 const STAFF_LINE_WIDTH = 2
-const PIXELS_PER_STAFF_ROW = STAFF_SPACE
 const STAFF_START_X = 100
 const PLAY_NOTES_WIDTH = 20
-const PLAY_NOTES_LINE_OFFSET = PIXELS_PER_STAFF_ROW * 4 // offset above and below the staff lines
+const PLAY_NOTES_LINE_OFFSET = STAFF_SPACE * 4 // offset above and below the staff lines
 const PLAY_NOTES_LINE_COLOR = 'rgba(110, 40, 251, 0.43)' // '#7029fb'
 const NOTE_ALPHA = 'A2'
 const STEP_NUM: any = {
@@ -396,6 +395,9 @@ function renderMeasure(measure: SongMeasure, state: State): void {
 }
 
 function drawStatics(state: State) {
+  state.ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
+  state.ctx.fillStyle = 'black'
+
   drawCurlyBrace(state)
   drawStaffLines(state, 'bass')
   drawStaffLines(state, 'treble')
@@ -472,7 +474,7 @@ function renderSheetNote(note: SongNote, state: State): void {
   }
 
   // Draw extra lines. Must happen before the MusicNote.
-  ctx.font = `80px ${MUSIC_FONT}`
+  ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
   const noteRow = getRow(note.midiNote, state.keySignature)
   const { topRow, bottomRow } = CLEFS[staff]
   ctx.lineWidth = STAFF_LINE_WIDTH
@@ -488,7 +490,7 @@ function renderSheetNote(note: SongNote, state: State): void {
     }
   }
 
-  ctx.font = `${PIXELS_PER_STAFF_ROW * 5}px ${MUSIC_FONT}`
+  ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
   ctx.fillStyle = color
   const key = getKey(note.midiNote, state.keySignature)
   const step = key[0]
