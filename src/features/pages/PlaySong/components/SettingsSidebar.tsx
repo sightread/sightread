@@ -117,7 +117,7 @@ export default function SettingsSidebar(props: SidebarProps) {
           onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
         >
           {getKeySignatures().map((keySig) => {
-            return <option id={`id-${keySig}`}>{keySig}</option>
+            return <option key={`id-${keySig}`}>{keySig}</option>
           })}
         </select>
       </div>

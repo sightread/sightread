@@ -1,3 +1,5 @@
+import { getOctave } from '../theory'
+
 // convert a MIDI.js javascript soundfont file to json
 async function parseMidiJsSoundfont(text: string): Promise<{ [key: string]: AudioBuffer }> {
   var begin = text.indexOf('MIDI.Soundfont.')
@@ -33,4 +35,11 @@ function getAudioContext() {
   return AudioContext
 }
 
-export { getAudioContext, parseMidiJsSoundfont }
+// The sound fonts need the key in C Major with only flat accidentals.
+// No sharps.
+function getKeyForSoundfont(note: number) {
+  const soundFontIndex = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+  return soundFontIndex[note % 12] + getOctave(note)
+}
+
+export { getAudioContext, parseMidiJsSoundfont, getKeyForSoundfont }

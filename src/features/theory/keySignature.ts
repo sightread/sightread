@@ -21,11 +21,7 @@ export function getKeySignatures(): KEY_SIGNATURE[] {
 
 export type Note = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
 
-function getSharps(key: KEY_SIGNATURE): Set<Note> {
-  return keyDetailsMap[key].notes
-}
-
-// From
+// TODO
 function inferKey(): KEY_SIGNATURE {
   return 'C'
 }
@@ -110,13 +106,6 @@ export function getKeyDetails(key: KEY_SIGNATURE): KeyDetails {
 
 export function getKeySignatureFromMidi(key: number, scale: number): KEY_SIGNATURE {
   return midiToSigMap[key]
-}
-
-// The sound fonts need the key in C Major with only flat accidentals.
-// No sharps.
-export function getKeyForSoundfont(note: number) {
-  const soundFontIndex = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-  return soundFontIndex[note % 12] + getOctave(note)
 }
 
 function circleOfFifths(fifth: number) {
