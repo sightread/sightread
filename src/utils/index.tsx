@@ -6,7 +6,7 @@ import {
   parserInferHands,
 } from '@/features/parsers'
 import { Song, SongConfig, SongMeasure, SongNote } from '@/types'
-import { getKey, InstrumentName } from '@/features/synth'
+import { InstrumentName } from '@/features/synth'
 import { getUploadedSong } from '@/features/persist'
 
 export function peek(o: any) {
@@ -125,10 +125,6 @@ export class Deferred<T> {
       this.reject = rej
     })
   }
-}
-
-export function isBlack(note: number) {
-  return getKey(note)?.[1] === 'b'
 }
 
 // Allows you to use multiple ref handlers.

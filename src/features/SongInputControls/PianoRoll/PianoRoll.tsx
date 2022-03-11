@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSize } from '@/hooks'
 import { getNoteSizes, range } from '@/utils'
-import { diffKeys, isBlack, isBrowser } from '@/utils'
-import { getKey } from '@/features/synth'
+import { diffKeys, isBrowser } from '@/utils'
+import { getKey, getOctave, isBlack } from '@/features/theory'
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
 
@@ -109,7 +109,7 @@ type PianoNoteProps = {
 function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: PianoNoteProps) {
   const [userPressed, setUserPressed] = useState(false)
   const color = isBlack(note) ? 'black' : 'white'
-  const isC = getKey(note).startsWith('C')
+  const isC = getKey(note) == 'C'
 
   return (
     <div
@@ -159,7 +159,7 @@ function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: P
             paddingBottom: 10,
           }}
         >
-          {getKey(note)}
+          {getKey(note) + getOctave(note)}
         </div>
       )}
     </div>

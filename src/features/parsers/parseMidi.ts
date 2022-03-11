@@ -1,8 +1,9 @@
 // TODO: replace jasmid with own parser.
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
 // Since this is called from Deno as well, we need to use relative paths.
-import { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
-import { NoteKey } from './types'
+import type { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
+import type { NoteKey } from './types'
+import { getKeySignatureFromMidi, KEY_SIGNATURE } from '../theory'
 import { getPitch } from './utils'
 
 export default function parseMidi(midiData: ArrayBuffer): Song {
@@ -19,6 +20,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
   let measures: SongMeasure[] = []
   let lastMeasureTickedAt = -Infinity
   let timeSignature = { numerator: 4, denominator: 4 }
+  let keySignature: KEY_SIGNATURE = 'C'
   const ticksPerMeasure = () =>
     ticksPerBeat * (timeSignature.numerator / timeSignature.denominator) * 4
 
@@ -31,7 +33,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
   for (let orderedEvent of orderedEvents) {
     const midiEvent: MidiEvent = orderedEvent.event
     const track: number = orderedEvent.track
-    const noteKey = (num: number): NoteKey => (`${track}-${num}` as unknown) as NoteKey
+    const noteKey = (num: number): NoteKey => `${track}-${num}` as unknown as NoteKey
 
     currTick += orderedEvent.ticksToEvent
     currTime += calcWallDuration(orderedEvent.ticksToEvent)
@@ -85,10 +87,12 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
         openNotes.delete(noteKey(midiNote))
       }
     } else if (midiEvent.subType === 'setTempo') {
-      const bpm = 60000000 / midiEvent.microsecondsPerBeat
-      bpms.push({ time: currTime, bpm })
+      const bpm = Math.round(60000000 / midiEvent.microsecondsPerBeat)
     } else if (midiEvent.subType === 'timeSignature') {
       timeSignature = midiEvent
+    } else if (midiEvent.subType === 'keySignature') {
+      // TODO: also do something with the scale?
+      keySignature = getKeySignatureFromMidi(midiEvent.key, midiEvent.scale)
     }
   }
 
@@ -113,6 +117,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
     tracks,
     bpms,
     timeSignature,
+    keySignature,
     items: [...measures, ...notes].sort((i1, i2) => i1.time - i2.time),
   }
 }

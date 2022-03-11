@@ -1,5 +1,5 @@
 // Since this is called from Deno as well, we need to use relative paths.
-import { getNote } from '../synth/utils'
+import { getNote } from '../theory'
 import { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../types'
 
 export default function parseMusicXml(txt: string): Song {
@@ -146,6 +146,7 @@ export default function parseMusicXml(txt: string): Song {
       }
       currMeasure = number
     } else if (curr.tagName === 'key') {
+      // TODO properly parse this..
       const fifth = Number(curr.querySelector('fifths')?.textContent?.trim())
       const mode = curr.querySelector('mode')?.textContent?.trim() ?? ''
     } else if (curr.tagName === 'sound') {
@@ -190,5 +191,6 @@ export default function parseMusicXml(txt: string): Song {
     // TODO: remove notes/measures separately
     items: [...notes, ...measures].sort((i1, i2) => i1.time - i2.time),
     timeSignature,
+    keySignature: 'C',
   }
 }

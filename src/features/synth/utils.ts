@@ -1,26 +1,4 @@
-// The provide a key from midi note number to the key.
-// E.g. A0 --> 0, C8 --> 108.
-const keyToNote: { [key: string]: number } = {}
-const noteToKey: { [note: number]: string } = {}
-
-;(function () {
-  const A0 = 21 // first note
-  const C8 = 108 // last note
-  const number2key = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-  for (let n = A0; n <= C8; n++) {
-    const octave = ((n - 12) / 12) >> 0
-    const name = number2key[n % 12] + octave
-    keyToNote[name] = n
-    noteToKey[n] = name
-  }
-})()
-
-function getNote(key: string): number {
-  return keyToNote[key]
-}
-function getKey(note: number): string {
-  return noteToKey[note]
-}
+import { getOctave } from '../theory'
 
 // convert a MIDI.js javascript soundfont file to json
 async function parseMidiJsSoundfont(text: string): Promise<{ [key: string]: AudioBuffer }> {
@@ -57,4 +35,11 @@ function getAudioContext() {
   return AudioContext
 }
 
-export { getNote, getKey, getAudioContext, parseMidiJsSoundfont }
+// The sound fonts need the key in C Major with only flat accidentals.
+// No sharps.
+function getKeyForSoundfont(note: number) {
+  const soundFontIndex = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+  return soundFontIndex[note % 12] + getOctave(note)
+}
+
+export { getAudioContext, parseMidiJsSoundfont, getKeyForSoundfont }

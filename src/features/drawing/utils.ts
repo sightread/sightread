@@ -67,25 +67,37 @@ export function circle(
   ctx.fillRect(x, y, radius, radius) // if the object is small use rect instead of circle
 }
 
-let getMusicNotePath: () => Path2D = (function () {
-  return () => {
-    const svg = new Path2D(
-      'M22.4811 6.42107C24.4811 10.4211 21.0371 15.6763 15.4811 17.9211C9.48114 19.9211 5.48114 18.921 2.98114 15.421C1.48114 11.421 4.48114 6.92102 10.0411 3.9855C15.9811 2.42107 20.4811 2.42107 22.4811 6.42107Z',
-    )
-    getMusicNotePath = () => svg
-    return svg
-  }
-})()
-
-export function drawMusicNote(
+function drawPaths(
   ctx: CanvasRenderingContext2D,
-  posX: number,
-  posY: number,
-  color: string,
-): void {
-  ctx.translate(posX - 10, posY - 3)
-  ctx.fillStyle = color
-  ctx.beginPath
-  ctx.fill(getMusicNotePath())
-  ctx.translate(-posX + 10, -posY + 3)
+  pathObj: { width: number; height: number; path2d: Path2D },
+  x: number,
+  y: number,
+  opts?: { width?: number; height?: number; color?: string },
+) {
+  const { width, height, color } = opts ?? {}
+  ctx.save()
+  ctx.translate(x, y)
+  if (color) {
+    ctx.fillStyle = color
+  }
+  if (width || height) {
+    let widthRatio = 1
+    let heightRatio = 1
+    if (width) {
+      widthRatio = width / pathObj.width
+      // Assume autoscale
+      if (!height) {
+        heightRatio = widthRatio
+      }
+    }
+    if (height) {
+      heightRatio = height / pathObj.height
+      if (!width) {
+        widthRatio = heightRatio
+      }
+    }
+    ctx.scale(widthRatio, heightRatio)
+  }
+  ctx.fill(pathObj.path2d)
+  ctx.restore()
 }

@@ -1,5 +1,5 @@
-import { Song, SongNote, SongConfig } from '@/types'
-import { isBlack } from '@/utils'
+import { SongNote, SongConfig } from '@/types'
+import { isBlack } from '@/features/theory'
 
 const trackColors = {
   right: {

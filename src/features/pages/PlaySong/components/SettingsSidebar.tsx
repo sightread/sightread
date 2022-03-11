@@ -4,6 +4,7 @@ import { Song, SongConfig, VisualizationMode } from '@/types'
 import { Sizer } from '@/utils'
 import { palette as colors } from '@/styles/common'
 import { AdjustInstruments } from '@/features/SongInputControls'
+import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
 
 type SidebarProps = {
   open: boolean
@@ -13,7 +14,7 @@ type SidebarProps = {
 }
 
 export default function SettingsSidebar(props: SidebarProps) {
-  const { left, right, visualization, waiting, noteLetter } = props.config
+  const { left, right, visualization, waiting, noteLetter, keySignature } = props.config
   const handleHand = (selected: 'left' | 'right') => {
     if (selected === 'left') {
       props.onChange({ ...props.config, left: !props.config.left })
@@ -26,12 +27,14 @@ export default function SettingsSidebar(props: SidebarProps) {
   const handleVisualization = (visualization: VisualizationMode) => {
     props.onChange({ ...props.config, visualization })
   }
-
-  const handleWaiting = (waiting: boolean) => {
+  function handleWaiting(waiting: boolean) {
     props.onChange({ ...props.config, waiting })
   }
   function handleNotes() {
     props.onChange({ ...props.config, noteLetter: !noteLetter })
+  }
+  function handleKeySignature(keySignature: KEY_SIGNATURE) {
+    props.onChange({ ...props.config, keySignature })
   }
 
   return (
@@ -84,7 +87,7 @@ export default function SettingsSidebar(props: SidebarProps) {
         </div>
         <Sizer height={10} />
         <div style={{ fontSize: 14 }}>
-          <span> Sheet</span>{' '}
+          <span> Sheet</span>
           <input
             type="radio"
             checked={visualization === 'sheet'}
@@ -103,6 +106,20 @@ export default function SettingsSidebar(props: SidebarProps) {
         Display note letter
         <Sizer height={8} />
         <Toggle checked={noteLetter} onChange={handleNotes} />
+      </div>
+      <Sizer height={36} />
+      <div style={{ display: 'flex', fontSize: 16, flexDirection: 'column', alignItems: 'center' }}>
+        Key signature
+        <Sizer height={8} />
+        <select
+          name="keySignature"
+          value={keySignature ?? props.song?.keySignature}
+          onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
+        >
+          {getKeySignatures().map((keySig) => {
+            return <option key={`id-${keySig}`}>{keySig}</option>
+          })}
+        </select>
       </div>
       <Sizer height={36} />
       <div
