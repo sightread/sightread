@@ -87,8 +87,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
         openNotes.delete(noteKey(midiNote))
       }
     } else if (midiEvent.subType === 'setTempo') {
-      const bpm = 60000000 / midiEvent.microsecondsPerBeat
-      bpms.push({ time: currTime, bpm })
+      const bpm = Math.round(60000000 / midiEvent.microsecondsPerBeat)
     } else if (midiEvent.subType === 'timeSignature') {
       timeSignature = midiEvent
     } else if (midiEvent.subType === 'keySignature') {

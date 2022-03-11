@@ -15,6 +15,10 @@ export type KEY_SIGNATURE =
   | 'F#'
   | 'C#'
 
+export function getKeySignatures(): KEY_SIGNATURE[] {
+  return ['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#']
+}
+
 export type Note = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
 
 function getSharps(key: KEY_SIGNATURE): Set<Note> {
@@ -35,7 +39,7 @@ export type KeyAlterations = {
   notes: Set<Note>
 }
 
-export const keyToNotes: { [sig in KEY_SIGNATURE]: string[] } = {
+const keyToNotes: { [sig in KEY_SIGNATURE]: string[] } = {
   // Sharps
   C: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
   G: ['C', 'C#', 'D', 'D#', 'E', 'F♮', 'F', 'G', 'G#', 'A', 'A#', 'B'],

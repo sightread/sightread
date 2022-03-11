@@ -65,7 +65,7 @@ function CanvasRenderer({
       showParticles: Player.player().isPlaying(),
       items: song.items,
       constrictView: !!constrictView,
-      keySignature: song.keySignature,
+      keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
     }
     render(state)

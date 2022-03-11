@@ -453,11 +453,9 @@ function renderSheetNote(note: SongNote, state: State): void {
   const posX = getItemStartEnd(note, state).start
   const color = sheetNoteColor(posX, length)
   const staff = state.hands?.[note.track].hand === 'right' ? 'treble' : 'bass'
-
   const playNotesLineX = getPlayNotesLineX(state)
   let canvasX = posX + playNotesLineX + PLAY_NOTES_WIDTH / 2
   let canvasY = getNoteY(state, staff, note.midiNote)
-
   ctx.fillStyle = color + NOTE_ALPHA
   const trailLength = length - 15 - (canvasX > playNotesLineX ? 0 : playNotesLineX - canvasX)
   const trailHeight = 10
@@ -467,12 +465,11 @@ function renderSheetNote(note: SongNote, state: State): void {
     trailLength,
     trailHeight,
   )
-
   // Return after drawing the tail for the notes that have already crossed.
   if (canvasX < playNotesLineX - 10) {
+    ctx.restore()
     return
   }
-
   // Draw extra lines. Must happen before the MusicNote.
   ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
   const noteRow = getRow(note.midiNote, state.keySignature)
@@ -489,13 +486,11 @@ function renderSheetNote(note: SongNote, state: State): void {
       line(ctx, canvasX - 13, y, canvasX + 20, y)
     }
   }
-
   ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
   ctx.fillStyle = color
   const key = getKey(note.midiNote, state.keySignature)
   const step = key[0]
   drawMusicNote(state, canvasX, canvasY, color)
-
   // const accidental = getAccidental(note.midiNote, state.keySignature)
   const accidental = key.length == 2 && key[1]
   if (accidental) {
