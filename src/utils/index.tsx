@@ -127,11 +127,6 @@ export class Deferred<T> {
   }
 }
 
-const blackIndices = new Set([1, 3, 6, 8, 10])
-export function isBlack(note: number) {
-  return blackIndices.has(note % 12)
-}
-
 // Allows you to use multiple ref handlers.
 export function refs<T>(arr: Ref<T>[]) {
   return (ref: T) => {

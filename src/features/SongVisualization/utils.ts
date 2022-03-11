@@ -1,7 +1,8 @@
 import { Song, Track, SongNote, SongConfig, SongMeasure } from '@/types'
 import { gmInstruments, InstrumentName } from '@/features/synth'
-import { clamp, getNoteSizes, inferHands, isBlack, mapValues, range } from '@/utils'
+import { clamp, getNoteSizes, inferHands, mapValues, range } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
+import { isBlack } from '../theory'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []

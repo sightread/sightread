@@ -1,9 +1,9 @@
 import { SongMeasure, SongNote, Hand } from '@/types'
-import { clamp, isBlack, isBrowser, pickHex } from '@/utils'
+import { clamp, isBrowser, pickHex } from '@/utils'
 import { getNoteLanes } from './utils'
 import { circle, line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
-import { getKey, getKeyDetails, getNote, getOctave, KEY_SIGNATURE, Note } from '../theory'
+import { getKey, getKeyDetails, getNote, getOctave, isBlack, KEY_SIGNATURE } from '../theory'
 import glyphs from '../theory/glyphs'
 
 type CanvasItem = SongMeasure | SongNote
