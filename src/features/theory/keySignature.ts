@@ -22,7 +22,7 @@ export function getKeySignatures(): KEY_SIGNATURE[] {
 export type Note = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
 
 function getSharps(key: KEY_SIGNATURE): Set<Note> {
-  return keyAlterationMap[key].notes
+  return keyDetailsMap[key].notes
 }
 
 // From
@@ -31,12 +31,12 @@ function inferKey(): KEY_SIGNATURE {
 }
 
 type KeyAlterationMap = {
-  [keyname in KEY_SIGNATURE]: KeyAlterations
+  [keyname in KEY_SIGNATURE]: KeyDetails
 }
 
-export type KeyAlterations = {
+export type KeyDetails = {
   type: 'sharp' | 'flat'
-  notes: Set<Note>
+  notes: Note[]
 }
 
 const keyToNotes: { [sig in KEY_SIGNATURE]: string[] } = {
@@ -60,27 +60,27 @@ const keyToNotes: { [sig in KEY_SIGNATURE]: string[] } = {
   Cb: ['C♮', 'D', 'D♮', 'E', 'E', 'F♮', 'G', 'G♮', 'A', 'A♮', 'B', 'C'],
 }
 
-let keyAlterationMap: KeyAlterationMap = getKeyAlterationMap()
-function getKeyAlterationMap(): KeyAlterationMap {
+let keyDetailsMap: KeyAlterationMap = getKeyDetailsMap()
+function getKeyDetailsMap(): KeyAlterationMap {
   const alterMap: KeyAlterationMap = {
     // Sharps
-    C: { notes: new Set(), type: 'sharp' },
-    G: { notes: new Set(['F']), type: 'sharp' },
-    D: { notes: new Set(['F', 'C']), type: 'sharp' },
-    A: { notes: new Set(['F', 'C', 'G']), type: 'sharp' },
-    E: { notes: new Set(['F', 'C', 'G', 'D']), type: 'sharp' },
-    B: { notes: new Set(['F', 'C', 'G', 'D', 'A']), type: 'sharp' },
-    'F#': { notes: new Set(['F', 'C', 'G', 'D', 'A', 'E']), type: 'sharp' },
-    'C#': { notes: new Set(['F', 'C', 'G', 'D', 'A', 'E', 'B']), type: 'sharp' },
+    C: { notes: [], type: 'sharp' },
+    G: { notes: ['F'], type: 'sharp' },
+    D: { notes: ['F', 'C'], type: 'sharp' },
+    A: { notes: ['F', 'C', 'G'], type: 'sharp' },
+    E: { notes: ['F', 'C', 'G', 'D'], type: 'sharp' },
+    B: { notes: ['F', 'C', 'G', 'D', 'A'], type: 'sharp' },
+    'F#': { notes: ['F', 'C', 'G', 'D', 'A', 'E'], type: 'sharp' },
+    'C#': { notes: ['F', 'C', 'G', 'D', 'A', 'E', 'B'], type: 'sharp' },
 
     // Flats
-    F: { notes: new Set(['B']), type: 'flat' },
-    Bb: { notes: new Set(['B', 'E']), type: 'flat' },
-    Eb: { notes: new Set(['B', 'E', 'A']), type: 'flat' },
-    Ab: { notes: new Set(['B', 'E', 'A', 'D']), type: 'flat' },
-    Db: { notes: new Set(['B', 'E', 'A', 'D', 'G']), type: 'flat' },
-    Gb: { notes: new Set(['B', 'E', 'A', 'D', 'G', 'C']), type: 'flat' },
-    Cb: { notes: new Set(['B', 'E', 'A', 'D', 'G', 'C', 'F']), type: 'flat' },
+    F: { notes: ['B'], type: 'flat' },
+    Bb: { notes: ['B', 'E'], type: 'flat' },
+    Eb: { notes: ['B', 'E', 'A'], type: 'flat' },
+    Ab: { notes: ['B', 'E', 'A', 'D'], type: 'flat' },
+    Db: { notes: ['B', 'E', 'A', 'D', 'G'], type: 'flat' },
+    Gb: { notes: ['B', 'E', 'A', 'D', 'G', 'C'], type: 'flat' },
+    Cb: { notes: ['B', 'E', 'A', 'D', 'G', 'C', 'F'], type: 'flat' },
   }
 
   return alterMap
@@ -104,22 +104,19 @@ const midiToSigMap: { [num: number]: KEY_SIGNATURE } = {
   '7': 'C#',
 }
 
-export function getKeyAlterations(key: KEY_SIGNATURE): KeyAlterations {
-  return keyAlterationMap[key]
+export function getKeyDetails(key: KEY_SIGNATURE): KeyDetails {
+  return keyDetailsMap[key]
 }
 
 export function getKeySignatureFromMidi(key: number, scale: number): KEY_SIGNATURE {
   return midiToSigMap[key]
 }
 
+// The sound fonts need the key in C Major with only flat accidentals.
+// No sharps.
 export function getKeyForSoundfont(note: number) {
   const soundFontIndex = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
   return soundFontIndex[note % 12] + getOctave(note)
-}
-
-if (typeof window !== 'undefined') {
-  ;(window as any).getNote = getNote
-  ;(window as any).getKey = getKey
 }
 
 function circleOfFifths(fifth: number) {
@@ -134,21 +131,18 @@ function circleOfFifths(fifth: number) {
 
 // E.g. A0 --> 0, C8 --> 108.
 const keyToNote: { [key: string]: number } = {}
-const noteToKeyFlat: { [note: number]: string } = {}
-const noteToKeySharp: { [note: number]: string } = {}
+const noteToKey: { [note: number]: string } = {}
 
+// noteToKey specifically for soundfonts.
 ;(function () {
   const A0 = 21 // first note
   const C8 = 108 // last note
-  const number2keyFlat = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-  const number2keySharp = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+  const number2Key = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
   for (let n = A0; n <= C8; n++) {
     const octave = ((n - 12) / 12) >> 0
-    const nameFlat = number2keyFlat[n % 12] + octave
-    const nameSharp = number2keySharp[n % 12] + octave
-    keyToNote[nameFlat] = n
-    noteToKeyFlat[n] = nameFlat
-    noteToKeySharp[n] = nameSharp
+    const name = number2Key[n % 12] + octave
+    keyToNote[name] = n
+    noteToKey[n] = name
   }
 })()
 
