@@ -1257,6 +1257,18 @@ const songs: MusicFile[] = [
     artist: 'Aphex Twin',
     difficulty: 'Easy',
   },
+  {
+    file: 'Bloom.Greensleeves.Beginner.mid',
+    name: 'Bloom: Greensleeves',
+    artist: 'Celtic Ladies',
+    difficulty: 'Easy',
+  },
+  {
+    file: 'Bloom.Avril14.mid',
+    name: 'Bloom: Avril 14',
+    artist: 'Aphex Twin',
+    difficulty: 'Easy',
+  },
 ].map((elem) => ({ ...elem, type: 'song', file: 'music/songs/' + elem.file }))
 
 const musicFiles: MusicFile[] = songs.concat(lessons)
