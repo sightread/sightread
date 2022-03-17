@@ -425,11 +425,17 @@ function renderMidiPressedKeys(state: State): void {
     let canvasX = getPlayNotesLineX(state) - 3
     drawMusicNote(state, canvasX, canvasY, 'red')
 
+    const key = getKey(note)
     // is sharp
-    if (getKey(note).length === 2) {
+    if (key.length === 2) {
       ctx.fillStyle = 'black'
       ctx.font = `${STAFF_SPACE}px ${MUSIC_FONT}`
       ctx.fillText(glyphs.accidentalSharp, canvasX - 17, canvasY)
+    }
+    if (state.drawNotes) {
+      ctx.font = '9px serif'
+      ctx.fillStyle = 'white'
+      ctx.fillText(key[0], canvasX, canvasY + 3)
     }
   }
 }
