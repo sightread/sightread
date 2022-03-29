@@ -62,7 +62,7 @@ function CanvasRenderer({
       hands: handSettings,
       hand,
       ctx: ctxRef.current,
-      showParticles: Player.player().isPlaying(),
+      showParticles: false, // disable FX for now, don't love the particle effect.
       items: song.items,
       constrictView: !!constrictView,
       keySignature: config.keySignature ?? song.keySignature,

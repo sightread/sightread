@@ -1,5 +1,5 @@
 import { SongMeasure, SongNote, Hand } from '@/types'
-import { clamp, isBrowser, pickHex } from '@/utils'
+import { clamp, pickHex } from '@/utils'
 import { getNoteLanes } from './utils'
 import { circle, line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
@@ -201,13 +201,13 @@ function getNoteColor(note: SongNote, state: State): string {
 function getItemStartEnd(item: CanvasItem, state: State): { start: number; end: number } {
   if (state.visualization == 'falling-notes') {
     const start = state.viewport.start - item.time * state.pps
-    const duration = item.type === 'note' ? item.duration : 0
+    const duration = item.type === 'note' ? item.duration : 100
     const end = start - duration * state.pps
     return { start, end }
   }
 
   const start = item.time * state.pps - state.viewport.start
-  const duration = item.type === 'note' ? item.duration : 0
+  const duration = item.type === 'note' ? item.duration : 100
   const end = start + duration * state.pps
   return { start, end }
 }
@@ -290,9 +290,9 @@ export function render(givenState: Readonly<GivenState>) {
   }
 
   // Disable before comitting
-  if (isBrowser() && window.location.origin.includes('localhost')) {
-    renderDebugInfo(state)
-  }
+  // if (isBrowser() && window.location.origin.includes('localhost')) {
+  //   renderDebugInfo(state)
+  // }
 }
 
 function renderItem(item: CanvasItem, state: State) {
@@ -314,17 +314,37 @@ function getParticleGenerator() {
 function renderFallingVis(state: State): void {
   const items = getItemsInView(state)
 
-  // 1. Render all the notes + measures
+  // 1. Render the ruler lines
+  renderOctaveRuler(state)
+
+  // 2. Render all the notes + measures
   for (let i of items) {
     renderItem(i, state)
   }
 
-  // 2. Render particles effects
+  // 3. Render particles effects
   if (state.showParticles) {
     const effect = getParticleGenerator()
     effect.update(state)
     effect.render(state)
   }
+}
+function renderOctaveRuler(state: State) {
+  const { ctx } = state
+  ctx.save()
+  ctx.strokeStyle = 'white'
+  for (let [midiNote, { left }] of Object.entries(state.lanes)) {
+    const key = getKey(+midiNote)
+    if (key === 'C') {
+      ctx.globalAlpha = 0.15
+      line(ctx, left, 0, left, state.height)
+    }
+    if (key === 'F') {
+      ctx.globalAlpha = 0.3
+      line(ctx, left, 0, left, state.height)
+    }
+  }
+  ctx.restore()
 }
 
 function renderFallingNote(note: SongNote, state: State): void {
@@ -371,14 +391,17 @@ function renderDebugInfo(state: State) {
 
 function renderMeasure(measure: SongMeasure, state: State): void {
   const { ctx } = state
+  ctx.save()
   const color = palette.measure
-  const posY = Math.round(getItemStartEnd(measure, state).start)
+  const posY = Math.ceil(getItemStartEnd(measure, state).start)
 
   ctx.font = '20px Roboto'
   ctx.strokeStyle = color
   ctx.fillStyle = color
+  ctx.globalAlpha = 0.9
   line(ctx, 0, posY, state.width, posY)
-  ctx.fillText(measure.number.toString(), 10, posY - 10)
+  ctx.fillText(measure.number.toString(), 10, posY - 5)
+  ctx.restore()
 }
 
 function drawStatics(state: State) {

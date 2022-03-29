@@ -17,6 +17,15 @@ export function getSongRange(song: { notes: SongNote[] } | undefined) {
   startNote = clamp(startNote - 2, { min: 21, max: 107 })
   endNote = clamp(endNote + 2, { min: startNote + 1, max: 108 })
 
+  // If the prev/next note is black, we need to include it as well.
+  // Since black notes are partially on the adjacent notes as well.
+  if (isBlack(startNote - 1)) {
+    startNote--
+  }
+  if (isBlack(endNote + 1)) {
+    endNote++
+  }
+
   return { startNote, endNote }
 }
 

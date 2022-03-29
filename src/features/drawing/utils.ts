@@ -11,44 +11,26 @@ export function line(
   ctx.stroke()
 }
 
-const radius = 10
-const noteCornerRadius = {
-  tl: radius,
-  tr: radius,
-  bl: radius,
-  br: radius,
-}
-
 export function roundRect(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   width: number,
   height: number,
-): void {
-  if (height < radius) {
-    ctx.fillRect(x, y, width, height > 2 ? height : 2)
-    return
+) {
+  let radius = 10
+  if (width < 2 * radius) {
+    radius = width / 2
   }
-  const getCornerRadii = () => {
-    if (width > radius) {
-      return noteCornerRadius
-    }
-    const r = width - 1
-    return { tl: r, tr: r, bl: r, br: r }
+  if (height < 2 * radius) {
+    radius = height / 2
   }
-  const { tl, tr, bl, br } = getCornerRadii()
-
   ctx.beginPath()
-  ctx.moveTo(x + tl, y)
-  ctx.lineTo(x + width - tr, y)
-  ctx.quadraticCurveTo(x + width, y, x + width, y + tr)
-  ctx.lineTo(x + width, y + height - br)
-  ctx.quadraticCurveTo(x + width, y + height, x + width - br, y + height)
-  ctx.lineTo(x + bl, y + height)
-  ctx.quadraticCurveTo(x, y + height, x, y + height - bl)
-  ctx.lineTo(x, y + tl)
-  ctx.quadraticCurveTo(x, y, x + tl, y)
+  ctx.moveTo(x + radius, y)
+  ctx.arcTo(x + width, y, x + width, y + height, radius)
+  ctx.arcTo(x + width, y + height, x, y + height, radius)
+  ctx.arcTo(x, y + height, x, y, radius)
+  ctx.arcTo(x, y, x + width, y, radius)
   ctx.closePath()
   ctx.fill()
   ctx.stroke()
