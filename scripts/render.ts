@@ -5,6 +5,7 @@ import ffmpeg from 'fluent-ffmpeg'
 import { PassThrough } from 'stream'
 
 async function main() {
+  const outputDir = '/Users/jakefried/Movies/sightread-recordings'
   const file = 'All_Eyes_On_Me__Bo_Burnham_Easy_Piano'
   const song: Song = require(`../public/generated/music/songs/${file}.json`)
 
@@ -17,6 +18,7 @@ async function main() {
   ffmpeg(passthrough)
     .inputFormat('image2pipe')
     .inputFPS(fps)
+    .input(`${outputDir}/${file}.mp3`)
     .on('progress', (progressDetails) => {
       console.log(progressDetails.timemark)
     })
@@ -26,7 +28,7 @@ async function main() {
     .on('error', function (err) {
       console.log('an error happened: ' + err.message)
     })
-    .save(`/Users/jakefried/Movies/sightread-recordings/${file}.mp4`)
+    .save(`${outputDir}/${file}.mp4`)
 
   const { items, duration } = song
   const state: any = {
@@ -47,7 +49,7 @@ async function main() {
   }
 
   let lastFire = Date.now()
-  const end = 5
+  const end = duration
   const start = Date.now()
   while (state.time < end) {
     render(state)
