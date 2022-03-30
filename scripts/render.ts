@@ -19,7 +19,7 @@ async function main() {
     .inputFormat('image2pipe')
     .inputFPS(fps)
     .input(`${outputDir}/${file}.mp3`)
-    // .outputOptions(`-threads ${cpus}`)
+    .outputOptions(`-threads ${cpus}`)
     .on('progress', (progressDetails) => {
       console.log(`FFMPEG Timemark: ${progressDetails.timemark}`)
     })
@@ -50,13 +50,13 @@ async function main() {
   }
 
   let lastFire = Date.now()
-  const end = duration / 10
+  const end = duration
   const start = Date.now()
   while (state.time < end) {
     let canvas = new Canvas(viewport.width, viewport.height)
     state.ctx = canvas.getContext('2d')
     render(state)
-    const jpg = canvas.toBufferSync('jpg')
+    const jpg = canvas.toBufferSync('jpg', { density: 2 })
     passthrough.write(jpg)
     state.time += 1 / fps
     if (Date.now() - lastFire > 1000) {

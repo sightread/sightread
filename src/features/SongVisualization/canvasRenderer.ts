@@ -403,7 +403,7 @@ function renderOctaveRuler(state: State) {
 function renderFallingNote(note: SongNote, state: State): void {
   const { ctx, pps } = state
   const lane = state.lanes.midiNotes[note.midiNote]
-  const posY = Math.round(getItemStartEnd(note, state).end) - state.lanes.whiteHeight
+  const posY = Math.round(getItemStartEnd(note, state).end) - state.lanes.whiteHeight - 5
   const posX = Math.round(lane.left + 1)
   const length = Math.round(note.duration * pps)
   const width = lane.width - 2
@@ -446,7 +446,7 @@ function renderMeasure(measure: SongMeasure, state: State): void {
   const { ctx } = state
   ctx.save()
   const color = palette.measure
-  const posY = Math.ceil(getItemStartEnd(measure, state).start) - state.lanes.whiteHeight
+  const posY = Math.ceil(getItemStartEnd(measure, state).start) - state.lanes.whiteHeight - 5
 
   ctx.font = '20px Roboto'
   ctx.strokeStyle = color
