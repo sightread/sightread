@@ -17,6 +17,7 @@ export function roundRect(
   y: number,
   width: number,
   height: number,
+  options?: { topRadius?: number; bottomRadius?: number },
 ) {
   let radius = 10
   if (width < 2 * radius) {
@@ -26,11 +27,13 @@ export function roundRect(
     radius = height / 2
   }
   ctx.beginPath()
-  ctx.moveTo(x + radius, y)
-  ctx.arcTo(x + width, y, x + width, y + height, radius)
-  ctx.arcTo(x + width, y + height, x, y + height, radius)
-  ctx.arcTo(x, y + height, x, y, radius)
-  ctx.arcTo(x, y, x + width, y, radius)
+  let topR = options?.topRadius ?? radius
+  let bottomR = options?.bottomRadius ?? radius
+  ctx.moveTo(x + topR, y)
+  ctx.arcTo(x + width, y, x + width, y + height, topR)
+  ctx.arcTo(x + width, y + height, x, y + height, bottomR)
+  ctx.arcTo(x, y + height, x, y, bottomR)
+  ctx.arcTo(x, y, x + width, y, topR)
   ctx.closePath()
   ctx.fill()
   ctx.stroke()

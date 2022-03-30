@@ -194,6 +194,11 @@ function getNoteColor(note: SongNote, state: State): string {
   } else {
     color = palette.left[keyType]
   }
+  return color
+}
+
+function getFallingNoteColor(note: SongNote, state: State): string {
+  const color = getNoteColor(note, state)
   const playedRatio = getNotePlayedRatio(note, state)
   return pickHex(color, '#ffffff', playedRatio === 0 ? 1 : playedRatio)
 }
@@ -248,7 +253,7 @@ export type GivenState = {
 }
 
 type DerivedState = {
-  lanes: { [midiNote: number]: { left: number; width: number } }
+  lanes: Lanes
   viewport: { start: number; end: number }
   // active (currently being played).
   // Pulsing + Particles.
@@ -297,11 +302,48 @@ export function render(givenState: Readonly<GivenState>) {
   // }
 }
 
-function renderItem(item: CanvasItem, state: State) {
-  if (item.type === 'note') {
-    renderFallingNote(item, state)
-  } else if (item.type === 'measure') {
-    renderMeasure(item, state)
+function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
+  const { ctx, lanes } = state
+  const { whiteHeight, blackHeight, midiNotes } = lanes
+
+  // Render all the white, then render all the black.
+  ctx.fillStyle = 'black'
+  ctx.fillRect(0, state.height - 10, state.width, 10)
+  const activeNotes = new Map(
+    inViewNotes
+      .filter((note) => {
+        const ratio = getNotePlayedRatio(note, state)
+        return 0 < ratio && ratio < 1
+      })
+      .map((note) => {
+        return [note.midiNote, getNoteColor(note, state)]
+      }),
+  )
+
+  const top = state.height - whiteHeight - 5
+  ctx.strokeStyle = 'black'
+  for (let [midiNote, lane] of Object.entries(midiNotes)) {
+    const { left, width } = lane
+    if (!isBlack(+midiNote)) {
+      ctx.fillStyle = activeNotes.get(+midiNote) ?? 'white'
+      roundRect(state.ctx, left, top, width - 1, whiteHeight, { topRadius: 0, bottomRadius: 8 })
+    }
+    const isC = getKey(+midiNote) == 'C'
+    if (isC) {
+      ctx.fillStyle = 'grey'
+      ctx.font = '20px Arial'
+      const txt = `C${getOctave(+midiNote)}`
+      const textWidth = ctx.measureText(txt).width
+      ctx.fillText(txt, left + width / 2 - textWidth / 2, state.height - 20)
+    }
+  }
+
+  for (let [midiNote, lane] of Object.entries(midiNotes)) {
+    const { left, width } = lane
+    if (isBlack(+midiNote)) {
+      ctx.fillStyle = activeNotes.get(+midiNote) ?? 'black'
+      roundRect(state.ctx, left, top, width - 1, blackHeight, { topRadius: 0, bottomRadius: 8 })
+    }
   }
 }
 
@@ -321,8 +363,17 @@ function renderFallingVis(state: State): void {
 
   // 2. Render all the notes + measures
   for (let i of items) {
-    renderItem(i, state)
+    if (i.type === 'measure') {
+      renderMeasure(i, state)
+    }
   }
+  for (let i of items) {
+    if (i.type === 'note') {
+      renderFallingNote(i, state)
+    }
+  }
+
+  renderPianoRoll(state, items.filter((i) => i.type === 'note') as SongNote[])
 
   // 3. Render particles effects
   if (state.showParticles) {
@@ -335,7 +386,7 @@ function renderOctaveRuler(state: State) {
   const { ctx } = state
   ctx.save()
   ctx.strokeStyle = 'white'
-  for (let [midiNote, { left }] of Object.entries(state.lanes)) {
+  for (let [midiNote, { left }] of Object.entries(state.lanes.midiNotes)) {
     const key = getKey(+midiNote)
     if (key === 'C') {
       ctx.globalAlpha = 0.15
@@ -351,12 +402,12 @@ function renderOctaveRuler(state: State) {
 
 function renderFallingNote(note: SongNote, state: State): void {
   const { ctx, pps } = state
-  const lane = state.lanes[note.midiNote]
-  const posY = Math.round(getItemStartEnd(note, state).end)
+  const lane = state.lanes.midiNotes[note.midiNote]
+  const posY = Math.round(getItemStartEnd(note, state).end) - state.lanes.whiteHeight
   const posX = Math.round(lane.left + 1)
   const length = Math.round(note.duration * pps)
   const width = lane.width - 2
-  const color = getNoteColor(note, state)
+  const color = getFallingNoteColor(note, state)
 
   ctx.fillStyle = color
   ctx.strokeStyle = color
@@ -395,7 +446,7 @@ function renderMeasure(measure: SongMeasure, state: State): void {
   const { ctx } = state
   ctx.save()
   const color = palette.measure
-  const posY = Math.ceil(getItemStartEnd(measure, state).start)
+  const posY = Math.ceil(getItemStartEnd(measure, state).start) - state.lanes.whiteHeight
 
   ctx.font = '20px Roboto'
   ctx.strokeStyle = color
@@ -774,7 +825,8 @@ class ParticleGenerator {
   render(state: State) {
     for (let particles of this.active.values()) {
       for (let p of particles) {
-        const x = state.lanes[p.lane].left + p.x + state.lanes[p.lane].width * p.offsetPercent
+        const lanes = state.lanes.midiNotes
+        const x = lanes[p.lane].left + p.x + lanes[p.lane].width * p.offsetPercent
         const y = state.height - p.y
         const color = `rgba(255, 255, 255, ${p.opacity})`
         circle(state.ctx, x, y, particleRadius, color)
@@ -782,8 +834,13 @@ class ParticleGenerator {
     }
   }
 }
+
 interface Lanes {
-  [note: number]: { left: number; width: number }
+  midiNotes: {
+    [midiNote: number]: { left: number; width: number }
+  }
+  whiteHeight: number
+  blackHeight: number
 }
 
 function getNoteLanes(width: number, items: CanvasItem[] | undefined): Lanes {
@@ -795,14 +852,14 @@ function getNoteLanes(width: number, items: CanvasItem[] | undefined): Lanes {
     .map((n) => !isBlack(n))
     .filter(Boolean).length
 
-  const { whiteWidth, blackWidth } = getNoteSizes(width, whiteKeysCount)
-  const lanes: Lanes = {}
+  const { whiteWidth, blackWidth, whiteHeight, blackHeight } = getNoteSizes(width, whiteKeysCount)
+  const lanes: Lanes = { whiteHeight, blackHeight, midiNotes: {} }
   let whiteNotes = 0
   for (let note = startNote; note <= endNote; note++) {
     if (isBlack(note)) {
-      lanes[note] = { width: blackWidth, left: whiteWidth * whiteNotes - blackWidth / 2 }
+      lanes.midiNotes[note] = { width: blackWidth, left: whiteWidth * whiteNotes - blackWidth / 2 }
     } else {
-      lanes[note] = { width: whiteWidth, left: whiteWidth * whiteNotes }
+      lanes.midiNotes[note] = { width: whiteWidth, left: whiteWidth * whiteNotes }
       whiteNotes++
     }
   }
