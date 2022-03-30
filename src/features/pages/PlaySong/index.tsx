@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Song, MidiStateEvent } from '@/types'
 import {
   SongVisualizer,
-  RuleLines,
   getHandSettings,
   getSongRange,
   getSongSettings,
@@ -12,7 +11,8 @@ import { TopBar, SettingsSidebar } from './components'
 import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
 import { useSingleton } from '@/hooks'
-import { getSong, mapValues } from '@/utils'
+import { mapValues } from '@/utils'
+import { getSong } from '@/features/api'
 import { css } from '@sightread/flake'
 import { default as ErrorPage } from 'next/error'
 import { getSynthStub } from '@/features/synth'
@@ -95,6 +95,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
   const keyColorUpdater = useRef<SubscriptionCallback>(null)
   const [songConfig, setSongConfig] = useSongSettings(songLocation)
   const router = useRouter()
+  let isRecording = router.query.recording != undefined
 
   const hand =
     songConfig.left && songConfig.right
@@ -220,59 +221,67 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
 
   return (
     <div>
-      <TopBar
-        isLoading={isLoading}
-        isPlaying={isPlaying}
-        isSoundOff={soundOff}
-        onTogglePlaying={handleTogglePlaying}
-        onSelectRange={handleSelectRange}
-        onClickRestart={() => {
-          player.stop()
-          setPlaying(false)
-        }}
-        onClickBack={() => {
-          player.pause()
-          router.back()
-        }}
-        onClickSettings={() => setSidebar(!sidebar)}
-        onClickSound={handleToggleSound}
-        classNames={{
-          settingsCog: sidebar && classes.active,
-          rangeIcon: rangeSelecting && classes.active,
-        }}
-      />
-      <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
-        <SongScrubBar
-          song={song ?? null}
-          rangeSelecting={rangeSelecting}
-          setRangeSelecting={setRangeSelecting}
-        />
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          top: 95,
-          width: 300,
-          height: 'calc(100% - 95px)',
-          right: 0,
-          visibility: sidebar ? 'visible' : 'hidden',
-          zIndex: 2,
-        }}
-      >
-        <SettingsSidebar open={sidebar} onChange={setSongConfig} config={songConfig} song={song} />
-      </div>
+      {!isRecording && (
+        <>
+          <TopBar
+            isLoading={isLoading}
+            isPlaying={isPlaying}
+            isSoundOff={soundOff}
+            onTogglePlaying={handleTogglePlaying}
+            onSelectRange={handleSelectRange}
+            onClickRestart={() => {
+              player.stop()
+              setPlaying(false)
+            }}
+            onClickBack={() => {
+              player.pause()
+              router.back()
+            }}
+            onClickSettings={() => setSidebar(!sidebar)}
+            onClickSound={handleToggleSound}
+            classNames={{
+              settingsCog: sidebar && classes.active,
+              rangeIcon: rangeSelecting && classes.active,
+            }}
+          />
+          <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
+            <SongScrubBar
+              song={song ?? null}
+              rangeSelecting={rangeSelecting}
+              setRangeSelecting={setRangeSelecting}
+            />
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              top: 95,
+              width: 300,
+              height: 'calc(100% - 95px)',
+              right: 0,
+              visibility: sidebar ? 'visible' : 'hidden',
+              zIndex: 2,
+            }}
+          >
+            <SettingsSidebar
+              open={sidebar}
+              onChange={setSongConfig}
+              config={songConfig}
+              song={song}
+            />
+          </div>
+        </>
+      )}
       <div
         style={{
           backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
           width: '100vw',
-          height: 'calc(100vh - 95px)',
-          marginTop: 95,
+          height: `calc(100vh - ${isRecording ? 0 : 95}px)`,
+          marginTop: isRecording ? 0 : 95,
           contain: 'strict',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        <RuleLines />
         <div style={{ position: 'relative', flex: 1 }}>
           <SongVisualizer
             song={song}

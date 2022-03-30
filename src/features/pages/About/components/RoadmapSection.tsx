@@ -1,4 +1,4 @@
-import { Sizer } from '@/utils'
+import { Sizer } from '@/components'
 import { css } from '@sightread/flake'
 import RoadMapSVG from './RoadmapSVG'
 import { centerAll } from '../utils/styles'

@@ -1,4 +1,4 @@
-import { Sizer } from '@/utils'
+import { Sizer } from '@/components'
 
 export default function ChangelogSection() {
   return (

@@ -1,7 +1,6 @@
 import React from 'react'
-import { Toggle } from '@/components'
+import { Toggle, Sizer } from '@/components'
 import { Song, SongConfig, VisualizationMode } from '@/types'
-import { Sizer } from '@/utils'
 import { palette as colors } from '@/styles/common'
 import { AdjustInstruments } from '@/features/SongInputControls'
 import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'

@@ -1,4 +1,4 @@
-import { Container, Sizer } from '@/utils'
+import { Container, Sizer } from '@/components'
 import { GithubIcon } from '@/icons'
 
 export default function Footer() {

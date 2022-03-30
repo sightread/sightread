@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { Container, Sizer } from '@/utils'
 import { SongPreviewModal } from '@/features/SongPreviewModal'
-import { AppBar, Table } from '@/components'
+import { AppBar, Table, Sizer, Container } from '@/components'
 
 import songManifest from '@/manifest.json'
 

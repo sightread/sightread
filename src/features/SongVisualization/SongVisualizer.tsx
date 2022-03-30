@@ -27,6 +27,7 @@ function CanvasRenderer({
   getTime,
   constrictView = true,
 }: CanvasRendererProps) {
+  console.error({ handSettings })
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
 
@@ -62,7 +63,7 @@ function CanvasRenderer({
       hands: handSettings,
       hand,
       ctx: ctxRef.current,
-      showParticles: Player.player().isPlaying(),
+      showParticles: false, // disable FX for now, don't love the particle effect.
       items: song.items,
       constrictView: !!constrictView,
       keySignature: config.keySignature ?? song.keySignature,

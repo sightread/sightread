@@ -1,10 +1,10 @@
 import { SongMeasure, SongNote, Hand } from '@/types'
-import { clamp, isBrowser, pickHex } from '@/utils'
-import { getNoteLanes } from './utils'
+import { clamp, getNoteSizes, pickHex, range } from '@/utils'
 import { circle, line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
 import { getKey, getKeyDetails, getNote, getOctave, isBlack, KEY_SIGNATURE } from '../theory'
 import glyphs from '../theory/glyphs'
+import { getSongRange } from './utils'
 
 type CanvasItem = SongMeasure | SongNote
 type HandSettings = {
@@ -201,13 +201,13 @@ function getNoteColor(note: SongNote, state: State): string {
 function getItemStartEnd(item: CanvasItem, state: State): { start: number; end: number } {
   if (state.visualization == 'falling-notes') {
     const start = state.viewport.start - item.time * state.pps
-    const duration = item.type === 'note' ? item.duration : 0
+    const duration = item.type === 'note' ? item.duration : 100
     const end = start - duration * state.pps
     return { start, end }
   }
 
   const start = item.time * state.pps - state.viewport.start
-  const duration = item.type === 'note' ? item.duration : 0
+  const duration = item.type === 'note' ? item.duration : 100
   const end = start + duration * state.pps
   return { start, end }
 }
@@ -281,7 +281,9 @@ function deriveState(state: Readonly<GivenState>): State {
 export function render(givenState: Readonly<GivenState>) {
   const state = deriveState(givenState)
 
-  state.ctx.clearRect(0, 0, state.width, state.height)
+  // state.ctx.clearRect(0, 0, state.width, state.height)
+  state.ctx.fillStyle = '#2e2e2e' // background color
+  state.ctx.fillRect(0, 0, state.width, state.height)
 
   if (state.visualization === 'falling-notes') {
     renderFallingVis(state)
@@ -290,9 +292,9 @@ export function render(givenState: Readonly<GivenState>) {
   }
 
   // Disable before comitting
-  if (isBrowser() && window.location.origin.includes('localhost')) {
-    renderDebugInfo(state)
-  }
+  // if (isBrowser() && window.location.origin.includes('localhost')) {
+  //   renderDebugInfo(state)
+  // }
 }
 
 function renderItem(item: CanvasItem, state: State) {
@@ -314,17 +316,37 @@ function getParticleGenerator() {
 function renderFallingVis(state: State): void {
   const items = getItemsInView(state)
 
-  // 1. Render all the notes + measures
+  // 1. Render the ruler lines
+  renderOctaveRuler(state)
+
+  // 2. Render all the notes + measures
   for (let i of items) {
     renderItem(i, state)
   }
 
-  // 2. Render particles effects
+  // 3. Render particles effects
   if (state.showParticles) {
     const effect = getParticleGenerator()
     effect.update(state)
     effect.render(state)
   }
+}
+function renderOctaveRuler(state: State) {
+  const { ctx } = state
+  ctx.save()
+  ctx.strokeStyle = 'white'
+  for (let [midiNote, { left }] of Object.entries(state.lanes)) {
+    const key = getKey(+midiNote)
+    if (key === 'C') {
+      ctx.globalAlpha = 0.15
+      line(ctx, left, 0, left, state.height)
+    }
+    if (key === 'F') {
+      ctx.globalAlpha = 0.3
+      line(ctx, left, 0, left, state.height)
+    }
+  }
+  ctx.restore()
 }
 
 function renderFallingNote(note: SongNote, state: State): void {
@@ -371,14 +393,17 @@ function renderDebugInfo(state: State) {
 
 function renderMeasure(measure: SongMeasure, state: State): void {
   const { ctx } = state
+  ctx.save()
   const color = palette.measure
-  const posY = Math.round(getItemStartEnd(measure, state).start)
+  const posY = Math.ceil(getItemStartEnd(measure, state).start)
 
   ctx.font = '20px Roboto'
   ctx.strokeStyle = color
   ctx.fillStyle = color
+  ctx.globalAlpha = 0.9
   line(ctx, 0, posY, state.width, posY)
-  ctx.fillText(measure.number.toString(), 10, posY - 10)
+  ctx.fillText(measure.number.toString(), 10, posY - 5)
+  ctx.restore()
 }
 
 function drawStatics(state: State) {
@@ -756,4 +781,31 @@ class ParticleGenerator {
       }
     }
   }
+}
+interface Lanes {
+  [note: number]: { left: number; width: number }
+}
+
+function getNoteLanes(width: number, items: CanvasItem[] | undefined): Lanes {
+  const notes: SongNote[] = items
+    ? (items.filter((i) => i.type === 'note') as SongNote[])
+    : ([{ midiNote: 21 }, { midiNote: 108 }] as SongNote[])
+  const { startNote, endNote } = getSongRange({ notes })
+  const whiteKeysCount = range(startNote, endNote)
+    .map((n) => !isBlack(n))
+    .filter(Boolean).length
+
+  const { whiteWidth, blackWidth } = getNoteSizes(width, whiteKeysCount)
+  const lanes: Lanes = {}
+  let whiteNotes = 0
+  for (let note = startNote; note <= endNote; note++) {
+    if (isBlack(note)) {
+      lanes[note] = { width: blackWidth, left: whiteWidth * whiteNotes - blackWidth / 2 }
+    } else {
+      lanes[note] = { width: whiteWidth, left: whiteWidth * whiteNotes }
+      whiteNotes++
+    }
+  }
+
+  return lanes
 }

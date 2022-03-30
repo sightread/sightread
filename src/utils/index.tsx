@@ -1,13 +1,8 @@
-import React, { CSSProperties, PropsWithChildren, Ref } from 'react'
-import {
-  parseMusicXml,
-  parseMidi,
-  getHandIndexesForTeachMid,
-  parserInferHands,
-} from '@/features/parsers'
-import { Song, SongConfig, SongMeasure, SongNote } from '@/types'
-import { InstrumentName } from '@/features/synth'
-import { getUploadedSong } from '@/features/persist'
+import type { Ref } from 'react'
+import type { Song, SongConfig } from '@/types'
+import type { InstrumentName } from '@/features/synth'
+
+import { getHandIndexesForTeachMid, parserInferHands } from '@/features/parsers'
 
 export function peek(o: any) {
   console.log(o)
@@ -28,45 +23,8 @@ export function range(start: number, end: number) {
   return nums
 }
 
-export function Sizer({ height, width }: { height?: number; width?: number }) {
-  return <div style={{ width, height, minWidth: width, minHeight: height }} />
-}
-
 export function isBrowser() {
   return typeof window === 'object'
-}
-
-/*
- * In development, parse on client.
- * In production, use preparsed songs.
- */
-async function getServerSong(url: string): Promise<Song> {
-  if (process.env.NODE_ENV === 'development') {
-    if (url.includes('.xml')) {
-      const xml = await (await fetch('/' + url)).text()
-      return parseMusicXml(xml) as Song
-    }
-    const buffer = await (await fetch('/' + url)).arrayBuffer()
-    return parseMidi(buffer) as Song
-  }
-
-  const parsedUrl = '/generated/' + url.replace(/\.(mid|xml)/i, '.json')
-  return fetch(parsedUrl).then((res) => res.json())
-}
-
-export async function getSong(url: string): Promise<Song> {
-  let song = getUploadedSong(url)
-  if (!song) {
-    song = await getServerSong(url)
-  }
-  song.notes = song.items.filter((i) => i.type === 'note') as SongNote[]
-  song.measures = song.items.filter((i) => i.type === 'measure') as SongMeasure[]
-
-  return song
-}
-
-export function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
-  return isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
 }
 
 export function formatTime(seconds: number | string | undefined) {
@@ -85,34 +43,12 @@ export function formatTime(seconds: number | string | undefined) {
   return `${min}:${sec}`
 }
 
-type ContainerProps = {
-  style?: CSSProperties
-  className?: string
-  component?: string | React.ElementType
-}
-
 export const breakpoints = {
   xs: 600,
   sm: 960,
   md: 1280,
   lg: 1920,
   xl: 2400,
-}
-
-export function Container({
-  children,
-  style,
-  className = '',
-  component: Component = 'div',
-}: PropsWithChildren<ContainerProps>) {
-  const containerStyle = { boxSizing: 'border-box', position: 'relative', ...style }
-  const innerStyle = { margin: 'auto', maxWidth: breakpoints.md, width: '100%' }
-
-  return (
-    <Component className={className} style={containerStyle}>
-      <div style={innerStyle}>{children}</div>
-    </Component>
-  )
 }
 
 export class Deferred<T> {

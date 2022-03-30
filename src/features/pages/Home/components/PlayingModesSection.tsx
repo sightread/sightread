@@ -1,4 +1,4 @@
-import { Sizer, Container } from '@/utils'
+import { Sizer, Container } from '@/components'
 import Image from 'next/image'
 import { CheckMarkIcon, MusicListIcon } from '@/icons'
 import { css, mediaQuery } from '@sightread/flake'

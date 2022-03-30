@@ -1,4 +1,4 @@
-import { Container, Sizer } from '@/utils'
+import { Container, Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import { css, mediaQuery } from '@sightread/flake'
 import clsx from 'clsx'
@@ -55,13 +55,11 @@ const classes = css({
 const toolsForLearning = [
   {
     title: 'Repeat Section',
-    text:
-      'While playing a song select a range to repeat so you can focus on small pieces at a time.',
+    text: 'While playing a song select a range to repeat so you can focus on small pieces at a time.',
   },
   {
     title: 'Wait',
-    text:
-      'While playing a song on wait mode. This forces the song to wait for you to play the correct chords before continuing.',
+    text: 'While playing a song on wait mode. This forces the song to wait for you to play the correct chords before continuing.',
   },
   {
     title: 'Adjust BPM',

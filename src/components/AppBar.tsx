@@ -1,5 +1,6 @@
 import { useState, useRef, Children, CSSProperties } from 'react'
-import { breakpoints, Container, Sizer } from '@/utils'
+import { breakpoints } from '@/utils'
+import { Sizer, Container } from '@/components'
 import { Logo, MenuIcon } from '@/icons'
 import { css, mediaQuery } from '@sightread/flake'
 import { palette } from '@/styles/common'

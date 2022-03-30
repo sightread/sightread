@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { useState, useEffect } from 'react'
-import { formatTime, Sizer, Container } from '@/utils'
+import { formatTime } from '@/utils'
 import { SongPreviewModal } from '@/features/SongPreviewModal'
 import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/features/persist'
-import { AppBar, Modal, Table } from '@/components'
+import { AppBar, Modal, Table, Sizer, Container } from '@/components'
 import { LibrarySong, Filters, SelectableSongs } from './types'
 import { FilterPane, FilterTypeValue, TypeFilter, UploadForm } from './components'
 

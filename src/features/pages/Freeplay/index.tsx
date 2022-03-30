@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MidiStateEvent, SongConfig } from '@/types'
-import { RuleLines, SongVisualizer } from '@/features/SongVisualization'
+import { SongVisualizer } from '@/features/SongVisualization'
 import { mapValues } from '@/utils'
 import { InstrumentName, useSynth } from '@/features/synth'
 import midiState from '@/features/midi'
@@ -68,7 +68,6 @@ export default function FreePlay() {
           flexDirection: 'column',
         }}
       >
-        <RuleLines />
         <div style={{ position: 'relative', flex: 1 }}>
           <SongVisualizer
             song={freePlayer.song}

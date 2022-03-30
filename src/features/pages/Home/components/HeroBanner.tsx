@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { css } from '@sightread/flake'
 import clsx from 'clsx'
 import { palette } from '@/styles/common'
-import { Sizer } from '@/utils'
+import { Sizer } from '@/components'
 import Link from 'next/link'
 
 const classes = css({
