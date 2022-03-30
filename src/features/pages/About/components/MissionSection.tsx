@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sizer } from '@/utils'
+import { Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import { GithubIcon, MailIcon, WarningIcon } from '@/icons'
 import { css } from '@sightread/flake'

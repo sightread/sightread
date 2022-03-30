@@ -1,10 +1,10 @@
 import { SongMeasure, SongNote, Hand } from '@/types'
-import { clamp, pickHex } from '@/utils'
-import { getNoteLanes } from './utils'
+import { clamp, getNoteSizes, pickHex, range } from '@/utils'
 import { circle, line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
 import { getKey, getKeyDetails, getNote, getOctave, isBlack, KEY_SIGNATURE } from '../theory'
 import glyphs from '../theory/glyphs'
+import { getSongRange } from './utils'
 
 type CanvasItem = SongMeasure | SongNote
 type HandSettings = {
@@ -281,7 +281,9 @@ function deriveState(state: Readonly<GivenState>): State {
 export function render(givenState: Readonly<GivenState>) {
   const state = deriveState(givenState)
 
-  state.ctx.clearRect(0, 0, state.width, state.height)
+  // state.ctx.clearRect(0, 0, state.width, state.height)
+  state.ctx.fillStyle = '#2e2e2e' // background color
+  state.ctx.fillRect(0, 0, state.width, state.height)
 
   if (state.visualization === 'falling-notes') {
     renderFallingVis(state)
@@ -779,4 +781,31 @@ class ParticleGenerator {
       }
     }
   }
+}
+interface Lanes {
+  [note: number]: { left: number; width: number }
+}
+
+function getNoteLanes(width: number, items: CanvasItem[] | undefined): Lanes {
+  const notes: SongNote[] = items
+    ? (items.filter((i) => i.type === 'note') as SongNote[])
+    : ([{ midiNote: 21 }, { midiNote: 108 }] as SongNote[])
+  const { startNote, endNote } = getSongRange({ notes })
+  const whiteKeysCount = range(startNote, endNote)
+    .map((n) => !isBlack(n))
+    .filter(Boolean).length
+
+  const { whiteWidth, blackWidth } = getNoteSizes(width, whiteKeysCount)
+  const lanes: Lanes = {}
+  let whiteNotes = 0
+  for (let note = startNote; note <= endNote; note++) {
+    if (isBlack(note)) {
+      lanes[note] = { width: blackWidth, left: whiteWidth * whiteNotes - blackWidth / 2 }
+    } else {
+      lanes[note] = { width: whiteWidth, left: whiteWidth * whiteNotes }
+      whiteNotes++
+    }
+  }
+
+  return lanes
 }

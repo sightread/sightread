@@ -1,4 +1,4 @@
-import { Sizer, Container } from '@/utils'
+import { Container, Sizer } from '@/components'
 import { FileBoxIcon, ProgressIcon, ThumbsUpIcon } from '@/icons'
 
 const iconSize = 45

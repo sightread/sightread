@@ -4,7 +4,7 @@ import { UploadedSong } from '@/features/persist'
 import { UploadFormState } from './types'
 import { UploadSong } from './types'
 import { uploadSong } from './utils'
-import { Sizer } from '@/utils'
+import { Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import { css } from '@sightread/flake'
 

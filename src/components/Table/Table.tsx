@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { breakpoints, Sizer } from '@/utils'
+import { breakpoints } from '@/utils'
+import { Sizer } from '@/components'
 import { PlusIcon, TrashCanIcon, IconWrapper, FilterIcon } from '@/icons'
 import { css } from '@sightread/flake'
 import { palette } from '@/styles/common'

@@ -1,8 +1,9 @@
 import { Song, Track, SongNote, SongConfig, SongMeasure } from '@/types'
 import { gmInstruments, InstrumentName } from '@/features/synth'
-import { clamp, getNoteSizes, inferHands, mapValues, range } from '@/utils'
+import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
 import { isBlack } from '../theory'
+import { getHandIndexesForTeachMid, parserInferHands } from '../parsers'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []
@@ -27,34 +28,6 @@ export function getSongRange(song: { notes: SongNote[] } | undefined) {
   }
 
   return { startNote, endNote }
-}
-
-interface Lanes {
-  [note: number]: { left: number; width: number }
-}
-type CanvasItem = SongMeasure | SongNote
-export function getNoteLanes(width: number, items: CanvasItem[] | undefined): Lanes {
-  const notes: SongNote[] = items
-    ? (items.filter((i) => i.type === 'note') as SongNote[])
-    : ([{ midiNote: 21 }, { midiNote: 108 }] as SongNote[])
-  const { startNote, endNote } = getSongRange({ notes })
-  const whiteKeysCount = range(startNote, endNote)
-    .map((n) => !isBlack(n))
-    .filter(Boolean).length
-
-  const { whiteWidth, blackWidth } = getNoteSizes(width, whiteKeysCount)
-  const lanes: Lanes = {}
-  let whiteNotes = 0
-  for (let note = startNote; note <= endNote; note++) {
-    if (isBlack(note)) {
-      lanes[note] = { width: blackWidth, left: whiteWidth * whiteNotes - blackWidth / 2 }
-    } else {
-      lanes[note] = { width: whiteWidth, left: whiteWidth * whiteNotes }
-      whiteNotes++
-    }
-  }
-
-  return lanes
 }
 
 export function getHandSettings(config: SongConfig | undefined) {
@@ -104,4 +77,8 @@ export function getSongSettings(file: string, song: Song): SongConfig {
 export function whiteNoteHeight(pianoRollContainerWidth: number): number {
   const whiteWidth = pianoRollContainerWidth / 52
   return (220 / 30) * whiteWidth
+}
+
+function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
+  return isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
 }

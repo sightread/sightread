@@ -1,6 +1,5 @@
 import React from 'react'
-import { AppBar } from '@/components'
-import { Sizer } from '@/utils'
+import { AppBar, Sizer } from '@/components'
 import { css } from '@sightread/flake'
 import { palette } from '@/styles/common'
 import { ChangelogSection, MissionSection, RoadmapSection } from './components'
