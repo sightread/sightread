@@ -3,24 +3,25 @@ import { Canvas } from 'skia-canvas'
 import { render } from '../src/features/SongVisualization/canvasRenderer'
 import ffmpeg from 'fluent-ffmpeg'
 import { PassThrough } from 'stream'
+import * as os from 'os'
 
 async function main() {
   const outputDir = '/Users/jakefried/Movies/sightread-recordings'
   const file = 'All_Eyes_On_Me__Bo_Burnham_Easy_Piano'
   const song: Song = require(`../public/generated/music/songs/${file}.json`)
 
+  const cpus = Math.max(1, os.cpus().length - 1)
   const fps = 60
   const viewport = { width: 1920, height: 1080 }
-  const canvas = new Canvas(viewport.width, viewport.height)
-  const ctx = canvas.getContext('2d')
 
   const passthrough = new PassThrough()
   ffmpeg(passthrough)
     .inputFormat('image2pipe')
     .inputFPS(fps)
     .input(`${outputDir}/${file}.mp3`)
+    // .outputOptions(`-threads ${cpus}`)
     .on('progress', (progressDetails) => {
-      console.log(progressDetails.timemark)
+      console.log(`FFMPEG Timemark: ${progressDetails.timemark}`)
     })
     .on('end', function () {
       console.log('file has been converted succesfully')
@@ -40,7 +41,7 @@ async function main() {
     pps: 150,
     hand: 'both',
     hands: { 0: { hand: 'right' }, 1: { hand: 'left' } },
-    ctx: ctx as any,
+    ctx: null as any,
     showParticles: false,
     items: items,
     constrictView: true,
@@ -49,9 +50,11 @@ async function main() {
   }
 
   let lastFire = Date.now()
-  const end = duration
+  const end = duration / 10
   const start = Date.now()
   while (state.time < end) {
+    let canvas = new Canvas(viewport.width, viewport.height)
+    state.ctx = canvas.getContext('2d')
     render(state)
     const jpg = canvas.toBufferSync('jpg')
     passthrough.write(jpg)
