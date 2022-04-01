@@ -1,8 +1,6 @@
 import type { Ref } from 'react'
-import type { Song, SongConfig } from '@/types'
+import type { SongConfig } from '@/types'
 import type { InstrumentName } from '@/features/synth'
-
-import { getHandIndexesForTeachMid, parserInferHands } from '@/features/parsers'
 
 export function peek(o: any) {
   console.log(o)

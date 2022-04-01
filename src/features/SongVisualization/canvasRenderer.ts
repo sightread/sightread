@@ -286,13 +286,12 @@ function deriveState(state: Readonly<GivenState>): State {
 export function render(givenState: Readonly<GivenState>) {
   const state = deriveState(givenState)
 
-  // state.ctx.clearRect(0, 0, state.width, state.height)
-  state.ctx.fillStyle = '#2e2e2e' // background color
-  state.ctx.fillRect(0, 0, state.width, state.height)
-
   if (state.visualization === 'falling-notes') {
+    state.ctx.fillStyle = '#2e2e2e' // background color
+    state.ctx.fillRect(0, 0, state.width, state.height)
     renderFallingVis(state)
   } else {
+    state.ctx.clearRect(0, 0, state.width, state.height)
     renderSheetVis(state)
   }
 

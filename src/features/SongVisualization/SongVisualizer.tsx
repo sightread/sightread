@@ -27,7 +27,6 @@ function CanvasRenderer({
   getTime,
   constrictView = true,
 }: CanvasRendererProps) {
-  console.error({ handSettings })
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
 

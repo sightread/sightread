@@ -13,6 +13,7 @@ async function main() {
   const cpus = Math.max(1, os.cpus().length - 1)
   const fps = 60
   const viewport = { width: 1920, height: 1080 }
+  const density = 1
 
   const passthrough = new PassThrough()
   ffmpeg(passthrough)
@@ -56,7 +57,7 @@ async function main() {
     let canvas = new Canvas(viewport.width, viewport.height)
     state.ctx = canvas.getContext('2d')
     render(state)
-    const jpg = canvas.toBufferSync('jpg', { density: 2 })
+    const jpg = canvas.toBufferSync('jpg', { density })
     passthrough.write(jpg)
     state.time += 1 / fps
     if (Date.now() - lastFire > 1000) {

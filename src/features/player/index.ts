@@ -55,7 +55,6 @@ class Player {
   }
 
   async setSong(song: Song, songConfig: SongConfig) {
-    console.error({ song })
     this.song = song
     this.songHands = getHands(songConfig)
     this.instrumentsLoaded = false
