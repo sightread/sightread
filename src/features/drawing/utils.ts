@@ -19,16 +19,17 @@ export function roundRect(
   height: number,
   options?: { topRadius?: number; bottomRadius?: number },
 ) {
-  let radius = 10
-  if (width < 2 * radius) {
-    radius = width / 2
-  }
-  if (height < 2 * radius) {
-    radius = height / 2
-  }
-  ctx.beginPath()
+  const radius = 10
   let topR = options?.topRadius ?? radius
   let bottomR = options?.bottomRadius ?? radius
+  if (width <= 2 * topR || height <= 2 * topR) {
+    topR = Math.min(width, height) / 2
+  }
+  if (width <= 2 * bottomR || height <= 2 * bottomR) {
+    bottomR = Math.min(width, height) / 2
+  }
+
+  ctx.beginPath()
   ctx.moveTo(x + topR, y)
   ctx.arcTo(x + width, y, x + width, y + height, topR)
   ctx.arcTo(x + width, y + height, x, y + height, bottomR)
@@ -52,7 +53,7 @@ export function circle(
   ctx.fillRect(x, y, radius, radius) // if the object is small use rect instead of circle
 }
 
-function drawPaths(
+export function drawPaths(
   ctx: CanvasRenderingContext2D,
   pathObj: { width: number; height: number; path2d: Path2D },
   x: number,

@@ -1,9 +1,12 @@
+import './polyfills'
+
 import type { Song } from '../src/types'
 import { Canvas } from 'skia-canvas'
 import { render } from '../src/features/SongVisualization/canvasRenderer'
 import ffmpeg from 'fluent-ffmpeg'
 import { PassThrough } from 'stream'
 import * as os from 'os'
+import { waitForImages, getImages } from '../src/features/SongVisualization/images'
 
 async function main() {
   const outputDir = '/Users/jakefried/Movies/sightread-recordings'
@@ -33,6 +36,7 @@ async function main() {
     .save(`${outputDir}/${file}.mp4`)
 
   const { items, duration } = song
+  await waitForImages()
   const state: any = {
     time: 0,
     drawNotes: false,
@@ -45,13 +49,14 @@ async function main() {
     ctx: null as any,
     showParticles: false,
     items: items,
-    constrictView: true,
+    constrictView: false,
     keySignature: 'C',
     timeSignature: { numerator: 4, denominator: 4 },
+    images: getImages(),
   }
 
   let lastFire = Date.now()
-  const end = duration
+  const end = 5
   const start = Date.now()
   while (state.time < end) {
     let canvas = new Canvas(viewport.width, viewport.height)

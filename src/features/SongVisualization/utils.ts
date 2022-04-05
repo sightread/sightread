@@ -74,11 +74,6 @@ export function getSongSettings(file: string, song: Song): SongConfig {
   return songSettings
 }
 
-export function whiteNoteHeight(pianoRollContainerWidth: number): number {
-  const whiteWidth = pianoRollContainerWidth / 52
-  return (220 / 30) * whiteWidth
-}
-
 function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
   return isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
 }

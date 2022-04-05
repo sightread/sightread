@@ -156,6 +156,12 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
             setPlaying(true)
           }
         }
+      } else if (evt.code === 'Comma') {
+        player.seek(player.currentSongTime - 16 / 1000)
+        console.error(player.currentSongTime)
+      } else if (evt.code === 'Period') {
+        player.seek(player.currentSongTime + 16 / 1000)
+        console.error(player.currentSongTime)
       }
     }
     window.addEventListener('keydown', keyboardHandler)

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSize } from '@/hooks'
-import { getNoteSizes, range } from '@/utils'
-import { diffKeys, isBrowser } from '@/utils'
+import { getNoteSizes, range, diffKeys } from '@/utils'
 import { getKey, getOctave, isBlack } from '@/features/theory'
+import { isMouseDown } from '@/features/mouse'
 
 const getNoteId = (n: number | string) => `PIANO_NOTE_${n}`
 
@@ -88,16 +88,6 @@ export default function PianoRoll({
   )
 }
 
-let isMouseDown = false
-;(function () {
-  const setMouseDown = () => (isMouseDown = true)
-  const setMouseUp = () => (isMouseDown = false)
-  if (isBrowser()) {
-    window.addEventListener('mousedown', setMouseDown, { passive: true })
-    window.addEventListener('mouseup', setMouseUp, { passive: true })
-  }
-})()
-
 type PianoNoteProps = {
   width: number
   height: number
@@ -145,7 +135,7 @@ function PianoNote({ width, height, note, activeColor, onNoteDown, onNoteUp }: P
         onNoteUp?.(note)
       }}
       onMouseEnter={() => {
-        if (isMouseDown) {
+        if (isMouseDown()) {
           setUserPressed(true)
           onNoteDown?.(note)
         }
