@@ -1,5 +1,3 @@
-import './polyfills'
-
 import type { Song } from '../src/types'
 import { Canvas } from 'skia-canvas'
 import { render } from '../src/features/SongVisualization/canvasRenderer'
@@ -16,7 +14,7 @@ async function main() {
   const cpus = Math.max(1, os.cpus().length - 1)
   const fps = 60
   const viewport = { width: 1920, height: 1080 }
-  const density = 1
+  const density = 2
 
   const passthrough = new PassThrough()
   ffmpeg(passthrough)
@@ -37,6 +35,8 @@ async function main() {
 
   const { items, duration } = song
   await waitForImages()
+  console.log(JSON.stringify(Object.values(getImages()).map((n) => typeof n)))
+
   const state: any = {
     time: 0,
     drawNotes: false,
@@ -56,7 +56,7 @@ async function main() {
   }
 
   let lastFire = Date.now()
-  const end = 5
+  const end = duration
   const start = Date.now()
   while (state.time < end) {
     let canvas = new Canvas(viewport.width, viewport.height)

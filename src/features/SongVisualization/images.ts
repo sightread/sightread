@@ -10,8 +10,10 @@ if (isBrowser()) {
       img.onerror = () => reject(img)
     })
   }
+} else if (process.env.RENDER) {
+  loadImage = (src: string) => require('skia-canvas').loadImage(`${process.cwd()}/public${src}`)
 } else {
-  loadImage = (src: string) => require('skia-canvas').loadImage(`../../../public/images${src}`)
+  loadImage = () => Promise.resolve()
 }
 
 let blackKeyRaisedImg: HTMLImageElement

@@ -2,8 +2,7 @@ import { useCallback, useMemo, useRef } from 'react'
 import { Hand, Song, SongConfig } from '@/types'
 import { GivenState, render } from './canvasRenderer'
 import { useRAFLoop, useSize } from '@/hooks'
-import Player from '@/features/player'
-import { getImages, waitForImages } from './images'
+import { getImages } from './images'
 
 type HandSettings = {
   [trackId: string]: {
@@ -48,7 +47,6 @@ function CanvasRenderer({
       ctx.scale(scale, scale)
       ctxRef.current = ctx
       getRectRef.current = () => canvasEl.getBoundingClientRect()
-      await waitForImages()
     },
     [width, height],
   )

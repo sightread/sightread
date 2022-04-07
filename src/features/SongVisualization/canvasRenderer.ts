@@ -6,7 +6,7 @@ import { getKey, getKeyDetails, getNote, getOctave, isBlack, KEY_SIGNATURE } fro
 import glyphs from '../theory/glyphs'
 import { getSongRange } from './utils'
 import { getMouseCoordinates, isMouseDown } from '../mouse'
-import { drawPaths } from '../drawing/utils'
+import { drawPaths, roundCorner } from '../drawing/utils'
 
 type CanvasItem = SongMeasure | SongNote
 type HandSettings = {
@@ -335,11 +335,19 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     Array.from(midiState.getPressedNotes().keys()).map((midiNote) => [midiNote, 'grey']),
   )
 
-  ctx.strokeStyle = 'black'
+  const redFeltColor = 'rgb(159,31,38)' // Color
+  ctx.fillStyle = redFeltColor
+  ctx.fillRect(0, state.lanes.pianoTopY - 4, state.width, 4)
+
+  ctx.fillStyle = 'rgb(74,74,74)'
+  ctx.strokeStyle = 'rgb(40,40,40)'
+  ctx.fillRect(0, state.lanes.pianoTopY - 8, state.width, 4)
+  ctx.strokeRect(0, state.lanes.pianoTopY - 8, state.width, 4)
 
   const whiteNotes = Object.entries(midiNotes).filter(([midiNote]) => !isBlack(+midiNote))
   const blackNotes = Object.entries(midiNotes).filter(([midiNote]) => isBlack(+midiNote))
 
+  ctx.strokeStyle = 'transparent'
   ctx.fillStyle = 'black'
   ctx.fillRect(0, top, state.width, whiteHeight)
   // TODO: redo logic around how to spread out the roundRects s.t. there isn't this dumb width-3 breaking everything.
@@ -347,7 +355,8 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     const { left, width } = lane
     ctx.fillStyle =
       activeNotes.get(+midiNote) ?? pressedNotes.get(+midiNote) ?? palette.whiteKeyBackground
-    roundRect(state.ctx, left, top, width - 3, whiteHeight, { topRadius: 0, bottomRadius: 8 })
+    const height = whiteHeight + (activeNotes.has(+midiNote) || pressedNotes.has(+midiNote) ? 2 : 0)
+    roundRect(state.ctx, left, top, width - 3, height, { topRadius: 0, bottomRadius: 8 })
     const isC = getKey(+midiNote) == 'C'
     if (isC) {
       ctx.fillStyle = 'grey'
@@ -359,20 +368,37 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   }
 
   for (let [midiNote, lane] of blackNotes) {
-    const { left, width } = lane
+    let { left, width, whiteMiddle } = lane
+    const cornerWidth = 3
+    ctx.fillStyle = 'black'
+    ctx.fillRect(left - 2, top, width + 3, blackHeight + 2)
+    roundCorner(
+      ctx,
+      whiteMiddle! - cornerWidth - 2,
+      top + blackHeight,
+      cornerWidth,
+      cornerWidth,
+      width / 3,
+    )
+    roundCorner(
+      ctx,
+      whiteMiddle! + cornerWidth - 1,
+      top + blackHeight,
+      -cornerWidth,
+      cornerWidth,
+      width / 3,
+    )
+
+    const isPressed = activeNotes.has(+midiNote) || pressedNotes.has(+midiNote)
     ctx.fillStyle = activeNotes.get(+midiNote) ?? pressedNotes.get(+midiNote) ?? 'black'
-    // roundRect(state.ctx, left, top, width - 1, blackHeight, {
-    //   topRadius: 0,
-    //   bottomRadius: 8,
-    // })
-    let img = pressedNotes.has(+midiNote)
-      ? state.images.blackKeyPressed
-      : state.images.blackKeyRaised
-    ctx.drawImage(img, left, top - 1, width, blackHeight)
-    // ctx.fillStyle = 'black'
-    // drawPaths(ctx, blackRoundingsPath, left + width / 2 - 8, top + blackHeight - 3, {
-    //   width: 14,
-    // })
+    let img = isPressed ? state.images.blackKeyPressed : state.images.blackKeyRaised
+    let posY = isPressed ? top : top - 2
+    ctx.drawImage(img, left, posY, width, blackHeight)
+    if (activeNotes.has(+midiNote)) {
+      ctx.globalAlpha = 0.6
+      ctx.fillRect(left, posY, width, blackHeight)
+      ctx.globalAlpha = 1
+    }
   }
 }
 
@@ -927,7 +953,7 @@ class ParticleGenerator {
 
 interface Lanes {
   midiNotes: {
-    [midiNote: number]: { left: number; width: number }
+    [midiNote: number]: { left: number; width: number; whiteMiddle?: number }
   }
   whiteHeight: number
   blackHeight: number
@@ -951,9 +977,9 @@ function getNoteLanes(state: Readonly<GivenState>): Lanes {
   let whiteNotes = 0
   for (let note = startNote; note <= endNote; note++) {
     if (isBlack(note)) {
-      const left =
-        whiteWidth * whiteNotes - blackWidth / 2 - 2 + getBlackKeyXOffset(note) * blackWidth
-      lanes.midiNotes[note] = { width: blackWidth, left }
+      const whiteMiddle = whiteWidth * whiteNotes
+      const left = whiteMiddle - blackWidth / 2 - 2 + getBlackKeyXOffset(note) * blackWidth
+      lanes.midiNotes[note] = { width: blackWidth, left, whiteMiddle }
     } else {
       lanes.midiNotes[note] = { width: whiteWidth, left: whiteWidth * whiteNotes }
       whiteNotes++

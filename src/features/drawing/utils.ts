@@ -40,6 +40,25 @@ export function roundRect(
   ctx.stroke()
 }
 
+export function roundCorner(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number = Math.abs(Math.min(width, height) / 2),
+) {
+  ctx.beginPath()
+  ctx.moveTo(x, y)
+  ctx.arcTo(x + width, y, x + width, y + height, radius)
+  ctx.lineTo(x + width, y + height)
+  ctx.lineTo(x + width, y)
+  ctx.lineTo(x, y)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+}
+
 export function circle(
   ctx: CanvasRenderingContext2D,
   x: number,
