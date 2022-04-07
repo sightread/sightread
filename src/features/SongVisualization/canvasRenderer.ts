@@ -576,6 +576,7 @@ function renderMeasure(measure: SongMeasure, state: State): void {
 function drawStatics(state: State) {
   state.ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
   state.ctx.fillStyle = 'black'
+  state.ctx.strokeStyle = 'black'
 
   drawCurlyBrace(state)
   drawStaffLines(state, 'bass')
