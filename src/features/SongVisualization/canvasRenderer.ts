@@ -6,7 +6,7 @@ import { getKey, getKeyDetails, getNote, getOctave, isBlack, KEY_SIGNATURE } fro
 import glyphs from '../theory/glyphs'
 import { getSongRange } from './utils'
 import { getMouseCoordinates, isMouseDown } from '../mouse'
-import { drawPaths, roundCorner } from '../drawing/utils'
+import { roundCorner } from '../drawing/utils'
 
 type CanvasItem = SongMeasure | SongNote
 type HandSettings = {
@@ -17,6 +17,7 @@ type HandSettings = {
 
 /* =================== START SHEET VIS HELPERS ======================== */
 /* ==================================================================== */
+const TEXT_FONT = 'Arial'
 const MUSIC_FONT = 'Leland'
 const STAFF_FIVE_LINES_HEIGHT = 80
 const STAFF_SPACE = STAFF_FIVE_LINES_HEIGHT / 4
@@ -126,14 +127,21 @@ function drawPlayNotesLine(state: State): void {
 
 const palette = {
   right: {
-    black: '#4912d4',
-    white: '#7029fb',
+    // black: '#4912d4',
+    // white: '#7029fb',
+    black: 'hsl(258deg 80% 50%)',
+    white: 'hsl(261deg 80% 60%)',
   },
   left: {
-    black: '#d74000',
-    white: '#ff6825',
+    // black: '#d74000',
+    // white: '#ff6825',
+    // black: 'hsl(18deg 100% 42%)',
+    // white: 'hsl(18deg 100% 57%)',
+    black: 'hsl(18deg 80% 45%)',
+    white: 'hsl(22deg 80% 60%)',
   },
-  measure: '#C5C5C5',
+  measure: 'rgb(60,60,60)',
+  octaveLine: 'rgb(90,90,90)',
   whiteKeyBackground: 'rgb(255,253,240)',
 }
 
@@ -202,8 +210,9 @@ function getNoteColor(note: SongNote, state: State): string {
 
 function getFallingNoteColor(note: SongNote, state: State): string {
   const color = getNoteColor(note, state)
-  const playedRatio = getNotePlayedRatio(note, state)
-  return pickHex(color, '#ffffff', playedRatio === 0 ? 1 : playedRatio)
+  return color
+  // const playedRatio = getNotePlayedRatio(note, state)
+  // return pickHex(color, '#ffffff', playedRatio === 0 ? 1 : playedRatio)
 }
 
 function getItemStartEnd(item: CanvasItem, state: State): { start: number; end: number } {
@@ -316,7 +325,14 @@ if (isBrowser()) {
 
 function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   const { ctx, lanes } = state
-  const { whiteHeight, blackHeight, midiNotes, pianoTopY: top } = lanes
+  const {
+    whiteHeight,
+    blackHeight,
+    midiNotes,
+    pianoTopY: top,
+    greyBarHeight,
+    redFeltHeight,
+  } = lanes
 
   // Render all the white, then render all the black.
   ctx.fillStyle = 'black'
@@ -336,13 +352,21 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   )
 
   const redFeltColor = 'rgb(159,31,38)' // Color
+  const redFeltY = state.lanes.pianoTopY - redFeltHeight
   ctx.fillStyle = redFeltColor
-  ctx.fillRect(0, state.lanes.pianoTopY - 4, state.width, 4)
+  ctx.fillRect(0, redFeltY, state.width, redFeltHeight)
 
   ctx.fillStyle = 'rgb(74,74,74)'
   ctx.strokeStyle = 'rgb(40,40,40)'
-  ctx.fillRect(0, state.lanes.pianoTopY - 8, state.width, 4)
-  ctx.strokeRect(0, state.lanes.pianoTopY - 8, state.width, 4)
+  const greyBarY = redFeltY - greyBarHeight
+  ctx.shadowColor = 'rgb(40,40,40)'
+  ctx.shadowBlur = 2
+  ctx.shadowOffsetY = -2
+  ctx.fillRect(0, greyBarY + 0.2, state.width, greyBarHeight)
+  ctx.shadowColor = 'transparent'
+  ctx.shadowBlur = 0
+  ctx.shadowOffsetY = 0
+  // ctx.strokeRect(0, greyBarY, state.width, greyBarHeight)
 
   const whiteNotes = Object.entries(midiNotes).filter(([midiNote]) => !isBlack(+midiNote))
   const blackNotes = Object.entries(midiNotes).filter(([midiNote]) => isBlack(+midiNote))
@@ -359,9 +383,11 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     roundRect(state.ctx, left, top, width - 3, height, { topRadius: 0, bottomRadius: 8 })
     const isC = getKey(+midiNote) == 'C'
     if (isC) {
-      ctx.fillStyle = 'grey'
-      ctx.font = '20px Arial'
-      const txt = `C${getOctave(+midiNote)}`
+      const octave = getOctave(+midiNote)
+
+      ctx.fillStyle = octave === 4 ? 'rgb(120,120,120)' : 'rgb(190,190,190)'
+      ctx.font = `20px ${TEXT_FONT}`
+      const txt = `C${octave}`
       const textWidth = ctx.measureText(txt).width
       ctx.fillText(txt, left + width / 2 - textWidth / 2, state.height - 20)
     }
@@ -395,7 +421,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     let posY = isPressed ? top : top - 2
     ctx.drawImage(img, left, posY, width, blackHeight)
     if (activeNotes.has(+midiNote)) {
-      ctx.globalAlpha = 0.6
+      ctx.globalAlpha = 0.7
       ctx.fillRect(left, posY, width, blackHeight)
       ctx.globalAlpha = 1
     }
@@ -501,16 +527,16 @@ function renderFallingVis(state: State): void {
 function renderOctaveRuler(state: State) {
   const { ctx } = state
   ctx.save()
-  ctx.strokeStyle = 'white'
+  ctx.lineWidth = 2
   for (let [midiNote, { left }] of Object.entries(state.lanes.midiNotes)) {
     const key = getKey(+midiNote)
     if (key === 'C') {
-      ctx.globalAlpha = 0.15
-      line(ctx, left, 0, left, state.height)
+      ctx.strokeStyle = palette.octaveLine
+      line(ctx, left - 2, 0, left, state.height)
     }
     if (key === 'F') {
-      ctx.globalAlpha = 0.3
-      line(ctx, left, 0, left, state.height)
+      ctx.strokeStyle = palette.measure
+      line(ctx, left - 2, 0, left, state.height)
     }
   }
   ctx.restore()
@@ -519,21 +545,21 @@ function renderOctaveRuler(state: State) {
 function renderFallingNote(note: SongNote, state: State): void {
   const { ctx, pps } = state
   const lane = state.lanes.midiNotes[note.midiNote]
-  const posY = getItemStartEnd(note, state).end - state.lanes.whiteHeight - 5
+  const posY = getItemStartEnd(note, state).end - (state.height - state.lanes.noteHitY)
   const posX = Math.floor(lane.left + 1)
   const length = Math.floor(note.duration * pps)
   const width = lane.width - 2
   const color = getFallingNoteColor(note, state)
 
   ctx.fillStyle = color
-  ctx.strokeStyle = color
+  ctx.strokeStyle = 'rgb(40,40,40)'
   roundRect(ctx, Math.floor(posX), posY, width, length)
 }
 
 function renderDebugInfo(state: State) {
   const { ctx, viewport, width, height } = state
   ctx.fillStyle = state.visualization === 'falling-notes' ? 'white' : 'black'
-  ctx.font = '9px Arial'
+  ctx.font = `9px ${TEXT_FONT}`
 
   ctx.fillText(
     `size: ${[Math.floor(width), Math.floor(height)]} viewport: ${[
@@ -562,13 +588,15 @@ function renderMeasure(measure: SongMeasure, state: State): void {
   const { ctx } = state
   ctx.save()
   const color = palette.measure
-  const posY = getItemStartEnd(measure, state).start - state.lanes.whiteHeight - 5
+  const posY = getItemStartEnd(measure, state).start - (state.height - state.lanes.noteHitY)
 
-  ctx.font = '20px Roboto'
+  ctx.font = `14px ${TEXT_FONT}`
   ctx.strokeStyle = color
   ctx.fillStyle = color
   ctx.globalAlpha = 0.9
   line(ctx, 0, posY, state.width, posY)
+  ctx.strokeStyle = 'rgb(130,130,130)'
+  ctx.fillStyle = 'rgb(130,130,130)'
   ctx.fillText(measure.number.toString(), 10, Math.floor(posY - 5))
   ctx.restore()
 }
@@ -626,7 +654,7 @@ function renderMidiPressedKeys(state: State): void {
       ctx.fillText(glyphs.accidentalSharp, canvasX - 17, canvasY)
     }
     if (state.drawNotes) {
-      ctx.font = '9px serif'
+      ctx.font = `9px ${TEXT_FONT}`
       ctx.fillStyle = 'white'
       ctx.fillText(key[0], canvasX, canvasY + 3)
     }
@@ -680,12 +708,12 @@ function renderSheetNote(note: SongNote, state: State): void {
   drawMusicNote(state, canvasX, canvasY, color)
   const accidental = key.length == 2 && key[1]
   if (accidental) {
-    ctx.font = 'bold 16px serif'
+    ctx.font = `bold 16px ${TEXT_FONT}`
     ctx.fillStyle = 'black'
     ctx.fillText(accidental, canvasX - 20, canvasY + 6)
   }
   if (state.drawNotes) {
-    ctx.font = '9px serif'
+    ctx.font = `9px ${TEXT_FONT}`
     ctx.fillStyle = 'white'
     ctx.fillText(step, canvasX, canvasY + 3)
   }
@@ -826,7 +854,7 @@ function drawRuler(state: State) {
   const { ctx } = state
   ctx.save()
   ctx.strokeStyle = 'rgb(0,0,0,0.1)'
-  ctx.font = '12px Arial'
+  ctx.font = `12px ${TEXT_FONT}`
   for (let i = 0; i < state.height; i += 25) {
     ctx.fillText(`${i}`, 0, i)
     line(ctx, 0, i, state.width, i)
@@ -959,6 +987,9 @@ interface Lanes {
   whiteHeight: number
   blackHeight: number
   pianoTopY: number
+  greyBarHeight: number
+  redFeltHeight: number
+  noteHitY: number
 }
 
 function getNoteLanes(state: Readonly<GivenState>): Lanes {
@@ -974,7 +1005,18 @@ function getNoteLanes(state: Readonly<GivenState>): Lanes {
 
   const { whiteWidth, blackWidth, whiteHeight, blackHeight } = getNoteSizes(width, whiteKeysCount)
   const pianoTopY = height - whiteHeight - 5
-  const lanes: Lanes = { whiteHeight, blackHeight, pianoTopY, midiNotes: {} }
+  const greyBarHeight = Math.max(Math.floor(whiteHeight / 30), 6)
+  const redFeltHeight = greyBarHeight - 2
+  const noteHitY = pianoTopY - greyBarHeight - redFeltHeight
+  const lanes: Lanes = {
+    whiteHeight,
+    blackHeight,
+    pianoTopY,
+    greyBarHeight,
+    redFeltHeight,
+    noteHitY,
+    midiNotes: {},
+  }
   let whiteNotes = 0
   for (let note = startNote; note <= endNote; note++) {
     if (isBlack(note)) {

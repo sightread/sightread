@@ -68,6 +68,7 @@ function CanvasRenderer({
       showParticles: false, // disable FX for now, don't love the particle effect.
       items: song.items,
       constrictView: !!constrictView,
+      // constrictView: false,
       keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
       canvasRect,
