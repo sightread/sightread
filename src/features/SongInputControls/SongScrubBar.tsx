@@ -10,10 +10,12 @@ export default function SongScrubBar({
   song,
   rangeSelecting = false,
   setRangeSelecting = () => {},
+  onSeek = () => {},
 }: {
   song: Song | null
   rangeSelecting?: boolean
   setRangeSelecting?: any
+  onSeek?: any
 }) {
   const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
   const [mouseOver, setMouseOver] = useState(false)
@@ -69,6 +71,7 @@ export default function SongScrubBar({
   function seekPlayer(e: { clientX: number }) {
     const progress = getProgress(e.clientX)
     const songTime = progress * player.getDuration()
+    onSeek()
     player.seek(songTime)
   }
 

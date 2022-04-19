@@ -127,18 +127,12 @@ function drawPlayNotesLine(state: State): void {
 
 const palette = {
   right: {
-    // black: '#4912d4',
-    // white: '#7029fb',
-    black: 'hsl(258deg 80% 50%)',
-    white: 'hsl(261deg 80% 60%)',
+    black: '#611AE5',
+    white: '#8147EB',
   },
   left: {
-    // black: '#d74000',
-    // white: '#ff6825',
-    // black: 'hsl(18deg 100% 42%)',
-    // white: 'hsl(18deg 100% 57%)',
-    black: 'hsl(18deg 80% 45%)',
-    white: 'hsl(22deg 80% 60%)',
+    black: '#CF4E17',
+    white: '#EB7847',
   },
   measure: 'rgb(60,60,60)',
   octaveLine: 'rgb(90,90,90)',
@@ -257,7 +251,6 @@ export type GivenState = {
   hand: Hand
   hands: HandSettings
   ctx: CanvasRenderingContext2D
-  showParticles: boolean
   items: CanvasItem[]
   constrictView?: boolean
   keySignature: KEY_SIGNATURE
@@ -272,9 +265,6 @@ export type GivenState = {
 type DerivedState = {
   lanes: Lanes
   viewport: { start: number; end: number }
-  // active (currently being played).
-  // Pulsing + Particles.
-  // particles: any
 }
 type State = Readonly<GivenState & DerivedState>
 
@@ -327,6 +317,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   const { ctx, lanes } = state
   const {
     whiteHeight,
+    whiteNoteSeparation,
     blackHeight,
     midiNotes,
     pianoTopY: top,
@@ -377,42 +368,64 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   // TODO: redo logic around how to spread out the roundRects s.t. there isn't this dumb width-3 breaking everything.
   for (let [midiNote, lane] of whiteNotes) {
     const { left, width } = lane
-    ctx.fillStyle =
-      activeNotes.get(+midiNote) ?? pressedNotes.get(+midiNote) ?? palette.whiteKeyBackground
-    const height = whiteHeight + (activeNotes.has(+midiNote) || pressedNotes.has(+midiNote) ? 2 : 0)
-    roundRect(state.ctx, left, top, width - 3, height, { topRadius: 0, bottomRadius: 8 })
+    ctx.fillStyle = palette.whiteKeyBackground
+    const heightPressedOffset = activeNotes.has(+midiNote) || pressedNotes.has(+midiNote) ? 2 : 0
+    const height = whiteHeight + heightPressedOffset
+    roundRect(state.ctx, left, top, width - whiteNoteSeparation, height, {
+      topRadius: 0,
+      bottomRadius: width / 10,
+    })
     const isC = getKey(+midiNote) == 'C'
     if (isC) {
       const octave = getOctave(+midiNote)
-
-      ctx.fillStyle = octave === 4 ? 'rgb(120,120,120)' : 'rgb(190,190,190)'
-      ctx.font = `20px ${TEXT_FONT}`
+      ctx.fillStyle = octave === 4 ? 'rgb(126,126,126)' : 'rgb(190,190,190)'
+      ctx.font = `${width * 0.65}px ${TEXT_FONT}`
       const txt = `C${octave}`
-      const textWidth = ctx.measureText(txt).width
-      ctx.fillText(txt, left + width / 2 - textWidth / 2, state.height - 20)
+      const { width: textWidth } = ctx.measureText(txt)
+
+      ctx.textBaseline = 'bottom'
+      ctx.fillText(
+        txt,
+        left + width / 2 - textWidth / 2 - lanes.whiteNoteSeparation / 2,
+        state.height - 8,
+      )
+    }
+    const activeColor = activeNotes.get(+midiNote) ?? pressedNotes.get(+midiNote)
+    if (activeColor) {
+      ctx.fillStyle = activeColor
+      ctx.globalCompositeOperation = 'darken'
+      roundRect(state.ctx, left, top, width - whiteNoteSeparation, height, {
+        topRadius: 0,
+        bottomRadius: width / 10,
+      })
+      ctx.globalCompositeOperation = 'source-over'
     }
   }
 
   for (let [midiNote, lane] of blackNotes) {
     let { left, width, whiteMiddle } = lane
-    const cornerWidth = 3
+    // No real reason why cornerWidth lines up with the white note separator.
+    // Just think it looks OK.
+    const cornerWidth = state.lanes.whiteNoteSeparation
+    ctx.strokeStyle = 'transparent'
     ctx.fillStyle = 'black'
     ctx.fillRect(left - 2, top, width + 3, blackHeight + 2)
+
     roundCorner(
       ctx,
-      whiteMiddle! - cornerWidth - 2,
-      top + blackHeight,
+      whiteMiddle! - state.lanes.whiteNoteSeparation - cornerWidth,
+      top + blackHeight + 1.5,
+      cornerWidth + 0.2,
       cornerWidth,
-      cornerWidth,
-      width / 3,
+      width / 4,
     )
     roundCorner(
       ctx,
-      whiteMiddle! + cornerWidth - 1,
-      top + blackHeight,
-      -cornerWidth,
+      whiteMiddle! + cornerWidth,
+      top + blackHeight + 1.5,
+      -cornerWidth - 0.2,
       cornerWidth,
-      width / 3,
+      width / 4,
     )
 
     const isPressed = activeNotes.has(+midiNote) || pressedNotes.has(+midiNote)
@@ -421,8 +434,11 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     let posY = isPressed ? top : top - 2
     ctx.drawImage(img, left, posY, width, blackHeight)
     if (activeNotes.has(+midiNote)) {
-      ctx.globalAlpha = 0.7
+      // TODO: does it look better with this?
+      // ctx.globalAlpha = 0.7
+      ctx.globalCompositeOperation = 'overlay'
       ctx.fillRect(left, posY, width, blackHeight)
+      ctx.globalCompositeOperation = 'source-over'
       ctx.globalAlpha = 1
     }
   }
@@ -488,14 +504,6 @@ function getBlackKeyXOffset(midiNote: number) {
   return blackOffsets[midiNote % 12]
 }
 
-let pgen: ParticleGenerator
-function getParticleGenerator() {
-  if (!pgen) {
-    pgen = new ParticleGenerator()
-  }
-  return pgen
-}
-
 function renderFallingVis(state: State): void {
   const items = getItemsInView(state)
 
@@ -516,14 +524,8 @@ function renderFallingVis(state: State): void {
 
   handlePianoRollMousePresses(state)
   renderPianoRoll(state, items.filter((i) => i.type === 'note') as SongNote[])
-
-  // 3. Render particles effects
-  if (state.showParticles) {
-    const effect = getParticleGenerator()
-    effect.update(state)
-    effect.render(state)
-  }
 }
+
 function renderOctaveRuler(state: State) {
   const { ctx } = state
   ctx.save()
@@ -585,19 +587,17 @@ function renderDebugInfo(state: State) {
 }
 
 function renderMeasure(measure: SongMeasure, state: State): void {
-  const { ctx } = state
+  const { ctx, width } = state
   ctx.save()
   const color = palette.measure
   const posY = getItemStartEnd(measure, state).start - (state.height - state.lanes.noteHitY)
 
-  ctx.font = `14px ${TEXT_FONT}`
-  ctx.strokeStyle = color
-  ctx.fillStyle = color
-  ctx.globalAlpha = 0.9
-  line(ctx, 0, posY, state.width, posY)
+  ctx.font = `16px ${TEXT_FONT}`
+  ctx.strokeStyle = ctx.fillStyle = palette.measure
+  line(ctx, 0, posY, width, posY)
   ctx.strokeStyle = 'rgb(130,130,130)'
   ctx.fillStyle = 'rgb(130,130,130)'
-  ctx.fillText(measure.number.toString(), 10, Math.floor(posY - 5))
+  ctx.fillText(measure.number.toString(), width / 100, Math.floor(posY - 5))
   ctx.restore()
 }
 
@@ -643,7 +643,7 @@ function renderMidiPressedKeys(state: State): void {
   for (let note of pressed.keys()) {
     const staff = note < getNote('C4') ? 'bass' : 'treble'
     const canvasY = getNoteY(state, staff, note)
-    let canvasX = getPlayNotesLineX(state) - 3
+    let canvasX = getPlayNotesLineX(state) - state.lanes.whiteNoteSeparation
     drawMusicNote(state, canvasX, canvasY, 'red')
 
     const key = getKey(note)
@@ -862,129 +862,12 @@ function drawRuler(state: State) {
   ctx.restore()
 }
 
-const numParticles = 30
-const particleRadius = 2
-const velocity = {
-  x: {
-    min: 0.1,
-    max: 0.3,
-  },
-  y: {
-    min: 0.3,
-    max: 2.4,
-  },
-  opacity: {
-    min: 0.003,
-    max: 0.015,
-  },
-  precision: 5, // num decimal places
-}
-
-function randomNegative(): number {
-  return Math.random() < 0.5 ? -1 : 1
-}
-
-function randDecimal(min: number, max: number, decimalPlaces: number): number {
-  const rand =
-    Math.random() < 0.5
-      ? (1 - Math.random()) * (max - min) + min
-      : Math.random() * (max - min) + min // could be min or max or anything in between
-  const power = Math.pow(10, decimalPlaces)
-  return Math.floor(rand * power) / power
-}
-
-type ParticleT = {
-  offsetPercent: number
-  lane: number
-  x: number
-  y: number
-  opacity: number
-  dx: number
-  dy: number
-  d0: number
-}
-
-// TODO: refactor PGenereator + move to its own file.
-class ParticleGenerator {
-  unused: ParticleT[] = []
-  active: Map<number, ParticleT[]> = new Map()
-
-  createParticle_(): ParticleT {
-    return {
-      offsetPercent: Math.random(),
-      x: 0,
-      y: 0,
-      dx: randDecimal(velocity.x.min, velocity.x.max, velocity.precision) * randomNegative(), // x can go left or right
-      dy: randDecimal(velocity.y.min, velocity.y.max, velocity.precision),
-      d0: randDecimal(velocity.opacity.min, velocity.opacity.max, velocity.precision),
-      lane: 0,
-      opacity: 1,
-    }
-  }
-  getParticles_(lane: number) {
-    const particles: ParticleT[] = []
-    for (let i = 0; i < numParticles; i++) {
-      let particle = this.unused.pop() ?? this.createParticle_()
-      particle.lane = lane
-      particles.push(particle)
-    }
-    return particles
-  }
-
-  update(state: State) {
-    const activeNotes: SongNote[] = getItemsInView(state).filter(
-      (item) => item.type === 'note' && getNotePlayedRatio(item, state) > 0,
-    ) as SongNote[]
-
-    for (let { midiNote } of activeNotes) {
-      const lane = midiNote
-      if (!this.active.has(midiNote)) {
-        this.active.set(midiNote, this.getParticles_(lane))
-      }
-      // update each particle position
-      for (let particle of this.active.get(midiNote)!) {
-        particle.x += particle.dx
-        particle.y += particle.dy
-        particle.opacity -= particle.dx
-
-        // reset
-        if (particle.y > 44 || particle.opacity <= 0) {
-          particle.x = 0
-          particle.y = 0
-          particle.opacity = 1
-        }
-      }
-    }
-    // cleanup
-    for (let midiNote of this.active.keys()) {
-      if (!activeNotes.find((n) => n.midiNote === midiNote)) {
-        const particles = this.active.get(midiNote)!
-        for (let p of particles) {
-          this.unused.push(p)
-        }
-        this.active.delete(midiNote)
-      }
-    }
-  }
-
-  render(state: State) {
-    for (let particles of this.active.values()) {
-      for (let p of particles) {
-        const lanes = state.lanes.midiNotes
-        const x = lanes[p.lane].left + p.x + lanes[p.lane].width * p.offsetPercent
-        const y = state.height - p.y
-        const color = `rgba(255, 255, 255, ${p.opacity})`
-        circle(state.ctx, x, y, particleRadius, color)
-      }
-    }
-  }
-}
-
 interface Lanes {
   midiNotes: {
     [midiNote: number]: { left: number; width: number; whiteMiddle?: number }
   }
   whiteHeight: number
+  whiteNoteSeparation: number
   blackHeight: number
   pianoTopY: number
   greyBarHeight: number
@@ -1003,7 +886,10 @@ function getNoteLanes(state: Readonly<GivenState>): Lanes {
     .map((n) => !isBlack(n))
     .filter(Boolean).length
 
-  const { whiteWidth, blackWidth, whiteHeight, blackHeight } = getNoteSizes(width, whiteKeysCount)
+  const { whiteWidth, blackWidth, whiteHeight, blackHeight, whiteNoteSeparation } = getNoteSizes(
+    width,
+    whiteKeysCount,
+  )
   const pianoTopY = height - whiteHeight - 5
   const greyBarHeight = Math.max(Math.floor(whiteHeight / 30), 6)
   const redFeltHeight = greyBarHeight - 2
@@ -1011,6 +897,7 @@ function getNoteLanes(state: Readonly<GivenState>): Lanes {
   const lanes: Lanes = {
     whiteHeight,
     blackHeight,
+    whiteNoteSeparation,
     pianoTopY,
     greyBarHeight,
     redFeltHeight,

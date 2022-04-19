@@ -281,8 +281,10 @@ class Player {
     this.playing = this.song.notes.filter((note) => {
       return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
     })
+    // TODO: play notes that are partway through after seeking. We need to ensure that a seek has completed
+    //       because currently a single seek-session comes through as many separate seek events.
     if (!!this.playInterval) {
-      this.playing.forEach((note) => this.playNote(note))
+      // this.playing.forEach((note) => this.playNote(note))
     }
     this.currentIndex = this.song.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentBpm = this.getBpmIndexForTime(time)
