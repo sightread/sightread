@@ -1,6 +1,6 @@
 import { SongMeasure, SongNote, Hand } from '@/types'
 import { clamp, getNoteSizes, isBrowser, isNumber, pickHex, range } from '@/utils'
-import { circle, line, roundRect } from '@/features/drawing'
+import { line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
 import { getKey, getKeyDetails, getNote, getOctave, isBlack, KEY_SIGNATURE } from '../theory'
 import glyphs from '../theory/glyphs'
@@ -324,6 +324,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     greyBarHeight,
     redFeltHeight,
   } = lanes
+  ctx.save()
 
   // Render all the white, then render all the black.
   ctx.fillStyle = 'black'
@@ -442,6 +443,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
       ctx.globalAlpha = 1
     }
   }
+  ctx.restore()
 }
 
 let lastPressedNote: null | number = null
