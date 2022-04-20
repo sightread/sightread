@@ -148,9 +148,9 @@ function getItemsInView(state: State): CanvasItem[] {
     endPred = (item: CanvasItem) => getItemStartEnd(item, state).start > state.width
   }
 
-  // First get the whole slice of notes in view.
+  // First get the whole slice of contiguous notes that might be in view.
   return getRange(state.items, startPred, endPred).filter((item) => {
-    // Filter out the contiguous notes that may have already clipped off screen.
+    // Filter out the notes that may have already clipped off screen.
     // As well as non matching items
     return startPred(item) && isMatchingHand(item, state)
   })
@@ -308,11 +308,6 @@ export function render(givenState: Readonly<GivenState>) {
   // }
 }
 
-let blackRoundingsPath: any = { width: 5, height: 6, path2d: null }
-if (isBrowser()) {
-  blackRoundingsPath.path2d = new Path2D('M2 3.5C2 2 2 1 0 1V0H5V1C3 1 3 2 3 3.5V6H2V3.5Z')
-}
-
 function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   const { ctx, lanes } = state
   const {
@@ -351,14 +346,8 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   ctx.fillStyle = 'rgb(74,74,74)'
   ctx.strokeStyle = 'rgb(40,40,40)'
   const greyBarY = redFeltY - greyBarHeight
-  ctx.shadowColor = 'rgb(40,40,40)'
-  ctx.shadowBlur = 2
-  ctx.shadowOffsetY = -2
   ctx.fillRect(0, greyBarY + 0.2, state.width, greyBarHeight)
-  ctx.shadowColor = 'transparent'
-  ctx.shadowBlur = 0
-  ctx.shadowOffsetY = 0
-  // ctx.strokeRect(0, greyBarY, state.width, greyBarHeight)
+  ctx.strokeRect(0, greyBarY, state.width, greyBarHeight)
 
   const whiteNotes = Object.entries(midiNotes).filter(([midiNote]) => !isBlack(+midiNote))
   const blackNotes = Object.entries(midiNotes).filter(([midiNote]) => isBlack(+midiNote))
@@ -366,7 +355,6 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   ctx.strokeStyle = 'transparent'
   ctx.fillStyle = 'black'
   ctx.fillRect(0, top, state.width, whiteHeight)
-  // TODO: redo logic around how to spread out the roundRects s.t. there isn't this dumb width-3 breaking everything.
   for (let [midiNote, lane] of whiteNotes) {
     const { left, width } = lane
     ctx.fillStyle = palette.whiteKeyBackground
@@ -591,7 +579,6 @@ function renderDebugInfo(state: State) {
 function renderMeasure(measure: SongMeasure, state: State): void {
   const { ctx, width } = state
   ctx.save()
-  const color = palette.measure
   const posY = getItemStartEnd(measure, state).start - (state.height - state.lanes.noteHitY)
 
   ctx.font = `16px ${TEXT_FONT}`
@@ -727,19 +714,12 @@ function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
 }
 
 function getRowY(state: State, staff: 'bass' | 'treble', row: number) {
-  let offsetFromBottom
-  let bottom
-  if (staff === 'treble') {
-    offsetFromBottom = row - getRow(getNote('E4'))
-    bottom = trebleBottomY(state.height)
-  } else {
-    offsetFromBottom = row - getRow(getNote('G2'))
-    bottom = bassBottomY(state.height)
-  }
+  const top = staff === 'treble' ? trebleTopY(state.height) : bassTopY(state.height)
+  const topNote = staff == 'treble' ? 'F5' : 'A3'
+  const offsetFromTop = getRow(getNote(topNote)) - row
 
-  // TODO: relative to top instead of bottom for simpler maths.
   const pixelsPerRow = STAFF_FIVE_LINES_HEIGHT / 8
-  return bottom - offsetFromBottom * pixelsPerRow
+  return top + offsetFromTop * pixelsPerRow
 }
 
 function sheetNoteColor(x: number, length: number): string {
