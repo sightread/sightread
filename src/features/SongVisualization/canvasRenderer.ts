@@ -1,5 +1,5 @@
 import { SongMeasure, SongNote, Hand } from '@/types'
-import { clamp, getNoteSizes, isBrowser, isNumber, pickHex, range } from '@/utils'
+import { clamp, getNoteSizes, isNumber, pickHex, range } from '@/utils'
 import { line, roundRect } from '@/features/drawing'
 import midiState from '@/features/midi'
 import { getKey, getKeyDetails, getNote, getOctave, isBlack, KEY_SIGNATURE } from '../theory'

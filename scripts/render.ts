@@ -15,6 +15,7 @@ async function main() {
   const fps = 60
   const viewport = { width: 1920, height: 1080 }
   const density = 2
+  const maxSeconds = Infinity
 
   const passthrough = new PassThrough()
   ffmpeg(passthrough)
@@ -35,7 +36,6 @@ async function main() {
 
   const { items, duration } = song
   await waitForImages()
-  console.log(JSON.stringify(Object.values(getImages()).map((n) => typeof n)))
 
   const state: any = {
     time: 0,
@@ -47,17 +47,17 @@ async function main() {
     hand: 'both',
     hands: { 0: { hand: 'right' }, 1: { hand: 'left' } },
     ctx: null as any,
-    showParticles: false,
     items: items,
     constrictView: false,
+    // constrictView: true,
     keySignature: 'C',
     timeSignature: { numerator: 4, denominator: 4 },
     images: getImages(),
   }
 
   let lastFire = Date.now()
-  const end = duration
   const start = Date.now()
+  const end = Math.min(duration, maxSeconds)
   while (state.time < end) {
     let canvas = new Canvas(viewport.width, viewport.height)
     state.ctx = canvas.getContext('2d')

@@ -65,7 +65,6 @@ function CanvasRenderer({
       hands: handSettings,
       hand,
       ctx: ctxRef.current,
-      showParticles: false, // disable FX for now, don't love the particle effect.
       items: song.items,
       constrictView: !!constrictView,
       // constrictView: false,
