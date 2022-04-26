@@ -78,14 +78,6 @@ export default function FreePlay() {
             constrictView={false}
           />
         </div>
-        <div>
-          <PianoRoll
-            activeColor={noteColor}
-            onNoteDown={handleNoteDown}
-            onNoteUp={handleNoteUp}
-            setKeyColorUpdater={(fn) => (keyColorUpdater.current = fn)}
-          />
-        </div>
       </div>
     </div>
   )

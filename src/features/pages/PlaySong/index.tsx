@@ -297,20 +297,6 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
             getTime={() => Player.player().getTime()}
           />
         </div>
-        {/* {songConfig.visualization === 'falling-notes' && (
-          <PianoRoll
-            activeColor="grey"
-            onNoteDown={(n: number) => {
-              synth.playNote(n)
-            }}
-            onNoteUp={(n: number) => {
-              synth.stopNote(n)
-            }}
-            startNote={startNote}
-            endNote={endNote}
-            setKeyColorUpdater={(fn) => (keyColorUpdater.current = fn)}
-          />
-        )} */}
       </div>
     </div>
   )
