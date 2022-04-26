@@ -1,17 +1,25 @@
+import fs from 'fs'
 import type { Song } from '../src/types'
 import { Canvas } from 'skia-canvas'
 import { render } from '../src/features/SongVisualization/canvasRenderer'
 import ffmpeg from 'fluent-ffmpeg'
 import { PassThrough } from 'stream'
-import * as os from 'os'
 import { waitForImages, getImages } from '../src/features/SongVisualization/images'
+import { parseMidi, parserInferHands } from '@/features/parsers'
+
+async function parse(path: string): Promise<Song> {
+  var buf = new Uint8Array(fs.readFileSync(path)).buffer
+  return parseMidi(buf)
+}
 
 async function main() {
   const outputDir = '/Users/jakefried/Movies/sightread-recordings'
-  const file = 'All_Eyes_On_Me__Bo_Burnham_Easy_Piano'
-  const song: Song = require(`../public/generated/music/songs/${file}.json`)
+  const file = 'Kingdom Hearts - Simple and Clean (antonlab)'
+  const song: Song = await parse(`./public/music/songs/${file}.mid`)
+  const hands = parserInferHands(song)
 
-  const cpus = Math.max(1, os.cpus().length - 1)
+  // const cpus = Math.max(1, os.cpus().length - 1)
+  const cpus = 2
   const fps = 60
   const viewport = { width: 1920, height: 1080 }
   const density = 2
@@ -45,11 +53,11 @@ async function main() {
     height: viewport.height,
     pps: 150,
     hand: 'both',
-    hands: { 0: { hand: 'right' }, 1: { hand: 'left' } },
+    hands: { [hands.right]: { hand: 'right' }, [hands.left]: { hand: 'left' } },
     ctx: null as any,
     items: items,
-    constrictView: false,
-    // constrictView: true,
+    // constrictView: false,
+    constrictView: true,
     keySignature: 'C',
     timeSignature: { numerator: 4, denominator: 4 },
     images: getImages(),

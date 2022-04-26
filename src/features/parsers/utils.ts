@@ -49,7 +49,6 @@ export function parserInferHands(song: Song): { left: number; right: number } {
     if (pianoTracks.length > 2) {
       console.error(
         `Choosing the first two Piano tracks, even though there are ${pianoTracks.length}`,
-        song,
       )
     }
     ;[t1, t2] = Object.keys(song.tracks)

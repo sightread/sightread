@@ -107,7 +107,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
   // Removing empty tracks.
   for (let t of Object.keys(tracks).map(Number)) {
     if (typeof tracks[t].program === 'undefined') {
-      tracks[t].program = 0
+      // tracks[t].program = 0
     }
   }
 
