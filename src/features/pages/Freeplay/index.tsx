@@ -1,12 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MidiStateEvent, SongConfig } from '@/types'
 import { SongVisualizer } from '@/features/SongVisualization'
-import { mapValues } from '@/utils'
 import { InstrumentName, useSynth } from '@/features/synth'
 import midiState from '@/features/midi'
 import { useSingleton } from '@/hooks'
-import { palette } from '@/styles/common'
-import { SubscriptionCallback, PianoRoll } from '@/features/SongInputControls'
 import FreePlayer from './utils/freePlayer'
 import TopBar from './components/TopBar'
 
@@ -14,8 +11,6 @@ export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
   const synthState = useSynth(instrumentName)
   const freePlayer = useSingleton(() => new FreePlayer())
-  const noteColor = palette.purple.primary
-  const keyColorUpdater = useRef<SubscriptionCallback>(null)
 
   const handleNoteDown = useCallback(
     (note: number, velocity: number = 80) => {
@@ -40,9 +35,6 @@ export default function FreePlay() {
       } else {
         handleNoteDown(e.note, e.velocity)
       }
-
-      const pressed = mapValues(Object.fromEntries(midiState.getPressedNotes()), () => ({}))
-      keyColorUpdater.current?.(pressed)
     }
     midiState.subscribe(handleMidiStateEvent)
     return () => {

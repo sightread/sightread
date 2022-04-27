@@ -1,10 +1,11 @@
+import type { Song } from '@/types'
+
 import fs from 'fs'
-import type { Song } from '../src/types'
-import { Canvas } from 'skia-canvas'
-import { render } from '../src/features/SongVisualization/canvasRenderer'
-import ffmpeg from 'fluent-ffmpeg'
 import { PassThrough } from 'stream'
-import { waitForImages, getImages } from '../src/features/SongVisualization/images'
+import { Canvas } from 'skia-canvas'
+import ffmpeg from 'fluent-ffmpeg'
+import { render } from '@/features/SongVisualization/canvasRenderer'
+import { waitForImages, getImages } from '@/features/SongVisualization/images'
 import { parseMidi, parserInferHands } from '@/features/parsers'
 
 async function parse(path: string): Promise<Song> {
@@ -14,7 +15,7 @@ async function parse(path: string): Promise<Song> {
 
 async function main() {
   const outputDir = '/Users/jakefried/Movies/sightread-recordings'
-  const file = 'Kingdom Hearts - Simple and Clean (antonlab)'
+  const file = "Bloom.People_Can't_Stop_Chillin"
   const song: Song = await parse(`./public/music/songs/${file}.mid`)
   const hands = parserInferHands(song)
 
