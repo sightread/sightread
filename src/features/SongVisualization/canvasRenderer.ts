@@ -321,7 +321,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     whiteNoteSeparation,
     blackHeight,
     lanes,
-    pianoTopY: top,
+    pianoTopY,
     greyBarHeight,
     redFeltHeight,
   } = measurements
@@ -345,7 +345,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
   )
 
   const redFeltColor = 'rgb(159,31,38)' // Color
-  const redFeltY = state.measurements.pianoTopY - redFeltHeight
+  const redFeltY = pianoTopY - redFeltHeight
   ctx.fillStyle = redFeltColor
   ctx.fillRect(0, redFeltY, state.width, redFeltHeight)
 
@@ -360,13 +360,13 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
 
   ctx.strokeStyle = 'transparent'
   ctx.fillStyle = 'black'
-  ctx.fillRect(0, top, state.width, whiteHeight)
+  ctx.fillRect(0, pianoTopY, state.width, whiteHeight)
   for (let [midiNote, lane] of whiteNotes) {
     const { left, width } = lane
     ctx.fillStyle = palette.whiteKeyBackground
     const heightPressedOffset = activeNotes.has(+midiNote) || pressedNotes.has(+midiNote) ? 2 : 0
     const height = whiteHeight + heightPressedOffset
-    roundRect(state.ctx, left, top, width - whiteNoteSeparation, height, {
+    roundRect(state.ctx, left, pianoTopY, width - whiteNoteSeparation, height, {
       topRadius: 0,
       bottomRadius: width / 10,
     })
@@ -389,7 +389,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     if (activeColor) {
       ctx.fillStyle = activeColor
       ctx.globalCompositeOperation = 'darken'
-      roundRect(state.ctx, left, top, width - whiteNoteSeparation, height, {
+      roundRect(state.ctx, left, pianoTopY, width - whiteNoteSeparation, height, {
         topRadius: 0,
         bottomRadius: width / 10,
       })
@@ -404,12 +404,12 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     const cornerWidth = state.measurements.whiteNoteSeparation
     ctx.strokeStyle = 'transparent'
     ctx.fillStyle = 'black'
-    ctx.fillRect(left - 2, top, width + 3, blackHeight + 2)
+    ctx.fillRect(left - 2, pianoTopY, width + 3, blackHeight + 2)
 
     roundCorner(
       ctx,
       whiteMiddle! - state.measurements.whiteNoteSeparation - cornerWidth,
-      top + blackHeight + 1.5,
+      pianoTopY + blackHeight + 1.5,
       cornerWidth + 0.2,
       cornerWidth,
       width / 4,
@@ -417,7 +417,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     roundCorner(
       ctx,
       whiteMiddle! + cornerWidth,
-      top + blackHeight + 1.5,
+      pianoTopY + blackHeight + 1.5,
       -cornerWidth - 0.2,
       cornerWidth,
       width / 4,
@@ -426,7 +426,7 @@ function renderPianoRoll(state: State, inViewNotes: SongNote[]) {
     const isPressed = activeNotes.has(+midiNote) || pressedNotes.has(+midiNote)
     ctx.fillStyle = activeNotes.get(+midiNote) ?? pressedNotes.get(+midiNote) ?? 'black'
     let img = isPressed ? state.images.blackKeyPressed : state.images.blackKeyRaised
-    let posY = isPressed ? top : top - 2
+    let posY = isPressed ? pianoTopY : pianoTopY - 2
     ctx.drawImage(img, left, posY, width, blackHeight)
     if (activeNotes.has(+midiNote)) {
       // TODO: does it look better with this?

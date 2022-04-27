@@ -1,7 +1,6 @@
 import type { Ref } from 'react'
 import type { SongConfig } from '@/types'
 import type { InstrumentName } from '@/features/synth'
-import assert from 'assert'
 
 export function peek(o: any) {
   console.log(o)

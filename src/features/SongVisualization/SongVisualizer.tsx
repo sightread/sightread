@@ -30,7 +30,7 @@ function CanvasRenderer({
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
   const getRectRef = useRef(() => ({} as DOMRect))
-  let canvasRect = useMemo(() => getRectRef.current(), [width, height])
+  let canvasRect = useMemo(() => getRectRef.current(), [width, height, getRectRef.current])
 
   const setupCanvas = useCallback(
     async (canvasEl: HTMLCanvasElement) => {
