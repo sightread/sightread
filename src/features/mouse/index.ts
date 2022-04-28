@@ -16,6 +16,11 @@ export function isMouseDown(): boolean {
   return isMouseDown_
 }
 
-export function getMouseCoordinates(): { x: number; y: number } {
+type Point = { x: number; y: number }
+export function getMouseCoordinates(): Point {
   return mouseCoordinates
+}
+
+export function getRelativeMouseCoordinates(xOrigin: number, yOrigin: number): Point {
+  return { x: mouseCoordinates.x - xOrigin, y: mouseCoordinates.y - yOrigin }
 }

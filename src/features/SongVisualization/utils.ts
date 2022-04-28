@@ -4,6 +4,7 @@ import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
 import { isBlack } from '../theory'
 import { getHandIndexesForTeachMid, parserInferHands } from '../parsers'
+import { GivenState } from './canvasRenderer'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []
@@ -79,3 +80,79 @@ export function getSongSettings(file: string, song: Song): SongConfig {
 function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
   return isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
 }
+
+// TODO: is this an OK spot?
+type CanvasItem = SongMeasure | SongNote
+type HandSettings = {
+  [trackId: string]: {
+    hand: Hand | 'none'
+  }
+}
+
+export function getItemsInView<T>(
+  items: CanvasItem[],
+  startPred: (elem: CanvasItem) => boolean,
+  endPred: (elem: CanvasItem) => boolean,
+): CanvasItem[] {
+  // let startPred = (item: CanvasItem) => getItemStartEnd(item, state).end <= state.height
+  // let endPred = (item: CanvasItem) => getItemStartEnd(item, state).start < 0
+
+  // if (state.visualization === 'sheet') {
+  //   startPred = (item: CanvasItem) => getItemStartEnd(item, state).end >= 0
+  //   endPred = (item: CanvasItem) => getItemStartEnd(item, state).start > state.width
+  // }
+
+  // First get the whole slice of contiguous notes that might be in view.
+  return getRange(items, startPred, endPred).filter((item) => {
+    // Filter out the notes that may have already clipped off screen.
+    // As well as non matching items
+    return startPred(item) && isMatchingHand(item, state)
+  })
+}
+
+/**
+ * Get the contiguous range starting from the first element that returns true from the startPred
+ * until the first element that fails the endPred.
+ */
+function getRange<T>(
+  array: T[],
+  startPred: (elem: T) => boolean,
+  endPred: (elem: T) => boolean,
+): T[] {
+  let start = array.findIndex(startPred)
+  if (start === -1) {
+    return []
+  }
+
+  let end = start + 1
+  for (; end < array.length && !endPred(array[end]); end++) {}
+
+  return array.slice(start, end)
+}
+
+function getItemStartEnd(item: CanvasItem, state: GivenState): { start: number; end: number } {
+  const start = item.time * state.pps - state.viewport.start
+  const duration = item.type === 'note' ? item.duration : 100
+  const end = start + duration * state.pps
+  return { start, end }
+}
+
+function isMatchingHand(item: CanvasItem, state: GivenState) {
+  const { hand, hands } = state
+  switch (item.type) {
+    case 'measure':
+      return state.visualization === 'falling-notes'
+    case 'note':
+      const showLeft = hand === 'both' || hand === 'left'
+      if (showLeft && hands[item.track]?.hand === 'left') {
+        return true
+      }
+      const showRight = hand === 'both' || hand === 'right'
+      if (showRight && hands[item.track]?.hand === 'right') {
+        return true
+      }
+      return false
+  }
+}
+
+export type Viewport = { start: number; end: number }

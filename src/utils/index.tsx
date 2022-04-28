@@ -181,16 +181,6 @@ export function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
   return diff
 }
 
-export function getNoteSizes(width: number, whiteCount: number) {
-  const whiteWidth = width / whiteCount
-  const whiteHeight = Math.floor(Math.min(5 * whiteWidth, 250)) // max-height: 250
-  const blackWidth = whiteWidth / 2
-  const blackHeight = Math.floor(whiteHeight * (2 / 3))
-  const whiteNoteSeparation = whiteWidth / 20
-
-  return { whiteWidth, whiteHeight, blackWidth, blackHeight, whiteNoteSeparation }
-}
-
 export function clamp(number: number, { min = number, max = number }) {
   if (isNaN(number)) {
     return max

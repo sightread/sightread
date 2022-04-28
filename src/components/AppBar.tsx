@@ -83,8 +83,8 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { route: '/songs' },
-  { route: '/lessons' },
+  { route: '/songs', label: 'Play a Song' },
+  { route: '/training', label: 'Training' },
   { route: '/freeplay', label: 'Free Play' },
   { route: '/about' },
 ]

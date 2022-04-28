@@ -1,24 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 
-import { Song, MidiStateEvent, VisualizationMode } from '@/types'
+import { Song, MidiStateEvent, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
-import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
-import { useSingleton, useSongSettings } from '@/hooks'
-import { getSong } from '@/features/api'
+import { useSingleton } from '@/hooks'
 import { css } from '@sightread/flake'
 import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
 import { TopBar, SettingsSidebar } from './components'
 
-export type PlaySongProps = {
-  type: 'lesson' | 'song'
-  songLocation: string
-  viz: VisualizationMode
-}
+export type Props = {}
 
 const classes = css({
   topbarIcon: {
@@ -74,7 +67,13 @@ const classes = css({
   },
 })
 
-export function PlaySong({ type, songLocation }: PlaySongProps) {
+interface SpeedTrainingSettings {
+  clef: 'bass' | 'trebl'
+  displayLetter: boolean
+  generator: 'quotes' | 'random'
+}
+
+export default function PlaySong({}: Props) {
   const [sidebar, setSidebar] = useState(false)
   const [isPlaying, setPlaying] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
@@ -82,19 +81,23 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
-  const [song, setSong] = useState<Song>()
-  const [songConfig, setSongConfig] = useSongSettings(songLocation)
+  //   const [song, setSong] = useState<Song>()
+  //   const [speedTrainingSettings, setSpeedTrainingSettings] =
+  //     usePersistedState<SpeedTrainingSettings>('speedtraining', {
+  //       clef: 'trebl',
+  //       displayLetter: false,
+  //       generator: 'random',
+  //     })
   const router = useRouter()
-  let isRecording = router.query.recording != undefined
 
-  const hand =
-    songConfig.left && songConfig.right
-      ? 'both'
-      : songConfig.left
-      ? 'left'
-      : songConfig.right
-      ? 'right'
-      : 'none'
+  //   const hand =
+  //     songConfig.left && songConfig.right
+  //       ? 'both'
+  //       : songConfig.left
+  //       ? 'left'
+  //       : songConfig.right
+  //       ? 'right'
+  //       : 'none'
 
   // Stops screen from dimming during a song.
   useEffect(() => {
@@ -104,15 +107,15 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
 
   // Hack for updating player when config changes.
   // Maybe move to the onChange? Or is this chill.
-  const { waiting, left, right } = songConfig
-  useEffect(() => {
-    player.setWait(waiting)
-    if (left && right) {
-      player.setHand('both')
-    } else {
-      player.setHand(left ? 'left' : 'right')
-    }
-  }, [player, waiting, left, right])
+  //   const { waiting, left, right } = songConfig
+  //   useEffect(() => {
+  //     player.setWait(waiting)
+  //     if (left && right) {
+  //       player.setHand('both')
+  //     } else {
+  //       player.setHand(left ? 'left' : 'right')
+  //     }
+  //   }, [player, waiting, left, right])
 
   // Register ummount fns
   useEffect(() => {
@@ -121,17 +124,28 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
     }
   }, [player])
 
+  const song: Song = {
+    tracks: {},
+    duration: 10,
+    measures: [],
+    notes: [],
+    bpms: [],
+    keySignature: 'C',
+    items: [],
+  }
+  const config: SongConfig = {
+    left: false,
+    right: true,
+    waiting: true,
+    visualization: 'sheet',
+    keySignature: 'C',
+    tracks: {},
+    noteLetter: true,
+  }
   useEffect(() => {
-    if (!songLocation || !type) return
-
-    setIsLoading(true)
-    getSong(songLocation).then((song: Song) => {
-      const config = getSongSettings(songLocation, song)
-      setSong(song)
-      setSongConfig(config)
-      player.setSong(song, config).then(() => setIsLoading(false))
-    })
-  }, [songLocation, player, type, setSongConfig])
+    // setSong(song)
+    player.setSong(song, config).then(() => setIsLoading(false))
+  }, [player])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -171,11 +185,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
       // Player.player().unsubscribe(handleEvent)
       midiState.unsubscribe(handleMidiEvent)
     }
-  }, [player, synth, song, songConfig, soundOff])
-
-  if (!type || !songLocation) {
-    return <ErrorPage statusCode={404} title="Song Not Found :(" />
-  }
+  }, [player, synth, song, soundOff])
 
   const handleToggleSound = () => {
     if (!soundOff) {
@@ -203,63 +213,54 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
   }
   return (
     <div>
-      {!isRecording && (
-        <>
-          <TopBar
-            isLoading={isLoading}
-            isPlaying={isPlaying}
-            isSoundOff={soundOff}
-            onTogglePlaying={handleTogglePlaying}
-            onSelectRange={handleSelectRange}
-            onClickRestart={() => {
-              player.stop()
-              setPlaying(false)
-            }}
-            onClickBack={() => {
-              player.pause()
-              router.back()
-            }}
-            onClickSettings={() => setSidebar(!sidebar)}
-            onClickSound={handleToggleSound}
-            classNames={{
-              settingsCog: sidebar && classes.active,
-              rangeIcon: rangeSelecting && classes.active,
-            }}
-          />
-          <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
-            <SongScrubBar
-              song={song ?? null}
-              rangeSelecting={rangeSelecting}
-              setRangeSelecting={setRangeSelecting}
-            />
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              top: 95,
-              width: 300,
-              height: 'calc(100% - 95px)',
-              right: 0,
-              visibility: sidebar ? 'visible' : 'hidden',
-              zIndex: 2,
-            }}
-          >
-            <SettingsSidebar
-              open={sidebar}
-              onChange={setSongConfig}
-              config={songConfig}
-              song={song}
-            />
-          </div>
-        </>
-      )}
+      <>
+        <TopBar
+          isLoading={isLoading}
+          isPlaying={isPlaying}
+          isSoundOff={soundOff}
+          onTogglePlaying={handleTogglePlaying}
+          onSelectRange={handleSelectRange}
+          onClickRestart={() => {
+            player.stop()
+            setPlaying(false)
+          }}
+          onClickBack={() => {
+            player.pause()
+            router.back()
+          }}
+          onClickSettings={() => setSidebar(!sidebar)}
+          onClickSound={handleToggleSound}
+          classNames={{
+            settingsCog: sidebar && classes.active,
+            rangeIcon: rangeSelecting && classes.active,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: 55,
+            width: 300,
+            height: 'calc(100% - 55px)',
+            right: 0,
+            visibility: sidebar ? 'visible' : 'hidden',
+            zIndex: 2,
+          }}
+        >
+          {/* <SettingsSidebar
+            open={sidebar}
+            onChange={setSongConfig}
+            config={songConfig}
+            song={song}
+          /> */}
+        </div>
+      </>
       <div
         style={{
-          backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
+          backgroundColor: 'white',
           width: '100vw',
-          height: `calc(100vh - ${isRecording ? 0 : 95}px)`,
+          height: `calc(100vh - 95px)`,
           position: 'fixed',
-          top: isRecording ? 0 : 95,
+          top: 95,
           contain: 'strict',
           display: 'flex',
           flexDirection: 'column',
@@ -268,9 +269,9 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
         <div style={{ position: 'relative', flex: 1 }}>
           <SongVisualizer
             song={song}
-            config={songConfig}
-            hand={hand}
-            handSettings={getHandSettings(songConfig)}
+            config={config}
+            hand={'right'}
+            handSettings={getHandSettings(config)}
             getTime={() => Player.player().getTime()}
           />
         </div>
