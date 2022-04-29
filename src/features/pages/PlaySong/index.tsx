@@ -1,27 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Song, MidiStateEvent } from '@/types'
+import React, { useState, useEffect } from 'react'
+import ErrorPage from 'next/error'
+import { useRouter } from 'next/router'
+
+import { Song, MidiStateEvent, VisualizationMode } from '@/types'
 import {
   SongVisualizer,
   getHandSettings,
   getSongRange,
   getSongSettings,
 } from '@/features/SongVisualization'
-import { getTrackColor } from './utils'
-import { TopBar, SettingsSidebar } from './components'
 import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
-import { useSingleton } from '@/hooks'
-import { mapValues } from '@/utils'
+import { useSingleton, useSongSettings } from '@/hooks'
 import { getSong } from '@/features/api'
 import { css } from '@sightread/flake'
-import { default as ErrorPage } from 'next/error'
 import { getSynthStub } from '@/features/synth'
-import { SubscriptionCallback, PianoRoll } from '@/features/SongInputControls'
 import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
-import { useSongSettings } from '@/hooks'
-import { useRouter } from 'next/router'
-import { VisualizationMode } from '@/types'
+import { TopBar, SettingsSidebar } from './components'
 
 export type PlaySongProps = {
   type: 'lesson' | 'song'
@@ -92,7 +88,6 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<Song>()
-  const keyColorUpdater = useRef<SubscriptionCallback>(null)
   const [songConfig, setSongConfig] = useSongSettings(songLocation)
   const router = useRouter()
   let isRecording = router.query.recording != undefined
@@ -156,6 +151,10 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
             setPlaying(true)
           }
         }
+      } else if (evt.code === 'Comma') {
+        player.seek(player.currentSongTime - 16 / 1000)
+      } else if (evt.code === 'Period') {
+        player.seek(player.currentSongTime + 16 / 1000)
       }
     }
     window.addEventListener('keydown', keyboardHandler)
@@ -163,17 +162,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
   }, [isPlaying, player, isLoading])
 
   useEffect(() => {
-    const handleEvent = () => {
-      const pressed = mapValues(player.getPressedKeys(), (note) => {
-        return { color: getTrackColor(note, songConfig) }
-      })
-      for (let midiNote of midiState.getPressedNotes().keys()) {
-        pressed[midiNote] = { color: 'grey' }
-      }
-      keyColorUpdater.current?.(pressed)
-    }
     const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
-      handleEvent()
       if (type === 'down' && !soundOff) {
         synth.playNote(note)
       } else {
@@ -182,9 +171,9 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
     }
 
     midiState.subscribe(handleMidiEvent)
-    Player.player().subscribe(handleEvent)
+    // Player.player().subscribe(handleEvent)
     return function cleanup() {
-      Player.player().unsubscribe(handleEvent)
+      // Player.player().unsubscribe(handleEvent)
       midiState.unsubscribe(handleMidiEvent)
     }
   }, [player, synth, song, songConfig, soundOff])
@@ -276,7 +265,8 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
           backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
           width: '100vw',
           height: `calc(100vh - ${isRecording ? 0 : 95}px)`,
-          marginTop: isRecording ? 0 : 95,
+          position: 'fixed',
+          top: isRecording ? 0 : 95,
           contain: 'strict',
           display: 'flex',
           flexDirection: 'column',
@@ -291,20 +281,6 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
             getTime={() => Player.player().getTime()}
           />
         </div>
-        {songConfig.visualization === 'falling-notes' && (
-          <PianoRoll
-            activeColor="grey"
-            onNoteDown={(n: number) => {
-              synth.playNote(n)
-            }}
-            onNoteUp={(n: number) => {
-              synth.stopNote(n)
-            }}
-            startNote={startNote}
-            endNote={endNote}
-            setKeyColorUpdater={(fn) => (keyColorUpdater.current = fn)}
-          />
-        )}
       </div>
     </div>
   )

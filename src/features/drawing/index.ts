@@ -1,1 +1,1 @@
-export { line, roundRect, circle } from './utils'
+export { line, roundRect, circle, roundCorner } from './utils'

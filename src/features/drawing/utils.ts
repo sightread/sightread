@@ -17,20 +17,43 @@ export function roundRect(
   y: number,
   width: number,
   height: number,
+  options?: { topRadius?: number; bottomRadius?: number },
 ) {
-  let radius = 10
-  if (width < 2 * radius) {
-    radius = width / 2
+  const radius = 10
+  let topR = options?.topRadius ?? radius
+  let bottomR = options?.bottomRadius ?? radius
+  if (width <= 2 * topR || height <= 2 * topR) {
+    topR = Math.min(width, height) / 2
   }
-  if (height < 2 * radius) {
-    radius = height / 2
+  if (width <= 2 * bottomR || height <= 2 * bottomR) {
+    bottomR = Math.min(width, height) / 2
   }
+
   ctx.beginPath()
-  ctx.moveTo(x + radius, y)
+  ctx.moveTo(x + topR, y)
+  ctx.arcTo(x + width, y, x + width, y + height, topR)
+  ctx.arcTo(x + width, y + height, x, y + height, bottomR)
+  ctx.arcTo(x, y + height, x, y, bottomR)
+  ctx.arcTo(x, y, x + width, y, topR)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+}
+
+export function roundCorner(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number = Math.abs(Math.min(width, height) / 2),
+) {
+  ctx.beginPath()
+  ctx.moveTo(x, y)
   ctx.arcTo(x + width, y, x + width, y + height, radius)
-  ctx.arcTo(x + width, y + height, x, y + height, radius)
-  ctx.arcTo(x, y + height, x, y, radius)
-  ctx.arcTo(x, y, x + width, y, radius)
+  ctx.lineTo(x + width, y + height)
+  ctx.lineTo(x + width, y)
+  ctx.lineTo(x, y)
   ctx.closePath()
   ctx.fill()
   ctx.stroke()
@@ -49,7 +72,7 @@ export function circle(
   ctx.fillRect(x, y, radius, radius) // if the object is small use rect instead of circle
 }
 
-function drawPaths(
+export function drawPaths(
   ctx: CanvasRenderingContext2D,
   pathObj: { width: number; height: number; path2d: Path2D },
   x: number,

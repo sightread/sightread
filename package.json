@@ -44,7 +44,7 @@
     "lint": "next lint",
     "format": "prettier --write src/**/*.ts*",
     "gen": "cd scripts && ts-node generate.ts && cd ..",
-    "render": "ts-node --project scripts/tsconfig.json scripts/render.ts",
+    "render": "RENDER=1 ts-node --project scripts/tsconfig.json scripts/render.ts",
     "record": "cd scripts && ts-node screenrecorder.ts && cd ..",
     "storybook": "start-storybook -p 6006"
   },

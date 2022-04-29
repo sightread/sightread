@@ -55,7 +55,6 @@ class Player {
   }
 
   async setSong(song: Song, songConfig: SongConfig) {
-    console.error({ song })
     this.song = song
     this.songHands = getHands(songConfig)
     this.instrumentsLoaded = false
@@ -243,9 +242,9 @@ class Player {
           this.lastPressedKeys.set(note.midiNote, currPressedTime)
         }
 
-        const within50Ms = currPressedTime && Date.now() - currPressedTime < 50
+        const withinMsLimit = currPressedTime && Date.now() - currPressedTime < 100
 
-        if (!currPressedTime || !within50Ms || currPressedTime === lastPressedTime) {
+        if (!currPressedTime || !withinMsLimit || currPressedTime === lastPressedTime) {
           this.currentSongTime = note.time
           return
         }
@@ -282,8 +281,10 @@ class Player {
     this.playing = this.song.notes.filter((note) => {
       return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
     })
+    // TODO: play notes that are partway through after seeking. We need to ensure that a seek has completed
+    //       because currently a single seek-session comes through as many separate seek events.
     if (!!this.playInterval) {
-      this.playing.forEach((note) => this.playNote(note))
+      // this.playing.forEach((note) => this.playNote(note))
     }
     this.currentIndex = this.song.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentBpm = this.getBpmIndexForTime(time)

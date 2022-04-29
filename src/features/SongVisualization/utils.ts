@@ -20,10 +20,10 @@ export function getSongRange(song: { notes: SongNote[] } | undefined) {
 
   // If the prev/next note is black, we need to include it as well.
   // Since black notes are partially on the adjacent notes as well.
-  if (isBlack(startNote - 1)) {
+  if (isBlack(startNote - 1) && startNote > 21) {
     startNote--
   }
-  if (isBlack(endNote + 1)) {
+  if (isBlack(endNote + 1) && endNote < 108) {
     endNote++
   }
 
@@ -72,11 +72,6 @@ export function getSongSettings(file: string, song: Song): SongConfig {
   }
   setPersistedSongSettings(file, songSettings)
   return songSettings
-}
-
-export function whiteNoteHeight(pianoRollContainerWidth: number): number {
-  const whiteWidth = pianoRollContainerWidth / 52
-  return (220 / 30) * whiteWidth
 }
 
 function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
