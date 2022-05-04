@@ -242,7 +242,8 @@ class Player {
           this.lastPressedKeys.set(note.midiNote, currPressedTime)
         }
 
-        const withinMsLimit = currPressedTime && Date.now() - currPressedTime < 100
+        const withinMsLimit =
+          currPressedTime && Date.now() - currPressedTime < 100 * (1 / this.bpmModifier)
 
         if (!currPressedTime || !withinMsLimit || currPressedTime === lastPressedTime) {
           this.currentSongTime = note.time

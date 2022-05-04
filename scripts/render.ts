@@ -15,8 +15,8 @@ async function parse(path: string): Promise<Song> {
 
 async function main() {
   const outputDir = '/Users/jakefried/Movies/sightread-recordings'
-  const file = "Bloom.People_Can't_Stop_Chillin"
-  const song: Song = await parse(`./public/music/songs/${file}.mid`)
+  const file = 'Into_The_Unknown/Into_The_Unknown'
+  const song: Song = await parse(`${outputDir}/${file}.mid`)
   const hands = parserInferHands(song)
 
   // const cpus = Math.max(1, os.cpus().length - 1)
@@ -55,19 +55,24 @@ async function main() {
     pps: 150,
     hand: 'both',
     hands: { [hands.right]: { hand: 'right' }, [hands.left]: { hand: 'left' } },
-    ctx: null as any,
     items: items,
     // constrictView: false,
     constrictView: true,
     keySignature: 'C',
     timeSignature: { numerator: 4, denominator: 4 },
     images: getImages(),
+    ctx: null as any,
+    canvasRect: null as any,
   }
 
   let lastFire = Date.now()
   const start = Date.now()
   const end = Math.min(duration, maxSeconds)
-  while (state.time < end) {
+
+  // Duration goes until a single frame *past* the end, just in case the mp3 has 0-noise suffix.
+  // It would be weird to continue showing the pressed notes with no audio.
+  // This enables us to show a frame past the last keypress.
+  while (state.time < end + 1 / fps) {
     let canvas = new Canvas(viewport.width, viewport.height)
     state.ctx = canvas.getContext('2d')
     render(state)
@@ -76,7 +81,7 @@ async function main() {
     state.time += 1 / fps
     if (Date.now() - lastFire > 1000) {
       lastFire = Date.now()
-      console.error(`Frame Generation: ${Math.floor((100 * state.time) / end)}%`)
+      console.log(`Frame Generation: ${Math.floor((100 * state.time) / end)}%`)
     }
   }
 
