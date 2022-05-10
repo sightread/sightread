@@ -7,16 +7,17 @@ import {
   KEY_SIGNATURE,
   glyphs,
 } from '@/features/theory'
+import { pickHex } from '@/utils'
 import { line } from './index'
 
+type Clef = 'bass' | 'treble'
 const TEXT_FONT = 'Arial'
 const MUSIC_FONT = 'Leland'
-const STAFF_FIVE_LINES_HEIGHT = 80
-const STAFF_SPACE = STAFF_FIVE_LINES_HEIGHT / 4
+export const STAFF_FIVE_LINES_HEIGHT = 80
+export const STAFF_SPACE = STAFF_FIVE_LINES_HEIGHT / 4
+export const PIXELS_PER_ROW = STAFF_FIVE_LINES_HEIGHT / 8
 const STAFF_LINE_WIDTH = 2
-const STAFF_START_X = 100
 const PLAY_NOTES_WIDTH = 20
-const PLAY_NOTES_LINE_OFFSET = STAFF_SPACE * 4 // offset above and below the staff lines
 const PLAY_NOTES_LINE_COLOR = 'rgba(110, 40, 251, 0.43)' // '#7029fb'
 const STEP_NUM: any = {
   A: 5, // A and B start at 0, so C1 < A1
@@ -127,17 +128,16 @@ function renderSheetNote(note: SongNote, state: State): void {
   ctx.restore()
 }
 
-function getNoteY(state: State, staff: 'bass' | 'treble', note: number) {
+function getNoteY(state: State, staff: Clef, note: number) {
   return getRowY(state, staff, getRow(note, state.keySignature))
 }
 
-function getRowY(state: State, staff: 'bass' | 'treble', row: number) {
-  const top = staff === 'treble' ? trebleTopY(state.height) : bassTopY(state.height)
+function getRowY(height: number, staff: Clef, row: number) {
+  const top = staff === 'treble' ? trebleTopY(height) : bassTopY(height)
   const topNote = staff == 'treble' ? 'F5' : 'A3'
   const offsetFromTop = getRow(getNote(topNote)) - row
 
-  const pixelsPerRow = STAFF_FIVE_LINES_HEIGHT / 8
-  return top + offsetFromTop * pixelsPerRow
+  return top + offsetFromTop * PIXELS_PER_ROW
 }
 
 function sheetNoteColor(x: number, length: number): string {
@@ -149,108 +149,88 @@ function sheetNoteColor(x: number, length: number): string {
   return pickHex(palette.right.white, black, ratio)
 }
 
-function drawStaffConnectingLine(state: State): void {
-  const { ctx } = state
+export function drawStaffConnectingLine(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y1: number,
+  y2: number,
+): void {
   ctx.save()
   ctx.lineWidth = 3
-  line(
-    ctx,
-    STAFF_START_X,
-    trebleTopY(state.height) - STAFF_LINE_WIDTH / 2,
-    STAFF_START_X,
-    bassBottomY(state.height) + STAFF_LINE_WIDTH / 2,
-  )
+  line(ctx, x, y1, x, y2)
   ctx.restore()
 }
 
-function drawStaffLines(state: State, clef: 'bass' | 'treble'): void {
-  const { ctx, width } = state
-  const { bottomRow, topRow } = CLEFS[clef]
+export function drawStaffLines(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+): void {
   ctx.save()
-
-  let lineWidth = STAFF_LINE_WIDTH
-  ctx.lineWidth = lineWidth
-  for (let row = bottomRow; row <= topRow; row += 2) {
-    const y = getRowY(state, clef, row)
-    line(ctx, STAFF_START_X, y, width, y)
+  ctx.lineWidth = STAFF_LINE_WIDTH
+  for (let i = 0; i < 5; i++, y += PIXELS_PER_ROW * 2) {
+    line(ctx, x, y, width, y)
   }
   ctx.restore()
 }
 
-function drawPlayNotesLine(state: State): void {
-  const { ctx, height } = state
+export function drawPlayNotesLine(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y1: number,
+  y2: number,
+): void {
   ctx.save()
-  const top = trebleTopY(height) - STAFF_FIVE_LINES_HEIGHT - PLAY_NOTES_LINE_OFFSET
-  const bottom = bassBottomY(height) + PLAY_NOTES_LINE_OFFSET
-  const x = getPlayNotesLineX(state)
   ctx.strokeStyle = PLAY_NOTES_LINE_COLOR
   ctx.lineWidth = PLAY_NOTES_WIDTH
-  line(ctx, x, top, x, bottom)
+  line(ctx, x, y1, x, y2)
 
   // Vertical lil bar for center.
   ctx.strokeStyle = 'rgba(255,0,0,0.3)'
   ctx.lineWidth = 3
-  line(ctx, x, top, x, bottom)
+  line(ctx, x, y1, x, y2)
   ctx.restore()
 }
 
-function drawTimeSignature(state: State, staff: 'treble' | 'bass') {
-  if (!state.timeSignature) {
-    return
-  }
-  const { ctx } = state
+export function drawTimeSignature(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  timeSignature: { numerator: number; denominator: number },
+) {
   ctx.save()
-
-  const { numerator, denominator } = state.timeSignature
-
-  let x = getTimeSignatureX(state)
-  const y = staff == 'treble' ? trebleTopY(state.height) : bassTopY(state.height)
+  const { numerator, denominator } = timeSignature
   const numeratorGlyph = (glyphs as any)['timeSig' + numerator]
   const denominatorGlyph = (glyphs as any)['timeSig' + denominator]
   ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
   ctx.fillText(numeratorGlyph, x, y + STAFF_SPACE)
   ctx.fillText(denominatorGlyph, x, y + STAFF_SPACE * 3)
-
   ctx.restore()
 }
 
-function getClefX() {
-  return STAFF_START_X + STAFF_SPACE
-}
-
-function getKeySignatureX() {
-  return getClefX() + 3 * STAFF_SPACE
-}
-
-function getTimeSignatureX(state: State) {
-  const fifths = getKeyDetails(state.keySignature).notes.length
-  return getKeySignatureX() + fifths * STAFF_SPACE + STAFF_SPACE
-}
-
-function getPlayNotesLineX(state: State) {
-  return getTimeSignatureX(state) + STAFF_SPACE * 4
-}
-
-function drawKeySignature(state: State, staff: 'treble' | 'bass') {
-  const { ctx, keySignature } = state
+export function drawKeySignature(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  staffTopY: number,
+  keySignature: KEY_SIGNATURE,
+  staff: 'treble' | 'bass',
+) {
   ctx.save()
   const type = getKeyDetails(keySignature).type
   const symbol = type === 'flat' ? glyphs.accidentalFlat : glyphs.accidentalSharp
 
   const size = STAFF_FIVE_LINES_HEIGHT
-  let x = getKeySignatureX()
-  for (let note of getKeySignatureNotes(state, staff)) {
-    ctx.font = `${size}px ${MUSIC_FONT}`
-    ctx.fillText(symbol, x, getNoteY({ ...state, keySignature: 'C' }, staff, getNote(note)))
+  ctx.font = `${size}px ${MUSIC_FONT}`
+  for (let note of getKeySignatureNotes(keySignature, staff)) {
+    const y = staffTopY + getOffset(note, staff)
+    ctx.fillText(symbol, x, y)
     x += STAFF_SPACE
   }
   ctx.restore()
 }
 
-function getKeySignatureNotes(state: State, staff: 'treble' | 'bass') {
-  const { keySignature } = state
-  const keyDetails = getKeyDetails(keySignature)
-
+function getKeySignatureNotes(keySignature: KEY_SIGNATURE, staff: 'treble' | 'bass') {
   return getKeyDetails(keySignature).notes.map((note) => {
     let octave = staff === 'treble' ? 5 : 3
     if (note === 'A' || note === 'B') {
@@ -268,71 +248,43 @@ function drawMusicNote(state: State, x: number, y: number, color: string) {
   state.ctx.restore()
 }
 
-function drawSymbol(state: State, symbol: string, x: number, y: number, size: number) {
-  const { ctx } = state
+function drawSymbol(
+  ctx: CanvasRenderingContext2D,
+  symbol: string,
+  x: number,
+  y: number,
+  size?: number,
+) {
   ctx.save()
-  ctx.font = `${size}px ${MUSIC_FONT}`
+  if (size) {
+    ctx.font = `${size}px ${MUSIC_FONT}`
+  } else {
+    ctx.font = MUSIC_FONT
+  }
   ctx.fillText(symbol, x, y)
   ctx.restore()
 }
 
-function drawGClef(state: State) {
-  const x = getClefX()
-  const y = getNoteY(state, 'treble', getNote('G4'))
-  drawSymbol(state, glyphs.gClef, x, y, STAFF_FIVE_LINES_HEIGHT)
+// TODO: create an interval
+function getOffset(key: string, clef: Clef) {
+  return getRowOffset(key, clef) * PIXELS_PER_ROW
+}
+function getRowOffset(key: string, clef: Clef) {
+  return CLEFS[clef].topRow - getRow(getNote(key))
 }
 
-function drawFClef(state: State) {
-  const x = getClefX()
-  const y = getNoteY({ ...state, keySignature: 'C' }, 'bass', getNote('F3'))
-  drawSymbol(state, glyphs.fClef, x, y, STAFF_FIVE_LINES_HEIGHT)
+export function drawGClef(ctx: CanvasRenderingContext2D, x: number, trebleTopY: number) {
+  const y = trebleTopY + getOffset('G4', 'treble')
+  drawSymbol(ctx, glyphs.gClef, x, y, STAFF_FIVE_LINES_HEIGHT)
 }
 
-function drawCurlyBrace(state: State) {
-  const size = STAFF_FIVE_LINES_HEIGHT * 2 + 100
-  const x = STAFF_START_X - 25
-  const y = state.height / 2 + size / 2
-  drawSymbol(state, glyphs.brace, x, y, size)
+export function drawFClef(ctx: CanvasRenderingContext2D, x: number, bassTopY: number) {
+  const y = bassTopY + getOffset('F3', 'bass')
+  drawSymbol(ctx, glyphs.fClef, x, y, STAFF_FIVE_LINES_HEIGHT)
 }
 
-function drawStatics(state: State) {
-  state.ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
-  state.ctx.fillStyle = 'black'
-  state.ctx.strokeStyle = 'black'
-
-  drawCurlyBrace(state)
-  drawStaffLines(state, 'bass')
-  drawStaffLines(state, 'treble')
-  drawStaffConnectingLine(state)
-  drawPlayNotesLine(state)
-  drawFClef(state)
-  drawGClef(state)
-  drawKeySignature(state, 'bass')
-  drawKeySignature(state, 'treble')
-  drawTimeSignature(state, 'treble')
-  drawTimeSignature(state, 'bass')
-}
-
-function getViewport(state: Readonly<GivenState>) {
-  return {
-    start: state.time * state.pps,
-    end: state.time * state.pps + (state.width - STAFF_START_X),
-  }
-}
-
-// Optimization ideas:
-// - can use offdom canvas (not OffscreenCanvas API) for background since its repainting over and over.
-// - can also treat it all as one giant image that gets partially drawn each frame.
-export function renderSheetVis(state: State): void {
-  state.ctx.clearRect(0, 0, state.width, state.height)
-  drawStatics(state)
-  for (const item of getItemsInView(state)) {
-    if (item.type === 'measure') {
-      continue
-    }
-    renderSheetNote(item, state)
-  }
-  renderMidiPressedKeys(state)
+export function drawCurlyBrace(ctx: CanvasRenderingContext2D, x: number, y: number, size?: number) {
+  drawSymbol(ctx, glyphs.brace, x, y, size)
 }
 
 // TODO pick side based not just on side of C4 but also
@@ -360,4 +312,11 @@ function renderMidiPressedKeys(state: State): void {
       ctx.fillText(key[0], canvasX, canvasY + 3)
     }
   }
+}
+
+function getItemStartEnd(item: CanvasItem, state: GivenState): { start: number; end: number } {
+  const start = item.time * state.pps - state.viewport.start
+  const duration = item.type === 'note' ? item.duration : 100
+  const end = start + duration * state.pps
+  return { start, end }
 }

@@ -1,7 +1,7 @@
-import { getKey, getKeyDetails, getNote, getOctave, isBlack, isWhite } from '@/features/theory'
-import { line, roundRect, roundCorner } from '@/features/drawing'
+import { getKey, getOctave, isBlack, isWhite } from '@/features/theory'
+import { roundRect, roundCorner } from '@/features/drawing'
 import midiState from '../midi'
-import { getMouseCoordinates, isMouseDown } from '../mouse'
+import { isMouseDown } from '../mouse'
 import { isNumber } from '@/utils'
 import { getImages } from '../SongVisualization/images'
 

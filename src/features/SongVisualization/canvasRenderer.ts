@@ -1,11 +1,8 @@
-import { SongMeasure, SongNote, Hand } from '@/types'
-import { clamp, range } from '@/utils'
+import { Hand, HandSettings } from '@/types'
 import { KEY_SIGNATURE } from '@/features/theory'
-import { getSongRange } from './utils'
-import { getPianoRollMeasurements, PianoRollMeasurements } from '../drawing/piano'
-import midiState from '../midi'
-import Player from '../player'
+import { CanvasItem } from './utils'
 import { renderFallingVis } from './falling-notes'
+import { renderSheetVis } from './sheet'
 
 export type GivenState = {
   time: number

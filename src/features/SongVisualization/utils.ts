@@ -82,7 +82,7 @@ function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: 
 }
 
 // TODO: is this an OK spot?
-type CanvasItem = SongMeasure | SongNote
+export type CanvasItem = SongMeasure | SongNote
 type HandSettings = {
   [trackId: string]: {
     hand: Hand | 'none'
@@ -90,20 +90,17 @@ type HandSettings = {
 }
 
 export function getItemsInView<T>(
-  items: CanvasItem[],
+  state: GivenState,
   startPred: (elem: CanvasItem) => boolean,
   endPred: (elem: CanvasItem) => boolean,
 ): CanvasItem[] {
-  // let startPred = (item: CanvasItem) => getItemStartEnd(item, state).end <= state.height
-  // let endPred = (item: CanvasItem) => getItemStartEnd(item, state).start < 0
-
   // if (state.visualization === 'sheet') {
   //   startPred = (item: CanvasItem) => getItemStartEnd(item, state).end >= 0
   //   endPred = (item: CanvasItem) => getItemStartEnd(item, state).start > state.width
   // }
 
   // First get the whole slice of contiguous notes that might be in view.
-  return getRange(items, startPred, endPred).filter((item) => {
+  return getRange(state.items, startPred, endPred).filter((item) => {
     // Filter out the notes that may have already clipped off screen.
     // As well as non matching items
     return startPred(item) && isMatchingHand(item, state)
@@ -128,13 +125,6 @@ function getRange<T>(
   for (; end < array.length && !endPred(array[end]); end++) {}
 
   return array.slice(start, end)
-}
-
-function getItemStartEnd(item: CanvasItem, state: GivenState): { start: number; end: number } {
-  const start = item.time * state.pps - state.viewport.start
-  const duration = item.type === 'note' ? item.duration : 100
-  const end = start + duration * state.pps
-  return { start, end }
 }
 
 function isMatchingHand(item: CanvasItem, state: GivenState) {

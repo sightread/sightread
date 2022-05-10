@@ -12,10 +12,9 @@ import {
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
 import { getRelativeMouseCoordinates } from '../mouse'
-import { getSongRange, Viewport } from './utils'
+import { CanvasItem, getItemsInView, getSongRange, Viewport } from './utils'
 
 const TEXT_FONT = 'Arial'
-const MUSIC_FONT = 'Leland'
 const palette = {
   right: {
     black: '#611AE5',
@@ -40,6 +39,7 @@ function getActiveNotes(state: State): Map<number, string> {
   for (let songNote of Object.values(Player.player().getPressedKeys())) {
     activeNotes.set(songNote.midiNote, getNoteColor(songNote, state))
   }
+  return activeNotes
 }
 
 function getViewport(state: Readonly<GivenState>): Viewport {
@@ -51,11 +51,13 @@ function getViewport(state: Readonly<GivenState>): Viewport {
 
 type State = GivenState & {
   viewport: Viewport
-  measurements: PianoRollMeasurements
+  pianoMeasurements: PianoRollMeasurements
   pianoTopY: number
   noteHitY: number
+  redFeltHeight: number
+  greyBarHeight: number
 }
-function deriveState(state: GivenState) {
+function deriveState(state: GivenState): State {
   let items = state.constrictView ? state.items : undefined
   const notes: SongNote[] = items
     ? (items.filter((i) => i.type === 'note') as SongNote[])
@@ -75,17 +77,22 @@ function deriveState(state: GivenState) {
     pianoTopY,
     greyBarHeight,
     redFeltHeight,
+    noteHitY: pianoTopY - greyBarHeight - redFeltHeight,
   }
 }
 
+function getFallingNoteItemsInView<T>(state: State): CanvasItem[] {
+  let startPred = (item: CanvasItem) => getItemStartEnd(item, state).end <= state.height
+  let endPred = (item: CanvasItem) => getItemStartEnd(item, state).start < 0
+  return getItemsInView(state, startPred, endPred)
+}
+
 export function renderFallingVis(givenState: GivenState): void {
-  const state = deriveState(givenState)
+  const state: State = deriveState(givenState)
   state.ctx.fillStyle = '#2e2e2e' // background color
   state.ctx.fillRect(0, 0, state.width, state.height)
 
-  const { width, height } = state
-
-  items = getItemsInView(state)
+  const items = getFallingNoteItemsInView(state)
 
   // 1. Render the ruler lines
   renderOctaveRuler(state)
@@ -106,10 +113,10 @@ export function renderFallingVis(givenState: GivenState): void {
   renderGreyBar(state)
 
   handlePianoRollMousePresses(
-    state.measurements,
+    state.pianoMeasurements,
     getRelativeMouseCoordinates(0, state.canvasRect.top),
   )
-  drawPianoRoll(state.ctx, state.measurements, 0, pianoTopY, getActiveNotes(state))
+  drawPianoRoll(state.ctx, state.pianoMeasurements, 0, state.pianoTopY, getActiveNotes(state))
 }
 
 function getNoteColor(note: SongNote, state: State): string {
@@ -126,20 +133,19 @@ function getNoteColor(note: SongNote, state: State): string {
 }
 
 function renderRedFelt(state: State) {
-  const { ctx } = state
-  const { pianoTopY, redFeltHeight } = state.measurements
-
+  const { ctx, width } = state
+  const { pianoTopY, redFeltHeight } = state
   const redFeltY = pianoTopY - redFeltHeight
 
   ctx.save()
   const redFeltColor = 'rgb(159,31,38)'
   ctx.fillStyle = redFeltColor
-  ctx.fillRect(x, y, width, height)
+  ctx.fillRect(0, redFeltY, width, redFeltHeight)
   ctx.restore()
 }
+
 function renderGreyBar(state: State) {
-  const { ctx } = state
-  const { pianoTopY, redFeltHeight, greyBarHeight } = state.measurements
+  const { pianoTopY, redFeltHeight, greyBarHeight, ctx } = state
 
   ctx.save()
   ctx.fillStyle = 'rgb(74,74,74)'
@@ -154,7 +160,7 @@ function renderOctaveRuler(state: State) {
   const { ctx } = state
   ctx.save()
   ctx.lineWidth = 2
-  for (let [midiNote, { left }] of Object.entries(state.measurements.lanes)) {
+  for (let [midiNote, { left }] of Object.entries(state.pianoMeasurements.lanes)) {
     const key = getKey(+midiNote)
     if (key === 'C') {
       ctx.strokeStyle = palette.octaveLine
@@ -170,8 +176,8 @@ function renderOctaveRuler(state: State) {
 
 export function renderFallingNote(note: SongNote, state: State): void {
   const { ctx, pps } = state
-  const lane = state.measurements.lanes[note.midiNote]
-  const posY = getItemStartEnd(note, state).end - (state.height - state.measurements.noteHitY)
+  const lane = state.pianoMeasurements.lanes[note.midiNote]
+  const posY = getItemStartEnd(note, state).end - (state.height - state.noteHitY)
   const posX = Math.floor(lane.left + 1)
   const length = Math.floor(note.duration * pps)
   const width = lane.width - 2
@@ -182,11 +188,10 @@ export function renderFallingNote(note: SongNote, state: State): void {
   roundRect(ctx, posX, posY, width, length)
 }
 
-function renderMeasure(measure: SongMeasure, state: GivenState, viewport: Viewport): void {
-  const { ctx, width } = state
+function renderMeasure(measure: SongMeasure, state: State): void {
+  const { ctx, width, viewport } = state
   ctx.save()
-  const posY =
-    getItemStartEnd(measure, state, viewport).start - (state.height - state.measurements.noteHitY)
+  const posY = getItemStartEnd(measure, state).start - (state.height - state.noteHitY)
 
   ctx.font = `16px ${TEXT_FONT}`
   ctx.strokeStyle = ctx.fillStyle = palette.measure
@@ -197,12 +202,8 @@ function renderMeasure(measure: SongMeasure, state: GivenState, viewport: Viewpo
   ctx.restore()
 }
 
-function getItemStartEnd(
-  item: CanvasItem,
-  state: GivenState,
-  viewport: Viewport,
-): { start: number; end: number } {
-  const start = viewport.start - item.time * state.pps
+function getItemStartEnd(item: CanvasItem, state: State): { start: number; end: number } {
+  const start = state.viewport.start - item.time * state.pps
   const duration = item.type === 'note' ? item.duration : 100
   const end = start - duration * state.pps
   return { start, end }
