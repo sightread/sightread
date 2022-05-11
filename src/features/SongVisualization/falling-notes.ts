@@ -8,7 +8,7 @@ import midiState from '../midi'
 import {
   drawPianoRoll,
   getPianoRollMeasurements,
-  handlePianoRollMousePresses,
+  handlePianoRollMousePress,
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
 import { getRelativeMouseCoordinates } from '../mouse'
@@ -32,8 +32,8 @@ const palette = {
  *
  */
 function getActiveNotes(state: State): Map<number, string> {
-  const activeNotes = new Map()
-  for (let midiNote of midiState.getPressedNotes().entries()) {
+  const activeNotes = new Map<number, string>()
+  for (let midiNote of midiState.getPressedNotes().keys()) {
     activeNotes.set(midiNote, 'grey')
   }
   for (let songNote of Object.values(Player.player().getPressedKeys())) {
@@ -112,11 +112,12 @@ export function renderFallingVis(givenState: GivenState): void {
   renderRedFelt(state)
   renderGreyBar(state)
 
-  handlePianoRollMousePresses(
+  handlePianoRollMousePress(
     state.pianoMeasurements,
+    state.pianoTopY,
     getRelativeMouseCoordinates(0, state.canvasRect.top),
   )
-  drawPianoRoll(state.ctx, state.pianoMeasurements, 0, state.pianoTopY, getActiveNotes(state))
+  drawPianoRoll(state.ctx, state.pianoMeasurements, state.pianoTopY, getActiveNotes(state))
 }
 
 function getNoteColor(note: SongNote, state: State): string {

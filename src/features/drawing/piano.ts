@@ -76,28 +76,11 @@ export function getPianoRollMeasurements(
 export function drawPianoRoll(
   ctx: CanvasRenderingContext2D,
   measurements: PianoRollMeasurements,
-  x: number,
   pianoTopY: number,
   activeNotes: Map<number, Color>,
 ) {
   const { whiteHeight, whiteNoteSeparation, blackHeight, lanes } = measurements
   ctx.save()
-
-  //   ctx.fillStyle = 'black'
-  //   ctx.fillRect(x, state.height - 10, state.width, 10)
-  //   const activeNotes = new Map(
-  //     inViewNotes
-  //       .filter((note) => {
-  //         const ratio = getNotePlayedRatio(note, state)
-  //         return 0 < ratio && ratio < 1
-  //       })
-  //       .map((note) => {
-  //         return [note.midiNote, getNoteColor(note, state)]
-  //       }),
-  //   )
-  //   const pressedNotes = new Map(
-  //     Array.from(midiState.getPressedNotes().keys()).map((midiNote) => [midiNote, 'grey']),
-  //   )
 
   // Render all the white, then render all the black.
   const whiteNotes = Object.entries(lanes).filter(([midiNote]) => !isBlack(+midiNote))
@@ -185,8 +168,9 @@ export function drawPianoRoll(
 }
 
 let lastPressedNote: null | number = null
-export function handlePianoRollMousePresses(
+export function handlePianoRollMousePress(
   measurements: PianoRollMeasurements,
+  pianoTopY: number,
   point: { x: number; y: number },
 ) {
   if (!isMouseDown()) {
@@ -198,21 +182,25 @@ export function handlePianoRollMousePresses(
   }
 
   // Can easily optimize this later.
-  //   const { x, y } = getMouseCoordinates()
   const { blackHeight, whiteHeight } = measurements
   let newPressedNote: null | number = null
   for (let [midiNote, lane] of Object.entries(measurements.lanes)) {
     const { left, width } = lane
     const height = isBlack(+midiNote) ? blackHeight : whiteHeight
-    const rect = { x: left, y: whiteHeight, height, width }
+    const rect = { x: left, y: pianoTopY, height, width }
     if (pointIntersectsWithRect(point, rect)) {
       newPressedNote = +midiNote
       break
     }
   }
-  if (newPressedNote && !isBlack(newPressedNote) && isBlack(newPressedNote + 1)) {
+  if (
+    newPressedNote &&
+    !isBlack(newPressedNote) &&
+    isBlack(newPressedNote + 1) &&
+    newPressedNote < 108
+  ) {
     const { left, width } = measurements.lanes[newPressedNote + 1]
-    const rect = { x: left, y: whiteHeight, height: blackHeight, width }
+    const rect = { x: left, y: pianoTopY, height: blackHeight, width }
     if (pointIntersectsWithRect(point, rect)) {
       newPressedNote = newPressedNote + 1
     }

@@ -30,7 +30,6 @@ function CanvasRenderer({
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
   const getRectRef = useRef(() => ({} as DOMRect))
-  let canvasRect = useMemo(() => getRectRef.current(), [width, height, getRectRef.current])
 
   const setupCanvas = useCallback(
     async (canvasEl: HTMLCanvasElement) => {
@@ -70,7 +69,7 @@ function CanvasRenderer({
       // constrictView: false,
       keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
-      canvasRect,
+      canvasRect: getRectRef.current(),
     }
     render(state)
   })
