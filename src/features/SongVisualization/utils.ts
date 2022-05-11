@@ -1,4 +1,4 @@
-import { Song, Track, SongNote, SongConfig, SongMeasure } from '@/types'
+import { Song, Track, SongNote, SongConfig, SongMeasure, Hand } from '@/types'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
@@ -94,11 +94,6 @@ export function getItemsInView<T>(
   startPred: (elem: CanvasItem) => boolean,
   endPred: (elem: CanvasItem) => boolean,
 ): CanvasItem[] {
-  // if (state.visualization === 'sheet') {
-  //   startPred = (item: CanvasItem) => getItemStartEnd(item, state).end >= 0
-  //   endPred = (item: CanvasItem) => getItemStartEnd(item, state).start > state.width
-  // }
-
   // First get the whole slice of contiguous notes that might be in view.
   return getRange(state.items, startPred, endPred).filter((item) => {
     // Filter out the notes that may have already clipped off screen.

@@ -71,7 +71,6 @@ function CanvasRenderer({
       keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
       canvasRect,
-      images: getImages(),
     }
     render(state)
   })
