@@ -14,7 +14,6 @@ import {
 import midiState from '@/features/midi'
 import { getKey, glyphs } from '@/features/theory'
 import { Size } from '@/types'
-import { isBrowser } from '@/utils'
 import { SpeedState, SpeedTrainingConfig as SpeedConfig } from '.'
 
 const TEXT_FONT = 'Arial'
@@ -26,7 +25,6 @@ type State = {
   ctx: CanvasRenderingContext2D
   canvasSize: Size
   speedState: SpeedState
-  setSpeedState: (s: SpeedState) => void
   speedConfig: SpeedConfig
 }
 

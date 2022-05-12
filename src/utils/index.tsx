@@ -1,4 +1,4 @@
-import type { Ref } from 'react'
+import { Ref, useEffect, useRef } from 'react'
 import type { SongConfig } from '@/types'
 import type { InstrumentName } from '@/features/synth'
 
@@ -47,6 +47,23 @@ export const breakpoints = {
   md: 1280,
   lg: 1920,
   xl: 2400,
+}
+
+// For Debugging Only: used to figure out what changed between renders.
+export function useTraceUpdate(props: any) {
+  const prev = useRef(props)
+  useEffect(() => {
+    const changedProps = Object.entries(props).reduce((ps: any, [k, v]) => {
+      if (prev.current[k] !== v) {
+        ps[k] = [prev.current[k], v]
+      }
+      return ps
+    }, {})
+    if (Object.keys(changedProps).length > 0) {
+      console.log('Changed props:', changedProps)
+    }
+    prev.current = props
+  })
 }
 
 export class Deferred<T> {

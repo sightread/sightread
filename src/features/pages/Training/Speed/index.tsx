@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 
 import { MidiStateEvent } from '@/types'
 import { useSingleton } from '@/hooks'
 import { css } from '@sightread/flake'
-import { getSynthStub } from '@/features/synth'
+import { getSynthStub, Synth } from '@/features/synth'
 import midiState from '@/features/midi'
 import { TopBar, SettingsSidebar } from './components'
 import { usePersistedState } from '@/features/persist'
@@ -12,6 +12,7 @@ import Canvas from './components/Canvas'
 import { render } from './canvas'
 import { Sizer } from '@/components'
 import { getRandomNote, KEY_SIGNATURE } from '@/features/theory'
+import { isBrowser } from '@/utils'
 
 export type Props = {}
 
@@ -86,6 +87,22 @@ export interface SpeedState {
   lastNoteHitTime: Date
 }
 
+function useTraceUpdate(props: any) {
+  const prev = useRef(props)
+  useEffect(() => {
+    const changedProps = Object.entries(props).reduce((ps: any, [k, v]) => {
+      if (prev.current[k] !== v) {
+        ps[k] = [prev.current[k], v]
+      }
+      return ps
+    }, {})
+    if (Object.keys(changedProps).length > 0) {
+      console.log('Changed props:', changedProps)
+    }
+    prev.current = props
+  })
+}
+
 export default function SpeedTraining({}: Props) {
   const [sidebar, setSidebar] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
@@ -109,13 +126,8 @@ export default function SpeedTraining({}: Props) {
   }))
 
   useEffect(() => {
-    const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
-      if (type === 'down' && !soundOff) {
-        synth.playNote(note)
-        advanceGame(speedState, setSpeedState, note)
-      } else {
-        synth.stopNote(note)
-      }
+    const handleMidiEvent = (midiEvent: MidiStateEvent) => {
+      advanceGame(speedState, setSpeedState, synth, midiEvent, soundOff)
     }
 
     midiState.subscribe(handleMidiEvent)
@@ -170,7 +182,7 @@ export default function SpeedTraining({}: Props) {
           <div style={{ position: 'relative', height: 300 }}>
             <Canvas
               render={(ctx: CanvasRenderingContext2D, size) => {
-                const state = { ctx, canvasSize: size, speedState, speedConfig, setSpeedState }
+                const state = { ctx, canvasSize: size, speedState, speedConfig }
                 render(state)
               }}
             />
@@ -210,7 +222,7 @@ export default function SpeedTraining({}: Props) {
                 onClick={() =>
                   setSpeedState({
                     complete: false,
-                    notes: generateRandomNotes(speedConfig.clef, speedConfig.keySignatuer),
+                    notes: generateRandomNotes(speedConfig.clef, speedConfig.keySignature),
                     currentNoteIndex: 0,
                     startTime: new Date(),
                     lastNoteHitTime: new Date(),
@@ -265,14 +277,24 @@ function ScoreInfo({ speedState }: { speedState: SpeedState }) {
 function advanceGame(
   speedState: SpeedState,
   setSpeedState: (s: SpeedState) => void,
-  midiNote: number,
+  synth: Synth,
+  midiEvent: MidiStateEvent,
+  soundOff: boolean,
 ) {
   if (speedState.complete) {
+    return
+  }
+  const { note: midiNote, type } = midiEvent
+  if (type === 'up') {
+    synth.stopNote(midiNote)
     return
   }
   const currentNote = speedState.notes[speedState.currentNoteIndex]
   const complete = speedState.currentNoteIndex >= speedState.notes.length - 1
   if (midiNote === currentNote) {
+    if (type === 'down' && !soundOff) {
+      synth.playNote(midiNote)
+    }
     setSpeedState({
       ...speedState,
       currentNoteIndex: speedState.currentNoteIndex + 1,
@@ -281,6 +303,9 @@ function advanceGame(
       complete,
     })
   } else {
+    if (failSound) {
+      failSound.play()
+    }
     setSpeedState({
       ...speedState,
       currentNoteIndex: speedState.currentNoteIndex + 1,
@@ -288,6 +313,12 @@ function advanceGame(
       complete,
     })
   }
+}
+
+let failSound: HTMLAudioElement | null = null
+if (isBrowser()) {
+  failSound = new Audio('/effects/wrong-sound-effect.mp3')
+  failSound.playbackRate = 6
 }
 
 function generateRandomNotes(clef: 'bass' | 'treble', keySignature: KEY_SIGNATURE) {
