@@ -326,8 +326,8 @@ function generateRandomNotes(clef: 'bass' | 'treble', keySignature: KEY_SIGNATUR
   let minOctave = 4
   let maxOctave = 5
   if (clef === 'bass') {
-    minOctave = 3
-    maxOctave = 4
+    minOctave = 2
+    maxOctave = 3
   }
 
   return Array.from({ length: 20 }).map(() => {

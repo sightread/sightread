@@ -80,7 +80,7 @@ class MidiState {
   handleKeyDown(e: KeyboardEvent) {
     // Some OSes / browsers will automatically repeat a letter when held down.
     // We don't want to count those.
-    if (e.repeat) {
+    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) {
       return
     }
 
