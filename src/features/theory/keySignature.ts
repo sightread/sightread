@@ -99,6 +99,7 @@ const midiToSigMap: { [num: number]: KEY_SIGNATURE } = {
   '6': 'F#',
   '7': 'C#',
 }
+const keySigToFifth = Object.fromEntries(Object.entries(midiToSigMap).map(([k, v]) => [v, k]))
 
 export function getKeyDetails(key: KEY_SIGNATURE): KeyDetails {
   return keyDetailsMap[key]
@@ -115,9 +116,18 @@ function circleOfFifths(fifth: number) {
   return cScale.map((n) => (((n + fifth * fifthSemitones) % 12) + 12) % 12)
 }
 
-//
-//  TO BE MOVED
+export function getRandomNote(minOctave: number, maxOctave: number, keySignature: KEY_SIGNATURE) {
+  const fifth = +keySigToFifth[keySignature]
+  const scale = circleOfFifths(fifth)
+  const C0 = 24
+  return C0 + (randomInt(minOctave, maxOctave) - 1) * 12 + scale[randomInt(0, 6)]
+}
 
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+//  TO BE MOVED
 // E.g. A0 --> 0, C8 --> 108.
 const keyToNote: { [key: string]: number } = {}
 const noteToKey: { [note: number]: string } = {}

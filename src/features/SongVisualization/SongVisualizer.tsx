@@ -1,8 +1,7 @@
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { Hand, Song, SongConfig } from '@/types'
 import { GivenState, render } from './canvasRenderer'
 import { useRAFLoop, useSize } from '@/hooks'
-import { getImages } from './images'
 
 type HandSettings = {
   [trackId: string]: {

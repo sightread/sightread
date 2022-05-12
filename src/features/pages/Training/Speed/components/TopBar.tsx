@@ -67,15 +67,10 @@ const classes = css({
 })
 
 type TopBarProps = {
-  isLoading: boolean
-  isPlaying: boolean
   isSoundOff: boolean
-  onTogglePlaying: () => void
   onClickSettings: () => void
   onClickBack: () => void
-  onClickRestart: () => void
   onClickSound: () => void
-  onSelectRange: () => void
   classNames: {
     settingsCog?: string | false
     rangeIcon?: string | false
@@ -83,15 +78,10 @@ type TopBarProps = {
 }
 
 export default function TopBar({
-  isPlaying,
-  isLoading,
   isSoundOff,
-  onTogglePlaying,
   onClickSettings,
   onClickBack,
-  onClickRestart,
   onClickSound,
-  onSelectRange,
   classNames,
 }: TopBarProps) {
   return (
@@ -118,32 +108,6 @@ export default function TopBar({
         />
       </div>
       <div
-        className="nav-buttons"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          alignItems: 'center',
-          display: 'flex',
-          justifyContent: 'space-around',
-          width: 230,
-        }}
-      >
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <PreviousIcon
-          className={classes.topbarIcon}
-          height={40}
-          width={40}
-          onClick={onClickRestart}
-        />
-
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <BpmDisplay />
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-      </div>
-      <div
         style={{
           display: 'flex',
           marginLeft: 'auto',
@@ -159,18 +123,6 @@ export default function TopBar({
           className={clsx(classes.figmaIcon, classes.fillWhite, classNames?.settingsCog)}
           onClick={onClickSettings}
         />
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <span
-          className={classes.figmaIcon}
-          style={{ display: 'inline-block' }}
-          onClick={onSelectRange}
-        >
-          <HistoryIcon
-            width={25}
-            height={25}
-            className={clsx(classes.figmaIcon, classes.fillWhite, classNames.rangeIcon)}
-          />
-        </span>
         <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
         <span
           className={classes.figmaIcon}

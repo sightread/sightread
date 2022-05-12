@@ -1,6 +1,11 @@
 import { InstrumentName } from '@/features/synth'
 import { KEY_SIGNATURE } from './features/theory'
 
+export interface Size {
+  width: number
+  height: number
+}
+
 export type Pitch = {
   step: string
   octave: number
