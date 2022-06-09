@@ -40,7 +40,9 @@ export function getHandSettings(config: SongConfig | undefined) {
 }
 
 function getInstrument(track: Track): InstrumentName {
-  return ((track.instrument || track.name) as InstrumentName) || gmInstruments[track.program ?? 0]
+  return track.program && track.program >= 0
+    ? gmInstruments[track.program]
+    : ((track.instrument || track.name) as InstrumentName)
 }
 
 export function getSongSettings(file: string, song: Song): SongConfig {

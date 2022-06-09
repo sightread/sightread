@@ -123,7 +123,10 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
   return (
     <span className={classes.instrumentCard}>
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <span style={{}}>Track {trackId + 1}</span>
+        <span style={{}}>
+          Track {trackId + 1}
+          {track.track.name ? ': ' + track.track.name : ''}
+        </span>
         <span className={classes.cardLabelDivider}></span>
         <span>{noteCount} Notes</span>
       </div>

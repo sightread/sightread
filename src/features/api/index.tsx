@@ -7,17 +7,12 @@ import { getUploadedSong } from '@/features/persist'
  * In production, use preparsed songs.
  */
 async function getServerSong(url: string): Promise<Song> {
-  if (process.env.NODE_ENV === 'development') {
-    if (url.includes('.xml')) {
-      const xml = await (await fetch('/' + url)).text()
-      return parseMusicXml(xml) as Song
-    }
-    const buffer = await (await fetch('/' + url)).arrayBuffer()
-    return parseMidi(buffer) as Song
+  if (url.includes('.xml')) {
+    const xml = await (await fetch('/' + url)).text()
+    return parseMusicXml(xml) as Song
   }
-
-  const parsedUrl = '/generated/' + url.replace(/\.(mid|xml)/i, '.json')
-  return fetch(parsedUrl).then((res) => res.json())
+  const buffer = await (await fetch('/' + url)).arrayBuffer()
+  return parseMidi(buffer) as Song
 }
 
 export async function getSong(url: string): Promise<Song> {

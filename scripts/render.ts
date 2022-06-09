@@ -15,7 +15,7 @@ async function parse(path: string): Promise<Song> {
 
 async function main() {
   const outputDir = '/Users/jakefried/Movies/sightread-recordings'
-  const file = 'Into_The_Unknown/Into_The_Unknown'
+  const file = 'Beethoven-Moonlight_Sonata/Beethoven-Moonlight_Sonata'
   const song: Song = await parse(`${outputDir}/${file}.mid`)
   const hands = parserInferHands(song)
 

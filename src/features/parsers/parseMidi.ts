@@ -5,6 +5,7 @@ import type { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/type
 import type { NoteKey } from './types'
 import { getKeySignatureFromMidi, KEY_SIGNATURE } from '../theory'
 import { getPitch } from './utils'
+import { gmInstruments } from '../synth'
 
 export default function parseMidi(midiData: ArrayBuffer): Song {
   const parsed = parseMidiFile(midiData)
@@ -49,13 +50,13 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
     if (midiEvent.subType === 'instrumentName') {
       const instrument = midiEvent.text
       tracks[track].instrument = instrument
-      if (!tracks[track].program || tracks[track].program === -1) {
+      if (!tracks[track].program && inferProgram(instrument) !== -1) {
         tracks[track].program = inferProgram(instrument)
       }
     } else if (midiEvent.subType === 'trackName') {
       const trackName = midiEvent.text
       tracks[track].name = trackName
-      if (!tracks[track].program || tracks[track].program === -1) {
+      if (!tracks[track].program && inferProgram(trackName) !== -1) {
         tracks[track].program = inferProgram(trackName)
       }
     } else if (midiEvent.subType === 'programChange') {
@@ -104,10 +105,10 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
   }
 
   // TODO: evaluate if this is necessary.
-  // Removing empty tracks.
   for (let t of Object.keys(tracks).map(Number)) {
-    if (typeof tracks[t].program === 'undefined') {
-      // tracks[t].program = 0
+    // Remove empty tracks.
+    if (notes.filter((n) => n.track === t).length === 0) {
+      delete tracks[t]
     }
   }
 
@@ -128,6 +129,9 @@ function inferProgram(instrumentName: string): number {
   // E.g. Piano / Drums vs. "Acoustic Grand" etc.
   if (instrumentName.toLowerCase().includes('piano')) {
     return 1
+  }
+  if (instrumentName.toLowerCase().includes('drum')) {
+    return gmInstruments.findIndex((i) => i === 'melodic_tom')
   }
   return -1
 }

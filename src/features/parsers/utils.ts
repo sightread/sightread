@@ -40,6 +40,24 @@ export function isPiano(t: Track): boolean {
   )
 }
 export function parserInferHands(song: Song): { left: number; right: number } {
+  // First, check against known likely left/right names for tracks:
+  const trackNames = Object.values(song.tracks).map((track) => track.name ?? '')
+  const likelyLeft = ['bass', 'left', 'lh']
+  const likelyRight = ['treble', 'lead', 'rh', 'right']
+  const likelyLeftTrack = trackNames.find((name) => likelyLeft.includes(name.toLowerCase()))
+  const likelyRightTrack = trackNames.find((name) => likelyRight.includes(name.toLowerCase()))
+  if (likelyLeft && likelyRight) {
+    const leftId = Object.keys(song.tracks).find(
+      (id: any) => song.tracks[id].name === likelyLeftTrack,
+    )!
+    const rightId = Object.keys(song.tracks).find(
+      (id: any) => song.tracks[id].name === likelyRightTrack,
+    )!
+    return {
+      left: +leftId,
+      right: +rightId,
+    }
+  }
   const pianoTracks = Object.values(song.tracks).filter((track) => isPiano(track))
   // TODO: force users to choose tracks in this case.
 
