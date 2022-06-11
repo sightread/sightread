@@ -115,7 +115,7 @@ export function renderFallingVis(givenState: GivenState): void {
   handlePianoRollMousePress(
     state.pianoMeasurements,
     state.pianoTopY,
-    getRelativeMouseCoordinates(0, state.canvasRect.top),
+    getRelativeMouseCoordinates(state.canvasRect.left, state.canvasRect.top),
   )
   drawPianoRoll(state.ctx, state.pianoMeasurements, state.pianoTopY, getActiveNotes(state))
 }
