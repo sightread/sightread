@@ -4,7 +4,7 @@ import { useRef, useEffect } from 'react'
  * Only use for debugging.
  * @param props
  */
-export function useTraceUpdate(props: any) {
+export default function useTraceUpdate(props: any) {
   const prev = useRef(props)
   useEffect(() => {
     const changedProps = Object.entries(props).reduce((ps: any, [k, v]) => {

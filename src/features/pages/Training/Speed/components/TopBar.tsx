@@ -1,16 +1,7 @@
 import React from 'react'
-import { BpmDisplay } from '@/features/SongInputControls'
-import {
-  ArrowLeftIcon,
-  PreviousIcon,
-  HistoryIcon,
-  SoundOnIcon,
-  SoundOffIcon,
-  SettingsCog,
-} from '@/icons'
+import { ArrowLeftIcon, SoundOnIcon, SoundOffIcon, SettingsCog } from '@/icons'
 import { css } from '@sightread/flake'
 import clsx from 'clsx'
-import StatusIcon from './StatusIcon'
 
 const classes = css({
   topbarIcon: {
