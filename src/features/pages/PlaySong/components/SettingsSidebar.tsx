@@ -83,8 +83,8 @@ export default function SettingsSidebar(props: SidebarProps) {
       <div style={{ fontSize: 16, flexDirection: 'column', textAlign: 'center' }}>
         <h3 style={{ textAlign: 'center' }}>Visualization</h3>
         <Sizer height={10} />
-        <div style={{ fontSize: 14 }}>
-          <span> Falling notes </span>
+        <div style={{ fontSize: 14, display: 'flex', justifyContent: 'center' }}>
+          <span style={{ display: 'block', width: 120, textAlign: 'left' }}> Falling notes </span>
           <input
             type="radio"
             checked={visualization === 'falling-notes'}
@@ -92,8 +92,8 @@ export default function SettingsSidebar(props: SidebarProps) {
           />
         </div>
         <Sizer height={10} />
-        <div style={{ fontSize: 14 }}>
-          <span> Sheet</span>
+        <div style={{ fontSize: 14, display: 'flex', justifyContent: 'center' }}>
+          <span style={{ display: 'block', width: 120, textAlign: 'left' }}>Sheet hero (beta)</span>
           <input
             type="radio"
             checked={visualization === 'sheet'}
