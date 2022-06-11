@@ -45,6 +45,14 @@ body {
   font-family: 'Titillium';
 }
 
+/* 
+ * Canvas defaults to inline, which can be confusing b/c of the way line-height
+ * creates a tough to discover margin.
+ */
+canvas {
+  display: block;
+}
+
 @keyframes spinner {
   0% {
     transform: rotate(0deg);

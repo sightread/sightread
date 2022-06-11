@@ -1,8 +1,7 @@
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { Hand, Song, SongConfig } from '@/types'
 import { GivenState, render } from './canvasRenderer'
 import { useRAFLoop, useSize } from '@/hooks'
-import { getImages } from './images'
 
 type HandSettings = {
   [trackId: string]: {
@@ -30,7 +29,6 @@ function CanvasRenderer({
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
   const getRectRef = useRef(() => ({} as DOMRect))
-  let canvasRect = useMemo(() => getRectRef.current(), [width, height, getRectRef.current])
 
   const setupCanvas = useCallback(
     async (canvasEl: HTMLCanvasElement) => {
@@ -67,11 +65,9 @@ function CanvasRenderer({
       ctx: ctxRef.current,
       items: song.items,
       constrictView: !!constrictView,
-      // constrictView: false,
       keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
-      canvasRect,
-      images: getImages(),
+      canvasRect: getRectRef.current(),
     }
     render(state)
   })

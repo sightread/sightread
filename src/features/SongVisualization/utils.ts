@@ -1,9 +1,10 @@
-import { Song, Track, SongNote, SongConfig, SongMeasure } from '@/types'
+import { Song, Track, SongNote, SongConfig, SongMeasure, Hand } from '@/types'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
 import { isBlack } from '../theory'
-import { getHandIndexesForTeachMid, parserInferHands } from '../parsers'
+import { parserInferHands } from '../parsers'
+import { GivenState } from './canvasRenderer'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
   const notes = song?.notes ?? []
@@ -42,7 +43,7 @@ export function getHandSettings(config: SongConfig | undefined) {
 function getInstrument(track: Track): InstrumentName {
   return track.program && track.program >= 0
     ? gmInstruments[track.program]
-    : ((track.instrument || track.name) as InstrumentName)
+    : ((track.instrument || track.name) as InstrumentName) ?? gmInstruments[0]
 }
 
 export function getSongSettings(file: string, song: Song): SongConfig {
@@ -51,7 +52,7 @@ export function getSongSettings(file: string, song: Song): SongConfig {
     return persisted
   }
 
-  const { left, right } = inferHands(song, /* isTeachMid */ file.includes('lesson'))
+  const { left, right } = inferHands(song)
   const tracks = mapValues(song.tracks, (track, trackId) => {
     const id = parseInt(trackId)
     const hand = left === id ? 'left' : right === id ? 'right' : 'none'
@@ -76,6 +77,67 @@ export function getSongSettings(file: string, song: Song): SongConfig {
   return songSettings
 }
 
-function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
-  return isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
+function inferHands(song: Song): { left?: number; right?: number } {
+  return parserInferHands(song)
 }
+
+// TODO: is this an OK spot?
+export type CanvasItem = SongMeasure | SongNote
+type HandSettings = {
+  [trackId: string]: {
+    hand: Hand | 'none'
+  }
+}
+
+export function getItemsInView<T>(
+  state: GivenState,
+  startPred: (elem: CanvasItem) => boolean,
+  endPred: (elem: CanvasItem) => boolean,
+): CanvasItem[] {
+  // First get the whole slice of contiguous notes that might be in view.
+  return getRange(state.items, startPred, endPred).filter((item) => {
+    // Filter out the notes that may have already clipped off screen.
+    // As well as non matching items
+    return startPred(item) && isMatchingHand(item, state)
+  })
+}
+
+/**
+ * Get the contiguous range starting from the first element that returns true from the startPred
+ * until the first element that fails the endPred.
+ */
+function getRange<T>(
+  array: T[],
+  startPred: (elem: T) => boolean,
+  endPred: (elem: T) => boolean,
+): T[] {
+  let start = array.findIndex(startPred)
+  if (start === -1) {
+    return []
+  }
+
+  let end = start + 1
+  for (; end < array.length && !endPred(array[end]); end++) {}
+
+  return array.slice(start, end)
+}
+
+function isMatchingHand(item: CanvasItem, state: GivenState) {
+  const { hand, hands } = state
+  switch (item.type) {
+    case 'measure':
+      return state.visualization === 'falling-notes'
+    case 'note':
+      const showLeft = hand === 'both' || hand === 'left'
+      if (showLeft && hands[item.track]?.hand === 'left') {
+        return true
+      }
+      const showRight = hand === 'both' || hand === 'right'
+      if (showRight && hands[item.track]?.hand === 'right') {
+        return true
+      }
+      return false
+  }
+}
+
+export type Viewport = { start: number; end: number }

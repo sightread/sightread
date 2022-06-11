@@ -1,19 +1,25 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Toggle, Sizer } from '@/components'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import { palette as colors } from '@/styles/common'
 import { AdjustInstruments } from '@/features/SongInputControls'
 import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
+import { useWhenClickedOutside } from '@/hooks'
 
 type SidebarProps = {
   open: boolean
   onChange: (settings: SongConfig) => void
   config: SongConfig
   song?: Song
+  onClose?: () => void
 }
 
 export default function SettingsSidebar(props: SidebarProps) {
   const { left, right, visualization, waiting, noteLetter, keySignature } = props.config
+  const sidebarRef = useRef<HTMLDivElement>(null)
+
+  useWhenClickedOutside(() => props.onClose?.(), sidebarRef, [])
+
   const handleHand = (selected: 'left' | 'right') => {
     if (selected === 'left') {
       props.onChange({ ...props.config, left: !props.config.left })
@@ -49,6 +55,7 @@ export default function SettingsSidebar(props: SidebarProps) {
         boxSizing: 'border-box',
         overflowY: 'auto',
       }}
+      ref={sidebarRef}
     >
       <Sizer height={10} />
       <h3 style={{ fontSize: 24, color: colors.purple.primary, textAlign: 'center' }}>Settings</h3>
@@ -76,8 +83,8 @@ export default function SettingsSidebar(props: SidebarProps) {
       <div style={{ fontSize: 16, flexDirection: 'column', textAlign: 'center' }}>
         <h3 style={{ textAlign: 'center' }}>Visualization</h3>
         <Sizer height={10} />
-        <div style={{ fontSize: 14 }}>
-          <span> Falling notes </span>
+        <div style={{ fontSize: 14, display: 'flex', justifyContent: 'center' }}>
+          <span style={{ display: 'block', width: 120, textAlign: 'left' }}> Falling notes </span>
           <input
             type="radio"
             checked={visualization === 'falling-notes'}
@@ -85,8 +92,8 @@ export default function SettingsSidebar(props: SidebarProps) {
           />
         </div>
         <Sizer height={10} />
-        <div style={{ fontSize: 14 }}>
-          <span> Sheet</span>
+        <div style={{ fontSize: 14, display: 'flex', justifyContent: 'center' }}>
+          <span style={{ display: 'block', width: 120, textAlign: 'left' }}>Sheet hero (beta)</span>
           <input
             type="radio"
             checked={visualization === 'sheet'}

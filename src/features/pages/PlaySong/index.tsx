@@ -3,12 +3,7 @@ import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 
 import { Song, MidiStateEvent, VisualizationMode } from '@/types'
-import {
-  SongVisualizer,
-  getHandSettings,
-  getSongRange,
-  getSongSettings,
-} from '@/features/SongVisualization'
+import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
 import { useSingleton, useSongSettings } from '@/hooks'
@@ -206,8 +201,6 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
     setPlaying(false)
     player.pause()
   }
-  const { startNote, endNote } = getSongRange(song)
-
   return (
     <div>
       {!isRecording && (
@@ -253,6 +246,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
           >
             <SettingsSidebar
               open={sidebar}
+              onClose={() => setSidebar(false)}
               onChange={setSongConfig}
               config={songConfig}
               song={song}
