@@ -65,7 +65,6 @@ function CanvasRenderer({
       ctx: ctxRef.current,
       items: song.items,
       constrictView: !!constrictView,
-      // constrictView: false,
       keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
       canvasRect: getRectRef.current(),

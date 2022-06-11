@@ -1,6 +1,6 @@
 // Since this is called from Deno as well, we need to use relative paths.
 import { getKey } from '../theory'
-import { Song, Tracks, Track } from '../../../src/types'
+import { Song, Track } from '../../../src/types'
 
 export function getPitch(midiNote: number): { octave: number; step: string; alter: number } {
   // e.g. Cb3
@@ -14,23 +14,6 @@ export function getPitch(midiNote: number): { octave: number; step: string; alte
   }
 }
 
-function findFirstMatchForHand(tracks: Tracks, arr: string[]): number | undefined {
-  const trackKeys = Object.keys(tracks).map(Number)
-  let found = undefined
-  for (const s of arr) {
-    found = trackKeys.find((trackNum) => tracks[trackNum].name?.includes(s))
-    if (found !== undefined) return found
-  }
-  return found
-}
-
-export function getHandIndexesForTeachMid(song: Song): { left?: number; right?: number } {
-  const { tracks } = song
-  const lhStudentTrack = findFirstMatchForHand(tracks, ['L.H.'])
-  const rhStudentTrack = findFirstMatchForHand(tracks, ['R.H.', 'Student'])
-  return { left: lhStudentTrack, right: rhStudentTrack }
-}
-
 export function isPiano(t: Track): boolean {
   const program = t.program ?? -1
   return (
@@ -42,11 +25,11 @@ export function isPiano(t: Track): boolean {
 export function parserInferHands(song: Song): { left: number; right: number } {
   // First, check against known likely left/right names for tracks:
   const trackNames = Object.values(song.tracks).map((track) => track.name ?? '')
-  const likelyLeft = ['bass', 'left', 'lh']
-  const likelyRight = ['treble', 'lead', 'rh', 'right']
+  const likelyLeft = ['bass', 'left', 'lh', 'L.H.']
+  const likelyRight = ['treble', 'lead', 'rh', 'right', 'R.H.', 'Student']
   const likelyLeftTrack = trackNames.find((name) => likelyLeft.includes(name.toLowerCase()))
   const likelyRightTrack = trackNames.find((name) => likelyRight.includes(name.toLowerCase()))
-  if (likelyLeft && likelyRight) {
+  if (likelyLeftTrack && likelyRightTrack) {
     const leftId = Object.keys(song.tracks).find(
       (id: any) => song.tracks[id].name === likelyLeftTrack,
     )!
@@ -83,5 +66,6 @@ export function parserInferHands(song: Song): { left: number; right: number } {
   if (t1Avg < t2Avg) {
     return { left: t1, right: t2 }
   }
+
   return { left: t2, right: t1 }
 }

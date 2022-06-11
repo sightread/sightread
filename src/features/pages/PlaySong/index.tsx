@@ -246,6 +246,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
           >
             <SettingsSidebar
               open={sidebar}
+              onClose={() => setSidebar(false)}
               onChange={setSongConfig}
               config={songConfig}
               song={song}

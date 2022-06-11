@@ -49,9 +49,3 @@ const manifestPath = pathJoin(__dirname, '..', 'public', 'generated', 'manifest.
 const manifestSrcPath = pathJoin(__dirname, '..', 'src', 'manifest.json')
 fs.writeFileSync(manifestPath, JSON.stringify(manifestJson))
 fs.writeFileSync(manifestSrcPath, JSON.stringify(manifestJson))
-
-parsedMusic.forEach((parsed) => {
-  const filename = parsed.file.replace(/\.(mid|xml)/i, '') + '.json'
-  let genSongPath = pathJoin(__dirname, '..', 'public', 'generated', filename)
-  fs.writeFileSync(genSongPath, JSON.stringify(parsed.parsedSong))
-})

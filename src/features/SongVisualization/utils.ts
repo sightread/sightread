@@ -3,7 +3,7 @@ import { gmInstruments, InstrumentName } from '@/features/synth'
 import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
 import { isBlack } from '../theory'
-import { getHandIndexesForTeachMid, parserInferHands } from '../parsers'
+import { parserInferHands } from '../parsers'
 import { GivenState } from './canvasRenderer'
 
 export function getSongRange(song: { notes: SongNote[] } | undefined) {
@@ -43,7 +43,7 @@ export function getHandSettings(config: SongConfig | undefined) {
 function getInstrument(track: Track): InstrumentName {
   return track.program && track.program >= 0
     ? gmInstruments[track.program]
-    : ((track.instrument || track.name) as InstrumentName)
+    : ((track.instrument || track.name) as InstrumentName) ?? gmInstruments[0]
 }
 
 export function getSongSettings(file: string, song: Song): SongConfig {
@@ -52,7 +52,7 @@ export function getSongSettings(file: string, song: Song): SongConfig {
     return persisted
   }
 
-  const { left, right } = inferHands(song, /* isTeachMid */ file.includes('lesson'))
+  const { left, right } = inferHands(song)
   const tracks = mapValues(song.tracks, (track, trackId) => {
     const id = parseInt(trackId)
     const hand = left === id ? 'left' : right === id ? 'right' : 'none'
@@ -77,8 +77,8 @@ export function getSongSettings(file: string, song: Song): SongConfig {
   return songSettings
 }
 
-function inferHands(song: Song, isTeachMidi: boolean): { left?: number; right?: number } {
-  return isTeachMidi ? getHandIndexesForTeachMid(song) : parserInferHands(song)
+function inferHands(song: Song): { left?: number; right?: number } {
+  return parserInferHands(song)
 }
 
 // TODO: is this an OK spot?

@@ -3,6 +3,7 @@ import { palette } from '@/styles/common'
 import { css, mediaQuery } from '@sightread/flake'
 import { CancelCircleIcon } from '@/icons'
 import clsx from 'clsx'
+import { useWhenClickedOutside } from '@/hooks'
 
 const classes = css({
   modalContainer: {
@@ -73,20 +74,10 @@ export default function Modal({
 }: PropsWithChildren<ModalProps>) {
   const modalRef = useRef<HTMLDivElement>(null)
 
+  useWhenClickedOutside(() => onClose?.(), modalRef, [])
   useEffect(() => {
     if (!show) {
       return
-    }
-
-    function outsideClickHandler(e: MouseEvent) {
-      if (!modalRef.current) {
-        return
-      }
-      if (!modalRef.current.contains(e.target as Node)) {
-        if (onClose) {
-          onClose()
-        }
-      }
     }
 
     function handleKeyDown(e: KeyboardEvent) {
@@ -99,10 +90,8 @@ export default function Modal({
         return onClose()
       }
     }
-    window.addEventListener('mousedown', outsideClickHandler)
     window.addEventListener('keydown', handleKeyDown)
     return () => {
-      window.removeEventListener('mousedown', outsideClickHandler)
       window.removeEventListener('keydown', handleKeyDown)
     }
   })

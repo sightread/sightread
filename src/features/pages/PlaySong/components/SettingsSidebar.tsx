@@ -1,19 +1,25 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Toggle, Sizer } from '@/components'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import { palette as colors } from '@/styles/common'
 import { AdjustInstruments } from '@/features/SongInputControls'
 import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
+import { useWhenClickedOutside } from '@/hooks'
 
 type SidebarProps = {
   open: boolean
   onChange: (settings: SongConfig) => void
   config: SongConfig
   song?: Song
+  onClose?: () => void
 }
 
 export default function SettingsSidebar(props: SidebarProps) {
   const { left, right, visualization, waiting, noteLetter, keySignature } = props.config
+  const sidebarRef = useRef<HTMLDivElement>(null)
+
+  useWhenClickedOutside(() => props.onClose?.(), sidebarRef, [])
+
   const handleHand = (selected: 'left' | 'right') => {
     if (selected === 'left') {
       props.onChange({ ...props.config, left: !props.config.left })
@@ -49,6 +55,7 @@ export default function SettingsSidebar(props: SidebarProps) {
         boxSizing: 'border-box',
         overflowY: 'auto',
       }}
+      ref={sidebarRef}
     >
       <Sizer height={10} />
       <h3 style={{ fontSize: 24, color: colors.purple.primary, textAlign: 'center' }}>Settings</h3>
