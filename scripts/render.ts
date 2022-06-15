@@ -15,7 +15,7 @@ async function parse(path: string): Promise<Song> {
 
 async function main() {
   const outputDir = '/Users/jakefried/Movies/sightread-recordings'
-  const file = 'Beethoven-Moonlight_Sonata/Beethoven-Moonlight_Sonata'
+  const file = 'BTS-Yet_To_Come/BTS-Yet_To_Come'
   const song: Song = await parse(`${outputDir}/${file}.mid`)
   const hands = parserInferHands(song)
 
@@ -62,7 +62,7 @@ async function main() {
     timeSignature: { numerator: 4, denominator: 4 },
     images: getImages(),
     ctx: null as any,
-    canvasRect: null as any,
+    canvasRect: { left: 0, top: 0 } as any,
   }
 
   let lastFire = Date.now()

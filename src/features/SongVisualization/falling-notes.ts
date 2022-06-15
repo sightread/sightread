@@ -1,7 +1,7 @@
 import type { SongMeasure, SongNote } from '@/types'
 import { getKey, isBlack } from '@/features/theory'
 
-import { line, roundRect, roundCorner } from '@/features/drawing'
+import { line, roundRect } from '@/features/drawing'
 import { GivenState } from './canvasRenderer'
 import Player from '../player'
 import midiState from '../midi'
