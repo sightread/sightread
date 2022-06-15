@@ -18,7 +18,15 @@ export default function SettingsSidebar(props: SidebarProps) {
   const { left, right, visualization, waiting, noteLetter, keySignature } = props.config
   const sidebarRef = useRef<HTMLDivElement>(null)
 
-  useWhenClickedOutside(() => props.onClose?.(), sidebarRef, [])
+  useWhenClickedOutside(
+    () => {
+      if (props.open) {
+        props.onClose?.()
+      }
+    },
+    sidebarRef,
+    [props.open],
+  )
 
   const handleHand = (selected: 'left' | 'right') => {
     if (selected === 'left') {

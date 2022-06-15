@@ -1,4 +1,5 @@
 import React from 'react'
+import { MouseEvent } from 'react'
 import { BpmDisplay } from '@/features/SongInputControls'
 import {
   ArrowLeftIcon,
@@ -71,7 +72,7 @@ type TopBarProps = {
   isPlaying: boolean
   isSoundOff: boolean
   onTogglePlaying: () => void
-  onClickSettings: () => void
+  onClickSettings: (e: MouseEvent<any>) => void
   onClickBack: () => void
   onClickRestart: () => void
   onClickSound: () => void
