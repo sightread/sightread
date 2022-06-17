@@ -3,7 +3,6 @@ import { getKey, isBlack } from '@/features/theory'
 
 import { line, roundRect } from '@/features/drawing'
 import { GivenState } from './canvasRenderer'
-import Player from '../player'
 import midiState from '../midi'
 import {
   drawPianoRoll,
@@ -13,6 +12,7 @@ import {
 } from '@/features/drawing/piano'
 import { getRelativeMouseCoordinates } from '../mouse'
 import { CanvasItem, getItemsInView, getSongRange, Viewport } from './utils'
+import { clamp } from '@/utils'
 
 const TEXT_FONT = 'Arial'
 const palette = {
@@ -31,15 +31,25 @@ const palette = {
 /**
  *
  */
-function getActiveNotes(state: State): Map<number, string> {
+function getActiveNotes(state: State, inViewNotes: SongNote[]): Map<number, string> {
   const activeNotes = new Map<number, string>()
   for (let midiNote of midiState.getPressedNotes().keys()) {
     activeNotes.set(midiNote, 'grey')
   }
-  for (let songNote of Object.values(Player.player().getPressedKeys())) {
-    activeNotes.set(songNote.midiNote, getNoteColor(songNote, state))
+  for (let note of inViewNotes) {
+    if (isPlayingNote(state, note)) {
+      activeNotes.set(note.midiNote, getNoteColor(state, note))
+    }
   }
   return activeNotes
+}
+
+function isPlayingNote(state: State, note: SongNote) {
+  const itemPos = getItemStartEnd(note, state)
+  const noteLen = note.duration * state.pps
+  const offset = itemPos.start - state.height
+  const clamped = clamp(offset / noteLen, { min: 0, max: 1 })
+  return 0 < clamped && clamped < 1
 }
 
 function getViewport(state: Readonly<GivenState>): Viewport {
@@ -117,10 +127,15 @@ export function renderFallingVis(givenState: GivenState): void {
     state.pianoTopY,
     getRelativeMouseCoordinates(state.canvasRect.left, state.canvasRect.top),
   )
-  drawPianoRoll(state.ctx, state.pianoMeasurements, state.pianoTopY, getActiveNotes(state))
+  drawPianoRoll(
+    state.ctx,
+    state.pianoMeasurements,
+    state.pianoTopY,
+    getActiveNotes(state, items.filter((i) => i.type === 'note') as any),
+  )
 }
 
-function getNoteColor(note: SongNote, state: State): string {
+function getNoteColor(state: State, note: SongNote): string {
   const hand = state.hands[note.track]?.hand ?? 'both'
   const keyType = isBlack(note.midiNote) ? 'black' : 'white'
 
@@ -182,7 +197,7 @@ export function renderFallingNote(note: SongNote, state: State): void {
   const posX = Math.floor(lane.left + 1)
   const length = Math.floor(note.duration * pps)
   const width = lane.width - 2
-  const color = getNoteColor(note, state)
+  const color = getNoteColor(state, note)
 
   ctx.fillStyle = color
   ctx.strokeStyle = 'rgb(40,40,40)'

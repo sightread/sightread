@@ -62,7 +62,7 @@ async function main() {
     timeSignature: { numerator: 4, denominator: 4 },
     images: getImages(),
     ctx: null as any,
-    canvasRect: { left: 0, top: 0 } as any,
+    canvasRect: { left: 0, top: 0 },
   }
 
   let lastFire = Date.now()
