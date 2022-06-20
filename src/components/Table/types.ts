@@ -3,6 +3,7 @@ export type TableColumn<T, D extends keyof T = never> = {
   id: D
   keep?: boolean
   format?: (value: T[D]) => string | React.ReactNode
+  sort?: (a: T[D], b: T[D]) => -1 | 0 | 1
 }
 
 export type RowValue = string | number | undefined

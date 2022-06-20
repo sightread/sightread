@@ -9,8 +9,8 @@ const window = new jsdom.JSDOM().window
 globalThis.DOMParser = window.DOMParser
 globalThis.NodeFilter = window.NodeFilter
 import { parseMidi, parseMusicXml } from '../src/features/parsers'
-import type { Song } from '../src/types'
-import { musicFiles, MusicFile } from './songdata'
+import type { MusicFile, Song } from '../src/types'
+import { musicFiles } from './songdata'
 const fs: any = require('fs')
 const pathJoin: any = require('path').join
 

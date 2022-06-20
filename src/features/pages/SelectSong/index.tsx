@@ -7,8 +7,22 @@ import { getUploadedLibrary } from '@/features/persist'
 import { AppBar, Modal, Table, Sizer, Container } from '@/components'
 import { LibrarySong, Filters, SelectableSongs } from './types'
 import { FilterPane, FilterTypeValue, TypeFilter, UploadForm } from './components'
+import { DifficultyLabel } from '@/types'
 
-const library = songManifest.filter((s) => s.type === 'song') as LibrarySong[]
+const library = songManifest as unknown as LibrarySong[]
+
+function getDifficultyLabel(s: number): DifficultyLabel {
+  const difficultyMap: { [d: number]: DifficultyLabel } = {
+    10: 'Easiest',
+    20: 'Easier',
+    30: 'Easy',
+    40: 'Medium',
+    50: 'Hard',
+    60: 'Hardest',
+    65: 'Hardest',
+  }
+  return difficultyMap[s]
+}
 
 export default function SelectSongPage() {
   const [songs, setSongs] = useState<SelectableSongs>(library)
@@ -82,14 +96,14 @@ export default function SelectSongPage() {
           <Sizer height={24} />
           <Table
             columns={[
-              { label: 'Title', id: 'name', keep: true },
+              { label: 'Title', id: 'title', keep: true },
               { label: 'Artist', id: 'artist', keep: true },
-              { label: 'Difficult', id: 'difficulty', format: () => 'Easy' },
+              { label: 'Difficulty', id: 'difficulty', format: getDifficultyLabel as any },
               { label: 'Length', id: 'duration', format: formatTime },
             ]}
             searchBoxPlaceholder="Search Songs by Title or Artist"
             rows={filteredSongs}
-            filter={['name', 'artist']}
+            filter={['title', 'artist']}
             onSelectRow={setSelectedSong}
             onCreate={handleAddNew}
             onFilter={handleToggleOpenFilter}

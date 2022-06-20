@@ -1,0 +1,1419 @@
+[
+  {
+    "group": "Easiest",
+    "id": "92659c04c4176cca36cb09d15bc20185",
+    "title": "A Tisket, A Tasket",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 008908 m4: --8 m5: -8 m6: 9-7 m7: 9-7 m8: 0 m9: 86",
+    "handParts": ";;d935178663b7f7d884d3fe89816803ab"
+  },
+  {
+    "group": "Easiest",
+    "id": "2fa6392877a644122e8685a968010f28",
+    "title": "Au Clair de la Lune",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 6--787687766--78768776",
+    "handParts": ";;bfa7507ba232b96a3b336db1aa7ddb54"
+  },
+  {
+    "group": "Easiest",
+    "id": "19c3e3ddbd05b37b31676bad591e198a",
+    "title": "Aura Lee",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 69890709878969 m6: 0709-7",
+    "handParts": ";;9eb66b7911670d94cc8eb1efef71abf6"
+  },
+  {
+    "group": "Easiest",
+    "id": "87ab86c589237fd6b975175ffdebec64",
+    "title": "Away in the Deep Forest",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 6---86-876 m6: 6--86-8 m9: -080809--080808 m16: ---08",
+    "handParts": ";;6909a5c5716e50cff4aa433e08c6e6e3"
+  },
+  {
+    "group": "Easiest",
+    "id": "4e67f98d4b4c7a62b80949688cf8e1f0",
+    "title": "Bridal March",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 4-2 m4: 24-2 m8: 3 t2: 6 m2: 7 m3: 69 m6: 7 m7: 6808 m8: 78",
+    "handParts": "f2bffc04c657739bdc4acdc36756167b;9e65478cdd1df439794afa004419e68d;87b9465fd993aa3ed4a3c0a423d94f02"
+  },
+  {
+    "group": "Easiest",
+    "id": "aa8bad5bcd62572cb589ed75340eaaad",
+    "title": "Chopsticks",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 2 m3: 2 m5: 2 m7: 2 m8: -222 m11: 2 m13: 2 m15: 222 t2: 7 m3: 7 m5: 7 m7: 7 m8: -777 m11: 7 m13: 7 m15: 777",
+    "_Subtitle": "(Short Version)",
+    "handParts": "dc4d21f4ea150eddaf53b42cd79aab00;b79a59664e3f8e4e9d5e1441215d2334;6f9ef8367f36edec1d8b47c5b2b25515"
+  },
+  {
+    "group": "Easiest",
+    "id": "82177fb5126a94a93735b3b418aba449",
+    "title": "Fais Dodo",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 876 m3: 767868 m7: --760098700 m12: -00 m17: 8 m19: 767 m21: 8",
+    "handParts": ";;a89ff2643e097ee204c3810a06bbf11d"
+  },
+  {
+    "group": "Easiest",
+    "id": "2443d5030e5ad1ed13dbfbab325a19c6",
+    "title": "For Health and Strength",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 41--21 t2: 0--98--7",
+    "handParts": "d160a40fad1bb34aed1490b3747b2cd2;4901c0920ea658ca1fd9731ef9adf63b;1a9031f293d5a4c01f5709b488682d1b"
+  },
+  {
+    "group": "Easiest",
+    "id": "3919887aa4fe7053e84c249dba897c48",
+    "title": "Good King Wenceslas",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 9--09-676789 m5: 9--0--676",
+    "handParts": ";;d91956b9814a37c64ba4a9a91dfaf0fd"
+  },
+  {
+    "group": "Easiest",
+    "id": "4dbe34a6f68599f5c74e5c153c5a0554",
+    "title": "Hot Cross Buns",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 8768766 m6: 7 m7: 876",
+    "handParts": ";;2269a213e84f7702200903f9a0aa123a"
+  },
+  {
+    "group": "Easiest",
+    "id": "5e8da515da7f6f3813d40fdf03000a7a",
+    "title": "I Saw Three Ships",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 6 m3: 78087986-87 m10: 6 m11: -808-98 m15: --87",
+    "handParts": ";;fa43dec380619191af36fb87c3eebed3"
+  },
+  {
+    "group": "Easiest",
+    "id": "6fdf0d3cef2c43f7b3ab4f0070152b9f",
+    "title": "Jingle Bells",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 8 m3: 806789 m6: 98 m7: 00976",
+    "_Subtitle": "(Short Version)",
+    "handParts": ";;7c669c4ac1ad18406e5f71014d0bbfed"
+  },
+  {
+    "group": "Easiest",
+    "id": "6da37a808fca25b9ec0a6d2090940707",
+    "title": "Jolly Old Saint Nicholas",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 2 m6: 3 m13: 2 m14: 3 t2: 8 m2: 7 m3: 6 m4: 86767878 m10: 7 m11: 6 m12: 8676786",
+    "handParts": "1db8b8279a1a6996037ed4d498233820;e5be47551f83884cd346fa00dfeb8b82;331627d0c2b7229c7e0282779b4fc326"
+  },
+  {
+    "group": "Easiest",
+    "id": "0e97a928140381fd3a0676fc3028dcab",
+    "title": "Mary Had a Little Lamb",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 87678 m3: 7 m4: 8 m5: 87678 m7: 77876",
+    "handParts": ";;eaebad09af6b21a9c24df9f064bb3c10"
+  },
+  {
+    "group": "Easiest",
+    "id": "097393b8afb601f9b5647be8152f7aaf",
+    "title": "Mexican Hat Dance",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 44 m7: 24242424212321 t2: 66 m6: 67",
+    "handParts": "5da6fef5759c091d8f40ee7d2585b758;f1649b9c51572b90b16e200ebe0e9c19;4bb33e7b86f7700d1f1da9175424eeff"
+  },
+  {
+    "group": "Easiest",
+    "id": "7d8896cbcf0eb29da19f2cc60ead5f7f",
+    "title": "Ode to Joy (Easiest)",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 889009876-788778-900---667876",
+    "handParts": ";;e5deeb0e214a3550a5ae7015fdbaa93c"
+  },
+  {
+    "group": "Easiest",
+    "id": "1860d5ecf20e0c80896df6f2d73d1c4b",
+    "title": "Once a Small Green Mousie",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t2: 6--76 m5: 9-789-79 m8: 9 m9: 6 m13: 6 m14: 76 m16: 706",
+    "handParts": "84212780b84db576046e978b56a30a41;c394e9282e171921f5d66bf910e6477e;5bbaf7290abef322f53131eefa76ec94"
+  },
+  {
+    "group": "Easiest",
+    "id": "f29444b031ba0e8e4c298509c97049c7",
+    "title": "Rain, Rain, Go Away",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 979-7---09-7",
+    "handParts": ";;41bac8d889c211f51046c1c771e73642"
+  },
+  {
+    "group": "Easiest",
+    "id": "5d79f46b2b2d8d6c93c9fe6db60721df",
+    "title": "Row, Row, Row your Boat",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 6--78878900--8--6--0 t2: 2",
+    "handParts": "0d20a06218f49e0903163537717552b2;c9f80006e9b659e8ef83bcbb756c49d6;1a3e8fd7ca715be51fba3063387e9c15",
+    "_Parts": "t1:RA t2:LA"
+  },
+  {
+    "group": "Easiest",
+    "id": "8fde9fab4aba083885fbeda937ed7de6",
+    "title": "The Monkey and the Mirror",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 12323443211232344321 t2: 67878998766787899876",
+    "handParts": "25f3fcc0b42f7ca582ed2a193409dcb0;06f307c22a682ac7b5d1dd51b9c70580;653434c5c0602ff565d830f1bc76125b"
+  },
+  {
+    "group": "Easiest",
+    "id": "9cc50af4346e4b6d441382214c9c2895",
+    "title": "The Silly Seal",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 787878878788787878878788 t2: 432443241231234432443241231234",
+    "handParts": "12b555ac1ba2d54301a351e2f3322937;200a9656f4523c6c161f640221de9a00;1f955db356c242460600e0b23e9e4993"
+  },
+  {
+    "group": "Easiest",
+    "id": "7de8d1e2cdfd4edea1f956e69e815579",
+    "title": "We Three Kings",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "10",
+    "fingerHints": " t1: 876876 t2: 321 m6: 321",
+    "_Subtitle": "(Short Version)",
+    "handParts": "bd85d0dacafb80adf4531a11be1ee2ec;8c20ed9ae2158b74502330c53ad8541c;ddc5f79222fe8b948bc4e95188ca7326"
+  },
+  {
+    "group": "Easier",
+    "id": "cd87203c2d15dd680875fd5709c559f0",
+    "title": "Alouette",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 11 m7: 1 m8: 11 t2: 6 m2: ---866 m7: 0 m8: 0 m9: 6 m10: ---866",
+    "handParts": "5b43602bc6e23c2b996e326f51b479da;991d3aa68a984226cdbd1d14bf7bce01;c3f101e21cd084adfb8589f2ae6ab35b"
+  },
+  {
+    "group": "Easier",
+    "id": "15bb2baccd5b8bf5923704c53059e602",
+    "title": "Amazing Grace",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 443 m8: 212143 m13: 4 m15: 34545 t2: 68 m3: 8 m4: 6-8 m7: -0080 m15: 876",
+    "handParts": "bb4e689bcd1a8375eebb4fe6cc0ed436;6cf1b0df918b8149fe5b8bd73d6da905;5b6ccd4e2e0a087d1633c42726631899"
+  },
+  {
+    "group": "Easier",
+    "id": "fdd94560c88f6603ce16f85b2444b104",
+    "title": "Frère Jacques",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t2: 6 m3: 8 m4: --09---769---76",
+    "handParts": "935356c90cb3af16ce5d88bd8872525e;cca44b59a812abb49db38d0404ac3709;a524168292bb7dd01680145907062ed5"
+  },
+  {
+    "group": "Easier",
+    "id": "df9512c57743304178cb2ee96769333f",
+    "title": "Away in a Manger",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 2 m7: 5-3 m16: 4 t2: 9 m9: 7 m14: 8",
+    "handParts": "0cb08b6e6f2ead0914a25402ef653bca;a23496dfcbc8f470b1426e1726bce1c4;7be45aa78a9b7e0f239a31d2a474010e"
+  },
+  {
+    "group": "Easier",
+    "id": "b0d3e7ddad4a53356f83d6300ec11e69",
+    "title": "Beethoven's Fifth Symphony",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 1 m2: 32 m4: 41 m6: 32 m7: 11 m10: 42 m11: 11-231 m17: 1 m19: 41 t2: 8 m11: 9 m12: 78 m16: 8 m17: 09080",
+    "handParts": "3b670c4ead63d571aeb205f9967bc5da;4748b4f7ccb77faf198eeecb42b9eb2f;59b88e544c7e3f77168c8ae8f319e9b2"
+  },
+  {
+    "group": "Easier",
+    "id": "67ac4c9be56b158d3eed1853e227c286",
+    "title": "Bingo",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 41--4 m6: 4321524 t2: 6 m6: 8 m7: 9 m8: 7 m9: 8 m11: 7 m13: 80",
+    "handParts": "59a88bf7075510d2ab24c73c4bdd7af3;f904e41c750e8a8f41bcbda386ad8b89;8411a5474da9570ef66e26c8528b8e89"
+  },
+  {
+    "group": "Easier",
+    "id": "119542bfd67bd51c879615f93edf3b29",
+    "title": "Clementine",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 4 t2: 6 m2: -8 m3: --680 m5: -7 m7: 8-687676",
+    "handParts": "258df9a30913e44418b9c1ade2665f16;fc81339f4e43b895d6efb0308db86bc9;a4b8beac2f978467fdca73212b910500"
+  },
+  {
+    "group": "Easier",
+    "id": "f5a7239e0de04eefa933684ac66ab29d",
+    "title": "Five Fat Turkeys Are We",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 44 m7: 4 t2: 6 m5: 6 m7: 0",
+    "handParts": "7d1cfc1055685448813f2a90023f38f7;54da054e714be3080e909da26969896e;d26c3299d758323b623284f0f3e7492d"
+  },
+  {
+    "group": "Easier",
+    "id": "664900b3ae1984e2fc23ce5c6ab65384",
+    "title": "Go Tell It on the Mountain",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 134 m8: 3 m10: -3 t2: 8 m5: 7 m9: 8 m12: 98",
+    "handParts": "432eaf5647c366122586a032e2cf1e8e;cff0a699ebc45749e4c02a66d173a66f;86702d698365f5d17227ee7806a8b5d9"
+  },
+  {
+    "group": "Easier",
+    "id": "1da66f35c6d851d279e0676039453bc3",
+    "title": "I Have a Little Dreidle",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 3 m5: 22213153221 m17: 31 t2: 06 m3: 8680 m5: 7 m6: 7 m7: 97 m8: 0 m9: -808 m11: --80 m13: 7797 m15: --70",
+    "handParts": "1949908f01bff3873b5c04a4deefa818;049958e700e41fbb59884895de0ab4dc;4b64073b3b56be7b22baa68acab728d1"
+  },
+  {
+    "group": "Easier",
+    "id": "b970f5432a4c3416deb563186d800efa",
+    "title": "Jesu, Joy of Man's Desiring",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 4 m5: 24 m8: 2-245-3-3 m13: -4 m17: 132151125232112 t2: 7 m3: -8 m4: -0 m5: -7 m14: 7 m16: -0 m17: -787707",
+    "handParts": "239893aeebee103d06ce0f62783b0e4d;b3fb36a85063d984f91c3b8a18f23055;4372685534273f61b2d1892e69399a61"
+  },
+  {
+    "group": "Easier",
+    "id": "bf3224f3ecc57f99c72bdaa3b182ab85",
+    "title": "Jingle Bells",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 5151412151--412131 t2: 8 m3: 806789---98---7-8708 m11: 80---9---98--0-97",
+    "handParts": "d95953efc46d11887561c6d9c7cf9340;a5f54505fd2b19a5c211b7045c67e9a2;36b5d127ef074506b6cdd34d970623fc",
+    "_Parts": "t1:LA t2:RA"
+  },
+  {
+    "group": "Easier",
+    "id": "47223379bef44f1f0bb4ca8c1b923d59",
+    "title": "Les Cloches (The Bells)",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 2 m5: 32 t2: 78 m4: 7",
+    "handParts": "b655f09868a77232bb5ffdad14feabb6;1241b72790688a879c63345331ba37d2;5eaa3df7f4cb84aa375c2736c1ff0c90"
+  },
+  {
+    "group": "Easier",
+    "id": "a2369a5d3519a7567f1d5991af18553f",
+    "title": "London Bridge",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 23 m4: 22324 t2: 7 m5: 7 m7: 7",
+    "handParts": "60fbb45935ca7d5b23a653225cd57ac8;3eb3e3acbc38a87008a08c02ff9c6938;484deab9f1f8c0b03bf3402c81609563"
+  },
+  {
+    "group": "Easier",
+    "id": "641e3b0814d8ffea492a40ac12a19064",
+    "title": "My Palm Leaf Hut",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 424 m5: 45432342 m9: 4 m11: 23 m15: -3 t2: 6 m8: 7",
+    "handParts": "b954a1dbd69ad682d62a3862abd4fb7f;527443414c22b359c669b3798a60d291;5c4595279989e4c187eba5b5e7d40953"
+  },
+  {
+    "group": "Easier",
+    "id": "900d8c201d507483601535a5d6e424a4",
+    "title": "Ode to Joy (Easier)",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 51515 m7: 5151 m12: -15 m16: 15 t2: 8 m3: 6 m4: 87 m5: 8 m7: 6 m8: 7 m9: 7--67898 m11: 7 m12: -78 m16: 7",
+    "handParts": "30509092447637d2581059ef985c2ff3;b8ea915c4a76ede8b67c0fd0e557f112;3c2dca502adc7ef265f042257351dfc6"
+  },
+  {
+    "group": "Easier",
+    "id": "58a9ec32425ab46151ae73e0a09631a2",
+    "title": "Oh, When the Saints",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 5 m8: 1 m10: 52 m14: 1 m16: 5 t2: 68 m3: 68 m5: 68 m6: -8687 m11: 80 m13: 8 m14: 087",
+    "handParts": "ea40ae508ecbc7af0c9465d4d64a6f29;cbfe1836b286f34ecac18ba0ccc37e57;7e6ed36272c1059823977527c8668ba2"
+  },
+  {
+    "group": "Easier",
+    "id": "e72c6070807fd571cef58dfee9b44931",
+    "title": "Old MacDonald",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 43 m4: 44 m13: 4 t2: 6 m3: 8 m7: 8 m15: 8",
+    "handParts": "394506f42bc8dd694e4cd488eba08685;c895798327dda225acdb11d5141976e5;51e81eae93cde2c9b3a0960dbdd8e331"
+  },
+  {
+    "group": "Easier",
+    "id": "c68e59444f2baf7729596f068946601c",
+    "title": "Persian Market Monkey",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 222 m9: 112 m16: 2 t2: 6 m2: 00 m4: 8 m9: 0 m11: 0 m16: 9",
+    "handParts": "0b5be3577790671a13ac822474c1ddaa;9ca7786fd23ba2daeb438e52f04f078d;6f89bcfd9f9e970074a8cc8898848857"
+  },
+  {
+    "group": "Easier",
+    "id": "2de1d60dfcdf93c5edc501e08b7f4df5",
+    "title": "Row, Row, Row your Boat",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 31--5-532--12131 t2: 6 m5: 878900--8--6--0",
+    "handParts": "7e03bb7fea97bbcb81db31c07aecfb4b;0d20a06218f49e0903163537717552b2;e53afb84addd60ff3f7013097511374e",
+    "_Parts": "t1:LA t2:RA"
+  },
+  {
+    "group": "Easier",
+    "id": "10dda9644c19b04ad0b514309ee1abb4",
+    "title": "Surprise!",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "F.J. Haydn",
+    "difficulty": "20",
+    "fingerHints": " t1: 2-42 t2: 6-8 m2: 0 m3: 9-7 m7: 7 m8: 68",
+    "handParts": "d78dd5e780dbb39f40649aaaabe21410;e6be6ba72831e5f72d0bb1dcd9b50112;b895a66074c4ee40d656da5fa12148a5"
+  },
+  {
+    "group": "Easier",
+    "id": "9ab13af54d8d7b81754e4d2d15ced512",
+    "title": "The Chimes",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 1 m9: 1 t2: 8677 m5: 8 m7: 7 m9: 67",
+    "handParts": "4c546fe4162fd3974d03c23113d908e7;f9f50c349991792ea5a36e851304bc17;1d59d195a8bf3656c03d17bc2f809e20"
+  },
+  {
+    "group": "Easier",
+    "id": "fc858892cc952437788a3ed9120eeff9",
+    "title": "The First Noel",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 2 m9: -2 m17: -2 m18: 4 t2: 7 m5: 7 m8: 077 m13: 7 m16: 0770 m22: 0 m24: 07",
+    "handParts": "5e0e2eec6677d963a789c95610ffe13e;9b5927909d18d80a19dd66c65f023859;cd432680ee172600742519ff04c7f849"
+  },
+  {
+    "group": "Easier",
+    "id": "b49a2f153eb84cb654ac7e90d5f5b552",
+    "title": "Turkey in the Straw",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 31--3 m4: 31--21 m7: 1 t2: 8 m4: 8 m5: -7 m8: -00867",
+    "handParts": "098766ca4b26f7cf3f76793020586cff;a26c8a1fe6386933157e78ad10dd65a1;35d6ce212e282db709387a38b8eb40f2"
+  },
+  {
+    "group": "Easier",
+    "id": "ec6acc14d631630c22ca796d0a5d5b0a",
+    "title": "Twinkle, Twinkle, Little Star",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 4 m3: 1 m4: --42 m9: 4 t2: 7 m2: --77 m7: 7 m9: 7",
+    "handParts": "3c7401b54190761f55fafa639a84a15f;1f1f2574a9a18cb71c3b88c0d412fbcb;daca11785d8ff73699a1af303383d2b8"
+  },
+  {
+    "group": "Easier",
+    "id": "6a9acb9c8143ee28a391609d95d23c2d",
+    "title": "We Gather Together",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 3 m4: --4352135 m14: 22--32455 t2: 6 m5: 66 m7: -08 m11: 96 m12: 6767",
+    "handParts": "c0777db386c56528dac1a50dd4f83c51;addcb037e164d182841a532f649deac2;b6d6bae6632d37b6cc93789ba576038b"
+  },
+  {
+    "group": "Easier",
+    "id": "ff552346aa049f5ee8c1016e6163ce79",
+    "title": "We Wish You a Merry Christmas",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 4 m3: 3 m5: 24 m7: 134 m8: 32 t2: 6 m4: 7 m6: 8 m8: 7",
+    "handParts": "6409a466aa4e6ddfc1fd139d14a3fb61;2697f637f5fa688c0f7667255a40afaf;582f1885473b52d5ee2178db927ab0e7"
+  },
+  {
+    "group": "Easier",
+    "id": "74e85a8962235d2264fc59e1e45ab2e1",
+    "title": "Yankee Doodle",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "20",
+    "fingerHints": " t1: 42243 t2: 6 m2: 687 m6: 9",
+    "handParts": "5e6802875428f01a3cf9e4016ac79fc4;4956d01d5e907994584b9607fffd7974;09f9f22b627c8e91b9c4aa2578f253cd"
+  },
+  {
+    "group": "Easy",
+    "id": "efd7e86e43c34737bb30d459fb6df9fb",
+    "title": "America, the Beautiful",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 2-4 m3: -5 m5: 2 m6: 24 m7: -5 m10: 233 m13: 4342 m16: 234 t2: 6 m7: 9 m9: 90 m11: 8 m12: 97 m13: 8 m14: 8 m16: --98",
+    "handParts": "61a91587fd002bb3fbe212d469c1160e;9579688bffbeb3cf72965f6ced365c63;b7dce8e120f9df7f9ca2efe8f584f29d"
+  },
+  {
+    "group": "Easy",
+    "id": "627d347b690b52b1dc3c029a2e5c776d",
+    "title": "Angels We Have Heard on High",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 515151 m5: 515151 m9: 5351 m15: 5351 t2: 8 m5: 8 m9: 9---780--78 m15: 9 m16: 80--78",
+    "handParts": "6c1a22fdd856e59f77ca9694e45881f9;8bd3087f83b84eb1a18b6cdd838065a8;288b019dddec0168bf15889a8001e87f"
+  },
+  {
+    "group": "Easy",
+    "id": "0fdf83ccb234c9abd10cb3aa43f70813",
+    "title": "Beethoven's Fifth Symphony",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 1 m2: 32 m4: 41 m6: 32 m7: 11 m10: 42 m11: 11 m14: 31 m19: 45 t2: 0 m2: 89 m4: 78 m11: 9 m12: 76 m16: 8 m19: 6760",
+    "handParts": "3b670c4ead63d571aeb205f9967bc5da;7eebbfac6cc96d2df7ae70595355c5e4;f8113beb84aac5a6b587c5f22da32a1e"
+  },
+  {
+    "group": "Easy",
+    "id": "00a8913bfb2c0b67290c8f27e91790cd",
+    "title": "Can You Plant your Cabbage So",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 1 m2: 5315 m6: 5313 t2: 8 m3: -767 m5: 8 m6: 8 m7: -7679 m9: 6",
+    "handParts": "a0539d13c4aec1fac0fa9d7ef1972af6;fb12ddc4bc6f307c7cdb8cc650fba471;5c262cecaa086e618a7647b8dd8a9e37"
+  },
+  {
+    "group": "Easy",
+    "id": "f8a4e9bdf35c16ce1bcbba4dfe101db4",
+    "title": "Chopsticks",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 2 m3: 2 m5: 2 m7: 2 m8: -222 m11: 2 m13: 2 m15: 222222222 m20: -222 m22: -22222222222 m28: -222 m31: 222 t2: 7 m3: 7 m5: 7 m7: 7 m8: -777 m11: 7 m13: 7 m15: 777777777 m20: -777 m22: -77777777777 m28: -777 m30: -77777",
+    "handParts": "32683002b6e7fb1948d6f70d23f61867;694b7b685c18bc6799673300138b0fa5;cc86bd6e53c5cdff6e7688b5f950acb5"
+  },
+  {
+    "group": "Easy",
+    "id": "2c42e645264bf5b3da43ef1daf07185c",
+    "title": "Do Your Ears Hang Low",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 5313-12131 m5: ---13212131 t2: 8 m3: --8 m4: --87 m5: ----676",
+    "handParts": "ad9fa66b55405ea90f34ad307c46dc4a;2f3f4292ce727c72dab72b5826a6b882;31a92b1214d83f682f83a03a941b5750"
+  },
+  {
+    "group": "Easy",
+    "id": "cd5a342c0dcc8e8573260b93b06b7522",
+    "title": "Für Elise (Easy)",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 0 m2: ---79--677--0 m6: ---79---7---0 m10: ---79--677--0 m14: ---79---7--6 t2: 531--52---5 m8: 5 m11: 531--52---5 m16: 5 m17: 5",
+    "artist": "Ludwig van Beethoven"
+  },
+  {
+    "group": "Easy",
+    "id": "fbc2d8291bd1aa63550e4d77ee15d8d0",
+    "title": "Going Home",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Antonin Dvorák",
+    "difficulty": "30",
+    "fingerHints": " t1: 8 m3: --08 m5: 8 m7: 6-676 m9: 8 m10: 97 m11: ---7 m13: 8 m14: 976--97 m17: 8 m19: --0868 m23: --676 t2: 5151 m7: 51253-145 m17: 5151 m22: 5151253",
+    "handParts": "5381d08cce35a9fc4b54aed8f29024b4;71887a63baa9f902e8cef77fa2f16183;b9150022a332870cdfd4b700d18bbed7"
+  },
+  {
+    "group": "Easy",
+    "id": "a4a9f200da4318c55b9934921ceb0b9b",
+    "title": "Have You Ever Thought",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 1 m2: 5321 m6: 534321--15 m13: -1 m14: 5321 m18: 534321--151 m25: -1 m26: 5321 m30: 534321--15 m36: --15 t2: 6 m3: 7 m7: --67 m12: 66 m15: 76 m18: 6 m19: --676 m26: 6 m27: 7 m31: --6767",
+    "handParts": "fa36b1f04e84fc47d0922938c93a028d;fd8e2e98c841342ceb527dd9334aef65;d98684ca3ad6b2474cf0a3d5a41926d9"
+  },
+  {
+    "group": "Easy",
+    "id": "f524ea7abd426ce2a8ec75c8d5c4bc82",
+    "title": "How They Dance, Dance",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 32 m6: 15332 m16: 53 t2: 68606060 m6: 79 m8: 86-8 m11: 60 m14: -9",
+    "handParts": "46854e452381d9b130702d87c3f7a9e1;64b4444c89e914bec890be499577b189;ea381b3ef0110c645cb5684932f21a50"
+  },
+  {
+    "group": "Easy",
+    "id": "627f5245b566bf4b0fd4acf66af37220",
+    "title": "I've Been Working on the Railroad",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 67869-6 m4: 86 m6: 86 m9: --8 m11: 9--6 m15: 8 m16: 6676 m21: 6768 m28: 78 m30: 90---9768 m37: 8 m39: 0---97 t2: 141414 m10: 143-13 m14: 414 m18: 3 m19: 2---324 m22: 3 m23: 3 m26: 412 m30: 24 m36: 2 m38: 2",
+    "handParts": "28f5446bb518296f94e530d6f5905c33;cb9f7cd0d44ce8e8818a4fc0a9c348ae;fb5e4f45625a887eb4a067681ef9e076"
+  },
+  {
+    "group": "Easy",
+    "id": "8fe15ac4eef033bfceef7e34ebcb4e28",
+    "title": "Jana-Gana-Mana",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 6 m4: 676 m5: 0 m7: 9 m8: 798 m10: 0 m11: 8 m12: 6768 m14: 7 m15: 8 m16: 798 m18: 6760 m22: 7988 m23: 9 m24: -6 m25: 76---8 m27: 9",
+    "handParts": ";;2101af3bdf21babf88b10394563eefac"
+  },
+  {
+    "group": "Easy",
+    "id": "ed4f8bddab195cdf49d62ad9179a74d4",
+    "title": "Jingle Bells",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 5155-555 m5: 4 m6: 5 m7: 21 m9: 51 m10: --55 m13: --45 m15: 1 m16: 15 t2: 68 m3: --067689 m6: 98 m7: --7-87068 m11: 6806 m12: 688 m14: 98 m15: 00976",
+    "handParts": "541e9449854a2903d81bc0b38930ac0d;bf886d83d8c31cdd918df3d67950f509;b0208876a47d0b4168fc43cc01bd2200"
+  },
+  {
+    "group": "Easy",
+    "id": "11e6369b3171860f0aed8e672fdabec8",
+    "title": "Jolly Old Saint Nicholas",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 515253511 m7: 21515253511 m15: 2153 t2: 8 m4: 8 m7: 7 m8: 78 m12: 8 m15: 7",
+    "handParts": "acf276c0f9e31d7857093ceb891ee9e0;3078e90268d228f40ce6396e95233988;ae979c9e85252885508a97a09e883d4e"
+  },
+  {
+    "group": "Easy",
+    "id": "6d784950e31992b246b36b87f002ad74",
+    "title": "La Cucaracha",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 686800779 m14: --767 t2: 1 m2: 53 m4: 531 m9: 4 m10: 244 m12: 4255",
+    "handParts": "ed0d2fdb13201a3c897f66049e917dc4;72a83eca88838bfa7a209723cb570cb8;f96bde7d501ac871fbbbe1645888fb3c"
+  },
+  {
+    "group": "Easy",
+    "id": "2152092c53cb6c68ceead69f13b08dfe",
+    "title": "Lightly Row",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 532153153 m7: 53 m9: 4 m13: 53 t2: 08 m2: 97 m3: 6 m11: 8 m12: --0-8 m14: 9 m15: 680",
+    "handParts": "ed80048e1776af12e90a5d4a960ccc1d;79f543ac5488083571e17cb7c195c836;42ede1f6926030fae981817a2908deae"
+  },
+  {
+    "group": "Easy",
+    "id": "4cd6eb503c0e27b27ed592f1a4ba0966",
+    "title": "O Christmas Tree",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 13 m4: 213113 m8: 21315341535434353 t2: 6 m3: 8 m4: --06766 m7: 6 m8: 7-06769970 m11: --899709 m14: 6 m15: 8 m16: ---676",
+    "handParts": "59d688229499e797ac0e47437e91be05;78ad65e3a22c97784c5a44d30a52978e;280832b04c15cf5c7be7dd4286047b3f"
+  },
+  {
+    "group": "Easy",
+    "id": "7141a7f481c48ee84a533c41ca903557",
+    "title": "Ode to Joy (Easy)",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 51 m3: 53151 m7: 531531 m11: 12 m13: 51153153 t2: 8 m3: 66 m4: 87 m5: 8--0 m7: 6--8-6 m9: 7--67898 m11: 78987-78--0 m15: 6--8-6",
+    "handParts": "1a9e906ac7dc61da8aae7ead18380c25;c4d9ac7f678259422b5f02275a894dc9;7f04d76f3b7762dc234f630121b1ae15"
+  },
+  {
+    "group": "Easy",
+    "id": "aac31b1a10069930df22dd11d94330e5",
+    "title": "Oh There Was Once a Little Ship",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 1211315151231 t2: 8 m2: 8 m3: 8 m4: 7 m5: 768 m7: 80 m8: 7676 m10: -9",
+    "handParts": "304aeff4908c0f5d9b37b1268f88c1c3;a3283fc620e685a64f7ed698b0180506;35a7ff0f0586379818ccd09c93f48dc8"
+  },
+  {
+    "group": "Easy",
+    "id": "d386fd835f279da07130bed6b2854d8d",
+    "title": "Oh, When the Saints",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 21314153121 m8: 21--3141 m12: 41312112121 t2: 68 m3: -8 m5: -8 m6: 086878 m11: 80 m13: 8 m14: 087",
+    "handParts": "db998734691d3a4d6e030869ff78a117;34c453bf1e4bf24e900a30b3c493ad4e;77e95116b9cc0623f57f393f5043430f"
+  },
+  {
+    "group": "Easy",
+    "id": "07e1ec831fd593245e5028f21c690f3e",
+    "title": "Skip to my Lou",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 868--0767--986---07--876 m9: 8-6 m11: 7-6 m12: 7--98 m15: 7--876 m17: 868--0767--986---07--876 t2: 531 m3: 214 m5: 531 m7: 2131 m9: 513 m11: 21 m13: 5 m15: 2131 m17: 513 m19: 214 m21: 513 m23: 2131",
+    "handParts": "59699cc21ddea17efb556c6a18b72726;e8bd6e16ac0641ad943d5efd00412064;fe6122786685307b7fe52a32753d8c41"
+  },
+  {
+    "group": "Easy",
+    "id": "38efb097e5255d1388030a25d6668854",
+    "title": "Sonatina Piccolina",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 809 m4: 78 m7: 0 m9: 6 m10: -6 m13: ---9860 m17: 809 m20: 70 m23: 79 m25: 809 m28: 7800 m33: 0 m35: 68 m36: 7 m38: 88 m44: 9 m50: 6 m54: 8 m58: 608 m64: 9 m68: 0 m71: 97 m72: 0 m76: 0986898 m86: 9 m88: 8 t2: 513 m2: 3 m3: 41 m5: 5 m7: 235 m13: 15 m16: 315151 m23: 24 m24: 1513 m26: 3 m27: 41 m30: 3 m31: 2 m33: 2131322323453 m44: 42 m46: 5 m49: 23 m53: 234235251 m64: 41 m68: 3 m70: 4 m72: 3 m73: 2 m74: 3 m76: 2 m78: 4 m80: 4 m81: 2 m82: 4 m84: 5 m86: 4",
+    "handParts": "e4b7adc2f334d338d6158169c759f759;64008b3d76f6b6a36c52a2385f7c38be;1a0b2218faa2000e4434b54ee3461625"
+  },
+  {
+    "group": "Easy",
+    "id": "a3b920ebf00876083708a25f60367033",
+    "title": "The Muffin Man",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 345 m3: 2 m5: 345 m7: 2423 m11: 2 m13: 345 m15: 2423 m19: 2 t2: 68 m3: 9 m4: 868 m7: 69 m9: 68 m11: 9 m12: 868 m15: 69 m17: 68 m19: 9 m20: 8",
+    "handParts": "4c4152406b45c520e50f2b43e09c0eb5;9ac37fc98c4da69d1b356cabf092cb1c;df20a730165b23a21b6ae7d7a2b4ee81"
+  },
+  {
+    "group": "Easy",
+    "id": "eec3b8bbef6b45b7f45db8433e0ff380",
+    "title": "The Wheels on the Bus",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "30",
+    "fingerHints": " t1: 13 m4: 2 m5: 3 m6: 3 m7: 3 m8: 2 t2: 6---80 m4: 760 m7: 0",
+    "handParts": "d90bed211d5709913db8e1a20ed059d3;e22b2f7dc22c215c39301b21f5ecb944;e12dbad58d100effaf221183951a2eb8"
+  },
+  {
+    "group": "Medium",
+    "id": "3a14b35116f79bbe1167cece3e0b7a1b",
+    "title": "A la Claire Fontaine",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 6-8 m5: 8 m7: 0 m9: 6 m12: 8 t2: 351513 m5: 2 m8: 51531251 m12: 253",
+    "handParts": "ea63bc80a5d327ae5f56e38eeeb51b9f;e8d7902ebf93808a822a03584d741a48;0556902fd539a4f54a4c3a71bf41edbe"
+  },
+  {
+    "group": "Medium",
+    "id": "691cc3a84be417166899660ee91890ab",
+    "title": "A Mighty Fortress is Our God",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 0--7 m4: 0 m5: 78-68 m6: -0--7 m9: 0 m10: -8-68 m12: 9 m13: 96978 m15: -9 m17: -78---680 m21: 68 t2: 5314 m4: 3 m5: 3 m7: 53 m8: 4 m9: -2 m12: 3 m13: 13 m15: -14 m17: -325-3 m21: -53 t2097152: 4",
+    "handParts": "19363131c83e14401ea7ad4d3eaa305d;0b2081a3e8f8dca8d36ee0ff8020cfc3;8ecf86be138c73e2ea46dab40a40bf38"
+  },
+  {
+    "group": "Medium",
+    "id": "60ac0cc66513390add8944df15bdfc27",
+    "title": "America",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 7-86 m3: 98 m5: 767680 m9: 79 m12: 8-008767 t2: 53 m2: 1 m5: 2 m7: 5 m9: 5315 m12: 5 m13: 2",
+    "handParts": "e3f355f78807499aa5e5665f47b821d9;6244a21ded006de5ec91a32125fff378;7c25dc79da5837183231a6d6bff2a89d"
+  },
+  {
+    "group": "Medium",
+    "id": "ed0539d70afcdc3be03eb41ad053abd8",
+    "title": "Au Clair de la Lune",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 6 m3: 68 m5: 6 m7: -8 m9: 0 m10: 7 m11: 0 m12: 9 m13: 6 t2: 3 m5: 3 m9: 2 m11: -413",
+    "handParts": "866ae6a5553af9b267be464f13152830;e54dc37652462beee2d259856cb0b210;bafa92c9bb072ebad5a95d3cad3067df"
+  },
+  {
+    "group": "Medium",
+    "id": "601dc4b45af6ade82fe1c40d68203bb3",
+    "title": "Bahay Kubo My Palm Leaf Hut",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 69 m3: 8 m4: -9-7 m6: 9 m7: 87 m8: 90 m9: 86 m10: 9 m11: -0 m12: 7 t2: 5342 m6: 3 m7: 42 m10: 5342 m14: 21",
+    "handParts": "7561d67360fe00ab0e6935c31e0d7fde;28cb18b521b5aa324b48a8f09d55a94e;877f08a9b5130a32be9244b9accb14f7"
+  },
+  {
+    "group": "Medium",
+    "id": "8ca59b153ea6c495083baaa01442827d",
+    "title": "Bridal March",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 7 m2: 86 m3: 70 m5: 7 m6: 8 m7: 680 m9: 0 m10: 6-680 m12: 677867 m14: 8 m15: 680 t2: 531 m2: ---21 m3: -----212131531 m6: ---21 m7: -----125215311 m12: -2531 m14: ---21 m15: -----21521531",
+    "handParts": "88dda4d1a29e2df229b0b128e6e13ab5;e44ff3ad9add1691d02bce254700533b;e686a3f1c4e1ce89ce702c64306d8831"
+  },
+  {
+    "group": "Medium",
+    "id": "1cf7812ad2039568598234da6a87b0b7",
+    "title": "Eine kleine Nachtmusik",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "W.A. Mozart",
+    "difficulty": "40",
+    "fingerHints": " t1: 6 m3: --80979 m7: --6 m9: 6 m10: 87667 m12: 90798 m14: 0 m15: 87 m16: 9078 t2: 1 m9: 31 m10: -13 m11: 21 m12: -1213",
+    "handParts": "24809fe45dc6d73a73bbfa7c2902b121;cf455c4be8f4f04cee7fa67d334ccc1a;a7fc608d2112dde105f78b0e7fc5ddb9"
+  },
+  {
+    "group": "Medium",
+    "id": "e9fcaa69e2ceb46d160d7a70e38d670c",
+    "title": "God Save the Queen",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 7-86 m3: 98 m5: 767680 m9: 79 m12: 8-008767 t2: 53 m2: 1 m5: 2 m7: 5 m9: 5315 m12: 5 m13: 2",
+    "handParts": "86b5a096accfcc7b52eea4bef614ca8c;dd64697bfc3534614a5b538671012cfe;b517a231f1d50af7576e2d91799f8fcb"
+  },
+  {
+    "group": "Medium",
+    "id": "3583dc8bfceafe7153d534017647447d",
+    "title": "Hanukkah, Hanukkah",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 767 m2: 670 m3: 767 m4: 670 m5: 767 m6: 670 m7: 69 m8: --7--60 t2: 51 m2: -12 m3: 41 m4: 423151 m6: -12 m7: 41 m8: --51",
+    "handParts": "eed49c5987135593eb76e43f7315ebe4;7eb8a9f02cf6592f406a89bd1ed64e3b;8635f027d1b9b2819fbf9093892b9991"
+  },
+  {
+    "group": "Medium",
+    "id": "a60a28f54f28ec93b08d024e65b3a48a",
+    "title": "In My Hot Air Balloon",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 8 m5: 7 m8: 6 m11: 097 m17: 0 m19: 760 m23: -678 t2: 251 m5: 2 m8: -125 m13: 31--322 m19: 2 m21: 313122-2 m29: 31--32",
+    "handParts": "6459f3931f7efe2de1d80a5607e28f1d;03fdd8d0cd3f0f621db9390eb45c83bb;557bd190ba72923966e4e1775b3f9155"
+  },
+  {
+    "group": "Medium",
+    "id": "7029a48ea5d2fbcf2accd920f52e0ff6",
+    "title": "Jesu, Joy of Man's Desiring",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 6---96 m2: -0--876767----68-76--680 m5: 96----6 m6: ---0876 m7: -----676780 t2: 5 m3: 4 m7: 125",
+    "handParts": "a58bf5bc0dd5d0a130752b1f014fd99c;eb4836314a79ec9963c4ed9662c3ce00;59cc8947466f6dc279495bfd687033f8"
+  },
+  {
+    "group": "Medium",
+    "id": "e9133e6e7d676ef544d3f5b343ae2223",
+    "title": "Joy to the World",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "G.F. Handel",
+    "difficulty": "40",
+    "fingerHints": " t1: 6069 m2: 6768 m4: -768 m6: 69 m7: 6000--78--00--78--8 m14: 80987 m16: 79876-876898 t2: 5 m3: 1 m4: 3152 m6: 4 m7: 5123153525353 m13: 51 m15: 11 m17: 53525321",
+    "handParts": "c74979e39ebf011ae66024f445a7ac78;32e78fb19087130c7ddd397546383792;8ba14df3b72ee9f6cb6be10b6e8663d0"
+  },
+  {
+    "group": "Medium",
+    "id": "bfb65583aed8271fef0a3f9c42416c10",
+    "title": "Mexican Hat Dance",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 8 m4: 8--7897 m9: 88 m12: 8--7897 m17: 868 m20: 7 m22: 8 m24: 7 t2: 153 m5: 21142 m9: 53153 m13: 21142 m17: 5321 m21: 31 m23: 21 m25: 5",
+    "handParts": "b4c7d59f0b6d2e7eae4f013787e5eed9;c708a0d5efc52c678a7d40156b8d392e;4315adde7224ec3cebf92d0545867c00"
+  },
+  {
+    "group": "Medium",
+    "id": "28dafe7cbc2ad289929979bd82d96285",
+    "title": "Morning Song",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Edvard Grieg",
+    "difficulty": "40",
+    "fingerHints": " t1: 08 m3: 0 m5: 068969867608 m11: 0 m13: 06896908760 m19: 0 m21: 07907908760 m29: 06786860 t2: 52 m6: 515252 m14: 5131 m19: 3131312152 m31: 52",
+    "handParts": "e3d64b6a539a6abe46816cd93376958a;5c00553554a5e404e461d2fdcc448b1c;a045e5e94fb836be3ae0453160b1f5d0"
+  },
+  {
+    "group": "Medium",
+    "id": "80a9712c0e73761e3f2a7b249026086f",
+    "title": "My Bonnie Lies over the Ocean",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 8 m6: 8 m7: 76788 m16: 8 t2: 152124152311 m11: -12445342",
+    "handParts": "2212dff3f26962cfdf7d5f31d7cda2f6;b99a9c92156d2493f64a5549e8c373e6;934df751c3e678c1c6e7a06721e624b9"
+  },
+  {
+    "group": "Medium",
+    "id": "c9c054bb10a5e163b95858f9fd8cc560",
+    "title": "My Bonnie Lies Over the Ocean",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 8 m6: 8 m10: 8 m11: 76788 m20: 6706970 m27: 8 m28: 6 m30: 6970 m34: 8 t2: 1 m3: 42 m6: 52124152311 m15: -12445342 m22: 53 m24: 52 m26: 1 m28: --2153 m32: 52 m34: 1 m36: --253",
+    "_Subtitle": "Long Version",
+    "handParts": "4bc470a27902410650d418ae7df975eb;4f63bffd94c495d2fda14415a0e28d81;a60f4bc8221e1cb9c4f57a211461ad51"
+  },
+  {
+    "group": "Medium",
+    "id": "6fb666fdfcb9530517a05565895c087e",
+    "title": "Ode to Joy (Medium)",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 8 m3: 6-7887 m5: 8 m7: 6-787 m9: 7--67898 m11: 7 m12: 678 m16: 7 t2: 51 m3: 532112151 m7: 532121311 m11: -213251 m15: 53 m16: 21531",
+    "handParts": "12fd8d963b70ec637a85846588ef5e91;cd33c8e5ab74704b189a7dd86cc88bbb;2d18ab0c2fa83ed5ff7765191090dd8d"
+  },
+  {
+    "group": "Medium",
+    "id": "68c8e7be800a0f40dc1c3f8233d000d4",
+    "title": "Oh, When the Saints",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 6890-8 m5: -8 m6: 0 m8: 78 m11: 8 m13: 8 m14: 0 t2: 531---521531-------2 m8: 521-----1 m11: 531521 m13: 521",
+    "handParts": "e4d3d886bcd5e51aa4da8ee359171331;34c453bf1e4bf24e900a30b3c493ad4e;87c25cbec76802726543412cd7c376cd"
+  },
+  {
+    "group": "Medium",
+    "id": "05a0fe81f417b10ca8d50fc28810ccc6",
+    "title": "Old MacDonald",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 6 m3: 8 t2: 5312-1 m5: --12-1 m9: 5 m11: 2 m13: --12-1",
+    "handParts": "37bb7d6b824e8595c724ec30a4a2df3c;b5c5f6e7ca5c41b8a769f74cc9297c11;6596628cdeafd8630319cb83fb627c13"
+  },
+  {
+    "group": "Medium",
+    "id": "26d7d181c246dc70d47b0a99c6878a58",
+    "title": "Silent Night",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 96 m2: 7 m5: 60 m6: 6870 m8: 6768 m13: 68 m17: 68 m18: 60-768 m21: 0760 t2: 3 m6: 1213 m10: 4 m13: 2 m19: 3 m23: 312153",
+    "handParts": "5f137fe7f4b6b877e3a159b464e210d6;5d77f87cad6d38ebc3f8d7fca3b9016e;fa851e6416298799c965964b8f02d834"
+  },
+  {
+    "group": "Medium",
+    "id": "24237866497deb56d3ed0c8aa984ca96",
+    "title": "Sur le Pont d'Avignon",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 6 m2: ----767 m4: -----676 m7: 6 m8: ----767 m10: -----67 t2: 53-52 m5: 3 m6: 5 m7: 53-52",
+    "handParts": "881dcc70b814a6dae202c991a4212964;a4c45d761e8d0ad408f6a086edb7d05d;5740e9c0768fb993ef8f474a734c772d"
+  },
+  {
+    "group": "Medium",
+    "id": "75e87b0e4e024ee4d9bd378afe8046be",
+    "title": "The Ants Go Marching",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 6 m3: ---6776 m8: -8-80 m11: 9 m12: 8 m20: --6 m22: ---6776 m27: -8-80 m30: 9 m31: 8 t2: 15131 m6: 1 m8: 31 m11: -43 m13: 2 m21: 15131 m25: 1 m27: 31 m30: 4 m31: -32",
+    "handParts": "4f052c0d3618d44cbfadfca791d446c6;de94ca5cff7178593385071f784e8f1c;e50fd9dc41601b8df51167539f64323d"
+  },
+  {
+    "group": "Medium",
+    "id": "f7ebc08d1e9aa97b127007c427939cab",
+    "title": "The Barn Cat",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 8 m5: -8 m6: --680986-77-978 m13: 7 m15: -0 m23: ---6-8 m27: -6768 t2: 5 m3: 2 m7: 2 m17: 331 m18: 4 m19: -42",
+    "handParts": "6cbf0fd5d6a36ea2212b4de0c11da523;6cebb999a84447d40bf5280ce811c3c3;f9ac04082efea6a8d22b1f11c23ffb9d"
+  },
+  {
+    "group": "Medium",
+    "id": "129a2cf541144bbf5282774a68bef4cc",
+    "title": "The Ghost Of Tom",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 8--0 m4: ----867970 m6: 7 m7: 0 m8: 67 t2: 1--4 m3: 51 m5: --51 m7: 1",
+    "handParts": "9c592b3a8e5888d9fdd8a589b26f132a;ac6b5aa7db15d5cc3b872e74bbcaf97a;648d80edeb1d8796db5bf2458cc98ec4"
+  },
+  {
+    "group": "Medium",
+    "id": "13247496704d2c260a8fabb181d0e8e6",
+    "title": "The Star-Spangled Banner",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 68 m5: 8 m6: -7678 m9: 68 m14: 8 m15: -7678 m18: 8 m19: -80--67 m21: -79-8 m23: -76788 m27: --6 m28: -80987766 m31: --60--86 m33: 7667 t2: 135 m2: -5331 m4: 42 m5: --5 m9: 135 m11: -5331 m13: 42 m14: --5 m17: 1 m18: 511 m22: -543213421--312343211213145-33",
+    "handParts": "4eccc52b0f5fbb451e1fd3349128829d;25ba38296341c13600ee0c2f1dd5e493;444b4e3ae1b0f75bc29332cdded6400e"
+  },
+  {
+    "group": "Medium",
+    "id": "e5b1358c21556e85e7cfdcfb502c56ec",
+    "title": "This Old Man",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 068 m3: 0 m4: 6-88 m5: 0 m7: 07-98 t2: 531 m3: 21531 m7: 421521-31",
+    "handParts": "0fe6f6594868895b650ad0bef2dff216;9684160c3f9b9a0531a61a1a9480021c;e10b10b59e8cb56be4be9d9f05062cea"
+  },
+  {
+    "group": "Medium",
+    "id": "bcb0f4a8e941cac737e2a6587e2011c7",
+    "title": "Toccata and Fugue in D minor",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 0-----67 t2: 1 m5: 1--1 m6: 5",
+    "_Subtitle": "Intro",
+    "handParts": "30301c0dbb83bf2ff8173d466943b570;4b9a4136190197d7a044a40bb9ff3dd6;46cd8a43013999908743cf652c550c8f"
+  },
+  {
+    "group": "Medium",
+    "id": "123565dee916eb5197d1c4d705e61a68",
+    "title": "We Three Kings",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 0 m5: 0 m7: 7 m9: 0 m13: 6 m14: 7 m15: 8 m16: 0 m18: 6767 m22: 6 m25: 6 m32: 9 m34: 6 t2: 121512 m13: 1233212342531 m24: 521",
+    "handParts": "aac4c546a05b383e6f5bf2feafd3599e;4fed34d667fd1bd6e767cca37f8b70ea;14b1561e68bedf0f359b6dd898aafc62"
+  },
+  {
+    "group": "Medium",
+    "id": "16060cd8a9feb4f93e155552d707c7b2",
+    "title": "Ye Knights of the Round Table",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "40",
+    "fingerHints": " t1: 6--8-0 m6: 6--8-0 m11: 9 m12: -8 m14: 97 m16: -69 m17: 79 m18: -8 m20: 97 m22: 869 m23: 6 t2: 153 m4: 5212 m6: 153 m9: 5212 m12: 51",
+    "handParts": "11a5228d0da55b10cfaa27616beea462;fcdcb432c5c42c9a33f4a3d30f973e84;9aa13f3aac586d7a8d43b501e474655b"
+  },
+  {
+    "group": "Hard",
+    "id": "af34c6ee2a96ec9013ed6ea58c56878c",
+    "title": "Auprès de ma Blonde",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 8 m4: 60--60 m6: 8 m9: 60--60 m11: 90--7 m14: 9--676 m17: -079-76766 m22: 7 t2: 15 m4: 3-2 m7: 15 m9: 3-2 m12: 1525115251215 m18: 3 m19: 1321 m22: 54",
+    "handParts": "0d0c46bedf8a2c6b2841c8d22cd01bc3;8827e36257bbcaa6fadaf887ac9aa4d6;8ae6dc6ade3f5f37b3fe35d79916d6dd"
+  },
+  {
+    "group": "Hard",
+    "id": "0ccab738e2398f842b1c2d39ad80e1f0",
+    "title": "Ave Maria",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 87 m5: 0 m7: 89 m10: 8 m11: 800 m14: --9 m16: 879678-08768 m25: 9 m27: 80 t2: 5 m3: ---5 m6: 5 m8: ---5 m9: 5 m10: 5 m11: 5 m14: 5 m15: 531 m16: 421 m17: 521 m20: 5 m21: -2 m22: 5--5 m23: 5 m24: 5 m25: -2",
+    "handParts": "aae1081db91fb29bd86287a6318f489a;0ce30f9f1d28bd2e76c8dd0dad14bbd6;c6d5e2f730b3f72990411ea391b660cc"
+  },
+  {
+    "group": "Hard",
+    "id": "fa008937e10d779f501b790a79e63565",
+    "title": "Beethoven's Fifth Symphony",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 0 m6: 7---0---7 m13: 0 m24: 69---7 m28: -67 m30: --6 m32: 676 m36: -0--8-688---9869769768 m41: 8-68 m42: 9869769767 m45: 8 m49: 7---7---69 m59: 679 m60: 670 t2: 1 m6: 1 m14: 3 m24: -51 m30: 42532153531521--222522251 m48: 1 m52: 41 m59: 2",
+    "handParts": "e581402dcd533b28053d7b10de883447;aeb68d1442f95a697d800edf636ae156;bb29ff6d4f1cb1f89dd46aaec7aaf96e"
+  },
+  {
+    "group": "Hard",
+    "id": "d1ca077c6ab36f0f7536e14dfc1b7a84",
+    "title": "Brahms' Lullaby",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 6 m2: 7 m4: 0 m5: 8-6 m7: -67096906 m10: --97687686 m13: 769 m14: 0860 t2: 31 m5: 2 m6: 4 m10: 153 m12: 1-31 m14: 1 m16: 1 m17: 42",
+    "handParts": "c159ef9de07ecb5290b4778b887fc1fd;0e71ec4b51416f11a38c1527259ead61;e16da99d268ca3b2fbb6973141636dca"
+  },
+  {
+    "group": "Hard",
+    "id": "15f73069f45efeba24a605efee3cd86a",
+    "title": "Canon in D",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 0 m3: 676 m5: 80-79 m6: 80-79 m7: -0 m8: ---79 m9: 06 m10: 679 m11: 8--9---9--68 m13: ---9 m14: 677---68 m16: 8-687 m17: --7968 m19: 6768 m21: 680 t2: 131325321 m6: 1 m7: 2 m8: 32 m10: 1 m11: 2 m12: 3 m14: 1 m17: 35132 m20: 32",
+    "handParts": "f74b556e182b821bed842d5321c21b54;d6485556501c3a0701225d7ab9a3e715;40e5a40d569fd5a2a236eac80404fd22"
+  },
+  {
+    "group": "Hard",
+    "id": "2cec7af6f633f4a86502dd179bfe89e8",
+    "title": "Mo Li Hua - Jasmine Flower",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 8---67 m3: 0 m4: 696-9 m6: -676767 m9: 8 m11: 76--8----70 m14: 67 m19: 9 m20: -678---67 m23: 0 m24: 69--9 t2: 1 m8: 2-3 m13: 1 m15: 3 m16: -3---1 m18: 5142---5",
+    "_Subtitle": "Chinese Folk Song",
+    "handParts": "4ff47be3a71f1e8b0079277dd519433c;28c8d378779f4d01b0267d2e42d81ead;7f3d2c1908e95966303300bbd51ab2eb",
+    "_Parts": "t1:RA t2:LA"
+  },
+  {
+    "group": "Hard",
+    "id": "8271de2c1f65b6cdcf43beec9349e161",
+    "title": "Cripple Creek",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 6060 m3: 90--767-9 m5: 7--7 m6: 67 m7: 90-7 m8: 7 m9: 7 m11: 787 m12: 8 m13: 7 m15: 787 m16: 8 m17: 7 t2: 51 m6: 2151 m10: 2 m11: 2 m15: 2",
+    "handParts": "f7e17aa1e866e6172e281010de70ec32;0c3bf4a37cb4351646896670a3188083;e3bbf5d9da45bc61d37f3f2d96050382"
+  },
+  {
+    "group": "Hard",
+    "id": "6f87bc1adbc7c5805a0f6a8974963410",
+    "title": "God Rest Ye Merry Gentlemen",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 6------676 m4: ------676----78-----7686---6 m8: 89---6768--9867--0768 t2: 5-----4123145------4131 m6: 3423421312314 m12: -----41212",
+    "handParts": "372549ab9e8b92e2ecac39b417da7c91;a0aca7b48e7025e03f71c236d78482a8;8803b9ed57b7433a5984ee755e3551db"
+  },
+  {
+    "group": "Hard",
+    "id": "83609559e86bd9a236d3cb4c65234e6d",
+    "title": "God Save the Queen",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 7 m2: 6-6879 m4: --878 m7: 680 m9: 79 m11: --9 m13: 608767 t2: 31 m4: --2131221 m9: 53 m11: --1--45141312",
+    "handParts": "a23d1e2cd124fdfc2f586593e4e01c85;d697d32af0f7c8e565de159d476eb7a0;9ba0ea3354701a62280618c9cf68c93a"
+  },
+  {
+    "group": "Hard",
+    "id": "8769e3d47ee6f40310601afa125d8e71",
+    "title": "Hark! The Herald Angels Sing",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 6-76 m5: --76 m7: -----676 m10: 9-6867 m14: --687 m19: 7 m20: -798 t2: 31 m3: -4 m7: 142 m10: 4 m13: 1--2341235253 m17: 21 m18: -41 m19: --2-21",
+    "handParts": "6a6dc0109793378317750dec2a2d12f4;2d2f221111381e366238ffff0ab9c26e;c3d9543c9c0ba6b633a96d9993c1ce6a",
+    "_Parts": "t1:RA t2:LA"
+  },
+  {
+    "group": "Hard",
+    "id": "bac1eb64bf407512be7f6139cdd5cb1d",
+    "title": "Head, Shoulders, Knees and Toes",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 9 m2: 779 m3: 9 m4: 670 m5: -7800---78-86 t2: 3 m2: 513 m4: 5 m5: -23 m7: 1-12",
+    "handParts": "f799742be9dd21230611f9afdd54e7ba;fcae41e650a38ddced25aa5376281308;326bc3b7b8a4870571071e7e0c588c8e"
+  },
+  {
+    "group": "Hard",
+    "id": "6f16224471a354068d26466a60781c93",
+    "title": "In a Cabin in the Woods",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 68 m3: -9 m5: -8 m8: 680 m9: 98079 m12: 8 m14: 6 m15: 0 t2: 53 m2: 42 m3: 52 m4: 53 m7: 2 m9: 521 m11: 51 m14: 2 m15: 2",
+    "handParts": "8a8da8c2971bed797d32e8dea0df4715;de981391aa09a260285f05e44c735f24;a1d3d3015bc1e749357e311487de27d0"
+  },
+  {
+    "group": "Hard",
+    "id": "f719e62bd7b128030b265fbb728b5b3a",
+    "title": "La Marseillaise",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 6 m3: --0 m4: ----9676 m10: 0-0860 m12: 679767 m14: 8--8 m15: ---97 m17: ----7 m19: -----7 m20: 0 m25: -88--60-97867 t2: 1--31 m4: 212131 m7: --51 m10: --1351 m13: --3151--42 m16: --41 m18: --3-41 m24: --3121314151 m26: ---21 m29: 42-1",
+    "handParts": "2df6c01575407439d1ae2b309d41dcef;e28edb2b0da9bcb1a6c046bce653e224;6fcd71e52e782b12a4f6c599c9e8a352"
+  },
+  {
+    "group": "Hard",
+    "id": "3f32d9b5c97899b3adcdb1dc4c426b0c",
+    "title": "Lupang Hinirang",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 67967 m5: 6796 m9: 67967 m13: 6796 m16: -6767 m19: 7 m20: 96767 m23: 8 m24: -6767 m27: 7 m28: 96 m31: 8 m32: -76706 m37: 8676 m39: 776706 m45: 8676 m47: 7 m49: 67967 m53: 6796 m57: 67967 m61: 6796 t2: 54 m3: 2 m4: 535 m9: 54 m11: 2 m12: 535 m17: 521 m19: 5 m20: 151 m25: 521 m27: 5 m28: 1 m33: 25 m37: 25 m41: 25 m45: 25 m49: 54 m51: 2 m52: 53 m57: 54 m59: 2 m60: 535",
+    "handParts": "02d3d48fb19e3028888462b18b55ff79;068d6a6f297d4dcff01fa7e281cadd80;9f1a1af8334e7a592d86e87a1b05ec9b"
+  },
+  {
+    "group": "Hard",
+    "id": "e0b856f09612b3eb68482faca6cfb0d0",
+    "title": "Moonlight Sonata",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Beethoven",
+    "difficulty": "50",
+    "fingerHints": " t1: 680 m5: 680 m6: -80 m7: 670-80-89-79-80 m10: 8 m16: -0 m18: 8 m22: 90867 m27: 8086868 t2: 123541552 m13: 521 m14: 531 m15: 531 m16: 431 m17: 531 m19: 431 m21: 531521-3--4 m23: 531 m24: 531 m25: 521 m26: -3 m28: 3135",
+    "handParts": "ee10cc94718c78a21fde7d303a958d7c;53438d14f479bad779dbcfa4f106b7f8;7a3c8621975f0cb91f8a92ef3cc1bfb3"
+  },
+  {
+    "group": "Hard",
+    "id": "badbb9425ef0a112c82e960455d0304e",
+    "title": "My Grandfather's Clock",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 68 m3: 96 m5: 69 m6: 8 m7: 7 m9: 6 m10: 8 m11: 96 m13: 69 m14: 8 m16: 68 m18: 08 m19: 68 m20: 0 m21: -8 m22: -8 m23: -8 m24: 06 m26: 889 m29: -9 m30: 87 m33: 7 m34: 07 m35: 8 m36: 6767 m38: 0 m42: 089 m45: -9 t2: 53525121512553 m13: 21 m16: 1255315 m20: 5 m21: 425 m23: 5 m24: 5 m25: 4253 m29: 21 m31: 5 m32: 12551 m42: 5352 m45: 2 m48: -2",
+    "handParts": "9f7c20fb45b75006646c992ab4142c97;5ddf384ba2e584c2b8fa0b0e43c7071a;de2dddec90bb0e0143f948f2bd86de77"
+  },
+  {
+    "group": "Hard",
+    "id": "ae2594e38ab34837dcbae0876637ccd2",
+    "title": "O Canada!",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 6870 m3: 68 m6: --9---960966 m9: 68 m10: 79 m11: 0 m12: -6 m13: 68 m14: 79 m15: -960 m17: 68 m19: 68 m20: 66 m21: 09909 m25: 6770 m26: 868 t2: 1 m3: 5 m7: 4 m8: 1 m15: 44--312 m18: 4 m20: 4234 m26: 24",
+    "handParts": "412a29e22c1d13264d94a43442813e06;a2899ef322d221a3e303e3fff5a512f6;79ed67eecfb2022bc89f2731855fee16"
+  },
+  {
+    "group": "Hard",
+    "id": "f53398c3a798dd883055f3d63637c508",
+    "title": "Oh Hanukah",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 67---0 m3: 8 m4: 7 m5: 8 m6: 8 m7: 9 m8: 8 m9: 6 m10: 0 m12: 08 m14: 8 m16: 6 m20: 68 t2: 35 m3: --235 m6: 31514231--4251 m14: ---23 m20: -512",
+    "handParts": "e055c194769f0141e63ca23ce6505c1e;353f6465567d6404373c98baa9fd11a8;4c739a23a9c721b566a5e1ea4cdb3486"
+  },
+  {
+    "group": "Hard",
+    "id": "d512e382d1f8f7659530daba399ed94d",
+    "title": "Over the River and Through the Woods",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 8---6 m2: ---70 m4: 70 m8: -08 m10: 8--70 m13: 0--868 m15: --98 t2: 5 m3: 521 m5: 521 m7: 542 m8: 121 m11: 521 m13: -2 m14: ---5312124215",
+    "handParts": "f8503aeed338e9125386bb86c3fa4b1e;5670a9b8b3a0302a33ab2d1e492873ad;896f345f5feb592e4274f18d8eb6e952"
+  },
+  {
+    "group": "Hard",
+    "id": "d21883c71b9d41a6fb4a18d822553fad",
+    "title": "Sevivon, Sov, Sov, Sov",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 6 m3: 0 m4: 8 m5: 6 m7: 60 m9: 8--0908 m11: 8--86 m13: 8--0908 m15: 8--8 t2: 3121 m5: 3 m6: -121 m8: 53 m9: 13131321321313132",
+    "handParts": "1421045076422f51f7d27c4bcb3b7cda;187fd021e7abaec50f359df2e82ddecc;1b2b9a3b68855b9f56427a7533b17ad1"
+  },
+  {
+    "group": "Hard",
+    "id": "950be9944c3b8e1864f2e791dd390f36",
+    "title": "Shuha D-Maryam",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 69 m2: ---76--0 m5: -9 m6: ---76 m9: 6 m10: 680 m13: 6 m14: 680 m16: --67660 t2: 5 m3: 53 m4: 2145 m7: 5312413 m13: 3",
+    "handParts": "2b04f458144c9e7354935172d8bfea4e;aa548d5fcacdad23b186f74b204ee3cd;394a5b23aef5e5976803e662606639d6"
+  },
+  {
+    "group": "Hard",
+    "id": "868a576b58a9d27dcb0ca4d801e367b1",
+    "title": "Sonatina in G",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 0 m3: 860870 m6: -07 m7: 068 m9: 0 m11: 860870 m14: -07 m15: 068 m17: 0-8 m19: 76 m21: 76780 m23: 68 m24: 70 m27: 86 m30: -07 m31: -68 m33: 0-8 m37: 76780 m39: 68 m40: 70 m43: 8 m46: -07 m47: -68 m50: 8 m51: 077 m54: 8 m56: 79 m58: 8 m59: 077 m62: 8 m64: 79 m66: 8 m67: 7 m68: 6 m69: 69 m70: 8 m71: -779 m74: 8 m75: 7 m76: 6 m77: -9 m78: 8 m79: -779 m83: 0 m84: ---68--0 m86: 9 m87: 6 m88: ---8 m90: -67 m92: 8 m93: 786 m94: -7 m95: 7 m96: 6 m97: 0768 m98: -70 m100: ----8--0 m102: 9 m104: ----8-86 m106: 0----8 m107: -8 t2: 31 m3: 531 m5: 3 m7: 3 m8: 5331 m11: 531 m13: 3 m15: 3 m16: 5335 m19: 1 m21: 12 m24: 23 m27: 5 m33: 35 m37: 12 m40: 23 m43: 5 m50: 5152121 m54: 5 m55: ---212 m58: 5152121 m62: 5 m63: ---211 m66: 2534535 m71: -2-53132534535 m79: -2-5313 m83: 1 m84: 4 m85: 2-4 m86: 1 m89: 2 m91: 24 m93: 2 m95: 2 m96: 33221 m100: 4 m101: 2-4 m102: 1 m105: 2 m107: 4",
+    "handParts": "7ce06aa3b424a7611e5b92704891df99;dad6ab2cdb481a3b4ac612cb8b5a4b88;fc4ffcface3e3df441212c5627a366cb"
+  },
+  {
+    "group": "Hard",
+    "id": "567e17bcf14828e556ed68ba7aa9b381",
+    "title": "Swing Low, Sweet Chariot",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 08 m3: --7 m4: 6---8-006780 m6: 7069 m8: 8---0 m11: 680 m13: 06 t2: 14251413155434251514131 m9: 21--2135 m11: 2--4521 m13: 5--1213 m15: 2 m16: 21",
+    "handParts": "c6497f3781f12484417bb7e76fcc9d1a;7618f0e09db63454cc67b8e5ccb65a5e;fd881a42cfdb6caccee2719c4a57438d"
+  },
+  {
+    "group": "Hard",
+    "id": "2706a94804a657195b3bb9958667bbfe",
+    "title": "The Entertainer",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 9-867 m3: 9-8 m5: 9-8 m6: 7676---676 m12: 67897 m14: 687676 m20: 987680-869676 m28: 67897 m30: 6 m31: 76 m38: 687 t2:  m9: 5 m10: -31-21 m15: 2525 m18: -31-21 m21: 5315 m23: 25435 m26: -31-21 m31: 2 m39: 215",
+    "handParts": "314a9a5c9f2665548c810396f4a3037e;b515721dc61f3791f5a26c42e0d9d09e;5e577bc8eff02f9a8f298500cbcf6974",
+    "artist": "Scott Joplin"
+  },
+  {
+    "group": "Hard",
+    "id": "6236693c550443deb26c7622e53d2153",
+    "title": "The First Noel",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 8 m2: --86 m4: 0 m6: 0 m8: -7688 m11: --86 m13: 0 m15: 0 m17: -7688 m20: --86-0 m22: 896 m23: 686769 m26: -768 t2: 531 m4: 31 m5: -52 m8: 531 m11: 531 m13: 31 m14: -52 m17: 531 m21: -321 m23: 4431 m26: ---52",
+    "handParts": "e9645a1678873c4548a246db35017149;dc5517318bc5cb694275bee2ad10988b;3e30672c91bea8c16f2bc46453fe0603"
+  },
+  {
+    "group": "Hard",
+    "id": "546d53dbe3ac28e8a2a8387213dc1006",
+    "title": "The Yellow Rose of Texas",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 9 m2: 79 m3: 0 m4: 76890 m6: 60 m7: 09 m8: 7--099 m10: 79 m12: 768 m14: 60 m15: ---786098 t2: 5 m7: 421211 m14: 5",
+    "handParts": "dae9c9064c38c15480266915f81efaa8;706cca8c223bef69cf47cc859252632c;4c356183cc1e804deec64a7827a735ad"
+  },
+  {
+    "group": "Hard",
+    "id": "647e5492b64c13f89e5ad3d395081b91",
+    "title": "Waltzing Matilda",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "50",
+    "fingerHints": " t1: 0 m3: 8 m5: 6780 m8: -6-8 m11: ---67--6780 m17: 7--760 m21: 7890---6898-0 m27: 8--86--678 t2: 5--123451215--1234 m17: --1521531---521---1234",
+    "handParts": "e732bbc89d9ae71233564190dae5802b;dfed992b52e37fbc22b57b10e46a50ea;2cb2a6b3f82056688c0bf28aa94ff21c"
+  },
+  {
+    "group": "Harder",
+    "id": "650090c2b3c3687927f69f1a0a9969cf",
+    "title": "Amazing Grace",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 7 m2: --0 m3: ---79 m4: 688 m5: 67 m6: --0 m7: ---7 m8: 067 m9: --8 m10: -----670 m12: 688 m14: ---0 m16: 06867 m18: 60-9 m19: 67-9 m20: 60-7 m21: --8 m22: --97 m23: 780 m24: 06967667 m27: ---76 m29: 6708680 m32: -676867676789680 t2: 5 m4: 5 m5: 5 m7: 5 m8: -1 m26: -12 m32: 1",
+    "handParts": "a64bf89983bdaa960d3d575d85db60ab;f1d28ee86cea0be222d35c35cee6e94d;8df6cb6d04dafce5567498ca6b1598bd"
+  },
+  {
+    "group": "Harder",
+    "id": "3d8ace2950b9efd3f34ea4c2725b00fb",
+    "title": "Big Bad Goblin Blues",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 80 m5: 69 m21: 67676 m23: 6967676 m29: 6767 m33: 6767 m37: 69 m49: 80 t2: 1 m5: 51 m9: 51 m11: 51 m13: 51 m15: 51 m17: 51 m19: 1 m21: 51 m25: 51 m27: 51 m29: 51 m31: 51 m33: 51 m37: 51 m41: 51 m43: 51 m45: 51 m47: 51 m49: 41",
+    "handParts": "7822d1e7fbb2a02367a6b0004c1c9efb;4892b64251db9716781ec55ce2a188ad;1e8e77fb2e64f93e844e08b298035573"
+  },
+  {
+    "group": "Harder",
+    "id": "2c7d60ae624f6fe3a4e3dd18fb6e84e7",
+    "title": "Carribean Cruise",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1:  m3: 60 m4: 6867 m9: 0 m11: 60-------0-0-067 m26: --67 m29: ----79 m33: 0 t2: 52 m3: 52",
+    "handParts": "2f36de7a5b39e760022e2921236b6e1e;727b4832f35218bf08441953df705395;371b6ec3a3c19f75fe35e9bfb97593e3"
+  },
+  {
+    "group": "Harder",
+    "id": "fea827e2df26235ee095b3c1de0e2ce5",
+    "title": "Danny Boy",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 767-0-7686 m3: --6 m4: 79768 m5: 6767 m6: ------8--6 m8: --7 m9: 67676 m10: 00 m11: -7 m12: ------60--7 m15: 76 m16: -----6087676 m18: 80-768 m19: 876 m20: ----67 t2: 1 m6: ---2 m15: ----5 m16: 421",
+    "handParts": "eb9e1a27b3bf07327e5c3e437d92b68b;65f0b0f13fa1d230a97e0e7748730f87;c17cf2ebdd11577d91fe68c19f337c93"
+  },
+  {
+    "group": "Harder",
+    "id": "7c15e56941746e95da1767f3a13a711a",
+    "title": "Evening Falls",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 68 m3: 76 m7: 67 m9: 680 m11: 680 m13: 8 m14: 9--80 m17: 6708909667 m20: 676708909667 m25: 68 m27: 68 m29: 8 m30: 9 t2: 53 m2: 12 m3: 1 m4: 5 m6: 214 m7: -2 m8: 42132142 m11: 35 m12: 4211 m14: 53512121 m17: 52131 m18: 52132 m19: -213 m23: 215 m24: 43132 m25: 42 m27: 35",
+    "handParts": "b11426e35ed55db168f8411bb56a7b01;0b3c95469d25667ca1752e5a36b5f900;b2ca136521e54419e4fc0d92254713d5"
+  },
+  {
+    "group": "Harder",
+    "id": "8ebc5aaedb759eb949975ebf76f36a62",
+    "title": "Greensleeves",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 67 m3: 87 m4: 96-7687-67 m7: -7 m8: -868 m10: 80---8686 m12: 7978 m13: 79 m14: 80---868 m16: 79868 t2: 5 m3: 5 m4: 5 m5: 5325 m9: 5 m10: 5 m11: 5 m12: 5 m13: 5325 m15: 5 m16: 5----2",
+    "handParts": "ff9e668bc13014c4ebec532d676f8ff6;22887c9ea9b053371be5451c1d3b2679;978950fc0637cd33ef97a2e55d79592e"
+  },
+  {
+    "group": "Harder",
+    "id": "44d5212f3bae319db3b88efddeffeb48",
+    "title": "Habanera from Carmen",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Georges Bizet",
+    "difficulty": "60",
+    "fingerHints": " t1: 606969 m4: 686868 m5: 6768 m6: 0-6860 m8: ----68 m9: ---8 m10: 6987606969 m12: 686868 m13: 6768 m14: 0-6860 m16: ----68 m17: ---8 m18: 69 m19: 6 m20: 8 m21: --0-9 m22: 60-6806--08 m25: --0-9 m26: ---6808 m29: --0987 m31: 08 m33: 69876 m40: 67 t2: 52 m3: -2 m4: -2 m6: 32 m10: 1-22-2 m12: -2 m14: 32 m18: 1 m19: 35 m20: 15 m23: 15 m24: 13 m25: 41 m26: ---52135 m30: -41 m33: 21 m34: 1",
+    "handParts": "0343436399841762b2085db527a934df;c6f42754b73c0a2f93631e6f6a8e11e8;faab8cd4a503253b39ad98d4d33c203d"
+  },
+  {
+    "group": "Harder",
+    "id": "8d5c3940e43b06688e148f67ea070303",
+    "title": "Jana-Gana-Mana",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "handParts": "66e3c9886e61fc356e1445fc592468a0;5879c633a47ead9c189aecc10a5254be;4afb65847b0468af0dae753049caafd9"
+  },
+  {
+    "group": "Harder",
+    "id": "aaabcb4b6465c1312597fb3762a2936f",
+    "title": "March on Android Moon",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 8 m5: 8 m7: 8 m12: 8 m16: 78 m18: 780 m38: 8",
+    "handParts": "5cdcce509abb23c7cc63a9c1f6d64e4f;f44b8485e19d3d16b33b497a19e49bd1;71fb7d9e3342cc45bf9aeca63460ed29"
+  },
+  {
+    "group": "Harder",
+    "id": "33e41ebf6367374ce7a5f033a5baa796",
+    "title": "Moonlight Sonata",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Beethoven",
+    "difficulty": "60",
+    "fingerHints": " t1: 123542552 m11: -21 m13: 521 m14: 531 m15: 531 m16: 431 m17: 531 m21: 531 m23: -2 m24: -3-5 m25: 521 m26: 53 m27: 52 m29: 680 m30: 6--324232324-3 m38: 45153153 m42: 521 m43: -21 m45: -21 m46: 421 m47: 52 m51: 52142 m53: 52-4 m59: 5 m62: 1253 m68: 1 m69: 5 m70: 52 m71: -21 m73: 521 m74: 531 m75: 531 m76: 431 m77: 531 m79: 431 m81: 531531-3--4 m83: 531 m84: 531 m85: 521 m86: -3 m88: 3135 t2: 680 m5: 680 m6: -80 m7: 670-80-89-79-80 m10: 8 m16: -5 m31: -8 m35: -8 m38: -79 m39: 670 m40: 670 m42: 8 m45: 87 m49: 0 m51: -6 m53: 7 m55: 68 m57: 79 m59: 7696970979696967979 m63: 7 m66: 67 m67: -8 m68: --0--9 m70: 8 m76: -0 m78: 8 m82: 90867 m87: 8086868",
+    "handParts": "b8ba7778f5abe15f6fdf9532c2038838;7c2bc6fcc9087a41589917ce7a167696;06483ec42c0475765996ccebecb1a1cd"
+  },
+  {
+    "group": "Harder",
+    "id": "914915088b34ba08dba50f263011d096",
+    "title": "Once a Canadian Lad",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 06 m2: --8 m4: 967 m7: 06 m8: --8 m10: 9 m13: 76 m16: 86 m18: 6767 m20: 680 m21: 67986 m23: 6706968 t2: 1 m3: -1 m5: 421 m9: -1 m12: 21 m16: 1 m18: 1 m19: 4 m20: --1212",
+    "handParts": "71cae0e438fa547a9f3c707cd26b3611;adcce0d7988c9de0255bce18d3148684;389e5f0ac7fe33b81cbc181ec3e43fed"
+  },
+  {
+    "group": "Harder",
+    "id": "937aa9b576e1d8019436d7a157ca2897",
+    "title": "Rock Solid Blues",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 680 m5: 689 m9: 670 m10: 690 m13: 680 m17: 689 m21: 670 m22: 690 m25: 67980 t2: 54 m3: -4 m4: ---154 m6: ---1-4 m9: 13 m10: 53 m11: -4 m13: 54 m15: -4 m16: ---154 m18: ---1-4 m21: 13 m22: 53 m23: -4",
+    "handParts": "a8172ebbe437d41578c8b1129e7e6047;f51d9d0b2efbd9f5ff0d42dc06d588ab;c2b5cf8ac45ae249abbb999356f84c6b"
+  },
+  {
+    "group": "Harder",
+    "id": "558fc469ae9bd68d4d0262ce621ff252",
+    "title": "See How the Night Arrives",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "60",
+    "fingerHints": " t1: 68 m8: -9----8 m9: -69 m18: 69 m19: 69 t2: 1 m8: 4",
+    "handParts": "dd2d01d6b5b4e4cf26b32aa3fbce1cfa;370e5d36b433f788ef184c1a5b3126b2;c4ba680c167745cb77ee41aba4b8281c"
+  },
+  {
+    "group": "Harder",
+    "id": "5158cbecba469afd108175b1ad68e850",
+    "title": "The Four Seasons",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Antonio Vivaldi",
+    "difficulty": "60",
+    "fingerHints": " t1: 68 m3: ------677 m7: 68----0 m8: 67----9-677968 m11: --7 m14: 6067----68 m16: --------98698 m18: 607--68 m20: -------98698--0 m22: 87668686 m30: 68 m32: ------677 m36: 68----0 m37: 67----9-677968 m40: --7 t2: 2 m3: -55 m7: 14 m8: 35 m9: 1 m11: -2 m13: -22 m17: 135 m21: 1353 m24: 2 m25: 2 m26: 2 m27: 2 m28: 3 m29: 352 m32: -55 m36: 14 m37: 35 m38: 1 m40: -2 m42: -2",
+    "_Subtitle": "Autumn",
+    "handParts": "d4776d88045de4a17277a24b2a974d1e;d3396215a5f961cd936dfa60e629c9c7;b333a4da9b7685ea5bbc20c44643d37f"
+  },
+  {
+    "group": "Harder",
+    "id": "e1c5358085f7a6949e52eb31fd8d6a98",
+    "title": "Toreador from Carmen",
+    "arranger": "Gilbert DeBenedetti",
+    "artist": "Georges Bizet",
+    "difficulty": "60",
+    "fingerHints": " t1: 9 m4: 9 m5: 6 m7: 697 m10: -7-0------96 m12: 9 m15: 9 m16: 6 m18: 697 m21: -7-09 t2: 42 m4: 31--53 m5: 53 m12: 42 m15: 31--53 m16: 53",
+    "handParts": "4bda69e29654f5853c83512dcc022590;70389c1324d5fc8b1ee01c5b9ee806f9;7ffdeee55a712cc48d494d706956c1b1"
+  },
+  {
+    "group": "Keyboard Classics",
+    "id": "28efbc214e2f55534aa5085e94170143",
+    "title": "Aria - Notebook",
+    "artist": "A.M. Bach",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "65",
+    "fingerHints": " t1: 51254-15124--4-3121 m9: 51254-15124--4-3121 m17: -5313 m19: 431-31 m21: 3 m22: 13 m23: -2 m24: 31 m25: -5313 m27: 431-31 m29: 3 m30: 13 m31: -2 m32: 31 t2: 6 m2: 8 m3: -6708 m5: 8768 m7: 97 m9: 6 m10: 8 m11: -6708 m13: 8768 m15: 97 m17: 9 m19: 0---676767 m23: 767 m25: 9 m27: 0---676767 m31: 767",
+    "handParts": "fbb049e4846e72c8e901444eac3cbf75;2bd6c2b81ff1fd5d3aa61600ada173d4;1030d9cda7ad49dc66a53468cc6b12e3"
+  },
+  {
+    "group": "Keyboard Classics",
+    "id": "3a3547d9a419ef6f31f8b52203b8cd0e",
+    "title": "Opus 36 no 1 First Movement",
+    "artist": "Clementi",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "65",
+    "fingerHints": " t1: 796 m2: ----0---689 m4: 09 m5: 79 m6: 80--97979797976-86 m9: -0 m10: 6-86 m12: 6780 m13: 879----79---0 m16: 796 m17: ----0---689 m19: 09 m20: 79 m21: 80--97979797976-86 m24: -0 m25: 6-86 m27: 6780 m28: 879----79---0 m31: 79 m32: 79--0 m37: 8---0 m39: 7976 m41: 0--68 m42: 0 m43: 76-9 m44: 76780687968796-86 m48: --86 m50: 6780 m51: ----69 m52: 69786978679 m55: 79--0 m60: 8---0 m62: 7976 m64: 0--68 m65: 0 m66: 76-9 m67: 76780687968796-86 m71: --86 m73: 6780 m74: ----69 m75: 697869786 t2: 2 m4: 51 m6: -2141525 m11: 4 m13: 1 m14: 1 m15: 5421 m16: 2 m19: 51 m21: -2141525 m26: 4 m28: 1 m29: 1 m30: 5421 m35: 1-2 m36: 1-2 m40: 2 m42: 51 m47: 5 m49: 4 m51: 2 m53: 5421 m58: 1-2 m59: 1-2 m63: 2 m65: 51 m70: 5 m72: 4 m74: 2 m76: 5421",
+    "handParts": "32b2018f11951f3a20a0b4257603bbd1;ab757cfdc82ec1189b7ed1d36fd56de0;4b86419c34c0135239ea0b1ba2c3e143"
+  },
+  {
+    "group": "Keyboard Classics",
+    "id": "b3decef157a073fbef49430250bb7015",
+    "title": "Für Elise",
+    "artist": "Ludwig van Beethoven",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "65",
+    "fingerHints": " t1: 0 m2: ---79 m3: 6679-6790 m7: -679 m9: 80 m10: ---79 m11: 6679-6790 m15: -679 m17: 86 m21: 8 m22: --7-9 m25: --79--7 m29: --790 m31: -6 m35: 8 m36: --8-9 m39: --79--7 m43: --790 t2: 52 m4: 51252 m8: 512 m11: 52 m12: 51252 m16: 512 m18: 52 m19: 512 m21: 551 m22: -32 m25: -2 m26: -12 m32: 52 m33: 512 m35: 551 m36: -32 m39: -2 m40: -12",
+    "handParts": "04ade9e2bed3cb99e740b83d0e1e32e2;420c32cb65bc3d7b706382b090443a6b;0ebb4a3131bb9e4008f59336fde98b92"
+  },
+  {
+    "group": "Keyboard Classics",
+    "id": "d36b7fc017c8ad8d8f26c7396953721b",
+    "title": "Minuet in F",
+    "artist": "Leopold Mozart",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "65",
+    "fingerHints": " t1: 53 m3: 21 m7: 21512553 m11: 21 m15: 21512551 m21: 31 m23: 2-512551 m29: 31 m31: 2-5125 t2: 07 m2: -67-8 m4: -68067 m6: --8 m7: 9 m9: 07 m10: -67-8 m12: -68067 m14: --8 m15: 9 m17: 0 m18: 8 m21: 0 m22: --8 m25: 0 m26: 8 m29: 0 m30: --8",
+    "handParts": "23e91b2e020e36f2a74aad7d99e2870d;8f7d89fea09c3746d0fe78294586fcc1;1e0175140870c45f3e2233cfdda256c2"
+  },
+  {
+    "group": "Keyboard Classics",
+    "id": "845371a018fa1db1e337f8c63b7a05cf",
+    "title": "Minuet in G",
+    "artist": "J.S. Bach",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "65",
+    "fingerHints": " t1: 06 m3: 96---0--89 m6: -9---76---870 m11: -6 m13: 89---79 m15: -8-676 t2: 531 m5: 4-13515---2-42-121---343121-1",
+    "handParts": "37c8e2d4de27a3eeb49fb9c4ccdcd848;173d4bc3944061372a6248e8162fe459;49f0782f71c1772b176f6fe5f1a6b1d7"
+  },
+  {
+    "group": "Keyboard Classics",
+    "id": "aa04d2391d2af723d4e8a78d580a24d5",
+    "title": "Rondino",
+    "artist": "Rameau",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "65",
+    "fingerHints": " t1: 0 m2: 9 m3: 8 m4: 768 m5: 0 m9: 0 m10: 9 m11: 8 m12: 768 m13: 0 m17: 0 m18: 9 m19: 8 m20: 768 m21: 0 m25: 0 m26: 9 m27: 8 m28: 768 m29: 0 t2: 51 m4: 1 m5: 314151512 m9: 51 m12: 1 m13: 314151512 m17: 51 m20: 1 m21: 3 m22: 4 m23: 5 m24: -1 m25: 51 m28: 1 m29: 314151512",
+    "handParts": "63e188b63169f8c0d639b7ba42065a1b;f22ea11a2d5a923c88f5925673992d68;da9cefb02dab1052c82bf6a45f85c6ca"
+  },
+  {
+    "group": "Keyboard Classics",
+    "id": "79cd2845e5f906c0f3ff63122576e2fe",
+    "title": "Air de la Petite Russie",
+    "artist": "Ludwig van Beethoven",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "65",
+    "fingerHints": " t1: 1 m2: -4 m4: -21 m6: -4 m9: 1 m10: -4 m12: -21 m14: -4 m17: 3 m19: 12123 m25: 3 m27: 12123 t2: 7 m3: 08 m5: 7 m7: 08679 m9: 7 m11: 08 m13: 7 m15: 08679 m17: 8-78 m19: 8 m20: 8 m21: 8-78 m24: -988-78 m27: 8 m28: 8 m29: 8-78 m32: -98",
+    "handParts": "28e97231c2332394269bfeca41003baf;3fc0107cc752b6dea7bec44793f955c0;0694b4b841d3a450da951d6f762cf5f3",
+    "_Subtitle": "Opus 107, No. 3"
+  },
+  {
+    "group": "Keyboard Classics",
+    "id": "fbeb9ae5ee1d044a976fb62120627421",
+    "title": "Sonatina in C",
+    "artist": "Latour",
+    "arranger": "Gilbert DeBenedetti",
+    "difficulty": "65",
+    "fingerHints": " t1: 531234 m7: 1 m9: 5 m13: 4 t2: 6-86 m3: --97076768 m6: 8 m9: 6-8 m11: ---7076 m13: 68 m14: 8",
+    "handParts": "45c9e80abb608353e9915f5694abd435;43f196f127697182a7cb55a52af4bbf0;ca0d01bc0d3b9c204cee6a0d6bf49792"
+  }
+]

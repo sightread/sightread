@@ -1,5 +1,5 @@
 export type UploadedSong = {
-  name: string
+  title: string
   artist: string
   duration: number
   file: string
