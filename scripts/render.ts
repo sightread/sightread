@@ -13,7 +13,7 @@ const cpus = 2
 const fps = 60
 const viewport = { width: 1920, height: 1080 }
 const density = 2
-const maxSeconds = 2
+const maxSeconds = Infinity
 
 /**
  * Parse the MIDI file at the given path into a {@link Song}.
@@ -41,7 +41,9 @@ function verifyFiles(files: string[]) {
 }
 
 async function main() {
-  const files: string[] = ['Tom_Odell-Another_Love', 'Tom_Odell-Another_Love']
+  const files: string[] = [
+    // Force multi-line
+  ]
 
   await step('file verification', () => {
     verifyFiles(files)
@@ -144,9 +146,18 @@ function throttle(fn: Function, ms: number = 10000) {
 }
 
 function log(s: string) {
-  const now = new Date()
+  function pad(n: number): string {
+    if (n < 10) {
+      return '0' + n
+    }
+    return n.toString()
+  }
+  function formatTime(d: Date) {
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  }
+
   const indentation = '  '.repeat(stepDepth)
-  const time = green(`[${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}]`)
+  const time = green(`[${formatTime(new Date())}]`)
   console.log(`${time} ${indentation}${s}`)
 }
 function cyan(s: string) {
