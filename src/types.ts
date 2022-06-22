@@ -1,14 +1,22 @@
 import { InstrumentName } from '@/features/synth'
 import { KEY_SIGNATURE } from './features/theory'
 
-export type DifficultyLabel = 'Easiest' | 'Easier' | 'Easy' | 'Medium' | 'Hard' | 'Hardest'
+export type DifficultyLabel =
+  | 'Easiest'
+  | 'Easier'
+  | 'Easy'
+  | 'Medium'
+  | 'Hard'
+  | 'Hardest'
+  | 'Unknown'
+
 export type MusicFile = {
-  type: 'song'
   file: string
   title: string
   artist?: string
   arranger?: string
   difficulty: number
+  source: 'builtin'
 }
 
 export interface Size {

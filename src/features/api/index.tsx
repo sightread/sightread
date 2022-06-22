@@ -3,8 +3,7 @@ import type { Song, SongMeasure, SongNote } from '@/types'
 import { getUploadedSong } from '@/features/persist'
 
 /*
- * In development, parse on client.
- * In production, use preparsed songs.
+ *
  */
 async function getServerSong(url: string): Promise<Song> {
   if (url.includes('.xml')) {

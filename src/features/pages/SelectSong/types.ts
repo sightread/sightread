@@ -1,16 +1,15 @@
-import { UploadedSong } from '@/features/persist'
 import { DifficultyLabel } from '@/types'
 
 export type LibrarySong = {
   file: string
   title: string
   artist: string
-  difficulty: DifficultyLabel
-  type: 'song'
+  difficulty: number
   duration: number
+  source: 'midishare' | 'upload' | 'builtin'
 }
 
-export type SelectableSongs = (LibrarySong | UploadedSong)[]
+export type SelectableSongs = LibrarySong[]
 
 export type Filters = {
   show: boolean

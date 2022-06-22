@@ -4,5 +4,5 @@ export type UploadedSong = {
   duration: number
   file: string
   type: 'upload'
-  difficulty: 'N/A,'
+  difficulty: 'N/A'
 }

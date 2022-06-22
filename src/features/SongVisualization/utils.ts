@@ -16,10 +16,12 @@ export function getSongRange(song: { notes: SongNote[] } | undefined) {
     endNote = Math.max(endNote, midiNote)
   }
 
-  if (endNote - startNote < 36) {
-    const diff = endNote - startNote
-    startNote -= Math.floor(diff / 2)
-    endNote += Math.floor(diff / 2)
+  // Ensure we show at least a min of 36 notes just so it doesn't look ridiculous
+  const diff = endNote - startNote
+  if (diff < 36) {
+    const fix = Math.floor((36 - diff) / 2)
+    startNote -= fix
+    endNote += fix
   }
 
   startNote = clamp(startNote - 2, { min: 21, max: 107 })

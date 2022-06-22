@@ -9,10 +9,11 @@ import { LibrarySong, Filters, SelectableSongs } from './types'
 import { FilterPane, FilterTypeValue, TypeFilter, UploadForm } from './components'
 import { DifficultyLabel } from '@/types'
 
-const library = songManifest as unknown as LibrarySong[]
+const builtin = songManifest as unknown as LibrarySong[]
 
 function getDifficultyLabel(s: number): DifficultyLabel {
   const difficultyMap: { [d: number]: DifficultyLabel } = {
+    0: 'Unknown',
     10: 'Easiest',
     20: 'Easier',
     30: 'Easy',
@@ -24,8 +25,11 @@ function getDifficultyLabel(s: number): DifficultyLabel {
   return difficultyMap[s]
 }
 
-export default function SelectSongPage() {
-  const [songs, setSongs] = useState<SelectableSongs>(library)
+type SelectSongPageProps = {
+  midishareSongs: LibrarySong[]
+}
+export default function SelectSongPage({ midishareSongs }: SelectSongPageProps) {
+  const [songs, setSongs] = useState<SelectableSongs>(builtin)
   const [addNew, setAddNew] = useState<boolean>(false)
   const [selectedSong, setSelectedSong] = useState<any>('')
   const [filters, setFilters] = useState<Filters>({ show: false })
@@ -67,10 +71,6 @@ export default function SelectSongPage() {
     return setFilters({ ...filters, type })
   }
 
-  const filteredSongs = songs.filter((s) => {
-    return filters.type === undefined || s.type === filters.type
-  })
-
   return (
     <>
       <SongPreviewModal
@@ -100,9 +100,10 @@ export default function SelectSongPage() {
               { label: 'Artist', id: 'artist', keep: true },
               { label: 'Difficulty', id: 'difficulty', format: getDifficultyLabel as any },
               { label: 'Length', id: 'duration', format: formatTime },
+              { label: 'Source', id: 'source' },
             ]}
             searchBoxPlaceholder="Search Songs by Title or Artist"
-            rows={filteredSongs}
+            rows={songs}
             filter={['title', 'artist']}
             onSelectRow={setSelectedSong}
             onCreate={handleAddNew}
