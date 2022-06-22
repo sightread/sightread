@@ -1,6 +1,7 @@
 import { DifficultyLabel } from '@/types'
 
 export type LibrarySong = {
+  id: string
   file: string
   title: string
   artist: string

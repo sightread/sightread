@@ -11,8 +11,13 @@ globalThis.NodeFilter = window.NodeFilter
 import { parseMidi, parseMusicXml } from '../src/features/parsers'
 import type { MusicFile, Song } from '../src/types'
 import { musicFiles } from './songdata'
-const fs: any = require('fs')
-const pathJoin: any = require('path').join
+import crypto, { BinaryLike } from 'crypto'
+import fs from 'fs'
+import { join as pathJoin } from 'path'
+
+function hash(bytes: BinaryLike): string {
+  return crypto.createHash('md5').update(bytes).digest('hex')
+}
 
 const baseDir = pathJoin(__dirname, '..', 'public')
 
@@ -22,8 +27,8 @@ const parsedMusic: ParsedMusicFile[] = musicFiles
     const path = pathJoin(baseDir, musicFile.file)
     if (path.toLowerCase().endsWith('mid')) {
       try {
-        var buf = new Uint8Array(fs.readFileSync(path)).buffer
-        return { ...musicFile, parsedSong: parseMidi(buf) }
+        const u8Array: Uint8Array = new Uint8Array(fs.readFileSync(path))
+        return { ...musicFile, parsedSong: parseMidi(u8Array.buffer), id: hash(u8Array) }
       } catch (err) {
         console.error(`Error parsing file: ${path}` + err)
       }
@@ -45,7 +50,8 @@ const manifestJson = parsedMusic.map((parsed: MusicFile) => {
   delete v.parsedSong
   return v
 })
-const manifestPath = pathJoin(__dirname, '..', 'public', 'generated', 'manifest.json')
 const manifestSrcPath = pathJoin(__dirname, '..', 'src', 'manifest.json')
-fs.writeFileSync(manifestPath, JSON.stringify(manifestJson))
 fs.writeFileSync(manifestSrcPath, JSON.stringify(manifestJson))
+
+// fs.writeFileSync(manifestPath, JSON.stringify(manifestJson))
+// const manifestPath = pathJoin(__dirname, '..', 'public', 'generated', 'manifest.json')

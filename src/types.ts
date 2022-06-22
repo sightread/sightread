@@ -11,6 +11,7 @@ export type DifficultyLabel =
   | 'Unknown'
 
 export type MusicFile = {
+  id: string
   file: string
   title: string
   artist?: string

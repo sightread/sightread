@@ -33,6 +33,7 @@ export function getUploadedLibrary(): LibrarySong[] {
 export function saveSong(song: Song, title: string, artist: string): LibrarySong {
   const songKey = getSongStorageKey(title, artist)
   const uploadedSong: LibrarySong = {
+    id: 'TODO', // use md5
     title,
     artist,
     duration: song.duration,

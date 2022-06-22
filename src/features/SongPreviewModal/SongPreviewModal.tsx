@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useCallback, useState, useEffect, useMemo } from 'react'
-import { Song, SongConfig } from '@/types'
+import { MusicFile, Song, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '../SongInputControls'
 import { getSong } from '@/features/api'
@@ -12,6 +12,7 @@ import { useSongSettings } from '@/hooks'
 import { palette } from '@/styles/common'
 import { Modal, Sizer } from '@/components'
 import PreviewIcon from './PreviewIcon'
+import { LibrarySong } from '../pages/SelectSong/types'
 
 const classes = css({
   songTitle: {
@@ -130,14 +131,14 @@ const controlsOverview = [
 type ModalProps = {
   show: boolean
   onClose: () => void
-  songMeta?: { file: string; name: string; artist: string }
+  songMeta?: LibrarySong
 }
 export default function SongPreviewModal({
   show = true,
   onClose = () => {},
   songMeta = undefined,
 }: ModalProps) {
-  const { file, name, artist } = songMeta ?? {}
+  const { title, artist, id, source } = songMeta ?? {}
   const [song, setSong] = useState<Song | null>(null)
   const [songConfig, setSongConfig] = useSongSettings('unknown')
   const [playing, setPlaying] = useState(false)
@@ -170,12 +171,12 @@ export default function SongPreviewModal({
   }, [canPlay, player, playing])
 
   useEffect(() => {
-    if (!songMeta?.file) {
+    if (!source || !id) {
       return
     }
-    getSong(`${songMeta.file}`).then((song) => {
+    getSong(source, id).then((song) => {
       setupModal(song)
-      const config = getSongSettings(songMeta.file, song)
+      const config = getSongSettings(id, song)
       setSongConfig(config)
       player.setSong(song, config).then(() => {
         setCanPlay(true)
@@ -216,7 +217,7 @@ export default function SongPreviewModal({
       return
     }
 
-    router.push(`/play/${file}`)
+    router.push(`/play?id=${id}&source=${source}`)
   }
 
   if (!show || !song) {
@@ -237,7 +238,7 @@ export default function SongPreviewModal({
       >
         <div style={{ display: 'flex', width: '100%' }}>
           <div>
-            <span className={classes.songTitle}>{name}</span>
+            <span className={classes.songTitle}>{title}</span>
             <span className={classes.artist}>{artist}</span>
           </div>
         </div>

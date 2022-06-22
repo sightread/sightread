@@ -14,12 +14,6 @@ import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
 import { TopBar, SettingsSidebar } from './components'
 
-export type PlaySongProps = {
-  type: 'lesson' | 'song'
-  songLocation: string
-  viz: VisualizationMode
-}
-
 const classes = css({
   topbarIcon: {
     cursor: 'pointer',
@@ -74,7 +68,9 @@ const classes = css({
   },
 })
 
-export function PlaySong({ type, songLocation }: PlaySongProps) {
+export function PlaySong() {
+  const router = useRouter()
+  const { source, id }: { source: string; id: string } = router.query as any
   const [sidebar, setSidebar] = useState(false)
   const [isPlaying, setPlaying] = useState(false)
   const [rangeSelecting, setRangeSelecting] = useState(false)
@@ -83,8 +79,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<Song>()
-  const [songConfig, setSongConfig] = useSongSettings(songLocation)
-  const router = useRouter()
+  const [songConfig, setSongConfig] = useSongSettings(id)
   let isRecording = router.query.recording != undefined
 
   const hand =
@@ -122,16 +117,16 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
   }, [player])
 
   useEffect(() => {
-    if (!songLocation || !type) return
+    if (!source || !id) return
 
     setIsLoading(true)
-    getSong(songLocation).then((song: Song) => {
-      const config = getSongSettings(songLocation, song)
+    getSong(source, id).then((song: Song) => {
+      const config = getSongSettings(id, song)
       setSong(song)
       setSongConfig(config)
       player.setSong(song, config).then(() => setIsLoading(false))
     })
-  }, [songLocation, player, type, setSongConfig])
+  }, [source, id, player, setSongConfig])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -173,7 +168,7 @@ export function PlaySong({ type, songLocation }: PlaySongProps) {
     }
   }, [player, synth, song, songConfig, soundOff])
 
-  if (!type || !songLocation) {
+  if (!source || !id) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
   }
 
