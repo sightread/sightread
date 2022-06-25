@@ -1,4 +1,5 @@
 import { SelectSong } from '@/features/pages'
+import { MusicFile } from '@/types'
 
 export type MidishareManifestSong = {
   title: string
@@ -14,7 +15,10 @@ export type MidishareManifestSong = {
 }
 
 export async function getServerSideProps() {
-  const midishareManifest = await (await fetch('https://midishare.dev/api/midis')).json()
+  const midishareManifest: any = await (await fetch('https://midishare.dev/api/midis')).json()
+  for (let song of Object.values(midishareManifest)) {
+    ;(song as MusicFile).source = 'midishare'
+  }
 
   return {
     props: { midishareManifest },

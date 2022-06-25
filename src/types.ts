@@ -8,7 +8,8 @@ export type DifficultyLabel =
   | 'Medium'
   | 'Hard'
   | 'Hardest'
-  | 'Unknown'
+  // "-" stands for Unknown
+  | '-'
 
 export type MusicFile = {
   id: string
@@ -17,7 +18,7 @@ export type MusicFile = {
   artist?: string
   arranger?: string
   difficulty: number
-  source: 'builtin'
+  source: 'builtin' | 'midishare'
 }
 
 export interface Size {

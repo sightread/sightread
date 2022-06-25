@@ -12,8 +12,12 @@ import { DifficultyLabel } from '@/types'
 const builtin = songManifest as unknown as LibrarySong[]
 
 function getDifficultyLabel(s: number): DifficultyLabel {
+  if (!s) {
+    return '-'
+  }
+
   const difficultyMap: { [d: number]: DifficultyLabel } = {
-    0: 'Unknown',
+    0: '-',
     10: 'Easiest',
     20: 'Easier',
     30: 'Easy',
@@ -26,10 +30,12 @@ function getDifficultyLabel(s: number): DifficultyLabel {
 }
 
 type SelectSongPageProps = {
-  midishareSongs: LibrarySong[]
+  midishareManifest: LibrarySong[]
 }
-export default function SelectSongPage({ midishareSongs }: SelectSongPageProps) {
-  const [songs, setSongs] = useState<SelectableSongs>(builtin)
+export default function SelectSongPage(props: SelectSongPageProps) {
+  const [songs, setSongs] = useState<SelectableSongs>(
+    builtin.concat(Object.values(props.midishareManifest)),
+  )
   const [addNew, setAddNew] = useState<boolean>(false)
   const [selectedSong, setSelectedSong] = useState<any>('')
   const [filters, setFilters] = useState<Filters>({ show: false })
