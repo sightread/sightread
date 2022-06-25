@@ -23,7 +23,7 @@ const Template: Story<typeof Table> = (args: any) => (
 
 export const TableBasic = Template.bind({})
 
-const rows = songManifest.filter((s) => s.type === 'song')
+const rows = songManifest
 TableBasic.args = {
   columns: [
     { label: 'Title', id: 'name', keep: true },

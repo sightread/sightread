@@ -35,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (process.env.NODE_ENV === 'development') {
       stream = fs.createReadStream(`public/${path}`)
     } else {
+      console.error(`Requesting URL: https://${process.env.VERCEL_URL}/${path}`)
       stream = await get(`https://${process.env.VERCEL_URL}/${path}`)
     }
   } else {
