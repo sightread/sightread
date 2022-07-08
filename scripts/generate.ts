@@ -52,6 +52,3 @@ const manifestJson = parsedMusic.map((parsed: MusicFile) => {
 })
 const manifestSrcPath = pathJoin(__dirname, '..', 'src', 'manifest.json')
 fs.writeFileSync(manifestSrcPath, JSON.stringify(manifestJson))
-
-// fs.writeFileSync(manifestPath, JSON.stringify(manifestJson))
-// const manifestPath = pathJoin(__dirname, '..', 'public', 'generated', 'manifest.json')

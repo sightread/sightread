@@ -29,8 +29,8 @@ export async function getServerSideProps() {
 async function getMidishareManifest() {
   try {
     return (await fetch('https://midishare.dev/api/midis')).json()
-  } catch (err) {
-    console.error(err)
+  } catch (err: any) {
+    console.error(`${new Date().toUTCString()}: Error reaching midishare.dev`)
     return {}
   }
 }
