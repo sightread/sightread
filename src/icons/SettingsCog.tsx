@@ -3,9 +3,7 @@ import { IconInput } from './types'
 export default function SettingsCog({ width, height, style, className, onClick }: IconInput) {
   return (
     <svg
-      // Temporary hack to solve race condition between settings icon and whenClickOutside handler.
-      // Move to onClick when I can think of a decent solution.
-      onMouseDown={onClick}
+      onClick={onClick}
       width={width}
       height={height}
       style={style}

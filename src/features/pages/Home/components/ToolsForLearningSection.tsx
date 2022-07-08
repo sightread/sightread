@@ -26,7 +26,7 @@ const classes = css({
     height: 170,
     padding: 24,
     textAlign: 'left',
-    border: '2px solid lightgrey',
+    border: '2px solid black',
     boxSizing: 'border-box',
     transition: '300ms',
     [mediaQuery.up(401)]: {
@@ -40,12 +40,13 @@ const classes = css({
     },
     '& p': {
       fontSize: 18,
-      color: 'lightgrey',
+      color: 'black',
       transition: '300ms',
     },
     '&:hover': {
       backgroundColor: 'white',
       boxShadow: '1px 3px 8px 1px lightgrey',
+      border: '2px solid #7029FB',
     },
     '&:hover p': {
       color: 'black',
@@ -73,7 +74,7 @@ export default function ToolsForLearningSection() {
       style={{
         textAlign: 'center',
         background:
-          'linear-gradient(252.43deg, #FF6825 -35.81%, rgba(255, 255, 255, 0.18) 44.97%, rgba(112, 41, 251, 0.15) 132.77%), linear-gradient(106.97deg, #FFFFFF 50.03%, rgba(255, 255, 255, 0) 195.17%), #DACBF9',
+          'linear-gradient(109.68deg, #ffc6a226 -33.47%, rgb(202 140 71 / 10%) 56.36%, #cc1f1f26 154.01%), linear-gradient(2deg, #FFFFFF 50.03%, rgba(255, 255, 255, 0) 195.17%), #ffc6a2',
       }}
       component="section"
     >

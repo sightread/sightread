@@ -11,9 +11,9 @@ export default function useWhenClickedOutside(
         handleMouseEvent(e)
       }
     }
-    window.addEventListener('mousedown', outsideClickHandler)
+    window.addEventListener('click', outsideClickHandler)
     return () => {
-      window.removeEventListener('mousedown', outsideClickHandler)
+      window.removeEventListener('click', outsideClickHandler)
     }
   }, deps)
 }

@@ -15,13 +15,23 @@ export type MidishareManifestSong = {
 }
 
 export async function getServerSideProps() {
-  const midishareManifest: any = await (await fetch('https://midishare.dev/api/midis')).json()
+  const midishareManifest: any = await getMidishareManifest()
   for (let song of Object.values(midishareManifest)) {
     ;(song as MusicFile).source = 'midishare'
   }
 
   return {
     props: { midishareManifest },
+  }
+}
+
+// Page should operate even if/when midishare is down.
+async function getMidishareManifest() {
+  try {
+    return (await fetch('https://midishare.dev/api/midis')).json()
+  } catch (err) {
+    console.error(err)
+    return {}
   }
 }
 

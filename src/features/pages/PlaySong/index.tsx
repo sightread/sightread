@@ -214,7 +214,10 @@ export function PlaySong() {
               player.pause()
               router.back()
             }}
-            onClickSettings={() => setSidebar(!sidebar)}
+            onClickSettings={(e) => {
+              e.stopPropagation()
+              setSidebar(!sidebar)
+            }}
             onClickSound={handleToggleSound}
             classNames={{
               settingsCog: sidebar && classes.active,

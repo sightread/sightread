@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { Toggle, Sizer } from '@/components'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import { palette as colors } from '@/styles/common'
@@ -25,7 +25,7 @@ export default function SettingsSidebar(props: SidebarProps) {
       }
     },
     sidebarRef,
-    [props.open],
+    [props.open, props.onClose],
   )
 
   const handleHand = (selected: 'left' | 'right') => {
