@@ -19,6 +19,8 @@ export type GivenState = {
   keySignature: KEY_SIGNATURE
   timeSignature?: { numerator: number; denominator: number }
   canvasRect: DOMRect
+  // TODO: snap to measures
+  selectedRange?: { start: number; end: number }
 }
 
 export function render(state: Readonly<GivenState>) {

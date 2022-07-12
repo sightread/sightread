@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 
@@ -73,7 +73,7 @@ export function PlaySong() {
   const { source, id }: { source: string; id: string } = router.query as any
   const [sidebar, setSidebar] = useState(false)
   const [isPlaying, setPlaying] = useState(false)
-  const [rangeSelecting, setRangeSelecting] = useState(false)
+  const [isSelectingRange, setIsSelectingRange] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const player = Player.player()
@@ -81,6 +81,7 @@ export function PlaySong() {
   const [song, setSong] = useState<Song>()
   const [songConfig, setSongConfig] = useSongSettings(id)
   let isRecording = router.query.recording != undefined
+  const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
 
   const hand =
     songConfig.left && songConfig.right
@@ -168,6 +169,14 @@ export function PlaySong() {
     }
   }, [player, synth, song, songConfig, soundOff])
 
+  const handleSetRange = useCallback(
+    (range: { start: number; end: number }) => {
+      setRange(range)
+      setIsSelectingRange(false)
+    },
+    [setIsSelectingRange, setRange],
+  )
+
   if (!source || !id) {
     return <ErrorPage statusCode={404} title="Song Not Found :(" />
   }
@@ -191,11 +200,12 @@ export function PlaySong() {
       return setPlaying(true)
     }
   }
-  const handleSelectRange = () => {
-    setRangeSelecting(!rangeSelecting)
+  const handleBeginRangeSelection = () => {
+    setIsSelectingRange(true)
     setPlaying(false)
     player.pause()
   }
+
   return (
     <div>
       {!isRecording && (
@@ -205,7 +215,7 @@ export function PlaySong() {
             isPlaying={isPlaying}
             isSoundOff={soundOff}
             onTogglePlaying={handleTogglePlaying}
-            onSelectRange={handleSelectRange}
+            onSelectRange={handleBeginRangeSelection}
             onClickRestart={() => {
               player.stop()
               setPlaying(false)
@@ -221,14 +231,14 @@ export function PlaySong() {
             onClickSound={handleToggleSound}
             classNames={{
               settingsCog: sidebar && classes.active,
-              rangeIcon: rangeSelecting && classes.active,
+              rangeIcon: isSelectingRange && classes.active,
             }}
           />
           <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
             <SongScrubBar
               song={song ?? null}
-              rangeSelecting={rangeSelecting}
-              setRangeSelecting={setRangeSelecting}
+              rangeSelecting={isSelectingRange}
+              setRange={handleSetRange}
             />
           </div>
           <div
@@ -270,6 +280,7 @@ export function PlaySong() {
             config={songConfig}
             hand={hand}
             handSettings={getHandSettings(songConfig)}
+            selectedRange={range}
             getTime={() => Player.player().getTime()}
           />
         </div>

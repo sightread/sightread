@@ -26,6 +26,7 @@ const palette = {
   },
   measure: 'rgb(60,60,60)',
   octaveLine: 'rgb(90,90,90)',
+  rangeSelectionFill: '#ff801f',
 }
 
 /**
@@ -122,6 +123,11 @@ export function renderFallingVis(givenState: GivenState): void {
     }
   }
 
+  if (state.selectedRange) {
+    renderRange(state)
+  }
+
+  // Render piano pieces
   renderRedFelt(state)
   renderGreyBar(state)
 
@@ -160,6 +166,34 @@ function renderRedFelt(state: State) {
   const redFeltColor = 'rgb(159,31,38)'
   ctx.fillStyle = redFeltColor
   ctx.fillRect(0, redFeltY, width, redFeltHeight)
+  ctx.restore()
+}
+
+function renderRange(state: State) {
+  const { ctx, width, noteHitY, viewport, selectedRange, pps } = state
+  if (!state.selectedRange) {
+    return
+  }
+
+  const { start, end } = state.selectedRange
+  // Optimization
+  // if (start > viewport.end || end < viewport.start) {
+  //   return
+  // }
+
+  ctx.save()
+  const canvasX = 0
+  const canvasY = getItemStartEnd(
+    {
+      type: 'note',
+      duration: end - start,
+      time: start,
+    } as CanvasItem,
+    state,
+  ).start
+  const height = (end - start) * pps
+  ctx.fillStyle = palette.rangeSelectionFill
+  ctx.fillRect(canvasX, canvasY, 2, -height)
   ctx.restore()
 }
 

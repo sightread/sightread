@@ -3,18 +3,19 @@ import { formatTime } from '@/utils'
 import { useRAFLoop, useSize } from '@/hooks'
 import { Song } from '@/types'
 import Player from '@/features/player'
+import { palette } from '@/styles/common'
 
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
 export default function SongScrubBar({
   song,
   rangeSelecting = false,
-  setRangeSelecting = () => {},
+  setRange = () => {},
   onSeek = () => {},
 }: {
   song: Song | null
   rangeSelecting?: boolean
-  setRangeSelecting?: any
+  setRange?: any
   onSeek?: any
 }) {
   const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
@@ -81,8 +82,9 @@ export default function SongScrubBar({
         setMousePressed(false)
         if (rangeSelecting) {
           const { start, end } = rangeSelection.current!
-          player.setRange({ start, end: end ?? 0 })
-          setRangeSelecting(false)
+          const range = { start, end: end ?? 0 }
+          player.setRange(range)
+          setRange(range)
         }
       }
       const handler = (e: MouseEvent) => {
@@ -102,7 +104,7 @@ export default function SongScrubBar({
         window.removeEventListener('mouseup', handleUp)
       }
     }
-  }, [mousePressed, rangeSelecting, player, getProgress, setRangeSelecting])
+  }, [mousePressed, rangeSelecting, player, getProgress, setRange])
 
   return (
     <div
@@ -223,11 +225,36 @@ export default function SongScrubBar({
           ref={rangeRef}
           style={{
             position: 'absolute',
-            border: '2px solid orange',
-            top: '-2px',
-            height: 30,
+            height: '100%',
           }}
-        ></div>
+        >
+          <div
+            style={{
+              position: 'absolute',
+              width: 'calc(100%)',
+              height: 'calc(100% - 4px)',
+              borderTop: `2px solid ${palette.orange.light}`,
+              borderBottom: `2px solid ${palette.orange.light}`,
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: -10,
+              width: 'calc(100%)',
+              height: '100%',
+              borderLeft: `10px solid ${palette.orange.light}`,
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              width: 'calc(100%)',
+              height: '100%',
+              borderRight: `10px solid ${palette.orange.light}`,
+            }}
+          />
+        </div>
       )}
     </div>
   )
