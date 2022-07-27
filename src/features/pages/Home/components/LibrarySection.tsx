@@ -65,12 +65,12 @@ const classes = css({
       width: 380,
     },
     '& li': {
-      listStyleType: 'none',
-      marginBottom: '30px',
       display: 'flex',
-      alignItems: 'flex-start',
+      marginBottom: '30px',
+      alignItems: 'center',
+      textAlign: 'left',
     },
-    '& li span': { marginLeft: '10px', fontSize: '22px', marginTop: '2px' },
+    '& li span': { marginLeft: '10px', fontSize: '22px' },
   },
 })
 export default function LibrarySection() {
@@ -97,11 +97,11 @@ export default function LibrarySection() {
           <ul className={classes.ul}>
             <li>
               <CheckMarkIcon width={25} height={25} />
-              <span>Thousands of songs to choose from</span>
+              <span>Over one hundred songs</span>
             </li>
             <li>
               <CheckMarkIcon width={25} height={25} />
-              <span>Over one hundred instruments</span>
+              <span>GM Instrument support</span>
             </li>
             <li>
               <CheckMarkIcon width={25} height={25} />

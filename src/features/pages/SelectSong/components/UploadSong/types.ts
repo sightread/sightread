@@ -1,12 +1,13 @@
 export type UploadSong = {
   file: File
-  name: string
+  title: string
   artist: string
 }
 
 export type UploadFormState = {
   file?: File
-  name?: string
+  title?: string
   artist?: string
   error?: string
+  source: 'upload'
 }

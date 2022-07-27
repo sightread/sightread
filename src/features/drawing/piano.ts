@@ -88,7 +88,8 @@ export function drawPianoRoll(
 
   ctx.strokeStyle = 'transparent'
   ctx.fillStyle = 'black'
-  ctx.fillRect(0, pianoTopY, measurements.pianoWidth, whiteHeight)
+  // TODO: fix magic number +5. Likely similar solution to getting rid of pianoTopY kludge.
+  ctx.fillRect(0, pianoTopY, measurements.pianoWidth, whiteHeight + 5)
   for (let [midiNote, lane] of whiteNotes) {
     const { left, width } = lane
     ctx.fillStyle = whiteKeyBackground

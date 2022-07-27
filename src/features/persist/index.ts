@@ -1,4 +1,3 @@
-export type { UploadedSong } from './types'
 export { usePersistedState } from './hooks'
 export {
   isKeyAlreadyUsed,

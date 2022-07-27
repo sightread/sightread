@@ -7,9 +7,10 @@ import {
   isBrowser,
   isLocalStorageAvailable,
 } from '@/utils'
-import { isKeyAlreadyUsed, UploadedSong, saveSong } from '@/features/persist'
+import { isKeyAlreadyUsed, saveSong } from '@/features/persist'
 import { parseMidi, parseMusicXml } from '@/features/parsers'
 import { UploadSong, UploadFormState } from './types'
+import { LibrarySong } from '../../types'
 
 export async function convertFileToSong(file: File): Promise<Song> {
   if (isFileMidi(file)) {
@@ -25,13 +26,16 @@ export async function convertFileToSong(file: File): Promise<Song> {
   throw new Error('Unkown file type, valid types are audio/mid or .xml files.')
 }
 
-export async function uploadSong(form: UploadSong): Promise<UploadedSong | null> {
-  const { file, name, artist } = form
-  if (isKeyAlreadyUsed(name, artist)) {
+export async function uploadSong(
+  file: File,
+  title: string,
+  artist: string,
+): Promise<LibrarySong | null> {
+  if (isKeyAlreadyUsed(title, artist)) {
     throw new Error('Name and arist already used. Please choose another')
   }
   const parsedSong = await convertFileToSong(file)
-  return saveSong(parsedSong, name, artist)
+  return saveSong(parsedSong, title, artist)
 }
 
 export function prevent(e: React.MouseEvent) {
@@ -42,13 +46,14 @@ export function prevent(e: React.MouseEvent) {
 /** Warn the user if local storage is not availabe */
 export function defaultUploadState(): UploadFormState {
   if (!isBrowser()) {
-    return {}
+    return { source: 'upload' }
   }
   if (!isLocalStorageAvailable()) {
     return {
+      source: 'upload',
       error:
         'Warning: Due to your current browser, uploaded songs will be lost after leaving the site.',
     }
   }
-  return {}
+  return { source: 'upload' }
 }

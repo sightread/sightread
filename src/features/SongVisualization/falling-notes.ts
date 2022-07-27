@@ -63,6 +63,7 @@ type State = GivenState & {
   viewport: Viewport
   pianoMeasurements: PianoRollMeasurements
   pianoTopY: number
+  pianoHeight: number
   noteHitY: number
   redFeltHeight: number
   greyBarHeight: number
@@ -77,6 +78,7 @@ function deriveState(state: GivenState): State {
   const pianoMeasurements = getPianoRollMeasurements(state.width, { startNote, endNote })
   const { whiteHeight } = pianoMeasurements
   const pianoTopY = state.height - whiteHeight - 5
+  const pianoHeight = whiteHeight + 5
   const greyBarHeight = Math.max(Math.floor(whiteHeight / 30), 6)
   const redFeltHeight = greyBarHeight - 2
 
@@ -88,6 +90,7 @@ function deriveState(state: GivenState): State {
     greyBarHeight,
     redFeltHeight,
     noteHitY: pianoTopY - greyBarHeight - redFeltHeight,
+    pianoHeight,
   }
 }
 

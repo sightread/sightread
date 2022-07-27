@@ -1,19 +1,20 @@
-import { UploadedSong } from '@/features/persist'
+import { DifficultyLabel } from '@/types'
 
 export type LibrarySong = {
+  id: string
   file: string
-  name: string
+  title: string
   artist: string
-  difficulty: 'Easy' | 'Medium' | 'Hard'
-  type: 'song'
+  difficulty: number
   duration: number
+  source: 'midishare' | 'upload' | 'builtin'
 }
 
-export type SelectableSongs = (LibrarySong | UploadedSong)[]
+export type SelectableSongs = LibrarySong[]
 
 export type Filters = {
   show: boolean
   duration?: [number, number] // duration filter in a range. have to find song with longest duration?
-  difficulty?: 'Easy' | 'Medium' | 'Hard'
+  difficulty?: DifficultyLabel
   type?: 'song' | 'upload'
 }

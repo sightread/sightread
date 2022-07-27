@@ -7,11 +7,35 @@ import { getUploadedLibrary } from '@/features/persist'
 import { AppBar, Modal, Table, Sizer, Container } from '@/components'
 import { LibrarySong, Filters, SelectableSongs } from './types'
 import { FilterPane, FilterTypeValue, TypeFilter, UploadForm } from './components'
+import { DifficultyLabel } from '@/types'
 
-const library = songManifest.filter((s) => s.type === 'song') as LibrarySong[]
+const builtin = songManifest as unknown as LibrarySong[]
 
-export default function SelectSongPage() {
-  const [songs, setSongs] = useState<SelectableSongs>(library)
+function getDifficultyLabel(s: number): DifficultyLabel {
+  if (!s) {
+    return '-'
+  }
+
+  const difficultyMap: { [d: number]: DifficultyLabel } = {
+    0: '-',
+    10: 'Easiest',
+    20: 'Easier',
+    30: 'Easy',
+    40: 'Medium',
+    50: 'Hard',
+    60: 'Hardest',
+    65: 'Hardest',
+  }
+  return difficultyMap[s]
+}
+
+type SelectSongPageProps = {
+  midishareManifest: LibrarySong[]
+}
+export default function SelectSongPage(props: SelectSongPageProps) {
+  const [songs, setSongs] = useState<SelectableSongs>(
+    builtin.concat(Object.values(props.midishareManifest)),
+  )
   const [addNew, setAddNew] = useState<boolean>(false)
   const [selectedSong, setSelectedSong] = useState<any>('')
   const [filters, setFilters] = useState<Filters>({ show: false })
@@ -53,10 +77,6 @@ export default function SelectSongPage() {
     return setFilters({ ...filters, type })
   }
 
-  const filteredSongs = songs.filter((s) => {
-    return filters.type === undefined || s.type === filters.type
-  })
-
   return (
     <>
       <SongPreviewModal
@@ -82,14 +102,15 @@ export default function SelectSongPage() {
           <Sizer height={24} />
           <Table
             columns={[
-              { label: 'Title', id: 'name', keep: true },
+              { label: 'Title', id: 'title', keep: true },
               { label: 'Artist', id: 'artist', keep: true },
-              { label: 'Difficult', id: 'difficulty', format: () => 'Easy' },
+              { label: 'Difficulty', id: 'difficulty', format: getDifficultyLabel as any },
               { label: 'Length', id: 'duration', format: formatTime },
+              { label: 'Source', id: 'source' },
             ]}
             searchBoxPlaceholder="Search Songs by Title or Artist"
-            rows={filteredSongs}
-            filter={['name', 'artist']}
+            rows={songs}
+            filter={['title', 'artist']}
             onSelectRow={setSelectedSong}
             onCreate={handleAddNew}
             onFilter={handleToggleOpenFilter}

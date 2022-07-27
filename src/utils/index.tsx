@@ -51,11 +51,11 @@ export const breakpoints = {
 
 export class Deferred<T> {
   promise: Promise<T>
-  resolve!: (value: T | PromiseLike<T>) => void
-  reject!: (value: T | PromiseLike<T>) => void
+  resolve!: (value?: T | PromiseLike<T>) => void
+  reject!: (value: Error | PromiseLike<Error>) => void
   constructor() {
     this.promise = new Promise<T>((res, rej) => {
-      this.resolve = res
+      this.resolve = res as any
       this.reject = rej
     })
   }

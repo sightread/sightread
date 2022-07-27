@@ -1,12 +1,11 @@
 import { useState, useRef } from 'react'
 import { defaultUploadState, prevent } from './utils'
-import { UploadedSong } from '@/features/persist'
 import { UploadFormState } from './types'
-import { UploadSong } from './types'
 import { uploadSong } from './utils'
 import { Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import { css } from '@sightread/flake'
+import { LibrarySong } from '../../types'
 
 const classes = css({
   submitButton: {
@@ -49,7 +48,7 @@ const classes = css({
   },
 })
 
-export default function UploadForm({ onSuccess }: { onSuccess: (newSong: UploadedSong) => void }) {
+export default function UploadForm({ onSuccess }: { onSuccess: (newSong: LibrarySong) => void }) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [state, setState] = useState<UploadFormState>(defaultUploadState())
   const [dragOver, setDragOver] = useState<boolean>(false)
@@ -68,8 +67,8 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Uploade
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (state.file && state.artist && state.name) {
-      uploadSong(state as UploadSong)
+    if (state.file && state.artist && state.title) {
+      uploadSong(state.file, state.artist, state.title)
         .then((song) => {
           if (song && onSuccess) {
             setState(defaultUploadState())

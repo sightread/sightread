@@ -81,7 +81,6 @@ async function renderVideo(file: string) {
       log('an error: ' + err.message + `\n happened while processing file: ${file}`)
     })
     .save(`${outputDir}/${file}/${file}.mp4`)
-    .run()
 
   await waitForImages()
 
