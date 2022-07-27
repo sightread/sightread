@@ -1,4 +1,3 @@
-// TODO: replace jasmid with own parser.
 import { parseMidiFile, MidiEvent } from 'jasmid.ts'
 // Since this is called from Deno as well, we need to use relative paths.
 import type { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'

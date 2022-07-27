@@ -8,6 +8,7 @@ import { render } from '@/features/SongVisualization/canvasRenderer'
 import { waitForImages, getImages } from '@/features/SongVisualization/images'
 import { parseMidi, parserInferHands } from '@/features/parsers'
 
+const inputDir = '/Users/jakefried/Repos/midishare/public'
 const outputDir = '/Users/jakefried/Movies/sightread-recordings'
 const cpus = 2
 const fps = 60
@@ -31,11 +32,14 @@ function verifyFiles(files: string[]) {
   const extensions = [`mp3`, `mid`]
   for (const file of files) {
     for (const extension of extensions) {
-      const requirement = `${outputDir}/${file}/${file}.${extension}`
+      const requirement = `${inputDir}/${file}/${file}.${extension}`
       if (!fs.existsSync(requirement)) {
         console.error(`Missing required file: ${requirement}`)
         process.exit(1)
       }
+    }
+    if (!fs.existsSync(`${outputDir}/${file}`)) {
+      fs.mkdirSync(`${outputDir}/${file}`)
     }
   }
 }
@@ -51,13 +55,18 @@ async function main() {
 
   await step('render videos', async () => {
     for (const file of files) {
+      if (fs.existsSync(`${outputDir}/${file}/${file}.mp4`)) {
+        log(`Skipping ${file}`)
+        continue
+      }
+
       await step(`render of ${file}`, () => renderVideo(file))
     }
   })
 }
 
 async function renderVideo(file: string) {
-  const song: Song = await parse(`${outputDir}/${file}/${file}.mid`)
+  const song: Song = await parse(`${inputDir}/${file}/${file}.mid`)
   const hands = parserInferHands(song)
 
   const { items, duration } = song
@@ -68,7 +77,7 @@ async function renderVideo(file: string) {
   ffmpeg(passthrough)
     .inputFormat('image2pipe')
     .inputFPS(fps)
-    .input(`${outputDir}/${file}/${file}.mp3`)
+    .input(`${inputDir}/${file}/${file}.mp3`)
     .outputOptions(`-threads ${cpus}`)
     .on('progress', (progressDetails) =>
       throttledLog(`FFMPEG Timemark: ${progressDetails.timemark}`),

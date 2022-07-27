@@ -212,11 +212,12 @@ function renderMeasure(measure: SongMeasure, state: State): void {
   ctx.save()
   const posY = getItemStartEnd(measure, state).start - (state.height - state.noteHitY)
 
-  ctx.font = `16px ${TEXT_FONT}`
   ctx.strokeStyle = ctx.fillStyle = palette.measure
+  ctx.lineWidth = 2
   line(ctx, 0, posY, width, posY)
   ctx.strokeStyle = 'rgb(130,130,130)'
   ctx.fillStyle = 'rgb(130,130,130)'
+  ctx.font = `16px ${TEXT_FONT}`
   ctx.fillText(measure.number.toString(), width / 100, Math.floor(posY - 5))
   ctx.restore()
 }
