@@ -189,7 +189,7 @@ function renderRange(state: State) {
   const height = duration * pps
   ctx.fillStyle = palette.rangeSelectionFill
   ctx.globalAlpha = 0.5
-  const lineWidth = Math.floor(windowWidth / 75)
+  const lineWidth = Math.floor(windowWidth / 120)
   const lineHeight = Math.floor(lineWidth / 4)
   ctx.fillRect(0, canvasY, windowWidth, lineHeight)
   ctx.fillRect(canvasX, canvasY - height, lineWidth, height)
