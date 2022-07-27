@@ -10,4 +10,7 @@ export const palette = {
     primary: '#ff6825',
     dark: '#d74000',
   },
+  green: {
+    light: '#44b22e',
+  },
 }

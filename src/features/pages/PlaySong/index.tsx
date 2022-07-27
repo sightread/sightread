@@ -74,6 +74,7 @@ export function PlaySong() {
   const [sidebar, setSidebar] = useState(false)
   const [isPlaying, setPlaying] = useState(false)
   const [isSelectingRange, setIsSelectingRange] = useState(false)
+  console.log({ isSelectingRange })
   const [soundOff, setSoundOff] = useState(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const player = Player.player()
@@ -171,6 +172,7 @@ export function PlaySong() {
 
   const handleSetRange = useCallback(
     (range: { start: number; end: number }) => {
+      player.setRange(range)
       setRange(range)
       setIsSelectingRange(false)
     },

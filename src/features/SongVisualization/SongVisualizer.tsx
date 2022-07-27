@@ -59,7 +59,7 @@ function CanvasRenderer({
       time: getTime(),
       visualization: config.visualization,
       drawNotes: config.noteLetter,
-      width,
+      windowWidth: width,
       height,
       pps: 150, // pixels per second
       hands: handSettings,

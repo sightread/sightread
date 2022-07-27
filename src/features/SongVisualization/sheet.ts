@@ -32,7 +32,7 @@ const NOTE_ALPHA = 'A2'
 function getViewport(state: Readonly<GivenState>): Viewport {
   return {
     start: state.time * state.pps,
-    end: state.time * state.pps + (state.width - STAFF_START_X),
+    end: state.time * state.pps + (state.windowWidth - STAFF_START_X),
   }
 }
 
@@ -49,7 +49,7 @@ function deriveState(state: GivenState) {
 // - can also treat it all as one giant image that gets partially drawn each frame.
 export function renderSheetVis(givenState: GivenState): void {
   const state = deriveState(givenState)
-  state.ctx.clearRect(0, 0, state.width, state.height)
+  state.ctx.clearRect(0, 0, state.windowWidth, state.height)
   drawStatics(state)
   const items = getSheetItemsInView(state)
   for (const item of items) {
@@ -63,7 +63,7 @@ export function renderSheetVis(givenState: GivenState): void {
 
 function getSheetItemsInView(state: State): CanvasItem[] {
   const startPred = (item: CanvasItem) => getItemStartEnd(state, item).end >= 0
-  const endPred = (item: CanvasItem) => getItemStartEnd(state, item).start > state.width
+  const endPred = (item: CanvasItem) => getItemStartEnd(state, item).start > state.windowWidth
   return getItemsInView(state, startPred, endPred)
 }
 
@@ -79,8 +79,8 @@ function drawStatics(state: State) {
   const staffHeight = STAFF_FIVE_LINES_HEIGHT
   const trebleTopY = getTrebleStaffTopY(state)
   const bassTopY = getBassStaffTopY(state)
-  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, state.width)
-  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, state.width)
+  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, state.windowWidth)
+  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, state.windowWidth)
   drawStaffConnectingLine(state.ctx, STAFF_START_X, trebleTopY - 1, bassTopY + staffHeight + 1)
 
   const playLineTop = trebleTopY - PLAY_NOTES_LINE_OFFSET

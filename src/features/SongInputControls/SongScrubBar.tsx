@@ -31,6 +31,8 @@ export default function SongScrubBar({
   const rangeSelection = useRef<null | { start: number; end: number }>(null)
   const startX = useRef<number>(0)
   const player = Player.player()
+  const isDraggingL = useRef(false)
+  const isDraggingR = useRef(false)
 
   const getProgress = useCallback(
     (x: number) => {
@@ -65,12 +67,11 @@ export default function SongScrubBar({
   useEffect(() => {
     if (rangeSelecting) {
       rangeSelection.current = null
-      player.setRange(null)
     }
   }, [rangeSelecting, player])
 
-  function seekPlayer(e: { clientX: number }) {
-    const progress = getProgress(e.clientX)
+  function seekPlayer(clientX: number) {
+    const progress = getProgress(clientX)
     const songTime = progress * player.getDuration()
     onSeek()
     player.seek(songTime)
@@ -80,10 +81,11 @@ export default function SongScrubBar({
     if (mousePressed) {
       const handleUp = () => {
         setMousePressed(false)
+        isDraggingL.current = false
+        isDraggingR.current = false
         if (rangeSelecting) {
           const { start, end } = rangeSelection.current!
           const range = { start, end: end ?? 0 }
-          player.setRange(range)
           setRange(range)
         }
       }
@@ -92,8 +94,16 @@ export default function SongScrubBar({
         const songTime = progress * player.getDuration()
         if (rangeSelecting) {
           rangeSelection.current = { start: rangeSelection.current?.start ?? 0, end: songTime }
+        } else if ((isDraggingL.current || isDraggingR.current) && rangeSelection.current) {
+          if (isDraggingL.current) {
+            rangeSelection.current.start = songTime
+          } else {
+            rangeSelection.current.end = songTime
+          }
+          seekPlayer(e.clientX - 4)
+          setRange(rangeSelection.current)
         } else {
-          player.seek(songTime)
+          seekPlayer(e.clientX)
         }
       }
 
@@ -120,8 +130,11 @@ export default function SongScrubBar({
       }}
       onMouseDown={(e) => {
         setMousePressed(true)
-        if (!rangeSelecting) {
-          seekPlayer(e)
+        if (isDraggingL.current || isDraggingR.current) {
+          seekPlayer(e.clientX - 10)
+          return
+        } else if (!rangeSelecting) {
+          seekPlayer(e.clientX)
           return
         }
 
@@ -132,6 +145,10 @@ export default function SongScrubBar({
       onMouseOver={() => setMouseOver(true)}
       onMouseOut={() => setMouseOver(false)}
       onMouseMove={(e: React.MouseEvent) => {
+        if (!player.song) {
+          return
+        }
+
         if (measureSpanRef.current && timeSpanRef.current && toolTipRef.current) {
           const progress = getProgress(e.clientX)
           const songTime = progress * player.getDuration()
@@ -231,28 +248,34 @@ export default function SongScrubBar({
           <div
             style={{
               position: 'absolute',
-              width: 'calc(100%)',
-              height: 'calc(100% - 4px)',
-              borderTop: `2px solid ${palette.orange.light}`,
-              borderBottom: `2px solid ${palette.orange.light}`,
+              width: '100%',
+              height: 'calc(100% - 10px)',
+              borderTop: `5px solid ${palette.green.light}`,
+              borderBottom: `5px solid ${palette.green.light}`,
             }}
           />
           <div
             style={{
               position: 'absolute',
-              left: -10,
-              width: 'calc(100%)',
+              zIndex: 2,
+              left: 0,
+              width: 4,
+              cursor: 'ew-resize',
               height: '100%',
-              borderLeft: `10px solid ${palette.orange.light}`,
+              backgroundColor: palette.green.light,
             }}
+            onMouseDown={() => (isDraggingL.current = true)}
           />
           <div
             style={{
               position: 'absolute',
-              width: 'calc(100%)',
               height: '100%',
-              borderRight: `10px solid ${palette.orange.light}`,
+              cursor: 'ew-resize',
+              right: -4,
+              width: 4,
+              backgroundColor: palette.green.light,
             }}
+            onMouseDown={() => (isDraggingR.current = true)}
           />
         </div>
       )}

@@ -8,7 +8,7 @@ export type GivenState = {
   time: number
   drawNotes: boolean
   visualization: 'falling-notes' | 'sheet'
-  width: number
+  windowWidth: number
   height: number
   pps: number // pixels per second
   hand: Hand
