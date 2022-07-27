@@ -8,7 +8,7 @@ import { render } from '@/features/SongVisualization/canvasRenderer'
 import { waitForImages, getImages } from '@/features/SongVisualization/images'
 import { parseMidi, parserInferHands } from '@/features/parsers'
 
-const inputDir = '/Users/jakefried/Repos/midishare/public'
+const inputDir = '/Users/jakefried/Repos/midishare/public/download'
 const outputDir = '/Users/jakefried/Movies/sightread-recordings'
 const cpus = 2
 const fps = 60
