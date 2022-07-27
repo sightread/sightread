@@ -82,7 +82,7 @@ export function PlaySong() {
   const [song, setSong] = useState<Song>()
   const [songConfig, setSongConfig] = useSongSettings(id)
   let isRecording = router.query.recording != undefined
-  const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
+  const [range, setRange] = useState<{ start: number; end: number } | null>(null)
 
   const hand =
     songConfig.left && songConfig.right
@@ -171,7 +171,7 @@ export function PlaySong() {
   }, [player, synth, song, songConfig, soundOff])
 
   const handleSetRange = useCallback(
-    (range: { start: number; end: number }) => {
+    (range: { start: number; end: number } | null) => {
       player.setRange(range)
       setRange(range)
       setIsSelectingRange(false)
@@ -203,6 +203,11 @@ export function PlaySong() {
     }
   }
   const handleBeginRangeSelection = () => {
+    if (isSelectingRange) {
+      handleSetRange(null)
+      setIsSelectingRange(false)
+      return
+    }
     setIsSelectingRange(true)
     setPlaying(false)
     player.pause()

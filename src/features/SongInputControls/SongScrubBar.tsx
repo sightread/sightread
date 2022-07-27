@@ -131,7 +131,7 @@ export default function SongScrubBar({
       onMouseDown={(e) => {
         setMousePressed(true)
         if (isDraggingL.current || isDraggingR.current) {
-          seekPlayer(e.clientX - 10)
+          seekPlayer(e.clientX - 4)
           return
         } else if (!rangeSelecting) {
           seekPlayer(e.clientX)

@@ -169,17 +169,13 @@ function renderRedFelt(state: State) {
 }
 
 function renderRange(state: State) {
-  const { ctx, windowWidth, noteHitY, viewport, selectedRange, pps, height: windowHeight } = state
+  const { ctx, windowWidth, noteHitY, pps } = state
   if (!state.selectedRange) {
     return
   }
 
+  // TODO: Skip rendering the range if not even in view.
   const { start, end } = state.selectedRange
-  // Optimization
-  // if (start > viewport.end || end < viewport.start) {
-  //   return
-  // }
-
   ctx.save()
   const duration = end - start
   const canvasX = 0
