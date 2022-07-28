@@ -26,6 +26,7 @@ const palette = {
   },
   measure: 'rgb(60,60,60)',
   octaveLine: 'rgb(90,90,90)',
+  rangeSelectionFill: '#44b22e',
 }
 
 /**
@@ -75,7 +76,7 @@ function deriveState(state: GivenState): State {
     : ([{ midiNote: 21 }, { midiNote: 108 }] as SongNote[])
   const { startNote, endNote } = getSongRange({ notes })
 
-  const pianoMeasurements = getPianoRollMeasurements(state.width, { startNote, endNote })
+  const pianoMeasurements = getPianoRollMeasurements(state.windowWidth, { startNote, endNote })
   const { whiteHeight } = pianoMeasurements
   const pianoTopY = state.height - whiteHeight - 5
   const pianoHeight = whiteHeight + 5
@@ -84,7 +85,7 @@ function deriveState(state: GivenState): State {
 
   return {
     ...state,
-    pianoMeasurements: getPianoRollMeasurements(state.width, { startNote, endNote }),
+    pianoMeasurements: getPianoRollMeasurements(state.windowWidth, { startNote, endNote }),
     viewport: getViewport(state),
     pianoTopY,
     greyBarHeight,
@@ -103,25 +104,29 @@ function getFallingNoteItemsInView<T>(state: State): CanvasItem[] {
 export function renderFallingVis(givenState: GivenState): void {
   const state: State = deriveState(givenState)
   state.ctx.fillStyle = '#2e2e2e' // background color
-  state.ctx.fillRect(0, 0, state.width, state.height)
+  state.ctx.fillRect(0, 0, state.windowWidth, state.height)
 
   const items = getFallingNoteItemsInView(state)
 
-  // 1. Render the ruler lines
   renderOctaveRuler(state)
 
-  // 2. Render all the notes + measures
   for (let i of items) {
     if (i.type === 'measure') {
       renderMeasure(i, state)
     }
   }
+
   for (let i of items) {
     if (i.type === 'note') {
       renderFallingNote(i, state)
     }
   }
 
+  if (state.selectedRange) {
+    renderRange(state)
+  }
+
+  // Render piano pieces
   renderRedFelt(state)
   renderGreyBar(state)
 
@@ -152,7 +157,7 @@ function getNoteColor(state: State, note: SongNote): string {
 }
 
 function renderRedFelt(state: State) {
-  const { ctx, width } = state
+  const { ctx, windowWidth: width } = state
   const { pianoTopY, redFeltHeight } = state
   const redFeltY = pianoTopY - redFeltHeight
 
@@ -163,6 +168,31 @@ function renderRedFelt(state: State) {
   ctx.restore()
 }
 
+function renderRange(state: State) {
+  const { ctx, windowWidth, noteHitY, pps } = state
+  if (!state.selectedRange) {
+    return
+  }
+
+  // TODO: Skip rendering the range if not even in view.
+  const { start, end } = state.selectedRange
+  ctx.save()
+  const duration = end - start
+  const canvasX = 0
+  const canvasY =
+    getItemStartEnd({ type: 'note', time: start, duration } as CanvasItem, state).start -
+    (state.height - noteHitY)
+  const height = duration * pps
+  ctx.fillStyle = palette.rangeSelectionFill
+  ctx.globalAlpha = 0.5
+  const lineWidth = Math.floor(windowWidth / 120)
+  const lineHeight = Math.floor(lineWidth / 4)
+  ctx.fillRect(0, canvasY, windowWidth, lineHeight)
+  ctx.fillRect(canvasX, canvasY - height, lineWidth, height)
+  ctx.fillRect(0, canvasY - height - lineHeight, windowWidth, lineHeight)
+  ctx.restore()
+}
+
 function renderGreyBar(state: State) {
   const { pianoTopY, redFeltHeight, greyBarHeight, ctx } = state
 
@@ -170,8 +200,8 @@ function renderGreyBar(state: State) {
   ctx.fillStyle = 'rgb(74,74,74)'
   ctx.strokeStyle = 'rgb(40,40,40)'
   const greyBarY = pianoTopY - redFeltHeight - greyBarHeight
-  ctx.fillRect(0, greyBarY + 0.2, state.width, greyBarHeight)
-  ctx.strokeRect(0, greyBarY, state.width, greyBarHeight)
+  ctx.fillRect(0, greyBarY + 0.2, state.windowWidth, greyBarHeight)
+  ctx.strokeRect(0, greyBarY, state.windowWidth, greyBarHeight)
   ctx.restore()
 }
 
@@ -208,7 +238,7 @@ export function renderFallingNote(note: SongNote, state: State): void {
 }
 
 function renderMeasure(measure: SongMeasure, state: State): void {
-  const { ctx, width, viewport } = state
+  const { ctx, windowWidth: width, viewport } = state
   ctx.save()
   const posY = getItemStartEnd(measure, state).start - (state.height - state.noteHitY)
 

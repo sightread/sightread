@@ -16,6 +16,7 @@ type CanvasRendererProps = {
   handSettings: HandSettings
   getTime: () => number
   constrictView?: boolean
+  selectedRange?: { start: number; end: number }
 }
 
 function CanvasRenderer({
@@ -23,6 +24,7 @@ function CanvasRenderer({
   config,
   hand,
   handSettings,
+  selectedRange,
   getTime,
   constrictView = true,
 }: CanvasRendererProps) {
@@ -57,7 +59,7 @@ function CanvasRenderer({
       time: getTime(),
       visualization: config.visualization,
       drawNotes: config.noteLetter,
-      width,
+      windowWidth: width,
       height,
       pps: 150, // pixels per second
       hands: handSettings,
@@ -68,6 +70,7 @@ function CanvasRenderer({
       keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
       canvasRect: getRectRef.current(),
+      selectedRange,
     }
     render(state)
   })

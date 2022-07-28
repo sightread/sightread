@@ -1,5 +1,5 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { SongNote, Song, SongConfig } from '@/types'
+import { SongNote, Song, SongConfig, SongMeasure } from '@/types'
 import { InstrumentName } from '@/features/synth'
 import { getHands } from '@/utils'
 import { getSynth, Synth } from '../synth'
@@ -157,7 +157,7 @@ class Player {
     return index
   }
 
-  getMeasureForTime(time: number) {
+  getMeasureForTime(time: number): SongMeasure {
     let index = this.song.measures.findIndex((m) => m.time > time) - 1
     if (index < 0) {
       index = this.song.measures.length - 1
@@ -220,7 +220,7 @@ class Player {
     if (this.range) {
       let [start, stop] = this.range
       if (prevTime <= stop && stop <= time) {
-        this.seek(start)
+        this.seek(start - 0.5)
         return
       }
     }
@@ -274,6 +274,7 @@ class Player {
     this.currentIndex = 0
     this.playing = []
     this.notify(true)
+    this.range = null
   }
 
   seek(time: number) {
@@ -306,9 +307,8 @@ class Player {
     return this.song?.duration ?? 0
   }
 
-  setRange(range: { start: number; end: number } | null) {
-    if (range === null) {
-      this.range = range
+  setRange(range?: { start: number; end: number }) {
+    if (!range) {
       return
     }
 
