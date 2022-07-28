@@ -61,8 +61,9 @@ export default function SelectSongPage(props: SelectSongPageProps) {
     setAddNew(false)
   }
 
-  const handleAddNew = () => {
+  const handleAddNew = (e: any) => {
     setAddNew(true)
+    e.stopPropagation()
   }
 
   const handleCloseAdd = () => {
@@ -105,7 +106,11 @@ export default function SelectSongPage(props: SelectSongPageProps) {
               { label: 'Title', id: 'title', keep: true },
               { label: 'Artist', id: 'artist', keep: true },
               { label: 'Difficulty', id: 'difficulty', format: getDifficultyLabel as any },
-              { label: 'Length', id: 'duration', format: formatTime },
+              {
+                label: 'Length',
+                id: 'duration',
+                format: (n) => formatTime(n),
+              },
               { label: 'Source', id: 'source' },
             ]}
             searchBoxPlaceholder="Search Songs by Title or Artist"

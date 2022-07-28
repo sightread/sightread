@@ -65,20 +65,20 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
     setState({ ...state, [name]: value })
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (state.file && state.artist && state.title) {
-      uploadSong(state.file, state.artist, state.title)
-        .then((song) => {
-          if (song && onSuccess) {
-            setState(defaultUploadState())
-            onSuccess(song)
-          }
-        })
-        .catch((error) => {
-          console.error('Something went wrong', error)
-          setState({ ...state, error: error.toString() })
-        })
+      try {
+        const song = await uploadSong(state.file, state.artist, state.title)
+        console.log(song, onSuccess)
+        if (song && onSuccess) {
+          setState(defaultUploadState())
+          onSuccess(song)
+        }
+      } catch (error: any) {
+        console.error('Something went wrong', error)
+        setState({ ...state, error: error.toString() })
+      }
     }
   }
 
@@ -132,14 +132,14 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
 
   return (
     <form onSubmit={handleSubmit} style={{ fontSize: '21px' }}>
-      <label htmlFor="name" style={{ display: 'block' }}>
+      <label htmlFor="title" style={{ display: 'block' }}>
         Title
       </label>
       <Sizer height={5} />
       <input
         onChange={handleChange}
-        id="name"
-        name="name"
+        id="title"
+        name="title"
         type="text"
         className={classes.input}
         style={state.error ? { border: '1px solid red' } : {}}

@@ -2,22 +2,20 @@ import type { Song, SongConfig } from '@/types'
 import type { LibrarySong } from '../pages/SelectSong/types'
 import { LOCAL_STORAGE_SONG_LIST_KEY, LOCAL_STORAGE_SONG_SUFFIX } from './constants'
 import Storage from './storage'
-import { UploadedSong } from './types'
 
 function getStorageFilename(name: string, artist: string) {
   return `uploads/${name}/${artist}`
 }
-export function getSongStorageKey(name: string, artist: string): string {
-  return getStorageFilename(name, artist) + '/' + LOCAL_STORAGE_SONG_SUFFIX
+export function getSongStorageKey(title: string, artist: string): string {
+  return getStorageFilename(title, artist) + '/' + LOCAL_STORAGE_SONG_SUFFIX
 }
 export function isKeyAlreadyUsed(title: string, artist: string): boolean {
   const songs = getUploadedLibrary()
   return !!songs.find((s) => s.title === title && s.artist === artist)
 }
 
-export function getUploadedSong(file: string): Song | null {
-  const storageKey = file + '/' + LOCAL_STORAGE_SONG_SUFFIX
-  return Storage.get<Song>(storageKey)
+export function getUploadedSong(id: string): Song | null {
+  return Storage.get<Song>(id)
 }
 
 export function getUploadedLibrary(): LibrarySong[] {
@@ -30,10 +28,11 @@ export function getUploadedLibrary(): LibrarySong[] {
 /**
  * Need to update song index, as well as individual song data.
  */
-export function saveSong(song: Song, title: string, artist: string): LibrarySong {
+export async function saveSong(song: Song, title: string, artist: string): Promise<LibrarySong> {
   const songKey = getSongStorageKey(title, artist)
+  const id = await sha1(songKey)
   const uploadedSong: LibrarySong = {
-    id: 'TODO', // use md5
+    id,
     title,
     artist,
     duration: song.duration,
@@ -42,10 +41,17 @@ export function saveSong(song: Song, title: string, artist: string): LibrarySong
     difficulty: 0,
   }
   const songs = getUploadedLibrary().concat(uploadedSong)
-  Storage.set(songKey, JSON.stringify(song))
-  Storage.set(LOCAL_STORAGE_SONG_LIST_KEY, JSON.stringify(songs))
+  Storage.set(id, song)
+  Storage.set(LOCAL_STORAGE_SONG_LIST_KEY, songs)
 
   return uploadedSong
+}
+
+async function sha1(message: string) {
+  const msgUint8 = new TextEncoder().encode(message)
+  const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 export function getPersistedSongSettings(file: string) {

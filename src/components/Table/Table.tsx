@@ -133,7 +133,10 @@ export default function Table<T extends Row>({
               <div
                 className={classes.tableRow}
                 style={{ display: 'contents' }}
-                onClick={() => onSelectRow(row)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onSelectRow(row)
+                }}
                 key={`row-${i}`}
               >
                 {columns.map((col, j) => {
