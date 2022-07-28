@@ -3,21 +3,25 @@ import '@/styles/reset.css'
 import '@/styles/index.css'
 import '@/styles/SelectSong.css'
 import type { AppProps } from 'next/app'
-import Head from 'next/head'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import * as analytics from '@/features/analytics'
 
-function MyApp({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
+  const router = useRouter()
+  useEffect(() => {
+    const handleRouteChange = (url: string) => analytics.pageview(url)
+    router.events.on('routeChangeComplete', handleRouteChange)
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [router.events])
+
   return (
     <>
-      <Head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#000000" />
-        <meta name="description" content="sightread" />
-        <title>Sightread</title>
-      </Head>
       <Component {...pageProps} />
     </>
   )
 }
 
-export default MyApp
+export default App
