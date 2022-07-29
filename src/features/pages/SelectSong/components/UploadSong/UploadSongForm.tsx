@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react'
 import { defaultUploadState, prevent } from './utils'
 import { UploadFormState } from './types'
-import { uploadSong } from './utils'
 import { Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import { css } from '@sightread/flake'
 import { LibrarySong } from '../../types'
+import { saveSong } from '@/features/persist'
 
 const classes = css({
   submitButton: {
@@ -65,20 +65,17 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
     setState({ ...state, [name]: value })
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (state.file && state.artist && state.title) {
-      uploadSong(state.file, state.artist, state.title)
-        .then((song) => {
-          if (song && onSuccess) {
-            setState(defaultUploadState())
-            onSuccess(song)
-          }
-        })
-        .catch((error) => {
-          console.error('Something went wrong', error)
-          setState({ ...state, error: error.toString() })
-        })
+      try {
+        const song = await saveSong(state.file, state.title, state.artist)
+        setState(defaultUploadState())
+        onSuccess(song)
+      } catch (error: any) {
+        console.error('Something went wrong', error)
+        setState({ ...state, error: error.toString() })
+      }
     }
   }
 
@@ -132,14 +129,14 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
 
   return (
     <form onSubmit={handleSubmit} style={{ fontSize: '21px' }}>
-      <label htmlFor="name" style={{ display: 'block' }}>
+      <label htmlFor="title" style={{ display: 'block' }}>
         Title
       </label>
       <Sizer height={5} />
       <input
         onChange={handleChange}
-        id="name"
-        name="name"
+        id="title"
+        name="title"
         type="text"
         className={classes.input}
         style={state.error ? { border: '1px solid red' } : {}}
@@ -190,6 +187,7 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
           Submit
         </button>
       </div>
+      <Sizer height={15} />
       {state.error && (
         <>
           <Sizer height={24} />

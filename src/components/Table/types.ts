@@ -15,7 +15,7 @@ export type TableProps<T extends Row> = {
   searchBoxPlaceholder: string
   onSelectRow: (row: T) => void
   filter: (keyof T)[]
-  onCreate?: () => void
+  onCreate?: React.MouseEventHandler<HTMLButtonElement>
   onDelete?: null | ((item: T | undefined) => void)
   onFilter?: () => void
 }

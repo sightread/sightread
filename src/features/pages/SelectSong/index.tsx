@@ -54,15 +54,15 @@ export default function SelectSongPage(props: SelectSongPageProps) {
 
   // TODO: this is a bug if the uploaded library changes, and s will only expand.
   const uploadedLibrary = getUploadedLibrary()
-  useEffect(() => setSongs((s) => s.concat(uploadedLibrary)), [uploadedLibrary])
+  useEffect(() => {
+    setSongs(builtin.concat(Object.values(props.midishareManifest)).concat(uploadedLibrary))
+  }, [uploadedLibrary])
 
-  const handleUpload = () => {
-    setSongs(songs.concat(getUploadedLibrary()))
-    setAddNew(false)
-  }
+  const handleUpload = () => setAddNew(false)
 
-  const handleAddNew = () => {
+  const handleAddNew = (e: any) => {
     setAddNew(true)
+    e.stopPropagation()
   }
 
   const handleCloseAdd = () => {
@@ -105,7 +105,11 @@ export default function SelectSongPage(props: SelectSongPageProps) {
               { label: 'Title', id: 'title', keep: true },
               { label: 'Artist', id: 'artist', keep: true },
               { label: 'Difficulty', id: 'difficulty', format: getDifficultyLabel as any },
-              { label: 'Length', id: 'duration', format: formatTime },
+              {
+                label: 'Length',
+                id: 'duration',
+                format: (n) => formatTime(n),
+              },
               { label: 'Source', id: 'source' },
             ]}
             searchBoxPlaceholder="Search Songs by Title or Artist"

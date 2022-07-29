@@ -11,7 +11,7 @@ async function getServerSong(source: string, id: string): Promise<Song> {
 }
 
 export async function getSong(source: string, id: string): Promise<Song> {
-  let song = getUploadedSong('TODO')
+  let song = getUploadedSong(id)
   if (!song) {
     song = await getServerSong(source, id)
   }

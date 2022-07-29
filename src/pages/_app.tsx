@@ -6,6 +6,7 @@ import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import * as analytics from '@/features/analytics'
+import Head from 'next/head'
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
@@ -19,6 +20,10 @@ function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>sightread</title>
+      </Head>
       <Component {...pageProps} />
     </>
   )

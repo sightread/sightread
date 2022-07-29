@@ -154,10 +154,6 @@ export default function SongPreviewModal({
     [songConfig],
   )
 
-  function setupModal(song: Song) {
-    setCanPlay(false)
-    setSong(song)
-  }
   const handleTogglePlay = useCallback(() => {
     if (playing) {
       player.pause()
@@ -174,10 +170,12 @@ export default function SongPreviewModal({
     if (!source || !id) {
       return
     }
+
     getSong(source, id).then((song) => {
-      setupModal(song)
+      setCanPlay(false)
       const config = getSongSettings(id, song)
       setSongConfig(config)
+      setSong(song)
       player.setSong(song, config).then(() => {
         setCanPlay(true)
       })
@@ -186,7 +184,7 @@ export default function SongPreviewModal({
       player.stop()
       setPlaying(false)
     }
-  }, [songMeta, player, setSongConfig])
+  }, [songMeta, player, setSongConfig, id, source])
 
   useEffect(() => {
     if (!show) {
