@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react'
 import { defaultUploadState, prevent } from './utils'
 import { UploadFormState } from './types'
-import { uploadSong } from './utils'
 import { Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import { css } from '@sightread/flake'
 import { LibrarySong } from '../../types'
+import { saveSong } from '@/features/persist'
 
 const classes = css({
   submitButton: {
@@ -69,8 +69,7 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
     e.preventDefault()
     if (state.file && state.artist && state.title) {
       try {
-        const song = await uploadSong(state.file, state.artist, state.title)
-        console.log(song, onSuccess)
+        const song = await saveSong(state.file, state.artist, state.title)
         if (song && onSuccess) {
           setState(defaultUploadState())
           onSuccess(song)
@@ -190,6 +189,7 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
           Submit
         </button>
       </div>
+      <Sizer height={15} />
       {state.error && (
         <>
           <Sizer height={24} />

@@ -1,18 +1,9 @@
 import type { Song, SongConfig } from '@/types'
+import { fileToUint8 } from '@/utils'
 import type { LibrarySong } from '../pages/SelectSong/types'
+import { parseMidi } from '../parsers'
 import { LOCAL_STORAGE_SONG_LIST_KEY, LOCAL_STORAGE_SONG_SUFFIX } from './constants'
 import Storage from './storage'
-
-function getStorageFilename(name: string, artist: string) {
-  return `uploads/${name}/${artist}`
-}
-export function getSongStorageKey(title: string, artist: string): string {
-  return getStorageFilename(title, artist) + '/' + LOCAL_STORAGE_SONG_SUFFIX
-}
-export function isKeyAlreadyUsed(title: string, artist: string): boolean {
-  const songs = getUploadedLibrary()
-  return !!songs.find((s) => s.title === title && s.artist === artist)
-}
 
 export function getUploadedSong(id: string): Song | null {
   return Storage.get<Song>(id)
@@ -26,29 +17,35 @@ export function getUploadedLibrary(): LibrarySong[] {
 }
 
 /**
- * Need to update song index, as well as individual song data.
+ * Song data is stored in localStorage in two places:
+ * - Song Library: list of songs and their metadata
+ * - Song Data: data keyed by id of the song's notes.
+ *
+ * This function creates entries in both.
  */
-export async function saveSong(song: Song, title: string, artist: string): Promise<LibrarySong> {
-  const songKey = getSongStorageKey(title, artist)
-  const id = await sha1(songKey)
+export async function saveSong(file: File, title: string, artist: string): Promise<LibrarySong> {
+  const buffer = await fileToUint8(file)
+  const song = parseMidi(buffer.buffer)
+  const id = await sha1(buffer)
   const uploadedSong: LibrarySong = {
     id,
     title,
     artist,
     duration: song.duration,
-    file: getStorageFilename(title, artist),
+    file: `uploads/${title}/${artist}`,
     source: 'upload',
     difficulty: 0,
   }
-  const songs = getUploadedLibrary().concat(uploadedSong)
+  const library = getUploadedLibrary()
+  if (library.find((s) => s.id === id)) {
+    throw new Error('Cannot upload the same song twice')
+  }
+  Storage.set(LOCAL_STORAGE_SONG_LIST_KEY, library.concat(uploadedSong))
   Storage.set(id, song)
-  Storage.set(LOCAL_STORAGE_SONG_LIST_KEY, songs)
-
   return uploadedSong
 }
 
-async function sha1(message: string) {
-  const msgUint8 = new TextEncoder().encode(message)
+async function sha1(msgUint8: Uint8Array) {
   const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')

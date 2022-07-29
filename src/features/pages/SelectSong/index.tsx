@@ -54,12 +54,11 @@ export default function SelectSongPage(props: SelectSongPageProps) {
 
   // TODO: this is a bug if the uploaded library changes, and s will only expand.
   const uploadedLibrary = getUploadedLibrary()
-  useEffect(() => setSongs((s) => s.concat(uploadedLibrary)), [uploadedLibrary])
+  useEffect(() => {
+    setSongs(builtin.concat(Object.values(props.midishareManifest)).concat(uploadedLibrary))
+  }, [uploadedLibrary])
 
-  const handleUpload = () => {
-    setSongs(songs.concat(getUploadedLibrary()))
-    setAddNew(false)
-  }
+  const handleUpload = () => setAddNew(false)
 
   const handleAddNew = (e: any) => {
     setAddNew(true)
