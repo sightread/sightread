@@ -224,7 +224,7 @@ function renderOctaveRuler(state: State) {
 }
 
 export function renderFallingNote(note: SongNote, state: State): void {
-  const { ctx, pps } = state
+  const { ctx, pps, drawNotes } = state
   const lane = state.pianoMeasurements.lanes[note.midiNote]
   const posY = getItemStartEnd(note, state).end - (state.height - state.noteHitY)
   const posX = Math.floor(lane.left + 1)
@@ -232,9 +232,22 @@ export function renderFallingNote(note: SongNote, state: State): void {
   const width = lane.width - 2
   const color = getNoteColor(state, note)
 
+  ctx.save()
   ctx.fillStyle = color
   ctx.strokeStyle = 'rgb(40,40,40)'
   roundRect(ctx, posX, posY, width, length)
+
+  if (drawNotes) {
+    ctx.fillStyle = 'white'
+    ctx.strokeStyle = 'black'
+    ctx.textBaseline = 'bottom'
+    const noteText = getKey(note.midiNote, state.keySignature)
+    ctx.font = `${(width * 2) / 3}px ${TEXT_FONT}`
+    // TODO: only measure this once per render loop, instead of for each note.
+    const { width: textWidth } = ctx.measureText(noteText)
+    ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 2)
+  }
+  ctx.restore()
 }
 
 function renderMeasure(measure: SongMeasure, state: State): void {

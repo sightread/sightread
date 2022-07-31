@@ -99,7 +99,7 @@ async function renderVideo(file: string) {
     visualization: 'falling-notes',
     width: viewport.width,
     height: viewport.height,
-    pps: 150,
+    pps: 225,
     hand: 'both',
     hands: { [hands.right]: { hand: 'right' }, [hands.left]: { hand: 'left' } },
     items: items,
