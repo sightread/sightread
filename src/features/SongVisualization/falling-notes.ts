@@ -230,9 +230,9 @@ export function renderFallingNote(note: SongNote, state: State): void {
   const posX = Math.floor(lane.left + 1)
   const width = lane.width - 2
   const color = getNoteColor(state, note)
-  const actualLength = Math.floor(note.duration * pps)
+  const actualLength = note.duration * pps
   const minLengthToDisplayLetter = getFontSize(ctx, '', (width * 2) / 3).height + 15
-  const length = Math.max(actualLength, minLengthToDisplayLetter)
+  const length = Math.floor(Math.max(actualLength, minLengthToDisplayLetter))
 
   ctx.save()
   ctx.fillStyle = color
