@@ -25,7 +25,7 @@ export function TableHead<T, D extends keyof T>({
       {columns.map((col, i) => {
         const marginLeft = i === 0 ? 20 : 0
         return (
-          <div style={{ ...headerStyles, height: rowHeight }} key={`col-${col.id}`}>
+          <div style={{ ...headerStyles, height: rowHeight }} key={`col-${col.id.toString()}`}>
             <span style={{ cursor: 'pointer', marginLeft }} onClick={() => onSelectCol(i + 1)}>
               {col.label}
               {getIcon(sortCol, i)}

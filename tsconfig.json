@@ -7,6 +7,7 @@
     "sourceMap": true,
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext", "es2019"],
+    "alwaysStrict": true,
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -21,7 +22,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "incremental": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]
