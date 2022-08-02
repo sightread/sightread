@@ -61,7 +61,7 @@ function CanvasRenderer({
       drawNotes: config.noteLetter,
       windowWidth: width,
       height,
-      pps: 150, // pixels per second
+      pps: 225, // pixels per second
       hands: handSettings,
       hand,
       ctx: ctxRef.current,

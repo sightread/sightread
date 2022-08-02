@@ -11,7 +11,7 @@ import {
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
 import { getRelativeMouseCoordinates } from '../mouse'
-import { CanvasItem, getItemsInView, getSongRange, Viewport } from './utils'
+import { CanvasItem, getFontSize, getItemsInView, getSongRange, Viewport } from './utils'
 import { clamp } from '@/utils'
 
 const TEXT_FONT = 'Arial'
@@ -224,21 +224,36 @@ function renderOctaveRuler(state: State) {
 }
 
 export function renderFallingNote(note: SongNote, state: State): void {
-  const { ctx, pps } = state
+  const { ctx, pps, drawNotes } = state
   const lane = state.pianoMeasurements.lanes[note.midiNote]
   const posY = getItemStartEnd(note, state).end - (state.height - state.noteHitY)
   const posX = Math.floor(lane.left + 1)
-  const length = Math.floor(note.duration * pps)
   const width = lane.width - 2
   const color = getNoteColor(state, note)
+  const actualLength = Math.floor(note.duration * pps)
+  const minLengthToDisplayLetter = getFontSize(ctx, '', (width * 2) / 3).height + 15
+  const length = Math.max(actualLength, minLengthToDisplayLetter)
 
+  ctx.save()
   ctx.fillStyle = color
   ctx.strokeStyle = 'rgb(40,40,40)'
   roundRect(ctx, posX, posY, width, length)
+
+  if (drawNotes) {
+    ctx.fillStyle = 'white'
+    ctx.strokeStyle = 'black'
+    ctx.textBaseline = 'bottom'
+    const noteText = getKey(note.midiNote, state.keySignature)
+    const fontPx = (width * 2) / 3
+    ctx.font = `${fontPx}px ${TEXT_FONT}`
+    const textWidth = getFontSize(ctx, noteText, fontPx).width
+    ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 2)
+  }
+  ctx.restore()
 }
 
 function renderMeasure(measure: SongMeasure, state: State): void {
-  const { ctx, windowWidth: width, viewport } = state
+  const { ctx, windowWidth: width } = state
   ctx.save()
   const posY = getItemStartEnd(measure, state).start - (state.height - state.noteHitY)
 
