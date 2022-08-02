@@ -91,11 +91,6 @@ function inferHands(song: Song): { left?: number; right?: number } {
 
 // TODO: is this an OK spot?
 export type CanvasItem = SongMeasure | SongNote
-type HandSettings = {
-  [trackId: string]: {
-    hand: Hand | 'none'
-  }
-}
 
 export function getItemsInView<T>(
   state: GivenState,
@@ -149,3 +144,26 @@ function isMatchingHand(item: CanvasItem, state: GivenState) {
 }
 
 export type Viewport = { start: number; end: number }
+
+let fontSizeCache: { [px: number]: { [text: string]: { width: number; height: number } } } = {}
+export function getFontSize(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  fontPx: number,
+): { width: number; height: number } {
+  if (fontSizeCache[fontPx]?.[text]) {
+    return fontSizeCache[fontPx][text]
+  }
+
+  // Height is fontHeight as opposed to the height of the actual letter.
+  const metrics = ctx.measureText(text)
+  if (!fontSizeCache[fontPx]) {
+    fontSizeCache[fontPx] = {}
+  }
+  const size = {
+    width: metrics.width,
+    height: metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent,
+  }
+  fontSizeCache[fontPx][text] = size
+  return size
+}
