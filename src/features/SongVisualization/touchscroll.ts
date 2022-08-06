@@ -18,7 +18,6 @@ export const stopAccel = () => {
 // calculate acceleration as dv/dt, where dt is in frames
 export const velocity = (v2: number, v1: number) => {
   acceleration = v2 - v1
-  console.log(acceleration)
 }
 
 // ! Careful balance is needed for these values.
