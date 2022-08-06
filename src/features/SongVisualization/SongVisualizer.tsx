@@ -5,6 +5,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { formatTime } from '@/utils'
 import Player from '@/features/player'
 import { palette } from '@/styles/common'
+import { decay, velocity, seekPlayer, stopAccel } from '@/features/SongVisualization/touchscroll'
 
 type HandSettings = {
   [trackId: string]: {
@@ -26,9 +27,6 @@ type CanvasRendererProps = {
 }
 
 function CanvasRenderer({
-  rangeSelecting = false,
-  setRange = () => {},
-  onSeek = () => {},
   song,
   config,
   hand,
@@ -43,86 +41,41 @@ function CanvasRenderer({
   const { width, height, measureRef } = useSize()
   const player = Player.player()
   const [stopper, stopThing] = useState(false)
-  function seekPlayer(clientX: number) {
-    // 10 value is for better scaling
-    // TODO: eliminate 10 value and move to inits below
-    const progress = (clientX / height) * 10
-    const songTime = progress + player.getTime()
-    onSeek()
-    player.seek(songTime)
-  }
 
   useEffect(() => {
     // TODO If change directions, call getY
     if (mousePressed) {
       const wasplaying = player.isPlaying()
-      if (wasplaying) player.pause()
-
-      // init drag
       let dragY = 0
-      // init acceleration
-      let acceleration = 0
-
       const handleDown = (e: MouseEvent) => {
+        if (wasplaying) player.pause()
         // TODO: doubleclick pause / play
         dragY = e.clientY
+        stopAccel()
       }
       const handleDownTouch = (e: TouchEvent) => {
+        if (wasplaying) player.pause()
         dragY = e.targetTouches[0].clientY
-      }
-      // calculate acceleration as dv/dt, where dt is in frames
-      const velocity = (v2: number, v1: number) => {
-        acceleration = v2 - v1
-      }
-      // init decayrate at 1 because of upwards decay
-      let decayrate = 1
-
-      // ? Good values are
-      // ? f = 10, dfall = 0.015, expdec = 2 amag = 3
-      // ? f = 5, dfall = 0.005, expec = 5, amag = 1.2
-      // set framerate
-      const framerate = 5
-      // set decay falloff value, (How quickly it will come to a stop)
-      const dfalloff = 0.002
-      // exp decay
-      // ? Disabled to remove power function, unnecessary use.
-      //const expdecay = 2
-      // set acceleration magnitude value (How much it scales with acceleration)
-      const aMag = 0.2
-      // TODO Calculate dfalloff and aMag proportionate to framerate
-      const decay = (drate: number) => {
-        //Delay frames
-
-        setTimeout(() => {
-          // !STOP THE ACCEL WHEN PRESSING AGAIN
-          // TODO Make it more efficient, clamp values
-          seekPlayer((acceleration * aMag) / drate)
-          drate = drate * (1 + dfalloff)
-          // Check if decay meets up with accel, ABS value because it can be neg.
-          if (drate < Math.abs(acceleration) * aMag) {
-            //if (!stopper)
-            decay(drate)
-          } else if (wasplaying) {
-            player.play()
-          }
-        }, framerate)
+        stopAccel()
       }
 
       const handleUp = () => {
-        //stopThing(false)
-        decay(decayrate)
-
+        decay()
+        if (wasplaying) player.play()
         setMousePressed(false)
       }
 
       const handler = (e: MouseEvent) => {
-        seekPlayer(e.clientY - dragY)
-        velocity(e.clientY, dragY)
+        seekPlayer((e.clientY - dragY) * 4)
+        if (Math.abs(e.clientY - dragY) > 2) velocity(e.clientY, dragY)
+        else velocity(0, 0)
         dragY = e.clientY
       }
       const handletouch = (e: TouchEvent) => {
-        seekPlayer(e.targetTouches[0].clientY - dragY)
-        velocity(e.targetTouches[0].clientY, dragY)
+        seekPlayer((e.targetTouches[0].clientY - dragY) * 4)
+        if (Math.abs(e.targetTouches[0].clientY - dragY) > 2)
+          velocity(e.targetTouches[0].clientY, dragY)
+        else velocity(0, 0)
         dragY = e.targetTouches[0].clientY
       }
 
@@ -141,7 +94,7 @@ function CanvasRenderer({
         window.removeEventListener('touchend', handleUp)
       }
     }
-  }, [mousePressed, rangeSelecting, player, setRange])
+  }, [mousePressed, player])
 
   const setupCanvas = useCallback(
     async (canvasEl: HTMLCanvasElement) => {
