@@ -18,9 +18,9 @@ export type MidishareManifestSong = {
 const SECONDS_IN_AN_HOUR = 60 * 60
 
 export const getStaticProps: GetStaticProps = async () => {
-  const midishareManifest: any = await getMidishareManifest()
-  for (let song of Object.values(midishareManifest)) {
-    ;(song as MusicFile).source = 'midishare'
+  const midishareManifest: { [id: string]: MusicFile } = await getMidishareManifest()
+  for (const song of Object.values(midishareManifest)) {
+    song.source = 'midishare'
   }
 
   return {

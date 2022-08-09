@@ -35,7 +35,7 @@ function CanvasRenderer({
   const getRectRef = useRef(() => ({} as DOMRect))
 
   const setupCanvas = useCallback(
-    async (canvasEl: HTMLCanvasElement) => {
+    (canvasEl: HTMLCanvasElement) => {
       if (!canvasEl) {
         return
       }

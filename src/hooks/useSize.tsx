@@ -55,14 +55,17 @@ function removeItem(arr: Array<any>, val: any) {
 type Dimensions = { width: number; height: number }
 export default function useSize(): Dimensions & { measureRef: RefCallback<Element> } {
   const [size, setSize] = useState<Dimensions | null>(null)
+  const cleanupFn = useRef<() => void>()
   const mountedRef = useRef(true)
   const refCb = useCallback((element: Element) => {
     if (!element) {
+      cleanupFn.current?.()
+      cleanupFn.current = undefined
       return
     }
     const rect = element.getBoundingClientRect()
     setSize({ width: rect.width, height: rect.height })
-    return observe(element, (dims: Dimensions) => {
+    cleanupFn.current = observe(element, (dims: Dimensions) => {
       if (mountedRef.current) {
         setSize(dims)
       }
