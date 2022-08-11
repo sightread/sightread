@@ -16,9 +16,14 @@ export const getYCoordinate = (e: MouseEvent | TouchEvent) => {
 }
 
 export function seekPlayer(accel: number) {
-  // TODO: get client h without a million callbacks
   const progress = accel / 1000
-  const songTime = progress + player.getTime()
+  const songTime =
+    progress + player.getTime() < 0
+      ? 0
+      : progress + player.getTime() > player.song.duration
+      ? player.song.duration
+      : progress + player.getTime()
+
   player.seek(songTime)
 }
 // init acceleration
