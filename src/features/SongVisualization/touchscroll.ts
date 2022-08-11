@@ -24,7 +24,7 @@ export const velocity = (v2: number, v1: number) => {
 // set framerate
 const framerate = 5
 // set decay falloff value, (How quickly it will come to a stop)
-const dfalloff = 0.0043
+const dfalloff = 0.9957
 // set acceleration magnitude value (How much it scales with acceleration)
 const aMag = 4
 // Ending smoothness / snap to value
@@ -36,7 +36,7 @@ export const decay = () => {
   //Delay frames
   setTimeout(() => {
     seekPlayer(acceleration * aMag)
-    acceleration = acceleration * (1 - dfalloff)
+    acceleration *= dfalloff
     if (Math.abs(acceleration) > endSnap) {
       decay()
     } else acceleration = 0

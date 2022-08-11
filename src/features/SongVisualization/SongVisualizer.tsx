@@ -21,9 +21,6 @@ type CanvasRendererProps = {
   getTime: () => number
   constrictView?: boolean
   selectedRange?: { start: number; end: number }
-  rangeSelecting?: boolean
-  setRange?: any
-  onSeek?: any
 }
 
 function CanvasRenderer({
@@ -40,7 +37,6 @@ function CanvasRenderer({
   const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
   const { width, height, measureRef } = useSize()
   const player = Player.player()
-  const [stopper, stopThing] = useState(false)
 
   useEffect(() => {
     // TODO If change directions, call getY
@@ -48,34 +44,41 @@ function CanvasRenderer({
       const wasplaying = player.isPlaying()
       let dragY = 0
       const handleDown = (e: MouseEvent) => {
-        if (wasplaying) player.pause()
+        if (wasplaying) {
+          player.pause()
+        }
         // TODO: doubleclick pause / play
         dragY = e.clientY
         stopAccel()
       }
       const handleDownTouch = (e: TouchEvent) => {
-        if (wasplaying) player.pause()
+        if (wasplaying) {
+          player.pause()
+        }
         dragY = e.targetTouches[0].clientY
         stopAccel()
       }
 
       const handleUp = () => {
         decay()
-        if (wasplaying) player.play()
+        if (wasplaying) {
+          player.play()
+        }
         setMousePressed(false)
       }
 
       const handler = (e: MouseEvent) => {
         seekPlayer((e.clientY - dragY) * 4)
-        if (Math.abs(e.clientY - dragY) > 2) velocity(e.clientY, dragY)
-        else velocity(0, 0)
+        if (Math.abs(e.clientY - dragY) > 2) {
+          velocity(e.clientY, dragY)
+        } else velocity(0, 0)
         dragY = e.clientY
       }
-      const handletouch = (e: TouchEvent) => {
+      const handleTouch = (e: TouchEvent) => {
         seekPlayer((e.targetTouches[0].clientY - dragY) * 4)
-        if (Math.abs(e.targetTouches[0].clientY - dragY) > 2)
+        if (Math.abs(e.targetTouches[0].clientY - dragY) > 2) {
           velocity(e.targetTouches[0].clientY, dragY)
-        else velocity(0, 0)
+        } else velocity(0, 0)
         dragY = e.targetTouches[0].clientY
       }
 
@@ -83,14 +86,14 @@ function CanvasRenderer({
       window.addEventListener('mousemove', handler)
       window.addEventListener('mouseup', handleUp)
       window.addEventListener('touchstart', handleDownTouch)
-      window.addEventListener('touchmove', handletouch)
+      window.addEventListener('touchmove', handleTouch)
       window.addEventListener('touchend', handleUp)
       return () => {
         window.removeEventListener('mousemove', handler)
         window.removeEventListener('mouseup', handleUp)
         window.removeEventListener('mousedown', handleDown)
         window.removeEventListener('touchstart', handleDownTouch)
-        window.removeEventListener('touchmove', handletouch)
+        window.removeEventListener('touchmove', handleTouch)
         window.removeEventListener('touchend', handleUp)
       }
     }
@@ -144,18 +147,10 @@ function CanvasRenderer({
       style={{ position: 'absolute', width: '100%', height: '100%' }}
       ref={measureRef}
       onMouseDown={(e) => {
-        //stopThing(true)
         setMousePressed(true)
       }}
       onTouchStart={(e) => {
-        //stopThing(true)
         setMousePressed(true)
-      }}
-      onMouseUp={(e) => {
-        //stopThing(true)
-      }}
-      onTouchEnd={(e) => {
-        //stopThing(true)
       }}
     >
       <canvas ref={setupCanvas} width={width} height={height} />
