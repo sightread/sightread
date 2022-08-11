@@ -2,6 +2,19 @@ import Player from '@/features/player'
 
 const player = Player.player()
 
+const isMouseEvent = (e: MouseEvent | TouchEvent): e is MouseEvent => {
+  return 'clientY' in e
+}
+const getTouchCoords = (e: TouchEvent) => {
+  return e.targetTouches[0].clientY
+}
+export const getYCoordinate = (e: MouseEvent | TouchEvent) => {
+  if (isMouseEvent(e)) {
+    return e.clientY
+  }
+  return getTouchCoords(e)
+}
+
 export function seekPlayer(accel: number) {
   // TODO: get client h without a million callbacks
   const progress = accel / 1000
