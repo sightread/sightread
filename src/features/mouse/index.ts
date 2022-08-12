@@ -1,10 +1,12 @@
 import { isBrowser } from '@/utils'
-
+export const checkmouse = false
 let isMouseDown_ = false
 let mouseCoordinates = { x: Infinity, y: Infinity }
 const setMouseDown = () => (isMouseDown_ = true)
 const setMouseUp = () => (isMouseDown_ = false)
-const setMouseLocation = (e: MouseEvent) => (mouseCoordinates = { x: e.x, y: e.clientY })
+const setMouseLocation = (e: MouseEvent) => {
+  mouseCoordinates = { x: e.x, y: e.clientY }
+}
 
 if (isBrowser()) {
   window.addEventListener('mousedown', setMouseDown, { passive: true })

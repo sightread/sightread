@@ -69,6 +69,12 @@ type State = GivenState & {
   redFeltHeight: number
   greyBarHeight: number
 }
+let pheight = 0
+export const pianoTop = () => {
+  const getter = () => pheight
+  const setter = (ph: number) => (pheight = ph)
+  return { getter, setter }
+}
 function deriveState(state: GivenState): State {
   let items = state.constrictView ? state.items : undefined
   const notes: SongNote[] = items
@@ -79,6 +85,8 @@ function deriveState(state: GivenState): State {
   const pianoMeasurements = getPianoRollMeasurements(state.windowWidth, { startNote, endNote })
   const { whiteHeight } = pianoMeasurements
   const pianoTopY = state.height - whiteHeight - 5
+  const { setter } = pianoTop()
+  setter(pianoTopY)
   const pianoHeight = whiteHeight + 5
   const greyBarHeight = Math.max(Math.floor(whiteHeight / 30), 6)
   const redFeltHeight = greyBarHeight - 2

@@ -5,13 +5,8 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { formatTime } from '@/utils'
 import Player from '@/features/player'
 import { palette } from '@/styles/common'
-import {
-  decay,
-  velocity,
-  seekPlayer,
-  stopAccel,
-  getYCoordinate,
-} from '@/features/SongVisualization/touchscroll'
+import { decay, velocity, seekPlayer, stopAccel } from '@/features/SongVisualization/touchscroll'
+import { pianoTop } from '@/features/SongVisualization/falling-notes'
 
 type HandSettings = {
   [trackId: string]: {
@@ -44,15 +39,18 @@ function CanvasRenderer({
   const { width, height, measureRef } = useSize()
   const player = Player.player()
   const [dragY, setDragY] = useState(0)
-
-  const handleDown = (e: MouseEvent | TouchEvent) => {
-    const clientY = getYCoordinate(e)
-    if (player.isPlaying()) {
-      player.pause()
+  const { getter } = pianoTop()
+  const pheight = getter()
+  const handleDown = (e: PointerEvent) => {
+    if (e.y < pheight + 70) {
+      const clientY = e.y
+      if (player.isPlaying()) {
+        player.pause()
+      }
+      // TODO: doubleclick pause / play
+      setDragY(clientY)
+      stopAccel()
     }
-    // TODO: doubleclick pause / play
-    setDragY(clientY)
-    stopAccel()
   }
   const handleUp = () => {
     decay()
@@ -68,13 +66,19 @@ function CanvasRenderer({
   // ? Threshold to prevent accidental acceleration
   const threshold = 5
 
-  const handleMove = (e: MouseEvent | TouchEvent) => {
-    const clientY = getYCoordinate(e)
-    seekPlayer((clientY - dragY) * scalar)
-    if (Math.abs(clientY - dragY) > threshold) {
-      velocity(clientY, dragY)
-    } else velocity(0, 0)
-    setDragY(clientY)
+  const handlePointer = (e: PointerEvent) => {
+    // ? 70 value is because it would get the value twice, changing it to like -70 or something.
+    if (e.y < pheight + 70) {
+      const clientY = e.y
+      seekPlayer((clientY - dragY) * scalar)
+      if (Math.abs(clientY - dragY) > threshold) {
+        velocity(clientY, dragY)
+      } else {
+        velocity(0, 0)
+      }
+      setDragY(clientY)
+      // ? Handleup if you want it to use acceleration even if you swipe off page.
+    } else handleUp()
   }
 
   const setupCanvas = useCallback(
@@ -122,32 +126,25 @@ function CanvasRenderer({
 
   return (
     <div
-      style={{ position: 'absolute', width: '100%', height: '100%' }}
+      style={{ position: 'absolute', width: '100%', height: '100%', touchAction: 'none' }}
       ref={measureRef}
-      onMouseDown={(e) => {
+      onPointerMove={(e) => {
+        if (mousePressed) {
+          e.stopPropagation()
+          handlePointer(e.nativeEvent)
+        }
+      }}
+      onPointerDown={(e) => {
+        e.stopPropagation()
         setMousePressed(true)
         handleDown(e.nativeEvent)
       }}
-      onTouchStart={(e) => {
-        setMousePressed(true)
-        handleDown(e.nativeEvent)
-      }}
-      onTouchMove={(e) => {
-        if (mousePressed) {
-          handleMove(e.nativeEvent)
-        }
-      }}
-      onMouseMove={(e) => {
-        if (mousePressed) {
-          handleMove(e.nativeEvent)
-        }
-      }}
-      onTouchEnd={(e) => {
+      onPointerUp={(e) => {
         if (mousePressed) {
           handleUp()
         }
       }}
-      onMouseUp={(e) => {
+      onPointerOut={(e) => {
         if (mousePressed) {
           handleUp()
         }

@@ -2,19 +2,6 @@ import Player from '@/features/player'
 
 const player = Player.player()
 
-const isMouseEvent = (e: MouseEvent | TouchEvent): e is MouseEvent => {
-  return 'clientY' in e
-}
-const getTouchCoords = (e: TouchEvent) => {
-  return e.targetTouches[0].clientY
-}
-export const getYCoordinate = (e: MouseEvent | TouchEvent) => {
-  if (isMouseEvent(e)) {
-    return e.clientY
-  }
-  return getTouchCoords(e)
-}
-
 export function seekPlayer(accel: number) {
   const progress = accel / 1000
   const songTime =
@@ -42,9 +29,9 @@ export const velocity = (v2: number, v1: number) => {
 // set framerate
 const framerate = 5
 // set decay falloff value, (How quickly it will come to a stop)
-const dfalloff = 0.9957
+const dfalloff = 0.994
 // set acceleration magnitude value (How much it scales with acceleration)
-const aMag = 4
+const aMag = 3
 // Ending smoothness / snap to value
 const endSnap = 0.5
 
