@@ -25,12 +25,11 @@ const aMag = 1
 
 // TODO Calculate dfalloff and aMag proportionate to framerate
 
-export const decay = () => {
+function decay() {
   isDragging_ = false
-  //Delay frames
   requestAnimationFrame(() => {
     const dY = acceleration / PPS
-    // End acceleration when the acceleration catches up to the natural song velocity.
+    // End touchscroll when the acceleration catches up to the natural song velocity.
     const endSnap = (PPS * player.bpmModifier) / 1000 / 60
     if (Math.abs(dY) > endSnap) {
       seekPlayer(dY)
@@ -61,8 +60,8 @@ export function handleUp(e: PointerEvent) {
   decay()
 }
 
+// Must resume playback.
 function endInertialScroll() {
-  // if player was playing, then continue playing.
   if (wasPlaying) {
     wasPlaying = false
     player.play()
@@ -73,8 +72,10 @@ function endInertialScroll() {
 // ? Threshold to prevent accidental acceleration
 const threshold = 5
 
+// TODO: share PPS across the entire app.
 const PPS = 225
-export function handlePointer(e: PointerEvent) {
+
+export function handleMove(e: PointerEvent) {
   if (!isPointerDown()) {
     return
   }

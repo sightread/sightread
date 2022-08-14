@@ -80,7 +80,7 @@ function CanvasRenderer({
     <div
       style={{ position: 'absolute', width: '100%', height: '100%', touchAction: 'none' }}
       ref={measureRef}
-      onPointerMove={(e) => touchscroll.handlePointer(e.nativeEvent)}
+      onPointerMove={(e) => touchscroll.handleMove(e.nativeEvent)}
       onPointerDown={(e) => touchscroll.handleDown(e.nativeEvent)}
       onPointerUp={(e) => touchscroll.handleUp(e.nativeEvent)}
     >
