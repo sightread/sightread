@@ -1,6 +1,7 @@
 import Player from '@/features/player'
 import { clamp } from '@/utils'
 import { getPointerVelocity, isPointerDown } from '../pointer'
+import { intersectsWithPiano } from './falling-notes'
 
 const player = Player.player()
 
@@ -43,6 +44,11 @@ function decay() {
 
 let wasPlaying = false
 export function handleDown(e: PointerEvent) {
+  if (intersectsWithPiano(e.clientY)) {
+    isDragging_ = false
+    return
+  }
+
   isDragging_ = true
   const target = e.target as HTMLDivElement
   target.setPointerCapture(e.pointerId)
@@ -76,7 +82,7 @@ const threshold = 5
 const PPS = 225
 
 export function handleMove(e: PointerEvent) {
-  if (!isPointerDown()) {
+  if (!isDragging_) {
     return
   }
   const yVel = getPointerVelocity().y

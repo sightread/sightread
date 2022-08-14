@@ -84,7 +84,7 @@ function deriveState(state: GivenState): State {
   const greyBarHeight = Math.max(Math.floor(whiteHeight / 30), 6)
   const redFeltHeight = greyBarHeight - 2
 
-  return {
+  lastState = {
     ...state,
     pianoMeasurements: getPianoRollMeasurements(state.windowWidth, { startNote, endNote }),
     viewport: getViewport(state),
@@ -94,6 +94,7 @@ function deriveState(state: GivenState): State {
     noteHitY: pianoTopY - greyBarHeight - redFeltHeight,
     pianoHeight,
   }
+  return lastState
 }
 
 function getFallingNoteItemsInView<T>(state: State): CanvasItem[] {
@@ -273,4 +274,12 @@ function getItemStartEnd(item: CanvasItem, state: State): { start: number; end: 
   const duration = item.type === 'note' ? item.duration : 100
   const end = start - duration * state.pps
   return { start, end }
+}
+
+// TODO figure out a less shit way of sharing measurements
+// for hit detection. most of the state is irrelevant to the rest of the world.
+let lastState: State | null = null
+export function intersectsWithPiano(y: number): boolean {
+  if (!lastState) return false
+  return y >= lastState.pianoTopY
 }
