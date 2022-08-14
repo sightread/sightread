@@ -1,9 +1,10 @@
 import { getKey, getOctave, isBlack, isWhite } from '@/features/theory'
 import { roundRect, roundCorner } from '@/features/drawing'
 import midiState from '../midi'
-import { isMouseDown } from '../mouse'
+import { isPointerDown } from '../pointer'
 import { isNumber } from '@/utils'
 import { getImages } from '../SongVisualization/images'
+import { isDragging } from '../SongVisualization/touchscroll'
 
 const TEXT_FONT = 'Arial'
 type Color = string
@@ -174,7 +175,7 @@ export function handlePianoRollMousePress(
   pianoTopY: number,
   point: { x: number; y: number },
 ) {
-  if (!isMouseDown()) {
+  if (!isPointerDown() || isDragging()) {
     if (isNumber(lastPressedNote)) {
       midiState.release(lastPressedNote)
       lastPressedNote = null

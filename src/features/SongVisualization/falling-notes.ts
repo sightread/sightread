@@ -10,7 +10,7 @@ import {
   handlePianoRollMousePress,
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
-import { getRelativeMouseCoordinates } from '../mouse'
+import { getRelativePointerCoordinates } from '../pointer'
 import { CanvasItem, getFontSize, getItemsInView, getSongRange, Viewport } from './utils'
 import { clamp } from '@/utils'
 
@@ -69,12 +69,7 @@ type State = GivenState & {
   redFeltHeight: number
   greyBarHeight: number
 }
-let pheight = 0
-export const pianoTop = () => {
-  const getter = () => pheight
-  const setter = (ph: number) => (pheight = ph)
-  return { getter, setter }
-}
+
 function deriveState(state: GivenState): State {
   let items = state.constrictView ? state.items : undefined
   const notes: SongNote[] = items
@@ -85,8 +80,6 @@ function deriveState(state: GivenState): State {
   const pianoMeasurements = getPianoRollMeasurements(state.windowWidth, { startNote, endNote })
   const { whiteHeight } = pianoMeasurements
   const pianoTopY = state.height - whiteHeight - 5
-  const { setter } = pianoTop()
-  setter(pianoTopY)
   const pianoHeight = whiteHeight + 5
   const greyBarHeight = Math.max(Math.floor(whiteHeight / 30), 6)
   const redFeltHeight = greyBarHeight - 2
@@ -141,7 +134,7 @@ export function renderFallingVis(givenState: GivenState): void {
   handlePianoRollMousePress(
     state.pianoMeasurements,
     state.pianoTopY,
-    getRelativeMouseCoordinates(state.canvasRect.left, state.canvasRect.top),
+    getRelativePointerCoordinates(state.canvasRect.left, state.canvasRect.top),
   )
   drawPianoRoll(
     state.ctx,
