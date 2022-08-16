@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
+import ErrorPage from 'next/error'
 
 import { Song, MidiStateEvent, VisualizationMode } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
@@ -70,7 +70,8 @@ const classes = css({
 
 export function PlaySong() {
   const router = useRouter()
-  const { source, id }: { source: string; id: string } = router.query as any
+  const { source, id, recording }: { source: string; id: string; recording?: string } =
+    router.query as any
   const [sidebar, setSidebar] = useState(false)
   const [isPlaying, setPlaying] = useState(false)
   const [isSelectingRange, setIsSelectingRange] = useState(false)
@@ -80,8 +81,8 @@ export function PlaySong() {
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<Song>()
   const [songConfig, setSongConfig] = useSongSettings(id)
-  let isRecording = router.query.recording != undefined
   const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
+  const isRecording = !!recording
 
   const hand =
     songConfig.left && songConfig.right
@@ -121,6 +122,7 @@ export function PlaySong() {
     if (!source || !id) return
 
     setIsLoading(true)
+    // TODO: handle invalid song. Pipe up not-found midi for 400s etc.
     getSong(source, id).then((song: Song) => {
       const config = getSongSettings(id, song)
       setSong(song)
@@ -162,9 +164,7 @@ export function PlaySong() {
     }
 
     midiState.subscribe(handleMidiEvent)
-    // Player.player().subscribe(handleEvent)
     return function cleanup() {
-      // Player.player().unsubscribe(handleEvent)
       midiState.unsubscribe(handleMidiEvent)
     }
   }, [player, synth, song, songConfig, soundOff])
@@ -178,8 +178,9 @@ export function PlaySong() {
     [setIsSelectingRange, setRange],
   )
 
-  if (!source || !id) {
-    return <ErrorPage statusCode={404} title="Song Not Found :(" />
+  // If source or id is messed up, redirect to the homepage
+  if (router.isReady && (!source || !id)) {
+    router.replace('/')
   }
 
   const handleToggleSound = () => {
