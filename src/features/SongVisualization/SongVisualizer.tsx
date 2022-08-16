@@ -1,7 +1,7 @@
 import { Hand, Song, SongConfig } from '@/types'
 import { GivenState, render } from './canvasRenderer'
 import { useRAFLoop, useSize } from '@/hooks'
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useMemo } from 'react'
 import * as touchscroll from '@/features/SongVisualization/touchscroll'
 import { PIXELS_PER_SECOND as pps } from './utils'
 
@@ -19,6 +19,7 @@ type CanvasRendererProps = {
   getTime: () => number
   constrictView?: boolean
   selectedRange?: { start: number; end: number }
+  disableTouchscroll?: boolean
 }
 
 function CanvasRenderer({
@@ -29,10 +30,11 @@ function CanvasRenderer({
   selectedRange,
   getTime,
   constrictView = true,
+  disableTouchscroll = false,
 }: CanvasRendererProps) {
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
-  const getRectRef = useRef(() => ({} as DOMRect))
+  const canvasRef = useRef<HTMLCanvasElement>()
 
   const setupCanvas = useCallback(
     (canvasEl: HTMLCanvasElement) => {
@@ -48,10 +50,15 @@ function CanvasRenderer({
       const ctx = canvasEl.getContext('2d')!
       ctx.scale(scale, scale)
       ctxRef.current = ctx
-      getRectRef.current = () => canvasEl.getBoundingClientRect()
+      canvasRef.current = canvasEl
     },
     [width, height],
   )
+
+  const canvasRect: DOMRect = useMemo(
+    () => canvasRef.current?.getBoundingClientRect() ?? {},
+    [width, height],
+  ) as DOMRect
 
   useRAFLoop(() => {
     if (!ctxRef.current || !song) {
@@ -71,7 +78,7 @@ function CanvasRenderer({
       constrictView: !!constrictView,
       keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
-      canvasRect: getRectRef.current(),
+      canvasRect,
       selectedRange,
     }
     render(state)
@@ -81,9 +88,9 @@ function CanvasRenderer({
     <div
       style={{ position: 'absolute', width: '100%', height: '100%', touchAction: 'none' }}
       ref={measureRef}
-      onPointerMove={(e) => touchscroll.handleMove(e.nativeEvent)}
-      onPointerDown={(e) => touchscroll.handleDown(e.nativeEvent)}
-      onPointerUp={(e) => touchscroll.handleUp(e.nativeEvent)}
+      onPointerMove={(e) => !disableTouchscroll && touchscroll.handleMove(e.nativeEvent)}
+      onPointerDown={(e) => !disableTouchscroll && touchscroll.handleDown(e.nativeEvent)}
+      onPointerUp={(e) => !disableTouchscroll && touchscroll.handleUp(e.nativeEvent)}
     >
       <canvas ref={setupCanvas} width={width} height={height} />
     </div>

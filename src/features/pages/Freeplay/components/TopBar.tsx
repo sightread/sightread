@@ -1,6 +1,5 @@
 import React from 'react'
 import { Select } from '@/components'
-import { BpmDisplay } from '@/features/SongInputControls'
 import { formatInstrumentName } from '@/utils'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { ArrowLeftIcon } from '@/icons'
@@ -70,13 +69,12 @@ export default function TopBar({ isError, isLoading, value, onChange }: TopBarPr
           }}
         />
       </div>
+      {/* TODO: what should go in the center here? its awkward space now. */}
       <div
         aria-label="center-items"
         className="nav-buttons"
         style={{ width: '33%', display: 'flex', justifyContent: 'center' }}
-      >
-        <BpmDisplay />
-      </div>
+      />
       <div
         aria-label="right-items"
         style={{
