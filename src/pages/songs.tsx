@@ -1,6 +1,6 @@
+import type { GetStaticProps } from 'next'
 import { SelectSong } from '@/features/pages'
 import { MusicFile } from '@/types'
-import type { GetStaticProps } from 'next'
 
 export type MidishareManifestSong = {
   title: string
@@ -15,8 +15,6 @@ export type MidishareManifestSong = {
   midiUrl: string
 }
 
-const SECONDS_IN_AN_HOUR = 60 * 60
-
 export const getStaticProps: GetStaticProps = async () => {
   const midishareManifest: { [id: string]: MusicFile } = await getMidishareManifest()
   for (const song of Object.values(midishareManifest)) {
@@ -25,7 +23,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: { midishareManifest },
-    revalidate: SECONDS_IN_AN_HOUR,
+    revalidate: 60 * 60, // once an hour.
   }
 }
 

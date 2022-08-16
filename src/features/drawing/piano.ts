@@ -118,12 +118,10 @@ export function drawPianoRoll(
     const activeColor = activeNotes.get(+midiNote)
     if (activeColor) {
       ctx.fillStyle = activeColor
-      ctx.globalCompositeOperation = 'darken'
       roundRect(ctx, left, pianoTopY, width - whiteNoteSeparation, height, {
         topRadius: 0,
         bottomRadius: width / 10,
       })
-      ctx.globalCompositeOperation = 'source-over'
     }
   }
 
