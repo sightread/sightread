@@ -1,7 +1,9 @@
-import { useCallback, useRef } from 'react'
 import { Hand, Song, SongConfig } from '@/types'
 import { GivenState, render } from './canvasRenderer'
 import { useRAFLoop, useSize } from '@/hooks'
+import { useRef, useCallback } from 'react'
+import * as touchscroll from '@/features/SongVisualization/touchscroll'
+import { PIXELS_PER_SECOND as pps } from './utils'
 
 type HandSettings = {
   [trackId: string]: {
@@ -61,7 +63,7 @@ function CanvasRenderer({
       drawNotes: config.noteLetter,
       windowWidth: width,
       height,
-      pps: 225, // pixels per second
+      pps,
       hands: handSettings,
       hand,
       ctx: ctxRef.current,
@@ -76,7 +78,13 @@ function CanvasRenderer({
   })
 
   return (
-    <div style={{ position: 'absolute', width: '100%', height: '100%' }} ref={measureRef}>
+    <div
+      style={{ position: 'absolute', width: '100%', height: '100%', touchAction: 'none' }}
+      ref={measureRef}
+      onPointerMove={(e) => touchscroll.handleMove(e.nativeEvent)}
+      onPointerDown={(e) => touchscroll.handleDown(e.nativeEvent)}
+      onPointerUp={(e) => touchscroll.handleUp(e.nativeEvent)}
+    >
       <canvas ref={setupCanvas} width={width} height={height} />
     </div>
   )

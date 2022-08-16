@@ -167,3 +167,5 @@ export function getFontSize(
   fontSizeCache[fontPx][text] = size
   return size
 }
+
+export const PIXELS_PER_SECOND = 225

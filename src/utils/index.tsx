@@ -1,4 +1,4 @@
-import { Ref, useEffect, useRef } from 'react'
+import { Ref } from 'react'
 import type { SongConfig } from '@/types'
 import type { InstrumentName } from '@/features/synth'
 
