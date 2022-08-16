@@ -1,7 +1,7 @@
 import { Hand, Song, SongConfig } from '@/types'
 import { GivenState, render } from './canvasRenderer'
 import { useRAFLoop, useSize } from '@/hooks'
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useMemo } from 'react'
 import * as touchscroll from '@/features/SongVisualization/touchscroll'
 import { PIXELS_PER_SECOND as pps } from './utils'
 
@@ -32,7 +32,7 @@ function CanvasRenderer({
 }: CanvasRendererProps) {
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
-  const getRectRef = useRef(() => ({} as DOMRect))
+  const canvasRef = useRef<HTMLCanvasElement>()
 
   const setupCanvas = useCallback(
     (canvasEl: HTMLCanvasElement) => {
@@ -48,9 +48,14 @@ function CanvasRenderer({
       const ctx = canvasEl.getContext('2d')!
       ctx.scale(scale, scale)
       ctxRef.current = ctx
-      getRectRef.current = () => canvasEl.getBoundingClientRect()
+      canvasRef.current = canvasEl
     },
     [width, height],
+  )
+
+  const canvasRect = useMemo(
+    () => canvasRef.current?.getBoundingClientRect() ?? {},
+    [canvasRef, width, height],
   )
 
   useRAFLoop(() => {
@@ -71,7 +76,7 @@ function CanvasRenderer({
       constrictView: !!constrictView,
       keySignature: config.keySignature ?? song.keySignature,
       timeSignature: song.timeSignature,
-      canvasRect: getRectRef.current(),
+      canvasRect,
       selectedRange,
     }
     render(state)
