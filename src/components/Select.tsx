@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { css } from '@sightread/flake'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import { ArrowDown, LoadingIcon } from '@/icons'
 import clsx from 'clsx'
+import { useWhenClickedOutside } from '@/hooks'
 
 const classes = css({
   root: {
@@ -111,24 +112,8 @@ export default function Select({
     onChange(val)
     toggleMenu()
   }
-  const handleClickAway = useCallback(
-    (e: MouseEvent) => {
-      if (!openMenu) {
-        return
-      }
-      if (e.target !== menuRef.current) {
-        setOpenMenu(false)
-      }
-    },
-    [setOpenMenu, openMenu],
-  )
 
-  useEffect(() => {
-    window.addEventListener('click', handleClickAway)
-    return () => {
-      window.removeEventListener('click', handleClickAway)
-    }
-  }, [handleClickAway])
+  useWhenClickedOutside(() => setOpenMenu(false), menuRef, [])
 
   return (
     <div className={clsx(classes.root, { [classes.rootError]: error }, classNames?.select)}>
@@ -136,14 +121,20 @@ export default function Select({
         value={!loading ? display(selected) : ''}
         type="text"
         className={clsx(classes.input, classNames?.select)}
-        onClick={toggleMenu}
+        onClick={(e) => {
+          e.stopPropagation()
+          toggleMenu()
+        }}
         readOnly
       />
       <ArrowDown
         width={15}
         height={15}
         className={clsx(classes.arrowIcon, { [classes.arrowRotated]: openMenu }, classNames?.icon)}
-        onClick={toggleMenu}
+        onClick={(e) => {
+          e.stopPropagation()
+          toggleMenu()
+        }}
       />
       {loading && (
         <LoadingIcon width={15} height={15} className={clsx(classes.loading, classNames?.icon)} />
@@ -164,7 +155,10 @@ export default function Select({
                 <div
                   key={option}
                   className={clsx(classes.option, classNames?.option)}
-                  onClick={() => handleSelect(option)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleSelect(option)
+                  }}
                 >
                   {format(option)}
                 </div>

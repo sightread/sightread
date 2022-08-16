@@ -19,6 +19,7 @@ type CanvasRendererProps = {
   getTime: () => number
   constrictView?: boolean
   selectedRange?: { start: number; end: number }
+  disableTouchscroll?: boolean
 }
 
 function CanvasRenderer({
@@ -29,6 +30,7 @@ function CanvasRenderer({
   selectedRange,
   getTime,
   constrictView = true,
+  disableTouchscroll = false,
 }: CanvasRendererProps) {
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
@@ -53,10 +55,10 @@ function CanvasRenderer({
     [width, height],
   )
 
-  const canvasRect = useMemo(
+  const canvasRect: DOMRect = useMemo(
     () => canvasRef.current?.getBoundingClientRect() ?? {},
-    [canvasRef, width, height],
-  )
+    [width, height],
+  ) as DOMRect
 
   useRAFLoop(() => {
     if (!ctxRef.current || !song) {
@@ -86,9 +88,9 @@ function CanvasRenderer({
     <div
       style={{ position: 'absolute', width: '100%', height: '100%', touchAction: 'none' }}
       ref={measureRef}
-      onPointerMove={(e) => touchscroll.handleMove(e.nativeEvent)}
-      onPointerDown={(e) => touchscroll.handleDown(e.nativeEvent)}
-      onPointerUp={(e) => touchscroll.handleUp(e.nativeEvent)}
+      onPointerMove={(e) => !disableTouchscroll && touchscroll.handleMove(e.nativeEvent)}
+      onPointerDown={(e) => !disableTouchscroll && touchscroll.handleDown(e.nativeEvent)}
+      onPointerUp={(e) => !disableTouchscroll && touchscroll.handleUp(e.nativeEvent)}
     >
       <canvas ref={setupCanvas} width={width} height={height} />
     </div>
