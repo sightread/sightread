@@ -7,6 +7,7 @@ import ffmpeg from 'fluent-ffmpeg'
 import { render } from '@/features/SongVisualization/canvasRenderer'
 import { waitForImages, getImages } from '@/features/SongVisualization/images'
 import { parseMidi, parserInferHands } from '@/features/parsers'
+import { PIXELS_PER_SECOND as pps } from '@/features/SongVisualization/utils'
 
 const inputDir = '/Users/jakefried/Repos/midishare/public/download'
 const outputDir = '/Users/jakefried/Movies/sightread-recordings'
@@ -99,7 +100,7 @@ async function renderVideo(file: string) {
     visualization: 'falling-notes',
     width: viewport.width,
     height: viewport.height,
-    pps: 225,
+    pps,
     hand: 'both',
     hands: { [hands.right]: { hand: 'right' }, [hands.left]: { hand: 'left' } },
     items: items,

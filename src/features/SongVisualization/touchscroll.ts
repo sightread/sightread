@@ -1,7 +1,8 @@
 import Player from '@/features/player'
 import { clamp } from '@/utils'
-import { getPointerVelocity, isPointerDown } from '../pointer'
+import { getPointerVelocity } from '../pointer'
 import { intersectsWithPiano } from './falling-notes'
+import { PIXELS_PER_SECOND as pps } from './utils'
 
 const player = Player.player()
 
@@ -10,31 +11,22 @@ export function isDragging(): boolean {
   return isDragging_
 }
 
-export function seekPlayer(seconds: number) {
+function seekSeconds(seconds: number) {
   const songTime = clamp(seconds + player.getTime(), { min: 0, max: player.song.duration })
   player.seek(songTime)
 }
 
-// init acceleration
+const decayRate = 0.96
 let acceleration = 0
-
-// ! Careful balance is needed for these values.
-// set decay falloff value, (How quickly it will come to a stop)
-const dfalloff = 0.96
-// set acceleration magnitude value (How much it scales with acceleration)
-const aMag = 1
-
-// TODO Calculate dfalloff and aMag proportionate to framerate
-
 function decay() {
   isDragging_ = false
   requestAnimationFrame(() => {
-    const dY = acceleration / PPS
+    const songSeconds = acceleration / pps
     // End touchscroll when the acceleration catches up to the natural song velocity.
-    const endSnap = (PPS * player.bpmModifier) / 1000 / 60
-    if (Math.abs(dY) > endSnap) {
-      seekPlayer(dY)
-      acceleration *= dfalloff
+    const endSnap = (1 / 60) * player.bpmModifier // TODO: instead of 1/60 it should be 1 / frameRate.
+    if (Math.abs(songSeconds) > endSnap) {
+      seekSeconds(songSeconds)
+      acceleration *= decayRate
       decay()
     } else {
       endInertialScroll()
@@ -66,7 +58,7 @@ export function handleUp(e: PointerEvent) {
   decay()
 }
 
-// Must resume playback.
+// Should resume playback.
 function endInertialScroll() {
   if (wasPlaying) {
     wasPlaying = false
@@ -75,22 +67,18 @@ function endInertialScroll() {
   acceleration = 0
 }
 
-// ? Threshold to prevent accidental acceleration
-const threshold = 5
-
-// TODO: share PPS across the entire app.
-const PPS = 225
-
 export function handleMove(e: PointerEvent) {
   if (!isDragging_) {
     return
   }
   const yVel = getPointerVelocity().y
-  seekPlayer(yVel / PPS)
+  seekSeconds(yVel / pps)
+
+  //  Threshold to prevent accidental flings
+  const threshold = 5
   if (Math.abs(yVel) > threshold) {
-    acceleration = yVel * aMag
+    acceleration = yVel
   } else {
     acceleration = 0
   }
-  // ? Handleup if you want it to use acceleration even if you swipe off page.
 }
