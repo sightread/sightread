@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import ErrorPage from 'next/error'
 
-import { Song, MidiStateEvent, VisualizationMode } from '@/types'
+import { Song, MidiStateEvent } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'

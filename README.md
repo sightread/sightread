@@ -14,9 +14,3 @@ To start the app
 npm install
 npm run dev
 ```
-
-To start Storybook:
-
-```
-npm run storybook
-```
