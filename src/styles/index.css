@@ -61,3 +61,10 @@ canvas {
     transform: rotate(360deg);
   }
 }
+
+/* Palette */
+:root,
+::before,
+::after {
+  --purplelighthover: #7029fb;
+}
