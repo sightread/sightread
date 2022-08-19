@@ -3,6 +3,7 @@ import Player from '@/features/player'
 import { useRAFLoop } from '@/hooks'
 import { MinusIcon, PlusIcon } from '@/icons'
 import { css } from '@sightread/flake'
+import { palette } from '@/styles/common'
 
 const classes = css({
   figmaIcon: {
@@ -11,7 +12,7 @@ const classes = css({
       fill: 'white',
     },
     '&:hover path': {
-      fill: 'rgba(58, 104, 231, 1)',
+      fill: palette.purple.primary,
     },
   },
 })
@@ -36,7 +37,6 @@ export default function BpmDisplay() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        width: 120,
         userSelect: 'none',
       }}
     >
@@ -44,6 +44,8 @@ export default function BpmDisplay() {
         style={{ display: 'inline-block' }}
         className={classes.figmaIcon}
         onClick={() => player.decreaseBpm()}
+        data-tooltip="Decrease BPM"
+        data-tooltip-position="bottom"
       >
         <MinusIcon height={25} width={25} className={classes.figmaIcon} />
       </span>
@@ -55,6 +57,8 @@ export default function BpmDisplay() {
         style={{ display: 'inline-block' }}
         className={classes.figmaIcon}
         onClick={() => player.increaseBpm()}
+        data-tooltip="Increase BPM"
+        data-tooltip-position="bottom"
       >
         <PlusIcon height={25} width={25} className={classes.figmaIcon} />
       </span>

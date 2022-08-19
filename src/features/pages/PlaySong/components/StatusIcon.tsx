@@ -1,15 +1,16 @@
 import { css } from '@sightread/flake'
 import { PauseIcon, PlayIcon, LoadingIcon } from '@/icons'
+import { palette } from '@/styles/common'
 
 const classes = css({
   topbarIcon: {
     cursor: 'pointer',
     fill: 'white',
     '&:hover': {
-      fill: 'rgba(58, 104, 231, 1)',
+      fill: palette.purple.primary,
     },
     '& .active ': {
-      fill: 'rgba(58, 104, 231, 1)',
+      fill: palette.purple.primary,
     },
   },
 })
@@ -24,13 +25,22 @@ export default function StatusIcon({
 }) {
   if (isPlaying) {
     return (
-      <PauseIcon width={35} height={35} className={classes.topbarIcon} onClick={onTogglePlaying} />
+      <span data-tooltip="Pause" data-tooltip-position="bottom">
+        <PauseIcon
+          width={35}
+          height={35}
+          className={classes.topbarIcon}
+          onClick={onTogglePlaying}
+        />
+      </span>
     )
   }
 
   if (!isLoading) {
     return (
-      <PlayIcon height={25} width={35} className={classes.topbarIcon} onClick={onTogglePlaying} />
+      <span data-tooltip="Play" data-tooltip-position="bottom">
+        <PlayIcon height={25} width={35} className={classes.topbarIcon} onClick={onTogglePlaying} />
+      </span>
     )
   }
   return (

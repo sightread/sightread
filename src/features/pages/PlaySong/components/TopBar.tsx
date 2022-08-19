@@ -12,21 +12,22 @@ import {
 import { css } from '@sightread/flake'
 import clsx from 'clsx'
 import StatusIcon from './StatusIcon'
+import { palette } from '@/styles/common'
 
 const classes = css({
   topbarIcon: {
     cursor: 'pointer',
     fill: 'white',
     '&:hover': {
-      fill: 'rgba(58, 104, 231, 1)',
+      fill: palette.purple.primary,
     },
     '& .active ': {
-      fill: 'rgba(58, 104, 231, 1)',
+      fill: palette.purple.primary,
     },
   },
   figmaIcon: {
     '&:hover path': {
-      fill: 'rgba(58, 104, 231, 1)',
+      fill: palette.purple.primary,
     },
     '&:hover path.outline': {
       fill: 'black',
@@ -44,7 +45,7 @@ const classes = css({
   },
   active: {
     '& path': {
-      fill: 'rgba(58, 104, 231, 1)',
+      fill: palette.purple.primary,
     },
     '& path.outline': {
       fill: 'black',
@@ -59,10 +60,10 @@ const classes = css({
       width: 22,
     },
     '& i:hover': {
-      color: 'rgba(58, 104, 231, 1)',
+      color: palette.purple.primary,
     },
     '& i.active': {
-      color: 'rgba(58, 104, 231, 1)',
+      color: palette.purple.primary,
     },
   },
 })
@@ -111,12 +112,14 @@ export default function TopBar({
       }}
     >
       <div style={{ width: 250 }}>
-        <ArrowLeftIcon
-          className={classes.topbarIcon}
-          height={40}
-          width={50}
-          onClick={onClickBack}
-        />
+        <span data-tooltip="Back" data-tooltip-position="bottom">
+          <ArrowLeftIcon
+            className={classes.topbarIcon}
+            height={40}
+            width={50}
+            onClick={onClickBack}
+          />
+        </span>
       </div>
       <div
         className="nav-buttons"
@@ -131,12 +134,14 @@ export default function TopBar({
         }}
       >
         <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <PreviousIcon
-          className={classes.topbarIcon}
-          height={40}
-          width={40}
-          onClick={onClickRestart}
-        />
+        <span data-tooltip="Restart" data-tooltip-position="bottom">
+          <PreviousIcon
+            className={classes.topbarIcon}
+            height={40}
+            width={40}
+            onClick={onClickRestart}
+          />
+        </span>
 
         <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
         <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
@@ -154,17 +159,21 @@ export default function TopBar({
         }}
       >
         <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <SettingsCog
-          width={25}
-          height={25}
-          className={clsx(classes.figmaIcon, classes.fillWhite, classNames?.settingsCog)}
-          onClick={onClickSettings}
-        />
+        <span data-tooltip="Settings" data-tooltip-position="bottom">
+          <SettingsCog
+            width={25}
+            height={25}
+            className={clsx(classes.figmaIcon, classes.fillWhite, classNames?.settingsCog)}
+            onClick={onClickSettings}
+          />
+        </span>
         <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
         <span
           className={classes.figmaIcon}
           style={{ display: 'inline-block' }}
           onClick={onSelectRange}
+          data-tooltip="Loop"
+          data-tooltip-position="bottom"
         >
           <HistoryIcon
             width={25}
@@ -177,6 +186,8 @@ export default function TopBar({
           className={classes.figmaIcon}
           style={{ display: 'inline-block' }}
           onClick={onClickSound}
+          data-tooltip="Toggle volume"
+          data-tooltip-position="bottom"
         >
           {isSoundOff ? (
             <SoundOffIcon
