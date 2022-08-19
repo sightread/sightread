@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useCallback, useState, useEffect, useMemo } from 'react'
-import { MusicFile, Song, SongConfig } from '@/types'
+import { Song, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '../SongInputControls'
 import { getSong } from '@/features/api'

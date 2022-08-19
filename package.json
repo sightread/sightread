@@ -3,11 +3,6 @@
   "version": "0.8.1",
   "private": true,
   "devDependencies": {
-    "@babel/core": "^7.14.8",
-    "@storybook/addon-actions": "^6.4.19",
-    "@storybook/addon-essentials": "^6.4.19",
-    "@storybook/addon-links": "^6.4.19",
-    "@storybook/react": "^6.4.19",
     "@types/fluent-ffmpeg": "^2.1.20",
     "@types/node": "^14.17.5",
     "@types/react": "^16.14.11",
@@ -39,8 +34,7 @@
     "format": "prettier --write src/**/*.ts*",
     "gen": "cd scripts && ts-node generate.ts && cd ..",
     "render": "RENDER=1 ts-node --project scripts/tsconfig.json scripts/render.ts --huge-max-old-generation-size",
-    "record": "cd scripts && ts-node screenrecorder.ts && cd ..",
-    "storybook": "start-storybook -p 6006"
+    "record": "cd scripts && ts-node screenrecorder.ts && cd .."
   },
   "eslintConfig": {
     "extends": "react-app"
