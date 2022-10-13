@@ -7,7 +7,6 @@ const headerStyles: React.CSSProperties = {
   zIndex: 2,
   display: 'flex',
   alignItems: 'center',
-  boxSizing: 'border-box',
   fontWeight: 600,
   color: '#1B0EA6',
   backgroundColor: '#F1F1F1',

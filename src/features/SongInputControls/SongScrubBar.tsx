@@ -125,7 +125,6 @@ export default function SongScrubBar({
         height: '100%',
         position: 'absolute',
         borderBottom: 'black solid 1px',
-        boxSizing: 'border-box',
         userSelect: 'none',
       }}
       onMouseDown={(e) => {

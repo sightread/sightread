@@ -8,7 +8,6 @@ import { useWhenClickedOutside } from '@/hooks'
 const classes = css({
   modalContainer: {
     position: 'fixed',
-    boxSizing: 'border-box',
     zIndex: 10,
     display: 'flex',
     justifyContent: 'center',

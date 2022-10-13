@@ -13,7 +13,6 @@ export default function FilterPane({ show, children }: React.PropsWithChildren<F
           width: '100%',
           backgroundColor: 'white',
           borderRadius: '8px',
-          boxSizing: 'border-box',
           zIndex: 10,
           transition: '400ms',
           top: '80px',

@@ -60,7 +60,6 @@ export default function SettingsSidebar(props: SidebarProps) {
         backgroundColor: 'white',
         flexDirection: 'column',
         borderLeft: '1px solid black',
-        boxSizing: 'border-box',
         overflowY: 'auto',
       }}
       ref={sidebarRef}

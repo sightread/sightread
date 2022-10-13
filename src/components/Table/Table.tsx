@@ -148,7 +148,6 @@ export default function Table<T extends Row>({
                       key={`row-${i}-col-${j}`}
                       style={{
                         position: 'relative',
-                        boxSizing: 'border-box',
                         paddingLeft,
                         height: rowHeight,
                         fontSize: 14,

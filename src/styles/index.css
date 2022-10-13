@@ -62,6 +62,10 @@ canvas {
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
 /* Palette */
 :root,
 ::before,

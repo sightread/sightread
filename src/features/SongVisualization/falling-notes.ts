@@ -13,16 +13,17 @@ import {
 import { getRelativePointerCoordinates } from '../pointer'
 import { CanvasItem, getFontSize, getItemsInView, getSongRange, Viewport } from './utils'
 import { clamp } from '@/utils'
+import { palette } from '@/styles/common'
 
 const TEXT_FONT = 'Arial'
-const palette = {
+const colors = {
   right: {
-    black: '#611AE5',
-    white: '#8147EB',
+    black: palette.purple.dark,
+    white: palette.purple.primary,
   },
   left: {
-    black: '#CF4E17',
-    white: '#EB7847',
+    black: palette.orange.dark,
+    white: palette.orange.primary,
   },
   measure: 'rgb(60,60,60)',
   octaveLine: 'rgb(90,90,90)',
@@ -151,9 +152,9 @@ function getNoteColor(state: State, note: SongNote): string {
 
   let color
   if (hand === 'both' || hand === 'right') {
-    color = palette.right[keyType]
+    color = colors.right[keyType]
   } else {
-    color = palette.left[keyType]
+    color = colors.left[keyType]
   }
   return color
 }
@@ -185,7 +186,7 @@ function renderRange(state: State) {
     getItemStartEnd({ type: 'note', time: start, duration } as CanvasItem, state).start -
     (state.height - noteHitY)
   const height = duration * pps
-  ctx.fillStyle = palette.rangeSelectionFill
+  ctx.fillStyle = colors.rangeSelectionFill
   ctx.globalAlpha = 0.5
   const lineWidth = Math.floor(windowWidth / 120)
   const lineHeight = Math.floor(lineWidth / 4)
@@ -214,11 +215,11 @@ function renderOctaveRuler(state: State) {
   for (let [midiNote, { left }] of Object.entries(state.pianoMeasurements.lanes)) {
     const key = getKey(+midiNote)
     if (key === 'C') {
-      ctx.strokeStyle = palette.octaveLine
+      ctx.strokeStyle = colors.octaveLine
       line(ctx, left - 2, 0, left, state.height)
     }
     if (key === 'F') {
-      ctx.strokeStyle = palette.measure
+      ctx.strokeStyle = colors.measure
       line(ctx, left - 2, 0, left, state.height)
     }
   }
@@ -259,7 +260,7 @@ function renderMeasure(measure: SongMeasure, state: State): void {
   ctx.save()
   const posY = getItemStartEnd(measure, state).start - (state.height - state.noteHitY)
 
-  ctx.strokeStyle = ctx.fillStyle = palette.measure
+  ctx.strokeStyle = ctx.fillStyle = colors.measure
   ctx.lineWidth = 2
   line(ctx, 0, posY, width, posY)
   ctx.strokeStyle = 'rgb(130,130,130)'
