@@ -1,10 +1,28 @@
 import { AppBar, Sizer } from '@/components'
 import { palette } from '@/styles/common'
+import { breakpoints } from '@/utils'
 import { css, mediaQuery } from '@sightread/flake'
 import Link from 'next/link'
 import React from 'react'
 
 const classes = css({
+  bannerBigText: {
+    [mediaQuery.up(breakpoints.sm)]: {
+      fontSize: '4rem',
+      fontWeight: 700,
+    },
+    [mediaQuery.down(breakpoints.sm)]: {
+      fontSize: '1.7rem',
+    },
+  },
+  bannerSmallText: {
+    [mediaQuery.up(breakpoints.sm)]: {
+      fontSize: '1.5rem',
+    },
+    [mediaQuery.down(breakpoints.sm)]: {
+      fontSize: '1rem',
+    },
+  },
   purpleBtn: {
     backgroundColor: palette.purple.primary,
     color: 'white',
@@ -46,9 +64,11 @@ export default function LandingPage() {
             // minHeight: 250,
           }}
         >
-          <h1 style={{ fontSize: '4rem', fontWeight: 700 }}>Your Piano Journey Begins Here</h1>
+          <h1 className={classes.bannerBigText}>Your Piano Journey Begins Here</h1>
           <Sizer height={8} />
-          <h3 style={{ fontSize: '1.5rem' }}>Learn how to play songs in your browser for free</h3>
+          <h3 className={classes.bannerSmallText}>
+            Learn how to play songs in your browser for free
+          </h3>
           <Sizer height={75 + 32} />
         </div>
         <div
@@ -73,14 +93,23 @@ export default function LandingPage() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            padding: 20,
-            gap: 32,
+            padding: 24,
+            paddingTop: 42,
+            gap: 24,
           }}
         >
           <h3 style={{ color: 'black', fontSize: '2rem' }}>Start learning</h3>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            <Button className={classes.purpleBtn}>Learn a song</Button>
-            <Button className={classes.ghostBtn}>Freeplay</Button>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Link href={'/songs'}>
+              <a style={{ flex: '1', maxWidth: 200 }}>
+                <Button className={classes.purpleBtn}>Learn a song</Button>{' '}
+              </a>
+            </Link>
+            <Link href={'/freeplay'}>
+              <a style={{ flex: '1', maxWidth: 200 }}>
+                <Button className={classes.ghostBtn}>Freeplay</Button>
+              </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -107,8 +136,8 @@ function Button({
         padding: '10px 16px',
         borderRadius: 15,
         fontWeight: 700,
-        flex: 1,
         minWidth: 'max-content',
+        width: '100%',
         ...style,
       }}
     >

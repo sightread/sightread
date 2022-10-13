@@ -11,11 +11,11 @@ const classes = css({
   appBar: {
     display: 'flex',
     justifyContent: 'space-evenly',
-    color: 'white',
-    gap: 16,
-    flexGrow: '1',
     maxWidth: 400,
     alignItems: 'baseline',
+    color: 'white',
+    gap: 16,
+    flexGrow: '1' as any,
   },
   appBarLarge: {
     [mediaQuery.down(breakpoints.sm)]: {
@@ -24,8 +24,8 @@ const classes = css({
   },
   appBarSmall: {
     marginLeft: 'auto',
-    padding: 4,
     maxWidth: 24,
+    alignSelf: 'center',
     [mediaQuery.up(breakpoints.sm + 1)]: {
       display: 'none',
     },
@@ -57,14 +57,6 @@ const classes = css({
   },
 })
 
-function inferLabel(navItem: NavItem) {
-  if (navItem.label) {
-    return navItem.label
-  }
-  const href = navItem.route
-  return href.charAt(1).toUpperCase() + href.slice(2)
-}
-
 /**
  * route should be in the form of /route
  * label if given will override the infered label
@@ -72,20 +64,20 @@ function inferLabel(navItem: NavItem) {
  */
 type NavItem = {
   route: string
-  label?: string
+  label: string
 }
 
 const navItems: NavItem[] = [
   { route: '/songs', label: 'Play a Song' },
   { route: '/freeplay', label: 'Free Play' },
-  { route: '/about' },
+  { route: '/about', label: 'About' },
 ]
 
 interface AppBarProps {
   classNames?: string
   style?: CSSProperties
 }
-export default function AppBar({ classNames, style }: AppBarProps) {
+export default function AppBar({ style }: AppBarProps) {
   return (
     <div
       style={{
@@ -105,37 +97,22 @@ export default function AppBar({ classNames, style }: AppBarProps) {
         ...style,
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          width: '100%',
-          alignItems: 'baseline',
-        }}
-      >
+      <div style={{ display: 'flex', width: '100%', alignItems: 'baseline' }}>
         <Link href={'/'}>
           <a className={clsx(classes.navItem)} style={{ display: 'flex', alignItems: 'baseline' }}>
             <Sizer width={16} />
             <Logo height={24} width={24} style={{ position: 'relative', top: 3 }} />
             <Sizer width={8} />
-            <span
-              style={{
-                fontWeight: 200,
-                fontSize: 24,
-                // letterSpacing: 1
-              }}
-            >
-              SIGHTREAD
-            </span>
+            <span style={{ fontWeight: 200, fontSize: 24 }}> SIGHTREAD</span>
           </a>
         </Link>
         <div className={clsx(classes.appBarLarge, classes.appBar)}>
           <div />
           <div />
           {navItems.map((nav) => {
-            const label = inferLabel(nav)
             return (
-              <Link href={nav.route} key={label}>
-                <a className={classes.navItem}>{label}</a>
+              <Link href={nav.route} key={nav.label}>
+                <a className={classes.navItem}>{nav.label}</a>
               </Link>
             )
           })}
@@ -144,10 +121,9 @@ export default function AppBar({ classNames, style }: AppBarProps) {
         <div className={clsx(classes.appBarSmall, classes.appBar)}>
           <Dropdown target={<MenuIcon height={24} width={24} className={classes.menuIcon} />}>
             {navItems.map((nav, i) => {
-              const label = inferLabel(nav)
               return (
                 <Link href={nav.route} key={i}>
-                  <a className={clsx(classes.navItemSmall)}>{label}</a>
+                  <a className={clsx(classes.navItemSmall)}>{nav.label}</a>
                 </Link>
               )
             })}
