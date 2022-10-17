@@ -68,11 +68,10 @@ export default function Table<T extends Row>({
   const [search, saveSearch] = useState('')
   const [sortCol, setSortCol] = useState(1)
   const isSmall = useWindowWidth() < breakpoints.sm
-  let rowHeight = 40
+  let rowHeight = 50
 
   if (isSmall) {
     columns = columns.filter((c) => c.keep)
-    rowHeight = 50
   }
 
   const handleSelectCol = (index: number) => {

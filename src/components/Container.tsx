@@ -14,7 +14,7 @@ export function Container({
   component: Component = 'div',
 }: PropsWithChildren<ContainerProps>) {
   const containerStyle = { position: 'relative', ...style }
-  const innerStyle = { margin: 'auto', maxWidth: breakpoints.md, width: '100%' }
+  const innerStyle = { margin: 'auto', maxWidth: breakpoints.lg, width: '100%' }
 
   return (
     <Component className={className} style={containerStyle}>

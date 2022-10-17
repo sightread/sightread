@@ -42,7 +42,7 @@ export function formatTime(seconds: number | string | undefined) {
 }
 
 export const breakpoints = {
-  sm: 500,
+  sm: 650,
   md: 800,
   lg: 1100,
 }
