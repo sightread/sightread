@@ -66,7 +66,8 @@ const classes = css({
     cursor: 'pointer',
   },
   githubIcon: {
-    alignSelf: 'center',
+    position: 'relative',
+    top: 2,
     color: 'white',
     '& path': {
       fill: 'white',
@@ -154,8 +155,8 @@ export default function AppBar({ style }: AppBarProps) {
               style={{ marginLeft: 'auto', display: 'flex', alignItems: 'baseline' }}
               className={classes.navItem}
             >
-              <GithubIcon width={24} height={24} className={clsx(classes.githubIcon, 'test')} />
-              <Sizer width={8} />
+              <GithubIcon width={16} height={16} className={clsx(classes.githubIcon)} />
+              <Sizer width={6} />
               GitHub
             </a>
           </Link>
