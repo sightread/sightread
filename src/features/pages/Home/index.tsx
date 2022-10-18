@@ -5,11 +5,12 @@ import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
 import { useSongSettings } from '@/hooks'
 import { palette } from '@/styles/common'
 import { Song } from '@/types'
-import { css } from '@sightread/flake'
+import { css, mediaQuery } from '@sightread/flake'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { PauseIcon, PlayIcon } from '@/icons'
 import clsx from 'clsx'
+import { breakpoints } from '@/utils'
 
 const classes = css({
   bannerBigText: {
@@ -43,10 +44,20 @@ const classes = css({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 3,
-    fill: 'white',
+  },
+  selectSong: {
+    position: 'absolute',
+    right: 20,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: 'white',
+  },
+  playPause: {
     cursor: 'pointer',
-
+    display: 'flex',
+    gap: 4,
+    alignItems: 'center',
+    fill: 'white',
     '&.disabled': {
       fill: 'gray',
     },
@@ -55,17 +66,40 @@ const classes = css({
       fill: 'grey',
       color: 'grey',
     },
+
+    [mediaQuery.down(breakpoints.sm)]: {
+      position: 'absolute',
+      left: 20,
+    },
   },
 })
+
+const FEATURED_SONGS = {
+  fur_elise: { source: 'builtin', id: 'b3decef157a073fbef49430250bb7015' },
+  twinkle: { source: 'builtin', id: 'ec6acc14d631630c22ca796d0a5d5b0a' },
+  moonlight: { source: 'builtin', id: '33e41ebf6367374ce7a5f033a5baa796' },
+}
 
 export default function LandingPage() {
   // TODO: don't merge this shit.
   const [isPlaying, setIsPlaying] = useState(false)
   const [canPlay, setCanPlay] = useState(false)
-  const songId = 'b3decef157a073fbef49430250bb7015'
-  const source = 'builtin'
+  const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('twinkle')
+  const { id: songId, source } = FEATURED_SONGS[currentSong]
 
-  console.log({ isPlaying })
+  const handlePlayPause = useCallback(() => {
+    if (!canPlay) {
+      return
+    }
+    const player = Player.player()
+    if (isPlaying) {
+      player.pause()
+      setIsPlaying(false)
+    } else {
+      player.play()
+      setIsPlaying(true)
+    }
+  }, [isPlaying, canPlay])
 
   return (
     <>
@@ -99,13 +133,14 @@ export default function LandingPage() {
         <div
           style={{
             position: 'relative',
-            minWidth: 'min(100%, 400px)',
+            minWidth: 'min(100vw - 40px, 400px)',
             width: '75%',
             maxWidth: 760,
             height: 400,
             alignSelf: 'center',
             marginTop: -75,
-            padding: 8,
+            overflow: 'hidden',
+            borderRadius: 8,
           }}
         >
           <SongPreview
@@ -117,33 +152,45 @@ export default function LandingPage() {
               }
             }}
           />
-          <div
-            className={clsx(classes.songPreviewOverlay, !canPlay && 'disabled')}
-            onClick={() => {
-              if (!canPlay) {
-                return
-              }
-              const player = Player.player()
-              if (isPlaying) {
-                player.pause()
-                setIsPlaying(false)
-              } else {
-                player.play()
-                setIsPlaying(true)
-              }
-            }}
-          >
-            {isPlaying ? (
-              <>
-                <PauseIcon height={24} width={24} />
-                Pause
-              </>
-            ) : (
-              <>
-                <PlayIcon height={24} width={24} />
-                Play
-              </>
-            )}
+          <div className={classes.songPreviewOverlay}>
+            <div
+              className={clsx(classes.playPause, !canPlay && 'disabled')}
+              onClick={handlePlayPause}
+            >
+              {isPlaying ? (
+                <>
+                  <PauseIcon height={24} width={24} />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <PlayIcon height={24} width={24} />
+                  Play
+                </>
+              )}
+            </div>
+            <div className={classes.selectSong}>
+              <select
+                style={{
+                  padding: 6,
+                  backgroundColor: '#2e2e2e',
+                  color: 'white',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  border: 'none',
+                }}
+                onChange={(e) => {
+                  Player.player().stop()
+                  setIsPlaying(false)
+                  setCanPlay(false)
+                  setCurrentSong(e.target.value as any)
+                }}
+              >
+                <option value="twinkle">Twinkle twinkle</option>
+                <option value="fur_elise">Fur Elise</option>
+                <option value="moonlight">Moonlight Sonata</option>
+              </select>
+            </div>
           </div>
         </div>
         <Sizer height={60} />
