@@ -98,7 +98,7 @@ export default function AppBar({ style }: AppBarProps) {
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
         // Credit goes to: https://aykevl.nl/2014/09/fix-jumping-scrollbar
-        // paddingLeft: 'calc((100vw - 100%))',
+        paddingLeft: 'calc(100vw - 100%)',
 
         zIndex: 3,
         height: 50,
