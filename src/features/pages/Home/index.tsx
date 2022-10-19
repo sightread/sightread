@@ -103,6 +103,7 @@ export default function LandingPage() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            textAlign: 'center',
           }}
         >
           <h1 className={classes.bannerBigText}>Your Piano Journey Begins Here</h1>
