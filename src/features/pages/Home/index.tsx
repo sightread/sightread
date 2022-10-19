@@ -7,7 +7,7 @@ import { PauseIcon, PlayIcon } from '@/icons'
 import clsx from 'clsx'
 import { breakpoints } from '@/utils'
 import { SongPreview } from '../../SongPreview/SongPreview'
-import { usePlayerState } from '@/hooks'
+import { useEventListener, usePlayerState } from '@/hooks'
 
 const classes = css({
   bannerBigText: {
@@ -78,10 +78,17 @@ const FEATURED_SONGS = {
 }
 
 export default function LandingPage() {
-  // TODO: don't merge this shit.
   const [playerState, playerActions] = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('twinkle')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
+
+  useEventListener('keydown', (event: Event) => {
+    const e = event as KeyboardEvent
+    if (e.key === ' ') {
+      e.preventDefault()
+      return playerActions.toggle()
+    }
+  })
 
   return (
     <>
@@ -163,7 +170,6 @@ export default function LandingPage() {
                   border: 'none',
                 }}
                 onChange={(e) => {
-                  // playerActions.reset()
                   setCurrentSong(e.target.value as any)
                 }}
               >
