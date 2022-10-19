@@ -33,6 +33,7 @@ const classes = css({
     backgroundColor: 'white',
     zIndex: 2,
     borderRadius: 5,
+    overflow: 'hidden',
   },
   closeButtonWrapper: {
     padding: '16px 0 0 0',

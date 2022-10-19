@@ -10,8 +10,6 @@ export type LibrarySong = {
   source: 'midishare' | 'upload' | 'builtin'
 }
 
-export type SelectableSongs = LibrarySong[]
-
 export type Filters = {
   show: boolean
   duration?: [number, number] // duration filter in a range. have to find song with longest duration?

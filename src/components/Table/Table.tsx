@@ -64,6 +64,7 @@ export default function Table<T extends Row>({
   onCreate,
   onDelete,
   onFilter,
+  getId,
 }: TableProps<T>) {
   const [search, saveSearch] = useState('')
   const [sortCol, setSortCol] = useState(1)
@@ -134,9 +135,9 @@ export default function Table<T extends Row>({
                 style={{ display: 'contents' }}
                 onClick={(e) => {
                   e.stopPropagation()
-                  onSelectRow(row)
+                  onSelectRow(getId(row))
                 }}
-                key={`row-${i}`}
+                key={`row-${getId(row)}`}
               >
                 {columns.map((col, j) => {
                   let cellValue = !!col.format ? col.format(row[col.id]) : row[col.id]

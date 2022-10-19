@@ -13,8 +13,9 @@ export type TableProps<T extends Row> = {
   columns: TableColumn<T, keyof T>[]
   rows: T[]
   searchBoxPlaceholder: string
-  onSelectRow: (row: T) => void
+  onSelectRow: (id: string) => void
   filter: (keyof T)[]
+  getId: (row: T) => string
   onCreate?: React.MouseEventHandler<HTMLButtonElement>
   onDelete?: null | ((item: T | undefined) => void)
   onFilter?: () => void

@@ -192,9 +192,25 @@ export default function SongScrubBar({
       </div>
       <span
         ref={currentTimeRef}
-        style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 20 }}
+        style={{
+          position: 'absolute',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          left: 4,
+          color: '#242632',
+          fontSize: 16,
+        }}
       ></span>
-      <span style={{ position: 'absolute', bottom: 1, right: 4, color: '#242632', fontSize: 20 }}>
+      <span
+        style={{
+          position: 'absolute',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          right: 4,
+          color: '#242632',
+          fontSize: 16,
+        }}
+      >
         {song && formatTime(player.getRealTimeDuration(0, song.duration))}
       </span>
       <div

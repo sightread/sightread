@@ -99,29 +99,6 @@ const classes = css({
   },
 })
 
-const controlsOverview = [
-  {
-    title: 'Hand Select',
-    caption: 'Practice left, right, or both hands!',
-    icon: <BothHandsIcon height={35} width={50} />,
-  },
-  {
-    title: 'Wait',
-    caption: 'Pause until you hit the right note.',
-    icon: <ClockIcon height={35} width={35} />,
-  },
-  {
-    title: 'Visualization',
-    caption: 'Choose between Falling notes or Sheet Music display.',
-    icon: <MusicalNoteIcon height={35} width={35} />,
-  },
-  {
-    title: 'Looping',
-    caption: 'Select a range to repeat.',
-    icon: <DoubleArrowLoopIcon width={35} height={35} />,
-  },
-]
-
 // TODO: have a way to reset to default track settings (adjust instruments)
 // TODO: remove count from trackSettings (notes per track) as it is static
 // TODO: put warning that you will have to return here to change the settings again?
@@ -200,6 +177,7 @@ export default function SongPreviewModal({
             borderRadius: 6,
             flexDirection: 'column',
             flexGrow: 1,
+            overflow: 'hidden',
           }}
         >
           <div style={{ position: 'relative', height: 24, minHeight: 24 }}>
@@ -240,22 +218,6 @@ export default function SongPreviewModal({
             </button>
           </div>
           <Sizer height={16} />
-        </div>
-        <div>
-          <h3 className={classes.controlsHeader}>Controls Overview</h3>
-          <div>
-            {controlsOverview.map(({ title, icon, caption }) => {
-              return (
-                <div className={classes.container} key={title}>
-                  <span className={classes.iconWrapper}>{icon}</span>
-                  <div className={classes.textWrapper}>
-                    <h4 className={classes.controlTitle}>{title}</h4>
-                    <p>{caption}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
         </div>
       </div>
     </Modal>
