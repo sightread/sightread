@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState, useEffect } from 'react'
 import { formatTime } from '@/utils'
-import { SongPreviewModal } from '@/features/SongPreviewModal'
+import { SongPreviewModal } from '@/features/SongPreview'
 import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/features/persist'
 import { AppBar, Modal, Table, Sizer, Container } from '@/components'

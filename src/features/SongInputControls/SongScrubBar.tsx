@@ -8,12 +8,10 @@ import { palette } from '@/styles/common'
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
 export default function SongScrubBar({
-  song,
   rangeSelecting = false,
   setRange = () => {},
   onSeek = () => {},
 }: {
-  song: Song | null
   rangeSelecting?: boolean
   setRange?: any
   onSeek?: any
@@ -33,6 +31,7 @@ export default function SongScrubBar({
   const player = Player.player()
   const isDraggingL = useRef(false)
   const isDraggingR = useRef(false)
+  const song: Song | null = player.song
 
   const getProgress = useCallback(
     (x: number) => {

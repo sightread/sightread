@@ -1,16 +1,13 @@
 import { AppBar, Sizer } from '@/components'
-import { getSong } from '@/features/api'
-import Player from '@/features/player'
-import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
-import { useSongSettings } from '@/hooks'
 import { palette } from '@/styles/common'
-import { Song } from '@/types'
 import { css, mediaQuery } from '@sightread/flake'
 import Link from 'next/link'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { PauseIcon, PlayIcon } from '@/icons'
 import clsx from 'clsx'
 import { breakpoints } from '@/utils'
+import { SongPreview } from '../../SongPreview/SongPreview'
+import { usePlayerState } from '@/hooks'
 
 const classes = css({
   bannerBigText: {
@@ -18,7 +15,7 @@ const classes = css({
     fontSize: 'clamp(1.7rem, 1rem + 3vw, 4rem)',
   },
   bannerSmallText: {
-    fontSize: 'clamp(1rem, 1rem + 1vw, 1.5rem)',
+    fontSize: 'clamp(1rem, 1rem + 1vw, 1.2rem)',
   },
   purpleBtn: {
     backgroundColor: palette.purple.primary,
@@ -82,24 +79,9 @@ const FEATURED_SONGS = {
 
 export default function LandingPage() {
   // TODO: don't merge this shit.
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [canPlay, setCanPlay] = useState(false)
+  const [playerState, playerActions] = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('twinkle')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
-
-  const handlePlayPause = useCallback(() => {
-    if (!canPlay) {
-      return
-    }
-    const player = Player.player()
-    if (isPlaying) {
-      player.pause()
-      setIsPlaying(false)
-    } else {
-      player.play()
-      setIsPlaying(true)
-    }
-  }, [isPlaying, canPlay])
 
   return (
     <>
@@ -126,9 +108,9 @@ export default function LandingPage() {
           <h1 className={classes.bannerBigText}>Your Piano Journey Begins Here</h1>
           <Sizer height={8} />
           <h3 className={classes.bannerSmallText}>
-            Learn how to play songs in your browser for free
+            Plug in your keyboard and learn, right in your browser
           </h3>
-          <Sizer height={75 + 32} />
+          <Sizer height={75 + 18} />
         </div>
         <div
           style={{
@@ -148,16 +130,16 @@ export default function LandingPage() {
             source={source}
             onReady={(id) => {
               if (id === songId) {
-                setCanPlay(true)
+                playerActions.ready()
               }
             }}
           />
           <div className={classes.songPreviewOverlay}>
             <div
-              className={clsx(classes.playPause, !canPlay && 'disabled')}
-              onClick={handlePlayPause}
+              className={clsx(classes.playPause, !playerState.canPlay && 'disabled')}
+              onClick={playerActions.toggle}
             >
-              {isPlaying ? (
+              {playerState.playing ? (
                 <>
                   <PauseIcon height={24} width={24} />
                   Pause
@@ -180,9 +162,7 @@ export default function LandingPage() {
                   border: 'none',
                 }}
                 onChange={(e) => {
-                  Player.player().stop()
-                  setIsPlaying(false)
-                  setCanPlay(false)
+                  // playerActions.reset()
                   setCurrentSong(e.target.value as any)
                 }}
               >
@@ -233,35 +213,6 @@ export default function LandingPage() {
         </div>
       </div>
     </>
-  )
-}
-
-interface SongPreviewProps {
-  songId: string
-  source: string
-  onReady?: (songId: string) => void
-}
-function SongPreview({ songId, source, onReady }: SongPreviewProps) {
-  const [song, setSong] = useState<Song>()
-  const [songConfig, setSongConfig] = useSongSettings('unknown')
-  const player = Player.player()
-
-  useEffect(() => {
-    getSong(source, songId).then((song) => {
-      setSong(song)
-      player.setSong(song, songConfig)
-      onReady?.(songId)
-    })
-  }, [songId, source])
-
-  return (
-    <SongVisualizer
-      song={song}
-      config={songConfig}
-      getTime={() => Player.player().getTime()}
-      hand={'both'}
-      handSettings={getHandSettings(songConfig)}
-    />
   )
 }
 

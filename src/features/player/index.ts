@@ -58,6 +58,7 @@ class Player {
     this.song = song
     this.songHands = getHands(songConfig)
     this.instrumentsLoaded = false
+    this.stop()
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
