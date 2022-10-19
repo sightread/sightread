@@ -1,19 +1,24 @@
 import { useState, useRef, Children, CSSProperties } from 'react'
 import { breakpoints } from '@/utils'
-import { Sizer, Container } from '@/components'
-import { Logo, MenuIcon } from '@/icons'
+import { Sizer } from '@/components'
+import { GithubIcon, Logo, MenuIcon } from '@/icons'
 import { css, mediaQuery } from '@sightread/flake'
 import { palette } from '@/styles/common'
 import Link from 'next/link'
 import clsx from 'clsx'
+import { useWhenClickedOutside } from '@/hooks'
 
 const classes = css({
   appBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    boxSizing: 'border-box',
-    color: 'white',
+    alignItems: 'baseline',
+    [mediaQuery.up(breakpoints.sm + 1)]: {
+      marginLeft: 0,
+      color: 'white',
+      display: 'flex',
+      gap: 16,
+      flexGrow: '1' as any,
+      justifyContent: 'space-evenly',
+    },
   },
   appBarLarge: {
     [mediaQuery.down(breakpoints.sm)]: {
@@ -21,6 +26,10 @@ const classes = css({
     },
   },
   appBarSmall: {
+    position: 'absolute',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    left: 'min(3vw, 20px)',
     [mediaQuery.up(breakpoints.sm + 1)]: {
       display: 'none',
     },
@@ -28,11 +37,16 @@ const classes = css({
   navItem: {
     color: 'white',
     textDecoration: 'none',
-    fontSize: 24,
-    padding: '0px 24px',
+    fontSize: 16,
     transition: '200ms',
     '&:hover': {
       color: palette.purple.hover,
+    },
+    '& svg path': {
+      transition: '200ms',
+    },
+    '&:hover svg path': {
+      fill: palette.purple.hover,
     },
   },
   navItemSmall: {
@@ -45,133 +59,112 @@ const classes = css({
       color: palette.orange.primary,
     },
     display: 'inline-block',
-    boxSizing: 'border-box',
   },
   menuIcon: {
+    display: 'block',
     fill: 'white',
     cursor: 'pointer',
   },
+  githubIcon: {
+    position: 'relative',
+    top: 2,
+    color: 'white',
+    '& path': {
+      fill: 'white',
+    },
+  },
 })
-
-function inferLabel(navItem: NavItem) {
-  if (navItem.label) {
-    return navItem.label
-  }
-  const href = navItem.route
-  return href.charAt(1).toUpperCase() + href.slice(2)
-}
-
-type Classes = {
-  appBar?: {
-    sm?: string
-    lg?: string
-  }
-  navItem?: {
-    sm?: string
-    lg?: string
-  }
-}
 
 /**
  * route should be in the form of /route
  * label if given will override the infered label
  * the infered label will in the form Route (with the first / removed)
  */
-type NavItem = {
-  route: string
-  label?: string
-}
-
+type NavItem = { route: string; label: string }
 const navItems: NavItem[] = [
-  { route: '/songs', label: 'Play a Song' },
+  { route: '/songs', label: 'Learn a song' },
   { route: '/freeplay', label: 'Free Play' },
-  { route: '/about' },
+  { route: '/about', label: 'About' },
 ]
-const homeItem: NavItem = { route: '/', label: 'SIGHTREAD' }
-/** 
- * Appbar is two appbars, 
-   one for mobile optimization, 
-   they are switched by setting display: none at the media BP 
 
-   navItem: addto the common NavItems
- * */
 interface AppBarProps {
-  classNames?: Classes
+  classNames?: string
   style?: CSSProperties
 }
-export default function AppBar({ classNames, style }: AppBarProps) {
+export default function AppBar({ style }: AppBarProps) {
   return (
-    <Container
+    <div
       style={{
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
         // Credit goes to: https://aykevl.nl/2014/09/fix-jumping-scrollbar
-        paddingLeft: 'calc((100vw - 100%))',
+        paddingLeft: 'calc(100vw - 100%)',
 
         zIndex: 3,
-        height: 60,
+        height: 50,
+        minHeight: 50,
         backgroundColor: '#292929',
         display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        position: 'relative',
         ...style,
       }}
     >
-      <div className={clsx(classes.appBarLarge, classes.appBar, classNames?.appBar?.lg)}>
-        <span style={{ display: 'flex', alignItems: 'center' }}>
-          <Link href={homeItem.route}>
-            <a
-              className={clsx(classes.navItem, classNames?.navItem?.lg)}
-              style={{ display: 'flex', alignItems: 'center' }}
-            >
-              <Logo />
-              <Sizer width={16} />
-              <span style={{ fontWeight: 200, fontSize: 30, letterSpacing: 1 }}>
-                {homeItem.label}
-              </span>
-            </a>
-          </Link>
-          <Sizer width={50} />
-          {navItems.map((nav, i) => {
-            const label = inferLabel(nav)
-            return (
-              <Link href={nav.route} key={i}>
-                <a className={clsx(classes.navItem, classNames?.navItem?.lg)}>{label}</a>
-              </Link>
-            )
-          })}
-        </span>
-      </div>
-      <div className={clsx(classes.appBarSmall, classes.appBar)}>
-        <Link href="/">
-          <a
-            className={clsx(classes.navItemSmall, classNames?.navItem?.sm)}
-            style={{ color: 'white', display: 'flex', alignItems: 'center' }}
-          >
-            <Logo />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          width: `min(100% - 50px, ${breakpoints.lg}px)`,
+          justifyContent: 'center',
+          margin: '0 auto',
+        }}
+      >
+        <div className={clsx(classes.appBarSmall, classes.appBar)}>
+          <Dropdown target={<MenuIcon height={24} width={24} className={classes.menuIcon} />}>
+            {navItems.map((nav, i) => {
+              return (
+                <Link href={nav.route} key={i}>
+                  <a className={clsx(classes.navItemSmall)}>{nav.label}</a>
+                </Link>
+              )
+            })}
+          </Dropdown>
+        </div>
+
+        <Link href={'/'}>
+          <a className={clsx(classes.navItem)} style={{ display: 'flex', alignItems: 'baseline' }}>
             <Sizer width={16} />
-            <span style={{ fontWeight: 200, fontSize: 24, letterSpacing: 1 }}>SIGHTREAD</span>
+            <Logo height={24} width={24} style={{ position: 'relative', top: 3 }} />
+            <Sizer width={8} />
+            <span style={{ fontWeight: 200, fontSize: 24 }}> SIGHTREAD</span>
           </a>
         </Link>
-        <Dropdown
-          target={
-            <MenuIcon
-              height={35}
-              width={35}
-              className={classes.menuIcon}
-              style={{ paddingRight: 24 }}
-            />
-          }
-        >
-          {navItems.map((nav, i) => {
-            const label = inferLabel(nav)
+        <div className={clsx(classes.appBarLarge, classes.appBar)}>
+          <div />
+          <div />
+          {navItems.map((nav) => {
             return (
-              <Link href={nav.route} key={i}>
-                <a className={clsx(classes.navItemSmall, classNames?.navItem?.sm)}>{label}</a>
+              <Link href={nav.route} key={nav.label}>
+                <a className={classes.navItem}>{nav.label}</a>
               </Link>
             )
           })}
-        </Dropdown>
+          <Link href={'https://github.com/sightread/sightread'}>
+            <a
+              style={{ marginLeft: 'auto', display: 'flex', alignItems: 'baseline' }}
+              className={classes.navItem}
+            >
+              <GithubIcon width={16} height={16} className={clsx(classes.githubIcon)} />
+              <Sizer width={6} />
+              GitHub
+            </a>
+          </Link>
+          <div />
+          <div />
+        </div>
       </div>
-    </Container>
+    </div>
   )
 }
 
@@ -182,24 +175,28 @@ function Dropdown({
   style,
 }: React.PropsWithChildren<{ target: React.ReactElement; style?: CSSProperties }>) {
   const [open, setOpen] = useState<boolean>(false)
-  const menuRef = useRef<HTMLDivElement | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const toggleOpen = () => {
     setOpen(!open)
   }
 
+  useWhenClickedOutside(() => setOpen(false), dropdownRef)
+
   return (
-    <div style={style}>
+    <div style={style} ref={dropdownRef}>
       <span onClick={toggleOpen}>{target}</span>
       <div style={{ position: 'relative' }}>
         <div
           ref={menuRef}
           style={{
             position: 'absolute',
-            top: 0,
-            right: 0,
+            top: 8,
+            left: 0,
             padding: open ? '10px 0px' : 0,
             height: open ? '' : 0,
+            width: 'calc(100vw - 30px)',
             backgroundColor: 'white',
             borderRadius: 8,
             overflow: 'hidden',

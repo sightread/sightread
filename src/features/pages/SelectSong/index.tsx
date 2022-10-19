@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { useState, useEffect } from 'react'
 import { formatTime } from '@/utils'
-import { SongPreviewModal } from '@/features/SongPreviewModal'
+import { SongPreviewModal } from '@/features/SongPreview'
 import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/features/persist'
 import { AppBar, Modal, Table, Sizer, Container } from '@/components'
-import { LibrarySong, Filters, SelectableSongs } from './types'
+import { LibrarySong, Filters } from './types'
 import { FilterPane, FilterTypeValue, TypeFilter, UploadForm } from './components'
 import { DifficultyLabel } from '@/types'
 
@@ -33,11 +33,12 @@ type SelectSongPageProps = {
   midishareManifest: LibrarySong[]
 }
 export default function SelectSongPage(props: SelectSongPageProps) {
-  const [songs, setSongs] = useState<SelectableSongs>(
+  const [songs, setSongs] = useState<LibrarySong[]>(
     builtin.concat(Object.values(props.midishareManifest)),
   )
   const [addNew, setAddNew] = useState<boolean>(false)
-  const [selectedSong, setSelectedSong] = useState<any>('')
+  const [selectedSongId, setSelectedSongId] = useState<any>('')
+  const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [filters, setFilters] = useState<Filters>({ show: false })
 
   useEffect(() => {
@@ -80,10 +81,10 @@ export default function SelectSongPage(props: SelectSongPageProps) {
   return (
     <>
       <SongPreviewModal
-        show={!!selectedSong}
-        songMeta={selectedSong}
+        show={!!selectedSongId}
+        songMeta={selectedSongMeta}
         onClose={() => {
-          setSelectedSong(null)
+          setSelectedSongId(null)
         }}
       />
       <Modal show={addNew} onClose={handleCloseAdd} style={{ minWidth: '375px' }}>
@@ -113,9 +114,10 @@ export default function SelectSongPage(props: SelectSongPageProps) {
               { label: 'Source', id: 'source' },
             ]}
             searchBoxPlaceholder="Search Songs by Title or Artist"
+            getId={(s: LibrarySong) => s.id}
             rows={songs}
             filter={['title', 'artist']}
-            onSelectRow={setSelectedSong}
+            onSelectRow={setSelectedSongId}
             onCreate={handleAddNew}
             onFilter={handleToggleOpenFilter}
           />

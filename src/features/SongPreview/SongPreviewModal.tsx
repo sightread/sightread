@@ -1,18 +1,15 @@
 import * as React from 'react'
-import { useCallback, useState, useEffect, useMemo } from 'react'
-import { Song, SongConfig } from '@/types'
-import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
+import { useEffect } from 'react'
 import { SongScrubBar } from '../SongInputControls'
-import { getSong } from '@/features/api'
-import Player from '@/features/player'
 import { BothHandsIcon, ClockIcon, MusicalNoteIcon, DoubleArrowLoopIcon } from '@/icons'
 import { css, mediaQuery } from '@sightread/flake'
 import { useRouter } from 'next/router'
-import { useSongSettings } from '@/hooks'
+import { usePlayerState } from '@/hooks'
 import { palette } from '@/styles/common'
 import { Modal, Sizer } from '@/components'
 import PreviewIcon from './PreviewIcon'
 import { LibrarySong } from '../pages/SelectSong/types'
+import { SongPreview } from './SongPreview'
 
 const classes = css({
   songTitle: {
@@ -102,29 +99,6 @@ const classes = css({
   },
 })
 
-const controlsOverview = [
-  {
-    title: 'Hand Select',
-    caption: 'Practice left, right, or both hands!',
-    icon: <BothHandsIcon height={35} width={50} />,
-  },
-  {
-    title: 'Wait',
-    caption: 'Pause until you hit the right note.',
-    icon: <ClockIcon height={35} width={35} />,
-  },
-  {
-    title: 'Visualization',
-    caption: 'Choose between Falling notes or Sheet Music display.',
-    icon: <MusicalNoteIcon height={35} width={35} />,
-  },
-  {
-    title: 'Looping',
-    caption: 'Select a range to repeat.',
-    icon: <DoubleArrowLoopIcon width={35} height={35} />,
-  },
-]
-
 // TODO: have a way to reset to default track settings (adjust instruments)
 // TODO: remove count from trackSettings (notes per track) as it is static
 // TODO: put warning that you will have to return here to change the settings again?
@@ -139,52 +113,8 @@ export default function SongPreviewModal({
   songMeta = undefined,
 }: ModalProps) {
   const { title, artist, id, source } = songMeta ?? {}
-  const [song, setSong] = useState<Song | null>(null)
-  const [songConfig, setSongConfig] = useSongSettings('unknown')
-  const [playing, setPlaying] = useState(false)
-  const [canPlay, setCanPlay] = useState(false)
   const router = useRouter()
-  const player = Player.player()
-  const songConfigOverride = useMemo<SongConfig>(
-    () => ({
-      ...songConfig,
-      visualization: 'falling-notes',
-      wait: false,
-    }),
-    [songConfig],
-  )
-
-  const handleTogglePlay = useCallback(() => {
-    if (playing) {
-      player.pause()
-      setPlaying(false)
-    } else {
-      if (canPlay) {
-        player.play()
-        setPlaying(true)
-      }
-    }
-  }, [canPlay, player, playing])
-
-  useEffect(() => {
-    if (!source || !id) {
-      return
-    }
-
-    getSong(source, id).then((song) => {
-      setCanPlay(false)
-      const config = getSongSettings(id, song)
-      setSongConfig(config)
-      setSong(song)
-      player.setSong(song, config).then(() => {
-        setCanPlay(true)
-      })
-    })
-    return () => {
-      player.stop()
-      setPlaying(false)
-    }
-  }, [songMeta, player, setSongConfig, id, source])
+  const [playerState, playerActions] = usePlayerState()
 
   useEffect(() => {
     if (!show) {
@@ -195,7 +125,7 @@ export default function SongPreviewModal({
       const keyPressed = e.key
       if (keyPressed === ' ') {
         e.preventDefault()
-        return handleTogglePlay()
+        return playerActions.toggle()
       }
     }
 
@@ -203,14 +133,15 @@ export default function SongPreviewModal({
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [show, onClose, playing, handleTogglePlay])
+  }, [show, onClose, playerState.playing, playerActions])
 
   const handleClose = () => {
-    setSong(null)
+    playerActions.reset()
     return onClose()
   }
+
   const handlePlayNow = () => {
-    if (!song) {
+    if (!id || !source) {
       console.error('Song must be loaded to play.')
       return
     }
@@ -218,12 +149,12 @@ export default function SongPreviewModal({
     router.push(`/play?id=${id}&source=${source}`)
   }
 
-  if (!show || !song) {
+  if (!show || !id) {
     return null
   }
 
   return (
-    <Modal show={show && !!song} onClose={handleClose} classNames={classes.modalContent} style={{}}>
+    <Modal show={show && !!id} onClose={handleClose} classNames={classes.modalContent}>
       <div
         style={{
           display: 'flex',
@@ -246,11 +177,12 @@ export default function SongPreviewModal({
             borderRadius: 6,
             flexDirection: 'column',
             flexGrow: 1,
+            overflow: 'hidden',
           }}
         >
           <div style={{ position: 'relative', height: 24, minHeight: 24 }}>
             <div className={classes.scrubBarBorder} />
-            <SongScrubBar song={song} />
+            <SongScrubBar />
           </div>
           <div
             style={{
@@ -259,28 +191,21 @@ export default function SongPreviewModal({
               height: 340, // TODO, do this less hacky
               minHeight: 340, // without height and min-height set, causes canvas re-paint on adjust instruments open
               width: '100%',
-              overflow: 'hidden', // WHY IS THIS NEEDED? // if you want rounded corners, -jake
+              overflow: 'hidden',
             }}
-            onClick={handleTogglePlay}
+            onClick={playerActions.toggle}
           >
             <PreviewIcon
-              isLoading={!canPlay}
-              isPlaying={playing}
+              isLoading={!playerState.canPlay}
+              isPlaying={playerState.playing}
               onPlay={(e) => {
                 e.stopPropagation()
-                if (canPlay) {
-                  player.play()
-                  setPlaying(true)
-                }
+                playerActions.play()
               }}
             />
-            <SongVisualizer
-              song={song}
-              handSettings={getHandSettings(songConfig)}
-              hand="both"
-              config={songConfigOverride}
-              getTime={() => Player.player().getTime()}
-            />
+            {id && source && (
+              <SongPreview songId={id} source={source} onReady={playerActions.ready} />
+            )}
           </div>
           <Sizer height={16} />
           <div className={classes.buttonContainer}>
@@ -293,22 +218,6 @@ export default function SongPreviewModal({
             </button>
           </div>
           <Sizer height={16} />
-        </div>
-        <div>
-          <h3 className={classes.controlsHeader}>Controls Overview</h3>
-          <div>
-            {controlsOverview.map(({ title, icon, caption }) => {
-              return (
-                <div className={classes.container} key={title}>
-                  <span className={classes.iconWrapper}>{icon}</span>
-                  <div className={classes.textWrapper}>
-                    <h4 className={classes.controlTitle}>{title}</h4>
-                    <p>{caption}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
         </div>
       </div>
     </Modal>

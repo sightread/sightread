@@ -13,8 +13,8 @@ export function Container({
   className = '',
   component: Component = 'div',
 }: PropsWithChildren<ContainerProps>) {
-  const containerStyle = { boxSizing: 'border-box', position: 'relative', ...style }
-  const innerStyle = { margin: 'auto', maxWidth: breakpoints.md, width: '100%' }
+  const containerStyle = { position: 'relative', ...style }
+  const innerStyle = { margin: 'auto', maxWidth: breakpoints.lg, width: '100%' }
 
   return (
     <Component className={className} style={containerStyle}>

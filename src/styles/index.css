@@ -1,6 +1,6 @@
 @font-face {
-  font-family: Titillium;
-  src: url('fonts/Titillium_Web/TitilliumWeb-Regular.ttf');
+  font-family: Inter;
+  src: url('fonts/Inter/Inter-VariableFont_slnt\,wght.ttf');
   font-weight: normal;
   font-style: normal;
 }
@@ -42,7 +42,7 @@
 }
 
 body {
-  font-family: 'Titillium';
+  font-family: 'Inter';
 }
 
 /* 
@@ -60,6 +60,10 @@ canvas {
   100% {
     transform: rotate(360deg);
   }
+}
+
+* {
+  box-sizing: border-box;
 }
 
 /* Palette */

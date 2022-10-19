@@ -8,12 +8,10 @@ import { palette } from '@/styles/common'
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
 export default function SongScrubBar({
-  song,
   rangeSelecting = false,
   setRange = () => {},
   onSeek = () => {},
 }: {
-  song: Song | null
   rangeSelecting?: boolean
   setRange?: any
   onSeek?: any
@@ -33,6 +31,7 @@ export default function SongScrubBar({
   const player = Player.player()
   const isDraggingL = useRef(false)
   const isDraggingR = useRef(false)
+  const song: Song | null = player.song
 
   const getProgress = useCallback(
     (x: number) => {
@@ -125,7 +124,6 @@ export default function SongScrubBar({
         height: '100%',
         position: 'absolute',
         borderBottom: 'black solid 1px',
-        boxSizing: 'border-box',
         userSelect: 'none',
       }}
       onMouseDown={(e) => {
@@ -194,9 +192,25 @@ export default function SongScrubBar({
       </div>
       <span
         ref={currentTimeRef}
-        style={{ position: 'absolute', bottom: 1, left: 4, color: '#242632', fontSize: 20 }}
+        style={{
+          position: 'absolute',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          left: 4,
+          color: '#242632',
+          fontSize: 16,
+        }}
       ></span>
-      <span style={{ position: 'absolute', bottom: 1, right: 4, color: '#242632', fontSize: 20 }}>
+      <span
+        style={{
+          position: 'absolute',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          right: 4,
+          color: '#242632',
+          fontSize: 16,
+        }}
+      >
         {song && formatTime(player.getRealTimeDuration(0, song.duration))}
       </span>
       <div

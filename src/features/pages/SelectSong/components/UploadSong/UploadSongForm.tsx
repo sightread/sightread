@@ -24,7 +24,6 @@ const classes = css({
   },
   input: {
     width: '100%',
-    boxSizing: 'border-box',
     outline: 'none',
     fontSize: '18px',
     padding: '5px',
@@ -199,7 +198,6 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
               backgroundColor: '#f8d7da',
               borderColor: '#f5c6cb',
               margin: 'auto',
-              boxSizing: 'border-box',
               maxWidth: '375px',
             }}
           >

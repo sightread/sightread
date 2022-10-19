@@ -5,7 +5,6 @@
   display: inline-block;
   border: 1px solid #ccc;
   border-radius: 4px;
-  box-sizing: border-box;
   max-width: 300px;
   background-color: #7c819c;
 }

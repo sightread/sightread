@@ -16,7 +16,6 @@ const classes = css({
   },
   input: {
     width: '100%',
-    boxSizing: 'border-box',
     border: '1px solid lightgrey',
     borderRadius: '4px',
     padding: '5px 20px 5px 5px',

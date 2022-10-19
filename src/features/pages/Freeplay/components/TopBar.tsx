@@ -56,10 +56,7 @@ export default function TopBar({ isError, isLoading, value, onChange }: TopBarPr
         alignItems: 'center',
       }}
     >
-      <div
-        aria-label="left-items"
-        style={{ width: '33%', paddingLeft: '20px', boxSizing: 'border-box', cursor: 'pointer' }}
-      >
+      <div aria-label="left-items" style={{ width: '33%', paddingLeft: '20px', cursor: 'pointer' }}>
         <ArrowLeftIcon
           className={classes.topbarIcon}
           width={50}
@@ -82,7 +79,6 @@ export default function TopBar({ isError, isLoading, value, onChange }: TopBarPr
           display: 'flex',
           justifyContent: 'flex-end',
           paddingRight: '20px',
-          boxSizing: 'border-box',
         }}
       >
         <span style={{ width: '200px', display: 'inline-block' }}>

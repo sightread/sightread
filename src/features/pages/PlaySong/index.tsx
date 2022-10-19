@@ -5,7 +5,7 @@ import { Song, MidiStateEvent } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
-import { useSingleton, useSongSettings } from '@/hooks'
+import { usePlayerState, useSingleton, useSongSettings } from '@/hooks'
 import { getSong } from '@/features/api'
 import { css } from '@sightread/flake'
 import { getSynthStub } from '@/features/synth'
@@ -72,10 +72,9 @@ export function PlaySong() {
   const { source, id, recording }: { source: string; id: string; recording?: string } =
     router.query as any
   const [sidebar, setSidebar] = useState(false)
-  const [isPlaying, setPlaying] = useState(false)
+  const [playerState, playerActions] = usePlayerState()
   const [isSelectingRange, setIsSelectingRange] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   const [song, setSong] = useState<Song>()
@@ -120,13 +119,12 @@ export function PlaySong() {
   useEffect(() => {
     if (!source || !id) return
 
-    setIsLoading(true)
     // TODO: handle invalid song. Pipe up not-found midi for 400s etc.
     getSong(source, id).then((song: Song) => {
       const config = getSongSettings(id, song)
       setSong(song)
       setSongConfig(config)
-      player.setSong(song, config).then(() => setIsLoading(false))
+      player.setSong(song, config).then(() => playerActions.ready())
     })
   }, [source, id, player, setSongConfig])
 
@@ -134,15 +132,7 @@ export function PlaySong() {
     const keyboardHandler = (evt: KeyboardEvent) => {
       if (evt.code === 'Space') {
         evt.preventDefault()
-        if (isPlaying) {
-          player.pause()
-          setPlaying(false)
-        } else {
-          if (!isLoading) {
-            player.play()
-            setPlaying(true)
-          }
-        }
+        playerActions.toggle()
       } else if (evt.code === 'Comma') {
         player.seek(player.currentSongTime - 16 / 1000)
       } else if (evt.code === 'Period') {
@@ -151,7 +141,7 @@ export function PlaySong() {
     }
     window.addEventListener('keydown', keyboardHandler)
     return () => window.removeEventListener('keydown', keyboardHandler)
-  }, [isPlaying, player, isLoading])
+  }, [player])
 
   useEffect(() => {
     const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
@@ -191,16 +181,6 @@ export function PlaySong() {
     setSoundOff(false)
   }
 
-  const handleTogglePlaying = () => {
-    if (isPlaying) {
-      player.pause()
-      return setPlaying(false)
-    }
-    if (!isLoading) {
-      player.play()
-      return setPlaying(true)
-    }
-  }
   const handleBeginRangeSelection = () => {
     if (isSelectingRange) {
       handleSetRange(undefined)
@@ -208,7 +188,7 @@ export function PlaySong() {
       return
     }
     setIsSelectingRange(true)
-    setPlaying(false)
+    playerActions.pause()
     player.pause()
   }
 
@@ -217,17 +197,14 @@ export function PlaySong() {
       {!isRecording && (
         <>
           <TopBar
-            isLoading={isLoading}
-            isPlaying={isPlaying}
+            isLoading={!playerState.canPlay}
+            isPlaying={playerState.playing}
             isSoundOff={soundOff}
-            onTogglePlaying={handleTogglePlaying}
+            onTogglePlaying={playerActions.toggle}
             onSelectRange={handleBeginRangeSelection}
-            onClickRestart={() => {
-              player.stop()
-              setPlaying(false)
-            }}
+            onClickRestart={playerActions.reset}
             onClickBack={() => {
-              player.pause()
+              playerActions.reset()
               router.back()
             }}
             onClickSettings={(e) => {
@@ -241,11 +218,7 @@ export function PlaySong() {
             }}
           />
           <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
-            <SongScrubBar
-              song={song ?? null}
-              rangeSelecting={isSelectingRange}
-              setRange={handleSetRange}
-            />
+            <SongScrubBar rangeSelecting={isSelectingRange} setRange={handleSetRange} />
           </div>
           <div
             style={{
