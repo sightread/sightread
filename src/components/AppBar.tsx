@@ -114,7 +114,7 @@ export default function AppBar({ style }: AppBarProps) {
       <div
         style={{
           display: 'flex',
-          alignItems: 'baseline',
+          alignItems: 'center',
           width: `min(100% - 50px, ${breakpoints.lg}px)`,
           justifyContent: 'center',
           margin: '0 auto',
@@ -134,7 +134,6 @@ export default function AppBar({ style }: AppBarProps) {
 
         <Link href={'/'}>
           <a className={clsx(classes.navItem)} style={{ display: 'flex', alignItems: 'baseline' }}>
-            <Sizer width={16} />
             <Logo height={24} width={24} style={{ position: 'relative', top: 3 }} />
             <Sizer width={8} />
             <span style={{ fontWeight: 200, fontSize: 24 }}> SIGHTREAD</span>

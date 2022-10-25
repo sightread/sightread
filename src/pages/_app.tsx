@@ -1,5 +1,5 @@
 import * as React from 'react'
-import '@/styles/reset.css'
+import '@/styles/global.css'
 import '@/styles/index.css'
 import '@/styles/SelectSong.css'
 import '@/styles/Tooltip.css'

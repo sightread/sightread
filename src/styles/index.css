@@ -45,14 +45,6 @@ body {
   font-family: 'Inter';
 }
 
-/* 
- * Canvas defaults to inline, which can be confusing b/c of the way line-height
- * creates a tough to discover margin.
- */
-canvas {
-  display: block;
-}
-
 @keyframes spinner {
   0% {
     transform: rotate(0deg);
@@ -60,10 +52,6 @@ canvas {
   100% {
     transform: rotate(360deg);
   }
-}
-
-* {
-  box-sizing: border-box;
 }
 
 /* Palette */
