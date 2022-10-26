@@ -112,8 +112,8 @@ function Dropdown({
         <div
           ref={menuRef}
           className={clsx(
-            'absolute top-1 left-0 bg-white rounded-lg overflow-hidden transition shadow-xl',
-            open ? 'px-[10]' : 'p-0 h-0',
+            'absolute top-1 bg-white rounded-lg overflow-hidden transition shadow-xl w-full',
+            !open && 'hidden',
           )}
           style={{ width: 'calc(100vw-30px' }}
         >
