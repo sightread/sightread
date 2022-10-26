@@ -4,6 +4,7 @@ import { palette } from '@/styles/common'
 import Link from 'next/link'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
+import { GithubIcon, MailIcon } from '@/icons'
 
 function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
   return (
@@ -81,12 +82,13 @@ function WhatSection() {
       />
       <Sizer height={24} />
       <p>
-        For those who want to learn sheet music, Sightread offers Sheet Hero (beta) mode. Sheet Hero
-        is a halfway point between the simplicity of falling notes and the full complexity of sheet
-        music. Notes are laid out on a musical staff, but timing is simplified. Rather than needing
-        to understand beat divisions, Sheet Hero represents the duration of notes with a tail. Key
-        signatures are also optional in this mode. Sightread will by default display a song in it’s
-        original key, but you may change the key to any that you prefer.
+        For those who want to learn sheet music, Sightread offers{' '}
+        <span className="italic">Sheet Hero (beta)</span> mode. Sheet Hero is a halfway point
+        between the simplicity of falling notes and the full complexity of sheet music. Notes are
+        laid out on a musical staff, but timing is simplified. Sheet Hero represents the duration of
+        notes with a tail instead of beat denominations. Key signatures are also optional in this
+        mode. Sightread will by default display a song in it’s original key, but you may change the
+        key to any that you prefer.
       </p>
       <Sizer height={8} />
       <CaptionedImage
@@ -154,12 +156,10 @@ function BrowserCompatibilitySection() {
       first="Sightread is fully compatible with the latest versions of Chrome and Firefox."
     >
       <p>
-        Apple has not implemented the WebMIDI spec, so plugging in a keyboard will not work in
-        Safari. Apple also{' '}
+        Plugging in a MIDI keyboard will not work on iOS or Safari. This is because Apple has not
+        implemented the WebMIDI spec and also{' '}
         <AboutLink href="https://css-tricks.com/ios-browser-choice/">restricts</AboutLink> iOS
-        devices from using any browser engine but their own. Therefore Sightread has the same
-        limitation on iPad and iPhone. In the future, I plan to release a free iOS app to work
-        around this limitation.
+        devices from using any browser engine but their own.
       </p>
     </Article>
   )
@@ -169,12 +169,11 @@ function RoadmapSection() {
   return (
     <Article header="Roadmap">
       <p>
-        I have so many exciting ideas for where I’d like to take this project, but I have a full
-        time job so progress is slow. Things I plan to implement in future releases, in no
-        particular order are:
+        I have so many exciting ideas, but I have a full time job so progress is slow. Things I plan
+        to implement in future releases:
       </p>
       <ul className="px-12 list-disc">
-        <li> iOS App </li>
+        <li>iOS App</li>
         <li>MusicXML file upload and full Sheet Music display.</li>
         <li>Progress tracking and song scoring to see improvement over time.</li>
         <li>
@@ -194,9 +193,17 @@ function FeedbackSection() {
         Reach out if you encounter any problems with the site or would like to leave feedback. I’d
         also love to hear about any feature ideas you may have.
       </p>
-      <ul className="px-12 list-disc">
-        <li>GitHub</li>
-        <li>Email: sightreadllc@gmail.com</li>
+      <ul className="px-12">
+        <li className="flex items-center gap-1">
+          <GithubIcon height={16} width={16} /> GitHub{' '}
+          <AboutLink href="https://github.com/sightread/sightread">
+            https://github.com/sightread/sightread
+          </AboutLink>
+        </li>
+        <li className="flex items-center gap-1">
+          <MailIcon height={16} width={16} /> Email{' '}
+          <AboutLink href="mailto:sightreadllc@gmail.com">sightreadllc@gmail.com</AboutLink>
+        </li>
       </ul>
     </Article>
   )
