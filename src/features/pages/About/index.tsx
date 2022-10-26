@@ -2,127 +2,179 @@ import React, { PropsWithChildren, ReactChild } from 'react'
 import { AppBar, Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import Link from 'next/link'
+import { Article, CaptionedImage } from './components'
 
-type ArticleContent = { heading: string; first?: string; body: ReactChild[] }
-const textArticles: ArticleContent[] = [
-  {
-    heading: 'What',
-    first: 'Sightread is a free and open-source webapp for Piano education.',
-    body: [
-      <p key="what-1">
-        Sightread will help you learn piano. It is great for beginners because you can play songs
-        without needing to learn sheet music. The featureset in this original release is heavily
-        inspired by Synthesia, with the key difference that Sightread is free and browser based.
-      </p>,
-      <p key="what-2">
-        Sightread’s goal is to help piano students learn sheet music, and eventually, how to
-        sightread. While the only completed visualizer is Falling Notes, we have a new Beta mode
-        called Sheet Hero which is an attempt to offer a halfway point between the simplicity of
-        falling notes and the full complexity of sheet music.
-      </p>,
-      <p key="what-3">
+export default function AboutPage() {
+  return (
+    <div className="relative">
+      <AppBar style={{ backgroundColor: palette.purple.dark }} />
+      <div className="flex">
+        <div className="hidden md:block p-8 bg-[#F7F4FE]">
+          <section className="flex flex-col mx-auto gap-2">
+            <h2 className="text-2xl">About</h2>
+            <ul className="text-base flex flex-col gap-1">
+              <li>What</li>
+              <li>Getting started</li>
+              <li>Music selection</li>
+              <li>Browser compatibility</li>
+              <li>Roadmap</li>
+              <li>Feedback</li>
+            </ul>
+          </section>
+        </div>
+        <div className="p-8 mx-auto w-full text-base max-w-prose flex flex-col gap-9">
+          <WhatSection />
+          <GettingStarted />
+          <MusicSelectionSection />
+          <BrowserCompatibilitySection />
+          <RoadmapSection />
+          <FeedbackSection />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function WhatSection() {
+  return (
+    <Article
+      header="What"
+      first="Sightread is a free and open-source webapp for learning to play Piano."
+    >
+      <p>
+        Sightread is great for beginners – you can play songs without needing to learn sheet music.
+        Sightread creates an intuitive <span className="italic">Falling Notes</span> visualization
+        of a song, similar to rhythm games like Guitar Hero. Note that
+        <span className="italic">Falling Notes</span> is heavily inspired by{' '}
+        <AboutLink href="synthesiagame.com">Synthesia.</AboutLink>
+      </p>
+      <Sizer height={8} />
+      <CaptionedImage
+        src="/images/mode_falling_notes_screenshot.png"
+        caption="Falling Notes with note labels"
+        height={1628}
+        width={1636}
+      />
+      <Sizer height={24} />
+      <p>
+        For those who want to learn sheet music, Sightread offers Sheet Hero (beta) mode. Sheet Hero
+        is a halfway point between the simplicity of falling notes and the full complexity of sheet
+        music. Notes are laid out on a musical staff, but timing is simplified. Rather than needing
+        to understand beat divisions, Sheet Hero represents the duration of notes with a tail. Key
+        signatures are also optional in this mode. Sightread will by default display a song in it’s
+        original key, but you may change the key to any that you prefer.
+      </p>
+      <Sizer height={8} />
+      <CaptionedImage
+        src="/images/mode_sheet_hero_screenshot.png"
+        width={1980}
+        height={1148}
+        caption="Sheet Hero (beta) with note labels"
+      />
+    </Article>
+  )
+}
+
+function GettingStarted() {
+  return (
+    <Article header="Getting started" first="Plug in a keyboard. Start slow. Gradually speed up.">
+      <p>
+        When initially learning a song, I recommend learning left and right hands separately. You
+        should also take advantage of the BPM modifier to slow down a song by at least 50%. It is
+        significantly more helpful to hit the right notes with good form and slowly build up speed
+        than to frantically practice at full speed and build bad habits. This is especially true
+        when combining hands.
+      </p>
+      <p>
+        If you connect a MIDI keyboard, you can enable <span className="italic">Wait</span> mode –
+        the song will wait for you to hit the right key before progressing.
+      </p>
+      <p>
         Sightread works best in conjunction with a Piano teacher. Falling notes will allow you to
         have more fun with less experience, but it is no replacement for formal education. Learning
         music theory will help you get a more holistic music experience than learning solely
-        learning how to play songs.`,
-      </p>,
-    ],
-  },
-  {
-    heading: 'How',
-    first: 'Falling notes, (Beta) Sheet Hero, and eventually a suite of learning tools',
-    body: [
-      <p key="how-1">
-        Sightread comes with a host of features designed to help you learn. The primary flow is to
-        select a song and play it in the Falling Notes visualization mode.
-      </p>,
-      <p key="how-2">
-        If you are able to connect a MIDI keyboard to your device, you can use Wait mode which will
-        wait for you to hit the right note before progressing.
-      </p>,
-      <p key="how-3">
-        When initially learning a song you should start with learning the hands separately. You
-        should also take advantage of the BPM modifier to slow down a song by at least 50%. It is
-        significantly more helpful to hit the right notes with good form and slowly build up speed
-        than to frantically practice at full speed and build bad habits.
-      </p>,
-    ],
-  },
-  {
-    heading: 'Music selection',
-    first:
-      'The Sightread catalog has three components: built in, midishare, and local file uploads',
-    body: [
-      <p key="music-p1">
-        Sightread comes with a selection of 153 songs built-in. The song selection was taken from
-        Synthesia and is exclusively composed of works from the public domain. See the full list
-        here.
-      </p>,
-      <p key="music-p2">
-        Sightread also includes all of the free MIDI music available on midishare. If there is music
-        not on midishare that you’d like to learn, your best bet is a Google search for a relevant
-        MIDI file. If you cannot find the music you are looking for, please send an email to
-        midishare.dev@gmail.com and I’ll try to help out.
-      </p>,
-      <p key="music-p3">
-        Lastly, if you have your own MIDI files that you’d like to use to learn or practice, you may
-        upload them to Sightread which stores them locally on your browser, or upload them to
-        midishare and they’ll be available for anyone using Sightread.
-      </p>,
-    ],
-  },
-  {
-    heading: 'Browser Compatibility',
-    first: 'Sightread is fully compatible with the latest versions of Chrome and Firefox.',
-    body: [
-      <p key="bcompat-1">
-        Apple has not implemented the WebMIDI spec, so plugging in a keyboard will not work in
-        Safari. In addition, Apple{' '}
-        <AboutLink href="https://css-tricks.com/ios-browser-choice/">
-          restricts iOS devices
-        </AboutLink>{' '}
-        from using any browser engine but their own. Therefore Sightread has the same limitation on
-        iPad and iPhone. In the future, I plan to release a free iOS app to work around this
-        limitation.
-      </p>,
-    ],
-  },
-  {
-    heading: 'Roadmap',
-    body: [
-      <p key="roadmap-1">
-        I have so many exciting ideas for where I’d like to take this project, but (un)fortunately I
-        have a full-time job and not enough time to implement them. Things I plan to implement in
-        future releases, in no particular order are:
-      </p>,
-    ],
-  },
-  {
-    heading: 'Feedback',
-    body: [
-      <p key="feedback-1">
-        Please reach out if you encounter any problems with the site or would like to leave
-        feedback. I’d also love to hear about any feature ideas you may have.
-      </p>,
-    ],
-  },
-]
-
-export default function AboutPage() {
-  const articles = textArticles.map((a) => (
-    <Article header={a.heading} key={`article-${a.heading}`} first={a.first}>
-      {a.body}
+        learning how to play songs.
+      </p>
     </Article>
-  ))
+  )
+}
 
+function MusicSelectionSection() {
   return (
-    <div className="relative">
-      <AppBar style={{ backgroundColor: palette.purple.primary }} />
-      <Sizer height={48} />
-      <div className="px-8 pb-8 mx-auto w-full text-base max-w-prose flex flex-col gap-9">
-        {articles}
-      </div>
-    </div>
+    <Article
+      header="Music selection"
+      first="The Sightread catalog has three components: midishare, built-in, and local file uploads."
+    >
+      <p>
+        Sightread includes the midishare catalog, as well as 153 built-in public domain songs
+        curated by Synthesia.
+      </p>
+      <p>
+        You can <AboutLink href="https://midishare.com/upload">upload</AboutLink> MIDI files to
+        midishare where they’ll be available for the entire community. If you’d prefer to keep them
+        local, you can also upload them directly to Sightread which saves them in browser storage.
+      </p>
+      <p>
+        If you can’t find the music you’re looking for on midishare, a Google search is your best
+        bet. Or you can send me an{' '}
+        <AboutLink href="mailto:midishare.dev@gmail.com">email</AboutLink> and I’ll try to help out.
+      </p>
+    </Article>
+  )
+}
+
+function BrowserCompatibilitySection() {
+  return (
+    <Article
+      header="Browser compatibility"
+      first="Sightread is fully compatible with the latest versions of Chrome and Firefox."
+    >
+      <p>
+        Apple has not implemented the WebMIDI spec, so plugging in a keyboard will not work in
+        Safari. Apple also{' '}
+        <AboutLink href="https://css-tricks.com/ios-browser-choice/">restricts</AboutLink> iOS
+        devices from using any browser engine but their own. Therefore Sightread has the same
+        limitation on iPad and iPhone. In the future, I plan to release a free iOS app to work
+        around this limitation.
+      </p>
+    </Article>
+  )
+}
+
+function RoadmapSection() {
+  return (
+    <Article header="Roadmap">
+      <p>
+        I have so many exciting ideas for where I’d like to take this project, but I have a full
+        time job so progress is slow. Things I plan to implement in future releases, in no
+        particular order are:
+      </p>
+      <ul className="px-12 list-disc">
+        <li> iOS App </li>
+        <li>MusicXML file upload and full Sheet Music display.</li>
+        <li>Progress tracking and song scoring to see improvement over time.</li>
+        <li>
+          Difficulty scaling for algorithmically scaling the difficulty of a song up and down.
+        </li>
+        <li>Record a performance in free play and share it with a link.</li>
+        <li>Small training tools and games.</li>
+      </ul>
+    </Article>
+  )
+}
+
+function FeedbackSection() {
+  return (
+    <Article header="Feedback">
+      <p>
+        Reach out if you encounter any problems with the site or would like to leave feedback. I’d
+        also love to hear about any feature ideas you may have.
+      </p>
+      <ul className="px-12 list-disc">
+        <li>GitHub</li>
+        <li>Email: sightreadllc@gmail.com</li>
+      </ul>
+    </Article>
   )
 }
 
@@ -131,27 +183,5 @@ function AboutLink({ href, children }: PropsWithChildren<{ href: string }>) {
     <Link href={href}>
       <a className="text-purple-primary hover:text-purple-hover">{children}</a>
     </Link>
-  )
-}
-
-function Article({
-  children,
-  header,
-  first,
-}: PropsWithChildren<{ header: string; first?: string | null }>) {
-  return (
-    <article>
-      <h1 className="text-3xl font-bold">{header}</h1>
-      <Sizer height={8} />
-      <div aria-hidden className="h-full border-purple-primary border" />
-      <Sizer height={16} />
-      {first && (
-        <>
-          <h2 className="font-extrabold text-lg">{first}</h2>
-          <Sizer height={16} />
-        </>
-      )}
-      <div className="flex flex-col gap-3">{children}</div>
-    </article>
   )
 }
