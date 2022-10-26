@@ -3,22 +3,39 @@ import { AppBar, Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import Link from 'next/link'
 import { Article, CaptionedImage } from './components'
+import { slugify } from './utils'
+
+function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
+  return <a href={`#${slugify(children)}`}>{children}</a>
+}
 
 export default function AboutPage() {
   return (
     <div className="relative">
       <AppBar style={{ backgroundColor: palette.purple.dark }} />
       <div className="flex">
-        <div className="hidden md:block p-8 bg-[#F7F4FE]">
+        <div className="hidden md:block sticky top-0 p-8 bg-[#F7F4FE] max-h-screen">
           <section className="flex flex-col mx-auto gap-2">
             <h2 className="text-2xl">About</h2>
-            <ul className="text-base flex flex-col gap-1">
-              <li>What</li>
-              <li>Getting started</li>
-              <li>Music selection</li>
-              <li>Browser compatibility</li>
-              <li>Roadmap</li>
-              <li>Feedback</li>
+            <ul className="text-base flex flex-col gap-1 whitespace-nowrap">
+              <li>
+                <SidebarLink>What</SidebarLink>
+              </li>
+              <li>
+                <SidebarLink>Getting started</SidebarLink>
+              </li>
+              <li>
+                <SidebarLink>Music selection</SidebarLink>
+              </li>
+              <li>
+                <SidebarLink>Browser compatibility</SidebarLink>
+              </li>
+              <li>
+                <SidebarLink>Roadmap</SidebarLink>
+              </li>
+              <li>
+                <SidebarLink>Feedback</SidebarLink>
+              </li>
             </ul>
           </section>
         </div>

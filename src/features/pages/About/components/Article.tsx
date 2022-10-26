@@ -1,5 +1,6 @@
 import { Sizer } from '@/components'
 import { PropsWithChildren } from 'react'
+import { slugify } from '../utils'
 
 export function Article({
   children,
@@ -7,7 +8,7 @@ export function Article({
   first,
 }: PropsWithChildren<{ header: string; first?: string | null }>) {
   return (
-    <article>
+    <article id={slugify(header)}>
       <h1 className="text-3xl font-bold">{header}</h1>
       <Sizer height={8} />
       <div aria-hidden className="border-purple-primary border" />
