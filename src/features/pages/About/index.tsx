@@ -13,39 +13,42 @@ export default function AboutPage() {
   return (
     <div className="relative">
       <AppBar style={{ backgroundColor: palette.purple.dark }} />
-      <div className="flex">
-        <div className="hidden md:block sticky top-0 p-8 bg-[#F7F4FE] max-h-screen">
-          <section className="flex flex-col mx-auto gap-2">
-            <h2 className="text-2xl">About</h2>
-            <ul className="text-base flex flex-col gap-1 whitespace-nowrap">
-              <li>
-                <SidebarLink>What</SidebarLink>
-              </li>
-              <li>
-                <SidebarLink>Getting started</SidebarLink>
-              </li>
-              <li>
-                <SidebarLink>Music selection</SidebarLink>
-              </li>
-              <li>
-                <SidebarLink>Browser compatibility</SidebarLink>
-              </li>
-              <li>
-                <SidebarLink>Roadmap</SidebarLink>
-              </li>
-              <li>
-                <SidebarLink>Feedback</SidebarLink>
-              </li>
-            </ul>
-          </section>
-        </div>
-        <div className="p-8 mx-auto w-full text-base max-w-prose flex flex-col gap-9">
-          <WhatSection />
-          <GettingStarted />
-          <MusicSelectionSection />
-          <BrowserCompatibilitySection />
-          <RoadmapSection />
-          <FeedbackSection />
+      <div className="bg-[#F7F4FE]">
+        <div className="flex max-w-screen-lg mx-auto">
+          <div className="hidden md:block sticky top-0 p-8 max-h-screen">
+            <section className="flex flex-col mx-auto">
+              <h2 className="text-3xl">About</h2>
+              <Sizer height={32} />
+              <ul className="text-xl flex flex-col gap-5 whitespace-nowrap">
+                <li>
+                  <SidebarLink>What</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Getting started</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Music selection</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Browser compatibility</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Roadmap</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Feedback</SidebarLink>
+                </li>
+              </ul>
+            </section>
+          </div>
+          <div className="p-8 mx-auto w-full text-base max-w-prose flex flex-1 flex-col gap-9 bg-white">
+            <WhatSection />
+            <GettingStarted />
+            <MusicSelectionSection />
+            <BrowserCompatibilitySection />
+            <RoadmapSection />
+            <FeedbackSection />
+          </div>
         </div>
       </div>
     </div>

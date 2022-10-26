@@ -213,7 +213,7 @@ export default function LandingPage() {
             </Link>
             <Link href={'/freeplay'}>
               <a>
-                <Button className={classes.ghostBtn}>Freeplay</Button>
+                <Button className={classes.ghostBtn}>Free play</Button>
               </a>
             </Link>
           </div>

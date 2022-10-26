@@ -15,9 +15,10 @@ const classes = css({
       marginLeft: 0,
       color: 'white',
       display: 'flex',
-      gap: 16,
+      gap: 24,
       flexGrow: '1' as any,
       justifyContent: 'space-evenly',
+      whiteSpace: 'nowrap',
     },
   },
   appBarLarge: {
