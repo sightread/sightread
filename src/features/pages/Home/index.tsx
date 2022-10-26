@@ -207,14 +207,10 @@ export default function LandingPage() {
             }}
           >
             <Link href={'/songs'}>
-              <a>
-                <Button className={classes.purpleBtn}>Learn a song</Button>
-              </a>
+              <Button className={classes.purpleBtn}>Learn a song</Button>
             </Link>
             <Link href={'/freeplay'}>
-              <a>
-                <Button className={classes.ghostBtn}>Freeplay</Button>
-              </a>
+              <Button className={classes.ghostBtn}>Free play</Button>
             </Link>
           </div>
         </div>

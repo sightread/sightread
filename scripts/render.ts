@@ -9,7 +9,7 @@ import { waitForImages, getImages } from '@/features/SongVisualization/images'
 import { parseMidi, parserInferHands } from '@/features/parsers'
 import { PIXELS_PER_SECOND as pps } from '@/features/SongVisualization/utils'
 
-const inputDir = '/Users/jakefried/Repos/midishare/public/download'
+const inputDir = '/Users/jakefried/Movies/sightread-recordings'
 const outputDir = '/Users/jakefried/Movies/sightread-recordings'
 const cpus = 2
 const fps = 60
@@ -98,13 +98,13 @@ async function renderVideo(file: string) {
     time: 0,
     drawNotes: false,
     visualization: 'falling-notes',
+    windowWidth: viewport.width,
     width: viewport.width,
     height: viewport.height,
     pps,
     hand: 'both',
     hands: { [hands.right]: { hand: 'right' }, [hands.left]: { hand: 'left' } },
     items: items,
-    // constrictView: false,
     constrictView: true,
     keySignature: 'C',
     timeSignature: { numerator: 4, denominator: 4 },

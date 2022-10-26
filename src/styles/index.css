@@ -1,11 +1,4 @@
 @font-face {
-  font-family: Inter;
-  src: url('fonts/Inter/Inter-VariableFont_slnt\,wght.ttf');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
   font-family: Leland;
   src: url('fonts/Leland/Leland.otf') format('opentype');
   font-feature-settings: 'ccmp';
@@ -42,15 +35,7 @@
 }
 
 body {
-  font-family: 'Inter';
-}
-
-/* 
- * Canvas defaults to inline, which can be confusing b/c of the way line-height
- * creates a tough to discover margin.
- */
-canvas {
-  display: block;
+  font-family: var(--primary-font-family);
 }
 
 @keyframes spinner {
@@ -60,10 +45,6 @@ canvas {
   100% {
     transform: rotate(360deg);
   }
-}
-
-* {
-  box-sizing: border-box;
 }
 
 /* Palette */

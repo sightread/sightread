@@ -1,12 +1,10 @@
 # [sightread](http://sightread.dev)
 
-A Synthesia clone for the web.
-See it [live](https://sightread.dev/).
+A free and open-source webapp for learning to play Piano. Play music without needing to learn sheet music. Plug in your MIDI keyboard for the optimal experience. See full details on the [website](https://sightread.dev/about).
 
-**goal**
-Gamify learning to sight read piano sheet music.
+<img alt="app screenshot" src="./public/images/mode_falling_notes_screenshot.png" style="max-width: 100%"/>
 
-## Development
+## Contributing
 
 To start the app
 

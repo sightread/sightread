@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useEffect } from 'react'
 import { SongScrubBar } from '../SongInputControls'
-import { BothHandsIcon, ClockIcon, MusicalNoteIcon, DoubleArrowLoopIcon } from '@/icons'
 import { css, mediaQuery } from '@sightread/flake'
 import { useRouter } from 'next/router'
 import { usePlayerState } from '@/hooks'

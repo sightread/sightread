@@ -21,26 +21,26 @@ export default function TrainingPage() {
       >
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', alignContent: 'center' }}>
           {links.map(({ label, url }) => (
-            <Link href={url} key={url}>
-              <a
+            <Link
+              href={url}
+              key={url}
+              style={{
+                textDecoration: 'none',
+                color: 'white',
+              }}
+            >
+              <div
                 style={{
-                  textDecoration: 'none',
-                  color: 'white',
+                  width: 200,
+                  height: 200,
+                  backgroundColor: 'grey',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                <div
-                  style={{
-                    width: 200,
-                    height: 200,
-                    backgroundColor: 'grey',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {label}
-                </div>
-              </a>
+                {label}
+              </div>
             </Link>
           ))}
         </div>
