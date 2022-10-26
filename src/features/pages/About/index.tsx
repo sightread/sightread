@@ -202,8 +202,8 @@ function FeedbackSection() {
 
 function AboutLink({ href, children }: PropsWithChildren<{ href: string }>) {
   return (
-    <Link href={href}>
-      <a className="text-purple-primary hover:text-purple-hover">{children}</a>
+    <Link href={href} className="text-purple-primary hover:text-purple-hover">
+      {children}
     </Link>
   )
 }

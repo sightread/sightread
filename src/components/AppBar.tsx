@@ -130,54 +130,52 @@ export default function AppBar({ style }: AppBarProps) {
           <Dropdown target={<MenuIcon height={24} width={24} className={classes.menuIcon} />}>
             {navItems.map((nav, i) => {
               return (
-                <Link href={nav.route} key={i}>
-                  <a
-                    className={clsx(
-                      classes.navItemSmall,
-                      currentRoute === nav.route && classes.activeItem,
-                    )}
-                  >
-                    {nav.label}
-                  </a>
+                <Link
+                  href={nav.route}
+                  key={i}
+                  className={clsx(
+                    classes.navItemSmall,
+                    currentRoute === nav.route && classes.activeItem,
+                  )}
+                >
+                  {nav.label}
                 </Link>
               )
             })}
           </Dropdown>
         </div>
 
-        <Link href={'/'}>
-          <a className={clsx(classes.navItem)} style={{ display: 'flex', alignItems: 'baseline' }}>
-            <Logo height={24} width={24} style={{ position: 'relative', top: 3 }} />
-            <Sizer width={8} />
-            <span style={{ fontWeight: 200, fontSize: 24 }}> SIGHTREAD</span>
-          </a>
+        <Link
+          href={'/'}
+          className={clsx(classes.navItem)}
+          style={{ display: 'flex', alignItems: 'baseline' }}
+        >
+          <Logo height={24} width={24} style={{ position: 'relative', top: 3 }} />
+          <Sizer width={8} />
+          <span style={{ fontWeight: 200, fontSize: 24 }}> SIGHTREAD</span>
         </Link>
         <div className={clsx(classes.appBarLarge, classes.appBar)}>
           <div />
           <div />
           {navItems.map((nav) => {
             return (
-              <Link href={nav.route} key={nav.label}>
-                <a
-                  className={clsx(
-                    classes.navItem,
-                    currentRoute === nav.route && classes.activeItem,
-                  )}
-                >
-                  {nav.label}
-                </a>
+              <Link
+                href={nav.route}
+                key={nav.label}
+                className={clsx(classes.navItem, currentRoute === nav.route && classes.activeItem)}
+              >
+                {nav.label}
               </Link>
             )
           })}
-          <Link href={'https://github.com/sightread/sightread'}>
-            <a
-              style={{ marginLeft: 'auto', display: 'flex', alignItems: 'baseline' }}
-              className={classes.navItem}
-            >
-              <GithubIcon width={16} height={16} className={clsx(classes.githubIcon)} />
-              <Sizer width={6} />
-              GitHub
-            </a>
+          <Link
+            href={'https://github.com/sightread/sightread'}
+            style={{ marginLeft: 'auto', display: 'flex', alignItems: 'baseline' }}
+            className={classes.navItem}
+          >
+            <GithubIcon width={16} height={16} className={clsx(classes.githubIcon)} />
+            <Sizer width={6} />
+            GitHub
           </Link>
           <div />
           <div />
