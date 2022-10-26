@@ -13,7 +13,7 @@ export default function AboutPage() {
   return (
     <div className="relative">
       <AppBar style={{ backgroundColor: palette.purple.dark }} />
-      <div className="bg-[#F7F4FE]">
+      <div className="md:bg-[#F7F4FE]">
         <div className="flex max-w-screen-lg mx-auto">
           <div className="hidden md:block sticky top-0 p-8 max-h-screen">
             <section className="flex flex-col mx-auto">
@@ -64,9 +64,7 @@ function WhatSection() {
       <p>
         Sightread is great for beginners – you can play songs without needing to learn sheet music.
         Sightread creates an intuitive <span className="italic">Falling Notes</span> visualization
-        of a song, similar to rhythm games like Guitar Hero. Note that
-        <span className="italic">Falling Notes</span> is heavily inspired by{' '}
-        <AboutLink href="synthesiagame.com">Synthesia.</AboutLink>
+        of a song, similar to rhythm games like Guitar Hero.
       </p>
       <Sizer height={8} />
       <CaptionedImage
