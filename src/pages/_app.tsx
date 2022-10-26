@@ -8,6 +8,12 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import * as analytics from '@/features/analytics'
 import Head from 'next/head'
+import { Inter } from '@next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--primary-font-family',
+})
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter()

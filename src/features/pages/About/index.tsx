@@ -45,13 +45,15 @@ export default function AboutPage() {
               </ul>
             </section>
           </div>
-          <div className="p-8 mx-auto w-full text-base max-w-prose flex flex-1 flex-col gap-9 bg-white">
-            <WhatSection />
-            <GettingStarted />
-            <MusicSelectionSection />
-            <BrowserCompatibilitySection />
-            <RoadmapSection />
-            <FeedbackSection />
+          <div className="my-8 p-8 mx-auto w-full text-base flex-1 bg-white">
+            <div className="max-w-prose flex flex-col gap-12">
+              <WhatSection />
+              <GettingStarted />
+              <MusicSelectionSection />
+              <BrowserCompatibilitySection />
+              <RoadmapSection />
+              <FeedbackSection />
+            </div>
           </div>
         </div>
       </div>

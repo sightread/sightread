@@ -1,84 +1,10 @@
-import { useState, useRef, Children, CSSProperties } from 'react'
-import { breakpoints } from '@/utils'
+import { useState, useRef, Children, CSSProperties, PropsWithChildren } from 'react'
 import { Sizer } from '@/components'
 import { GithubIcon, Logo, MenuIcon } from '@/icons'
-import { css, mediaQuery } from '@sightread/flake'
-import { palette } from '@/styles/common'
 import Link from 'next/link'
 import clsx from 'clsx'
 import { useWhenClickedOutside } from '@/hooks'
 import { useRouter } from 'next/router'
-
-const classes = css({
-  appBar: {
-    alignItems: 'baseline',
-    [mediaQuery.up(breakpoints.sm + 1)]: {
-      marginLeft: 0,
-      color: 'white',
-      display: 'flex',
-      gap: 24,
-      flexGrow: '1' as any,
-      justifyContent: 'space-evenly',
-      whiteSpace: 'nowrap',
-    },
-  },
-  appBarLarge: {
-    [mediaQuery.down(breakpoints.sm)]: {
-      display: 'none',
-    },
-  },
-  appBarSmall: {
-    position: 'absolute',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    left: 'min(3vw, 20px)',
-    [mediaQuery.up(breakpoints.sm + 1)]: {
-      display: 'none',
-    },
-  },
-  navItem: {
-    color: 'white',
-    textDecoration: 'none',
-    fontSize: 16,
-    transition: '200ms',
-    '&:hover': {
-      color: palette.purple.hover,
-    },
-    '& svg path': {
-      transition: '200ms',
-    },
-    '&:hover svg path': {
-      fill: palette.purple.hover,
-    },
-  },
-  activeItem: {
-    fontWeight: 'bolder',
-  },
-  navItemSmall: {
-    color: palette.purple.dark,
-    textDecoration: 'none',
-    fontSize: 24,
-    padding: '0px 24px',
-    transition: '200ms',
-    '&:hover': {
-      color: palette.orange.primary,
-    },
-    display: 'inline-block',
-  },
-  menuIcon: {
-    display: 'block',
-    fill: 'white',
-    cursor: 'pointer',
-  },
-  githubIcon: {
-    position: 'relative',
-    top: 2,
-    color: 'white',
-    '& path': {
-      fill: 'white',
-    },
-  },
-})
 
 /**
  * route should be in the form of /route
@@ -97,95 +23,73 @@ interface AppBarProps {
   style?: CSSProperties
 }
 export default function AppBar({ style }: AppBarProps) {
-  const currentRoute = useRouter().route
   return (
     <div
+      className="z-3 h-[50px] min-h-[50px] bg-[#292929] flex flex-col justify-center relative"
       style={{
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
         // Credit goes to: https://aykevl.nl/2014/09/fix-jumping-scrollbar
         paddingLeft: 'calc(100vw - 100%)',
-
-        zIndex: 3,
-        height: 50,
-        minHeight: 50,
-        backgroundColor: '#292929',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        position: 'relative',
         ...style,
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          width: `min(100% - 50px, ${breakpoints.lg}px)`,
-          justifyContent: 'center',
-          margin: '0 auto',
-        }}
-      >
-        <div className={clsx(classes.appBarSmall, classes.appBar)}>
-          <Dropdown target={<MenuIcon height={24} width={24} className={classes.menuIcon} />}>
-            {navItems.map((nav, i) => {
-              return (
-                <Link
-                  href={nav.route}
-                  key={i}
-                  className={clsx(
-                    classes.navItemSmall,
-                    currentRoute === nav.route && classes.activeItem,
-                  )}
-                >
-                  {nav.label}
-                </Link>
-              )
-            })}
-          </Dropdown>
+      <div className="flex items-center pl-6 justify-center mx-auto w-full md:max-w-screen-lg">
+        <div className="absolute top-1/2 -translate-y-1/2 md:hidden left-5 right-5">
+          <SmallWindowNav />
         </div>
-
-        <Link
-          href={'/'}
-          className={clsx(classes.navItem)}
-          style={{ display: 'flex', alignItems: 'baseline' }}
-        >
+        <NavLink href={'/'} className="flex items-baseline text-white hover:text-purple-hover">
           <Logo height={24} width={24} style={{ position: 'relative', top: 3 }} />
           <Sizer width={8} />
-          <span style={{ fontWeight: 200, fontSize: 24 }}> SIGHTREAD</span>
-        </Link>
-        <div className={clsx(classes.appBarLarge, classes.appBar)}>
-          <div />
-          <div />
+          <span className="font-extralight text-2xl"> SIGHTREAD</span>
+        </NavLink>
+        <div className="hidden md:flex align-baseline gap-6 flex-grow justify-evenly whitespace-nowrap pl-16">
           {navItems.map((nav) => {
             return (
-              <Link
+              <NavLink
+                className="text-white hover:text-purple-hover"
                 href={nav.route}
                 key={nav.label}
-                className={clsx(classes.navItem, currentRoute === nav.route && classes.activeItem)}
               >
                 {nav.label}
-              </Link>
+              </NavLink>
             )
           })}
-          <Link
+          <NavLink
             href={'https://github.com/sightread/sightread'}
-            style={{ marginLeft: 'auto', display: 'flex', alignItems: 'baseline' }}
-            className={classes.navItem}
+            className="pr-8 lgminus:pr-0 ml-auto flex gap-2 items-center text-white fill-white hover:text-purple-hover hover:fill-purple-hover"
           >
-            <GithubIcon width={16} height={16} className={clsx(classes.githubIcon)} />
-            <Sizer width={6} />
+            <GithubIcon width={16} height={16} className="relative t-[2px]" />
             GitHub
-          </Link>
-          <div />
-          <div />
+          </NavLink>
         </div>
       </div>
     </div>
   )
 }
 
-/* used in the mobile appbar menu */
+function SmallWindowNav() {
+  return (
+    <Dropdown
+      target={<MenuIcon height={24} width={24} className="block fill-white cursor-pointer" />}
+    >
+      {navItems.map((nav, i) => {
+        return (
+          <NavLink
+            href={nav.route}
+            key={i}
+            className={clsx(
+              'text-purple-dark text-2xl px-6 transition hover:text-orange-primary inline-block',
+            )}
+          >
+            {nav.label}
+          </NavLink>
+        )
+      })}
+    </Dropdown>
+  )
+}
+
 function Dropdown({
   children,
   target,
@@ -204,39 +108,32 @@ function Dropdown({
   return (
     <div style={style} ref={dropdownRef}>
       <span onClick={toggleOpen}>{target}</span>
-      <div style={{ position: 'relative' }}>
+      <div className="relative">
         <div
           ref={menuRef}
-          style={{
-            position: 'absolute',
-            top: 8,
-            left: 0,
-            padding: open ? '10px 0px' : 0,
-            height: open ? '' : 0,
-            width: 'calc(100vw - 30px)',
-            backgroundColor: 'white',
-            borderRadius: 8,
-            overflow: 'hidden',
-            transition: '200ms',
-            boxShadow: '0px 0px 10px 0px grey',
-          }}
+          className={clsx(
+            'absolute top-1 left-0 bg-white rounded-lg overflow-hidden transition shadow-xl',
+            open ? 'px-[10]' : 'p-0 h-0',
+          )}
+          style={{ width: 'calc(100vw-30px' }}
         >
           {Children.map(children, (child) => {
-            return (
-              <button
-                style={{
-                  padding: '10px 0px',
-                  width: '100%',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                }}
-              >
-                {child}
-              </button>
-            )
+            return <button className="py-3 w-full bg-transparent border-none">{child}</button>
           })}
         </div>
       </div>
     </div>
+  )
+}
+
+function NavLink(props: PropsWithChildren<{ href: string; className?: string; style?: any }>) {
+  const currentRoute = useRouter().route
+  return (
+    <Link
+      {...props}
+      className={clsx(props.className, 'transition', currentRoute === props.href && 'font-bold')}
+    >
+      {props.children}
+    </Link>
   )
 }

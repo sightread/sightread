@@ -6,6 +6,10 @@ module.exports = {
       sm: '500px',
       md: '760px',
       lg: '1100px',
+
+      // This breakpoint exists solely for right padding on the AppBar GitHub Icon
+      // Ideally come up with something better
+      lgminus: '1120px',
     },
     extend: {
       colors: {

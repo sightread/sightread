@@ -15,7 +15,7 @@ export function Article({
       <Sizer height={16} />
       {first && (
         <>
-          <h2 className="font-extrabold text-lg">{first}</h2>
+          <h2 className="font-medium text-lg">{first}</h2>
           <Sizer height={16} />
         </>
       )}

@@ -20,6 +20,7 @@
     "tsconfig-paths": "3.14.1"
   },
   "dependencies": {
+    "@next/font": "^13.0.0",
     "@sightread/flake": "0.5.8",
     "@sightread/jasmid.ts": "2.1.5",
     "clsx": "1.2.1",
