@@ -6,7 +6,11 @@ import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
 
 function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
-  return <a href={`#${slugify(children)}`}>{children}</a>
+  return (
+    <a className="hover:text-purple-hover" href={`#${slugify(children)}`}>
+      {children}
+    </a>
+  )
 }
 
 export default function AboutPage() {

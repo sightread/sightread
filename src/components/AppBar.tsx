@@ -7,6 +7,7 @@ import { palette } from '@/styles/common'
 import Link from 'next/link'
 import clsx from 'clsx'
 import { useWhenClickedOutside } from '@/hooks'
+import { useRouter } from 'next/router'
 
 const classes = css({
   appBar: {
@@ -49,6 +50,9 @@ const classes = css({
     '&:hover svg path': {
       fill: palette.purple.hover,
     },
+  },
+  activeItem: {
+    fontWeight: 'bolder',
   },
   navItemSmall: {
     color: palette.purple.dark,
@@ -93,6 +97,7 @@ interface AppBarProps {
   style?: CSSProperties
 }
 export default function AppBar({ style }: AppBarProps) {
+  const currentRoute = useRouter().route
   return (
     <div
       style={{
@@ -126,7 +131,14 @@ export default function AppBar({ style }: AppBarProps) {
             {navItems.map((nav, i) => {
               return (
                 <Link href={nav.route} key={i}>
-                  <a className={clsx(classes.navItemSmall)}>{nav.label}</a>
+                  <a
+                    className={clsx(
+                      classes.navItemSmall,
+                      currentRoute === nav.route && classes.activeItem,
+                    )}
+                  >
+                    {nav.label}
+                  </a>
                 </Link>
               )
             })}
@@ -146,7 +158,14 @@ export default function AppBar({ style }: AppBarProps) {
           {navItems.map((nav) => {
             return (
               <Link href={nav.route} key={nav.label}>
-                <a className={classes.navItem}>{nav.label}</a>
+                <a
+                  className={clsx(
+                    classes.navItem,
+                    currentRoute === nav.route && classes.activeItem,
+                  )}
+                >
+                  {nav.label}
+                </a>
               </Link>
             )
           })}
