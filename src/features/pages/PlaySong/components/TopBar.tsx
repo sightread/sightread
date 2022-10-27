@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import { MouseEvent } from 'react'
 import { BpmDisplay } from '@/features/SongInputControls'
 import {
@@ -9,64 +9,8 @@ import {
   SoundOffIcon,
   SettingsCog,
 } from '@/icons'
-import { css } from '@sightread/flake'
-import clsx from 'clsx'
 import StatusIcon from './StatusIcon'
-import { palette } from '@/styles/common'
-
-const classes = css({
-  topbarIcon: {
-    cursor: 'pointer',
-    fill: 'white',
-    '&:hover': {
-      fill: palette.purple.primary,
-    },
-    '& .active ': {
-      fill: palette.purple.primary,
-    },
-  },
-  figmaIcon: {
-    '&:hover path': {
-      fill: palette.purple.primary,
-    },
-    '&:hover path.outline': {
-      fill: 'black',
-    },
-    '& path': {
-      cursor: 'pointer',
-    },
-    cursor: 'pointer',
-  },
-  fillWhite: {
-    '& path': {
-      fill: 'white',
-    },
-    fill: 'white',
-  },
-  active: {
-    '& path': {
-      fill: palette.purple.primary,
-    },
-    '& path.outline': {
-      fill: 'black',
-    },
-  },
-  topbar: {
-    '& i': {
-      color: 'white',
-      cursor: 'pointer',
-      transition: 'color 0.1s',
-      fontSize: 24,
-      width: 22,
-    },
-    '& i:hover': {
-      color: palette.purple.primary,
-    },
-    '& i.active': {
-      color: palette.purple.primary,
-    },
-  },
-})
+import clsx from 'clsx'
 
 type TopBarProps = {
   isLoading: boolean
@@ -78,10 +22,8 @@ type TopBarProps = {
   onClickRestart: () => void
   onClickSound: () => void
   onSelectRange: () => void
-  classNames: {
-    settingsCog?: string | false
-    rangeIcon?: string | false
-  }
+  isSelectingRange: boolean
+  sidebarOpen: boolean
 }
 
 export default function TopBar({
@@ -94,116 +36,79 @@ export default function TopBar({
   onClickRestart,
   onClickSound,
   onSelectRange,
-  classNames,
+  isSelectingRange,
+  sidebarOpen,
 }: TopBarProps) {
   return (
-    <div
-      className={classes.topbar}
-      style={{
-        position: 'fixed',
-        top: 0,
-        height: 55,
-        width: '100vw',
-        zIndex: 2,
-        backgroundColor: '#292929',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <div style={{ width: 250 }}>
-        <span data-tooltip="Back" data-tooltip-position="bottom">
-          <ArrowLeftIcon
-            className={classes.topbarIcon}
-            height={40}
-            width={50}
-            onClick={onClickBack}
-          />
-        </span>
-      </div>
-      <div
-        className="nav-buttons"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          alignItems: 'center',
-          display: 'flex',
-          justifyContent: 'space-around',
-          width: 230,
-        }}
-      >
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <span data-tooltip="Restart" data-tooltip-position="bottom">
-          <PreviousIcon
-            className={classes.topbarIcon}
-            height={40}
-            width={40}
-            onClick={onClickRestart}
-          />
-        </span>
+    <div className="h-[50px] w-screen bg-[#292929] flex items-center justify-between z-10">
+      <ButtonWithTooltip tooltip="Back">
+        <ArrowLeftIcon height={40} width={50} onClick={onClickBack} />
+      </ButtonWithTooltip>
+      <div className="relative h-full gap-3 left-1/2 -translate-x-1/2 items-center flex justify-around">
+        <VerticalDivider />
+        <ButtonWithTooltip tooltip="Restart">
+          <PreviousIcon height={40} width={40} onClick={onClickRestart} />
+        </ButtonWithTooltip>
 
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
+        <VerticalDivider />
         <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <BpmDisplay />
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
+        <VerticalDivider />
+        <div className="hidden md:flex">
+          <BpmDisplay />
+          <VerticalDivider />
+        </div>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          marginLeft: 'auto',
-          alignItems: 'center',
-          minWidth: 150,
-          marginRight: 20,
-        }}
-      >
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <span data-tooltip="Settings" data-tooltip-position="bottom">
-          <SettingsCog
-            width={25}
-            height={25}
-            className={clsx(classes.figmaIcon, classes.fillWhite, classNames?.settingsCog)}
-            onClick={onClickSettings}
-          />
-        </span>
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <span
-          className={classes.figmaIcon}
-          style={{ display: 'inline-block' }}
-          onClick={onSelectRange}
-          data-tooltip="Loop"
-          data-tooltip-position="bottom"
-        >
-          <HistoryIcon
-            width={25}
-            height={25}
-            className={clsx(classes.figmaIcon, classes.fillWhite, classNames.rangeIcon)}
-          />
-        </span>
-        <hr style={{ width: 1, height: 40, backgroundColor: 'white', border: 'none' }} />
-        <span
-          className={classes.figmaIcon}
-          style={{ display: 'inline-block' }}
-          onClick={onClickSound}
-          data-tooltip="Toggle volume"
-          data-tooltip-position="bottom"
-        >
+      <div className="flex ml-auto h-full items-center min-w-[150px] mr-[20px] gap-3">
+        <VerticalDivider />
+        <ButtonWithTooltip tooltip="Settings" isActive={sidebarOpen}>
+          <SettingsCog width={25} height={25} onClick={onClickSettings} />
+        </ButtonWithTooltip>
+        <VerticalDivider />
+        <ButtonWithTooltip tooltip="Loop" isActive={isSelectingRange}>
+          <HistoryIcon width={25} height={25} onClick={onSelectRange} />
+        </ButtonWithTooltip>
+        <VerticalDivider />
+        <ButtonWithTooltip className="" tooltip="Toggle volume" onClick={onClickSound}>
           {isSoundOff ? (
-            <SoundOffIcon
-              width={25}
-              height={25}
-              className={clsx(classes.figmaIcon, classes.fillWhite)}
-            />
+            <SoundOffIcon width={25} height={25} />
           ) : (
-            <SoundOnIcon
-              width={25}
-              height={25}
-              className={clsx(classes.figmaIcon, classes.fillWhite)}
-            />
+            <SoundOnIcon width={25} height={25} />
           )}
-        </span>
+        </ButtonWithTooltip>
       </div>
     </div>
+  )
+}
+
+function VerticalDivider() {
+  return <hr className="w-[1px] h-3/4 bg-white border-none" />
+}
+
+type ButtonWithTooltipProps = PropsWithChildren<{
+  tooltip: string
+  tooltipPosition?: string
+  onClick?: () => void
+  className?: string
+  isActive?: boolean
+}>
+
+export function ButtonWithTooltip(props: ButtonWithTooltipProps) {
+  return (
+    <span
+      className="flex"
+      data-tooltip={props.tooltip}
+      data-tooltip-position={props.tooltipPosition ?? 'bottom'}
+    >
+      <button
+        onClick={props.onClick}
+        className={clsx(
+          props.className,
+          props.isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
+          'hover:fill-purple-hover hover:text-purple-hover',
+        )}
+      >
+        {props.children}
+      </button>
+    </span>
   )
 }

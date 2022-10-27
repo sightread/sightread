@@ -81,12 +81,7 @@ type SelectProps = {
   display?: (value: any) => string | number
   loading?: boolean
   error?: boolean
-  classNames?: {
-    select?: string
-    option?: string
-    menu?: string
-    icon?: string
-  }
+  className?: string
 }
 
 export default function Select({
@@ -95,7 +90,7 @@ export default function Select({
   onChange,
   loading,
   error,
-  classNames,
+  className,
   format = (value) => value,
   display = (value) => value,
 }: SelectProps) {
@@ -115,11 +110,11 @@ export default function Select({
   useWhenClickedOutside(() => setOpenMenu(false), menuRef)
 
   return (
-    <div className={clsx(classes.root, { [classes.rootError]: error }, classNames?.select)}>
+    <div className={clsx(className, classes.root, { [classes.rootError]: error }, className)}>
       <input
         value={!loading ? display(selected) : ''}
         type="text"
-        className={clsx(classes.input, classNames?.select)}
+        className={clsx(classes.input, 'max-h-full')}
         onClick={(e) => {
           e.stopPropagation()
           toggleMenu()
@@ -129,31 +124,25 @@ export default function Select({
       <ArrowDown
         width={15}
         height={15}
-        className={clsx(classes.arrowIcon, { [classes.arrowRotated]: openMenu }, classNames?.icon)}
+        className={clsx(classes.arrowIcon, { [classes.arrowRotated]: openMenu })}
         onClick={(e) => {
           e.stopPropagation()
           toggleMenu()
         }}
       />
-      {loading && (
-        <LoadingIcon width={15} height={15} className={clsx(classes.loading, classNames?.icon)} />
-      )}
+      {loading && <LoadingIcon width={15} height={15} className={clsx(classes.loading)} />}
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'absolute', top: 0, width: '100%', zIndex: 1 }}>
           <div
             ref={menuRef}
             style={{ width: '100%' }}
-            className={clsx(
-              classes.menuRoot,
-              classNames?.menu,
-              openMenu ? classes.menuOpen : classes.menuClosed,
-            )}
+            className={clsx(classes.menuRoot, openMenu ? classes.menuOpen : classes.menuClosed)}
           >
             {options.map((option) => {
               return (
                 <div
                   key={option}
-                  className={clsx(classes.option, classNames?.option)}
+                  className={clsx(classes.option)}
                   onClick={(e) => {
                     e.stopPropagation()
                     handleSelect(option)

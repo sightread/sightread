@@ -7,65 +7,12 @@ import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
 import { usePlayerState, useSingleton, useSongSettings } from '@/hooks'
 import { getSong } from '@/features/api'
-import { css } from '@sightread/flake'
 import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
 import { TopBar, SettingsSidebar } from './components'
-
-const classes = css({
-  topbarIcon: {
-    cursor: 'pointer',
-    fill: 'white',
-    '&:hover': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-    '& .active ': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-  },
-  figmaIcon: {
-    '&:hover path': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-    '&:hover path.outline': {
-      fill: 'black',
-    },
-    '& path': {
-      cursor: 'pointer',
-    },
-    cursor: 'pointer',
-  },
-  fillWhite: {
-    '& path': {
-      fill: 'white',
-    },
-    fill: 'white',
-  },
-  active: {
-    '& path': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-    '& path.outline': {
-      fill: 'black',
-    },
-  },
-  topbar: {
-    '& i': {
-      color: 'white',
-      cursor: 'pointer',
-      transition: 'color 0.1s',
-      fontSize: 24,
-      width: 22,
-    },
-    '& i:hover': {
-      color: 'rgba(58, 104, 231, 1)',
-    },
-    '& i.active': {
-      color: 'rgba(58, 104, 231, 1)',
-    },
-  },
-})
+import useDebugTraceUpdate from '@/hooks/useDebugTraceUpdate'
+import clsx from 'clsx'
 
 export function PlaySong() {
   const router = useRouter()
@@ -115,6 +62,7 @@ export function PlaySong() {
       player.stop()
     }
   }, [player])
+  useDebugTraceUpdate({ source, id, player, setSongConfig, playerActions })
 
   useEffect(() => {
     if (!source || !id) return
@@ -193,7 +141,13 @@ export function PlaySong() {
   }
 
   return (
-    <div>
+    <div
+      className={clsx(
+        // Enable fixed to remove all scrolling.
+        'fixed',
+        'flex flex-col h-screen max-h-screen max-w-screen',
+      )}
+    >
       {!isRecording && (
         <>
           <TopBar
@@ -202,7 +156,7 @@ export function PlaySong() {
             isSoundOff={soundOff}
             onTogglePlaying={playerActions.toggle}
             onSelectRange={handleBeginRangeSelection}
-            onClickRestart={playerActions.reset}
+            onClickRestart={playerActions.restart}
             onClickBack={() => {
               playerActions.reset()
               router.back()
@@ -212,57 +166,38 @@ export function PlaySong() {
               setSidebar(!sidebar)
             }}
             onClickSound={handleToggleSound}
-            classNames={{
-              settingsCog: sidebar && classes.active,
-              rangeIcon: isSelectingRange && classes.active,
-            }}
+            isSelectingRange={isSelectingRange}
+            sidebarOpen={sidebar}
           />
-          <div style={{ position: 'absolute', top: 55, height: 40, width: '100%' }}>
-            <SongScrubBar rangeSelecting={isSelectingRange} setRange={handleSetRange} />
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              top: 95,
-              width: 300,
-              height: 'calc(100% - 95px)',
-              right: 0,
-              visibility: sidebar ? 'visible' : 'hidden',
-              zIndex: 2,
-            }}
-          >
-            <SettingsSidebar
-              open={sidebar}
-              onClose={() => setSidebar(false)}
-              onChange={setSongConfig}
-              config={songConfig}
-              song={song}
-            />
+          <SongScrubBar rangeSelecting={isSelectingRange} setRange={handleSetRange} />
+          <div className={clsx('relative w-full z-10', !sidebar && 'hidden')}>
+            <div className="absolute right-0 overflow-auto max-h-[calc(100vh-101px)]">
+              <SettingsSidebar
+                open={sidebar}
+                onClose={() => setSidebar(false)}
+                onChange={setSongConfig}
+                config={songConfig}
+                song={song}
+              />
+            </div>
           </div>
         </>
       )}
       <div
+        className="w-screen flex flex-col flex-grow"
         style={{
           backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
-          width: '100vw',
-          height: `calc(100vh - ${isRecording ? 0 : 95}px)`,
-          position: 'fixed',
-          top: isRecording ? 0 : 95,
           contain: 'strict',
-          display: 'flex',
-          flexDirection: 'column',
         }}
       >
-        <div style={{ position: 'relative', flex: 1 }}>
-          <SongVisualizer
-            song={song}
-            config={songConfig}
-            hand={hand}
-            handSettings={getHandSettings(songConfig)}
-            selectedRange={range}
-            getTime={() => Player.player().getTime()}
-          />
-        </div>
+        <SongVisualizer
+          song={song}
+          config={songConfig}
+          hand={hand}
+          handSettings={getHandSettings(songConfig)}
+          selectedRange={range}
+          getTime={() => Player.player().getTime()}
+        />
       </div>
     </div>
   )

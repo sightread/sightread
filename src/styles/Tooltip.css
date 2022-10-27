@@ -1,8 +1,5 @@
 [data-tooltip] {
-  display: inline-block;
   position: relative;
-  cursor: help;
-  padding: 4px;
 }
 /* Tooltip styling */
 [data-tooltip]:before {
@@ -99,5 +96,5 @@
 [data-tooltip]:hover:before,
 [data-tooltip]:hover:after {
   display: block;
-  z-index: 50;
+  z-index: 10000;
 }

@@ -4,6 +4,7 @@ import { useRAFLoop } from '@/hooks'
 import { MinusIcon, PlusIcon } from '@/icons'
 import { css } from '@sightread/flake'
 import { palette } from '@/styles/common'
+import { ButtonWithTooltip } from '../pages/PlaySong/components/TopBar'
 
 const classes = css({
   figmaIcon: {
@@ -32,36 +33,17 @@ export default function BpmDisplay() {
   })
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        userSelect: 'none',
-      }}
-    >
-      <span
-        style={{ display: 'inline-block' }}
-        className={classes.figmaIcon}
-        onClick={() => player.decreaseBpm()}
-        data-tooltip="Decrease BPM"
-        data-tooltip-position="bottom"
-      >
+    <div className="flex gap-1 items-center justify-between select-none">
+      <ButtonWithTooltip tooltip="Decrease BPM" onClick={() => player.decreaseBpm()}>
         <MinusIcon height={25} width={25} className={classes.figmaIcon} />
-      </span>
-      <div style={{ display: 'flex', flexDirection: 'column', color: 'white', minWidth: 64 }}>
-        <span style={{ fontSize: 24, textAlign: 'center' }} ref={percentRef} />
-        <span style={{ fontSize: 16, textAlign: 'center' }} ref={bpmRef} />
+      </ButtonWithTooltip>
+      <div className="flex flex-col text-white text-center">
+        <span className="text-xl" ref={percentRef} />
+        <span className="text-xs" ref={bpmRef} />
       </div>
-      <span
-        style={{ display: 'inline-block' }}
-        className={classes.figmaIcon}
-        onClick={() => player.increaseBpm()}
-        data-tooltip="Increase BPM"
-        data-tooltip-position="bottom"
-      >
+      <ButtonWithTooltip tooltip="Increase BPM" onClick={() => player.increaseBpm()}>
         <PlusIcon height={25} width={25} className={classes.figmaIcon} />
-      </span>
+      </ButtonWithTooltip>
     </div>
   )
 }

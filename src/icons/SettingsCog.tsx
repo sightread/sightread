@@ -11,11 +11,7 @@ export default function SettingsCog({ width, height, style, className, onClick }
       viewBox="0 0 1280 1278"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g
-        transform="translate(0.000000,1278.000000) scale(0.100000,-0.100000)"
-        fill="#000000"
-        stroke="none"
-      >
+      <g transform="translate(0.000000,1278.000000) scale(0.100000,-0.100000)" stroke="none">
         <path
           d="M7235 12766 c-16 -8 -42 -26 -56 -42 -14 -16 -153 -267 -309 -559
 -156 -291 -298 -553 -316 -582 -53 -84 -49 -83 -328 -94 l-247 -11 -53 26

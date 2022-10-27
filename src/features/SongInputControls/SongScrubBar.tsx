@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { formatTime } from '@/utils'
+import { clamp, formatTime } from '@/utils'
 import { useRAFLoop, useSize } from '@/hooks'
 import { Song } from '@/types'
 import Player from '@/features/player'
 import { palette } from '@/styles/common'
+import clsx from 'clsx'
 
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
@@ -121,14 +122,7 @@ export default function SongScrubBar({
   return (
     <div
       ref={wrapperRef}
-      style={{
-        display: 'flex',
-        width: '100%',
-        height: '100%',
-        position: 'absolute',
-        borderBottom: 'black solid 1px',
-        userSelect: 'none',
-      }}
+      className="relative flex w-full h-10 border-b select-none"
       onMouseDown={(e) => {
         setMousePressed(true)
         if (isDraggingL.current || isDraggingR.current) {
@@ -154,43 +148,23 @@ export default function SongScrubBar({
           const progress = getProgress(e.clientX)
           const songTime = progress * player.getDuration()
           const measure = player.getMeasureForTime(songTime)
-          toolTipRef.current.style.left = `${Math.min(
-            width - 150,
-            e.clientX - startX.current + 10,
-          )}px`
+          // TODO: The 225 in the line below should be dynamic based on the size of ToolTipRef
+          toolTipRef.current.style.left = `${clamp(e.clientX - startX.current - 24, {
+            min: 0,
+            max: width - 235,
+          })}px`
           measureSpanRef.current.innerText = String(measure?.number)
           timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime))
         }
       }}
     >
-      <div ref={measureRef} style={{ width: '100%', height: '100%', position: 'absolute' }} />
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          overflow: 'hidden',
-        }}
-      >
+      <div ref={measureRef} className="w-full h-full absolute" />
+      <div className="relative w-full h-full overflow-hidden">
+        <div className={`absolute h-full bg-gray-400`} style={{ width }} />
         <div
-          style={{
-            position: 'absolute',
-            height: '100%',
-            width,
-            backgroundColor: '#B0B0B0',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            height: 'calc(100%)',
-            width,
-            pointerEvents: 'none',
-            backgroundColor: 'white',
-            left: -width,
-          }}
-          className="scrubBar"
+          className={`absolute h-full pointer-events-none bg-white`}
           ref={divRef}
+          style={{ left: -width, width }}
         />
       </div>
       <span
@@ -203,7 +177,7 @@ export default function SongScrubBar({
           color: '#242632',
           fontSize: 16,
         }}
-      ></span>
+      />
       <span
         style={{
           position: 'absolute',
@@ -217,41 +191,19 @@ export default function SongScrubBar({
         {song && formatTime(player.getRealTimeDuration(0, song.duration))}
       </span>
       <div
-        style={{
-          display: mouseOver ? 'flex' : 'none',
-          position: 'absolute',
-          left: 100,
-          top: -45,
-          height: '42px',
-          width: '150px',
-          backgroundColor: 'black',
-          zIndex: 6,
-        }}
+        className={clsx(
+          mouseOver ? 'flex' : 'hidden',
+          'absolute z-10 min-w-max gap-8 items-center justify-between',
+          'px-4 py-2 -top-1 rounded-lg bg-black/90',
+          '-translate-y-full',
+        )}
         ref={toolTipRef}
       >
-        <span
-          style={{
-            position: 'absolute',
-            top: 12,
-            left: 7,
-            color: 'white',
-            verticalAlign: 'center',
-            fontSize: 12,
-          }}
-        >
-          Time: <span ref={timeSpanRef} style={{ color: 'green' }} />
+        <span className="text-gray-300">
+          Time: <span className="text-sm text-purple-hover" ref={timeSpanRef} />
         </span>
-        <span
-          style={{
-            position: 'absolute',
-            top: 12,
-            right: 7,
-            color: 'white',
-            verticalAlign: 'center',
-            fontSize: 12,
-          }}
-        >
-          Measure: <span ref={measureSpanRef} style={{ color: 'green' }} />
+        <span className="text-gray-300">
+          Measure: <span className="text-sm text-purple-hover" ref={measureSpanRef} />
         </span>
       </div>
       {rangeSelection.current && (
@@ -274,7 +226,6 @@ export default function SongScrubBar({
           <div
             style={{
               position: 'absolute',
-              zIndex: 2,
               left: 0,
               width: 4,
               cursor: 'ew-resize',

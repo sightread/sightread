@@ -1,7 +1,7 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 import { SongNote, Song, SongConfig, SongMeasure } from '@/types'
 import { InstrumentName } from '@/features/synth'
-import { getHands } from '@/utils'
+import { getHands, isBrowser } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
 
@@ -334,3 +334,8 @@ class Player {
 }
 
 export default Player
+
+if (isBrowser()) {
+  const w = window as any
+  w.Player = Player
+}

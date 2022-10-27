@@ -6,12 +6,12 @@ import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/features/persist'
 import { AppBar, Modal, Table, Sizer } from '@/components'
 import { LibrarySong, Filters } from './types'
-import { FilterPane, FilterTypeValue, TypeFilter, UploadForm } from './components'
 import { DifficultyLabel } from '@/types'
 import { useEventListener } from '@/hooks'
 import { FilterIcon, PlusIcon } from '@/icons'
 import { SearchBox } from '@/components/Table/SearchBox'
 import clsx from 'clsx'
+import { UploadForm } from './components'
 
 const builtin = songManifest as unknown as LibrarySong[]
 
@@ -69,14 +69,6 @@ export default function SelectSongPage(props: SelectSongPageProps) {
     setAddNew(false)
   }
 
-  const handleToggleOpenFilter = () => {
-    setFilters({ ...filters, show: !filters.show })
-  }
-
-  const handleFilterType = (type: FilterTypeValue): void => {
-    return setFilters({ ...filters, type })
-  }
-
   return (
     <>
       <SongPreviewModal
@@ -93,20 +85,9 @@ export default function SelectSongPage(props: SelectSongPageProps) {
         <AppBar />
         <div className="bg-gray-100 p-6 mx-auto max-w-screen-lg flex flex-col flex-grow w-full">
           <h2 className="text-4xl font-extralight">Songs</h2>
-          <FilterPane show={filters.show}>
-            <div className="flex">
-              <TypeFilter onSelect={handleFilterType} value={filters.type} />
-            </div>
-          </FilterPane>
           <Sizer height={24} />
           <div className="flex gap-2">
             <SearchBox placeholder={'Search Songs by Title or Artist'} onSearch={setSearch} />
-            <FilterIcon
-              height={30}
-              width={30}
-              className="cursor-pointer rounded-lg hover:bg-purple-hover"
-              onClick={handleToggleOpenFilter}
-            />
             <button
               className={clsx(
                 'hidden sm:flex whitespace-nowrap flex-nowrap',
