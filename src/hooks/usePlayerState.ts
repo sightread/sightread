@@ -1,5 +1,5 @@
 import Player from '@/features/player'
-import { useRef, useEffect, useReducer, useCallback, useMemo } from 'react'
+import { useReducer, useCallback, useMemo } from 'react'
 
 type PlayerState = 'CannotPlay' | 'CanPlay' | 'Playing' | 'Paused'
 type Action = 'ready' | 'play' | 'pause' | 'reset' | 'toggle'

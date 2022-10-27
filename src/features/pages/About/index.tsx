@@ -4,7 +4,6 @@ import { palette } from '@/styles/common'
 import Link from 'next/link'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
-import { GithubIcon, MailIcon } from '@/icons'
 
 function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
   return (
@@ -190,21 +189,10 @@ function FeedbackSection() {
   return (
     <Article header="Feedback">
       <p>
-        Reach out if you encounter any problems with the site or would like to leave feedback. I’d
-        also love to hear about any feature ideas you may have.
+        Found a bug or have a feature request? Please file an issue on{' '}
+        <AboutLink href="https://github.com/sightread/sightread/issues">GitHub</AboutLink> or send
+        an <AboutLink href="mailto:sightreadllc@gmail.com">email</AboutLink>.
       </p>
-      <ul className="px-12">
-        <li className="flex items-center gap-1">
-          <GithubIcon height={16} width={16} /> GitHub{' '}
-          <AboutLink href="https://github.com/sightread/sightread">
-            https://github.com/sightread/sightread
-          </AboutLink>
-        </li>
-        <li className="flex items-center gap-1">
-          <MailIcon height={16} width={16} /> Email{' '}
-          <AboutLink href="mailto:sightreadllc@gmail.com">sightreadllc@gmail.com</AboutLink>
-        </li>
-      </ul>
     </Article>
   )
 }
