@@ -126,7 +126,7 @@ export function PlaySong() {
       setSongConfig(config)
       player.setSong(song, config).then(() => playerActions.ready())
     })
-  }, [source, id, player, setSongConfig])
+  }, [source, id, player, setSongConfig, playerActions])
 
   useEffect(() => {
     const keyboardHandler = (evt: KeyboardEvent) => {
@@ -141,7 +141,7 @@ export function PlaySong() {
     }
     window.addEventListener('keydown', keyboardHandler)
     return () => window.removeEventListener('keydown', keyboardHandler)
-  }, [player])
+  }, [player, playerActions])
 
   useEffect(() => {
     const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
@@ -164,7 +164,7 @@ export function PlaySong() {
       setRange(range)
       setIsSelectingRange(false)
     },
-    [setIsSelectingRange, setRange],
+    [setIsSelectingRange, setRange, player],
   )
 
   // If source or id is messed up, redirect to the homepage

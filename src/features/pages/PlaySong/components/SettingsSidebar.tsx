@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Toggle, Sizer } from '@/components'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import { palette as colors } from '@/styles/common'
@@ -16,17 +16,12 @@ type SidebarProps = {
 
 export default function SettingsSidebar(props: SidebarProps) {
   const { left, right, visualization, waiting, noteLetter, keySignature } = props.config
+  const { open, onClose } = props
+
   const sidebarRef = useRef<HTMLDivElement>(null)
 
-  useWhenClickedOutside(
-    () => {
-      if (props.open) {
-        props.onClose?.()
-      }
-    },
-    sidebarRef,
-    [props.open, props.onClose],
-  )
+  const clickedOutsideHandler = useCallback(() => open && onClose?.(), [open, onClose])
+  useWhenClickedOutside(clickedOutsideHandler, sidebarRef)
 
   const handleHand = (selected: 'left' | 'right') => {
     if (selected === 'left') {

@@ -52,6 +52,6 @@ export default function usePlayerState(): PlayerStateHookReturn {
       { canPlay, playing, paused },
       { play, pause, reset, ready, toggle },
     ],
-    [canPlay, playing, paused],
+    [canPlay, playing, paused, play, pause, reset, ready, toggle],
   )
 }

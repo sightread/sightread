@@ -112,7 +112,7 @@ export default function Select({
     toggleMenu()
   }
 
-  useWhenClickedOutside(() => setOpenMenu(false), menuRef, [])
+  useWhenClickedOutside(() => setOpenMenu(false), menuRef)
 
   return (
     <div className={clsx(classes.root, { [classes.rootError]: error }, classNames?.select)}>

@@ -32,9 +32,7 @@ function IconWrapper({
 }: React.PropsWithChildren<IconWrapper>) {
   const handleClick = (e: MouseEvent) => {
     e.stopPropagation()
-    if (onClick) {
-      onClick(e)
-    }
+    onClick?.(e)
   }
 
   return (

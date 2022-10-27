@@ -69,12 +69,15 @@ export default function SongScrubBar({
     }
   }, [rangeSelecting, player])
 
-  function seekPlayer(clientX: number) {
-    const progress = getProgress(clientX)
-    const songTime = progress * player.getDuration()
-    onSeek()
-    player.seek(songTime)
-  }
+  const seekPlayer = useCallback(
+    (clientX: number) => {
+      const progress = getProgress(clientX)
+      const songTime = progress * player.getDuration()
+      onSeek()
+      player.seek(songTime)
+    },
+    [player, getProgress, onSeek],
+  )
 
   useEffect(() => {
     if (mousePressed) {
@@ -113,7 +116,7 @@ export default function SongScrubBar({
         window.removeEventListener('mouseup', handleUp)
       }
     }
-  }, [mousePressed, rangeSelecting, player, getProgress, setRange])
+  }, [mousePressed, rangeSelecting, player, getProgress, setRange, seekPlayer])
 
   return (
     <div

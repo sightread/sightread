@@ -3,7 +3,7 @@ import { Sizer } from '@/components'
 import { GithubIcon, Logo, MenuIcon } from '@/icons'
 import Link from 'next/link'
 import clsx from 'clsx'
-import { useWhenClickedOutside } from '@/hooks'
+import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { useRouter } from 'next/router'
 
 /**
@@ -25,7 +25,7 @@ interface AppBarProps {
 export default function AppBar({ style }: AppBarProps) {
   return (
     <div
-      className="z-3 h-[50px] min-h-[50px] bg-[#292929] flex flex-col justify-center relative"
+      className="h-[50px] min-h-[50px] bg-[#292929] flex flex-col justify-center relative"
       style={{
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
@@ -35,7 +35,7 @@ export default function AppBar({ style }: AppBarProps) {
       }}
     >
       <div className="flex items-center pl-6 justify-center mx-auto w-full md:max-w-screen-lg">
-        <div className="absolute top-1/2 -translate-y-1/2 md:hidden left-5 right-5">
+        <div className="absolute top-1/2 -translate-y-1/2 md:hidden left-5 right-5 z-10">
           <SmallWindowNav />
         </div>
         <NavLink href={'/'} className="flex items-baseline text-white hover:text-purple-hover">
@@ -70,16 +70,14 @@ export default function AppBar({ style }: AppBarProps) {
 
 function SmallWindowNav() {
   return (
-    <Dropdown
-      target={<MenuIcon height={24} width={24} className="block fill-white cursor-pointer" />}
-    >
+    <Dropdown target={<MenuIcon height={24} width={24} className="block fill-white" />}>
       {navItems.map((nav, i) => {
         return (
           <NavLink
             href={nav.route}
             key={i}
             className={clsx(
-              'text-purple-dark text-2xl px-6 transition hover:text-orange-primary inline-block',
+              'text-purple-dark text-2xl px-6 transition hover:text-orange-primary inline-block cursor-pointer w-fit',
             )}
           >
             {nav.label}
@@ -90,11 +88,7 @@ function SmallWindowNav() {
   )
 }
 
-function Dropdown({
-  children,
-  target,
-  style,
-}: React.PropsWithChildren<{ target: React.ReactElement; style?: CSSProperties }>) {
+function Dropdown({ children, target }: React.PropsWithChildren<{ target: React.ReactElement }>) {
   const [open, setOpen] = useState<boolean>(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -104,22 +98,27 @@ function Dropdown({
   }
 
   useWhenClickedOutside(() => setOpen(false), dropdownRef)
+  useEventListener<KeyboardEvent>('keydown', (event) => {
+    if (open && event.key === 'Escape') {
+      setOpen(false)
+    }
+  })
 
   return (
-    <div style={style} ref={dropdownRef}>
-      <span onClick={toggleOpen}>{target}</span>
+    <div ref={dropdownRef}>
+      <div className="cursor-pointer w-min" onClick={toggleOpen}>
+        {target}
+      </div>
       <div className="relative">
         <div
           ref={menuRef}
           className={clsx(
-            'absolute top-1 bg-white rounded-lg overflow-hidden transition shadow-xl w-full',
+            'absolute top-1 bg-white rounded-lg overflow-hidden transition shadow-xl w-full px-8',
+            'flex flex-col py-3 gap-4 items-center',
             !open && 'hidden',
           )}
-          style={{ width: 'calc(100vw-30px' }}
         >
-          {Children.map(children, (child) => {
-            return <button className="py-3 w-full bg-transparent border-none">{child}</button>
-          })}
+          {children}
         </div>
       </div>
     </div>

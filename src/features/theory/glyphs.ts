@@ -1,4 +1,4 @@
-export default {
+const glyphs = {
   // Lines
   staff5Lines: '\uE014',
   staff5LinesNarrow: '\uE020',
@@ -69,3 +69,5 @@ export default {
   accidentalDoubleSharp: '\uE263',
   accidentalDoubleFlat: '\uE264',
 }
+
+export default glyphs
