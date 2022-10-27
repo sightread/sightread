@@ -15,7 +15,8 @@ export function TableHead<T, D extends keyof T>({
         return (
           <div
             className={clsx(
-              'z-10 top-0 sticky flex items-center font-medium text-black bg-gray-100 shadow-inner border-b',
+              'select-none',
+              'z-10 top-0 sticky flex items-center font-medium text-purple-900 bg-gray-100 border-b',
               `h-[${rowHeight}px]`,
             )}
             key={`col-${col.id.toString()}`}
@@ -29,7 +30,7 @@ export function TableHead<T, D extends keyof T>({
                 <ExpandDownIcon
                   width={16}
                   height={16}
-                  className={clsx(sortCol < 0 && 'rotate-180')}
+                  className={clsx(sortCol < 0 && 'rotate-180', 'stroke-purple-900')}
                 />
               )}
             </span>

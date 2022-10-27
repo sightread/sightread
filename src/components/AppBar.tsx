@@ -77,7 +77,7 @@ function SmallWindowNav() {
             href={nav.route}
             key={i}
             className={clsx(
-              'text-purple-dark text-2xl px-6 transition hover:text-orange-primary inline-block cursor-pointer w-fit',
+              'text-purple-dark text-2xl px-6 transition hover:text-purple-hover inline-block cursor-pointer w-fit',
             )}
           >
             {nav.label}

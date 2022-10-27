@@ -4,7 +4,7 @@ import { formatTime } from '@/utils'
 import { SongPreviewModal } from '@/features/SongPreview'
 import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/features/persist'
-import { AppBar, Modal, Table, Sizer, Container } from '@/components'
+import { AppBar, Modal, Table, Sizer } from '@/components'
 import { LibrarySong, Filters } from './types'
 import { FilterPane, FilterTypeValue, TypeFilter, UploadForm } from './components'
 import { DifficultyLabel } from '@/types'
@@ -86,15 +86,13 @@ export default function SelectSongPage(props: SelectSongPageProps) {
           setSelectedSongId(null)
         }}
       />
-      {/* TODO: Make nice */}
       <Modal show={addNew} onClose={handleCloseAdd}>
-        <UploadForm onSuccess={handleUpload} />
+        <UploadForm onSuccess={handleUpload} onClose={handleCloseAdd} />
       </Modal>
-      <AppBar style={{ backgroundColor: '#292929', display: 'flex' }} />
-      <Container style={{ backgroundColor: '#F2F2F2', padding: '0 24px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
-          <Sizer height={24} />
-          <h2 style={{ fontSize: 36, fontWeight: 200 }}>Songs</h2>
+      <div className="bg-gray-100 w-full h-screen flex flex-col">
+        <AppBar />
+        <div className="bg-gray-100 p-6 mx-auto max-w-screen-lg flex flex-col flex-grow w-full">
+          <h2 className="text-4xl font-extralight">Songs</h2>
           <FilterPane show={filters.show}>
             <div className="flex">
               <TypeFilter onSelect={handleFilterType} value={filters.type} />
@@ -111,7 +109,8 @@ export default function SelectSongPage(props: SelectSongPageProps) {
             />
             <button
               className={clsx(
-                'py-2 px-4 flex items-center rounded-md gap-1 ml-auto',
+                'hidden sm:flex whitespace-nowrap flex-nowrap',
+                'py-2 px-4 items-center rounded-md gap-1 ml-auto',
                 'bg-purple-primary hover:bg-purple-hover text-white fill-white',
               )}
               onClick={handleAddNew}
@@ -120,7 +119,7 @@ export default function SelectSongPage(props: SelectSongPageProps) {
               <span>Add New</span>
             </button>
           </div>
-          <Sizer height={16} />
+          <Sizer height={8} />
           <Table
             columns={[
               { label: 'Title', id: 'title', keep: true },
@@ -139,9 +138,8 @@ export default function SelectSongPage(props: SelectSongPageProps) {
             onSelectRow={setSelectedSongId}
             search={search}
           />
-          <Sizer height={60} />
         </div>
-      </Container>
+      </div>
     </>
   )
 }

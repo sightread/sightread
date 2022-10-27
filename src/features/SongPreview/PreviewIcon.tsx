@@ -1,28 +1,5 @@
 import { PlayIcon, LoadingIcon } from '@/icons'
-import { css } from '@sightread/flake'
 import { MouseEvent } from 'react'
-
-const classes = css({
-  modalPlayBtn: {
-    position: 'absolute',
-    left: '50%',
-    top: '50%',
-    transform: 'translate(-50%,-50%)',
-    fontWeight: 900,
-    fontSize: 69,
-    zIndex: 1,
-    cursor: 'pointer',
-    transition: '150ms',
-    '& path': {
-      fill: 'rgb(176, 176, 176)',
-      transition: '150ms',
-    },
-    '&:hover path': {
-      fill: 'white',
-    },
-  },
-  modalSpinnerIcon: { fill: 'white', animation: 'spinner 2s infinite linear' },
-})
 
 type PreviewIconProps = {
   isPlaying: boolean
@@ -33,22 +10,24 @@ export default function PreviewIcon({ isPlaying, isLoading, onPlay }: PreviewIco
   if (isPlaying) {
     return null
   }
-  if (isLoading) {
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%,-50%)',
-          width: 60,
-          height: 60,
-          zIndex: 1,
-        }}
-      >
-        <LoadingIcon width={60} height={60} className={classes.modalSpinnerIcon} />
-      </div>
-    )
-  }
-  return <PlayIcon height={60} width={60} className={classes.modalPlayBtn} onClick={onPlay} />
+  const icon = isLoading ? (
+    <LoadingIcon width={60} height={60} className="fill-white animate-spin" />
+  ) : (
+    <div className="rounded-full bg-gray-200 w-16 h-16 grid place-items-center">
+      <PlayIcon
+        height={36}
+        width={36}
+        className="fill-purple-primary relative left-1 hover:fill-purple-hover cursor-pointer"
+        onClick={onPlay}
+      />
+    </div>
+  )
+  return (
+    <div
+      className="z-10 absolute grid place-items-center w-full h-full bg-gray-700/70"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {icon}
+    </div>
+  )
 }

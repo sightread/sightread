@@ -1,4 +1,4 @@
-import { PropsWithChildren, CSSProperties, useEffect, useRef } from 'react'
+import { PropsWithChildren, useEffect, useRef } from 'react'
 import clsx from 'clsx'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 
@@ -6,6 +6,13 @@ type ModalProps = {
   show: boolean
   onClose: () => void
   className?: string
+}
+
+function enableScrolling() {
+  document.body.style.overflow = 'initial'
+}
+function disableScrolling() {
+  document.body.style.overflow = 'hidden'
 }
 
 export default function Modal({
@@ -26,10 +33,11 @@ export default function Modal({
   // Stop background from scrolling while modal is open.
   useEffect(() => {
     if (show) {
-      document.body.style.overflow = 'hidden'
+      disableScrolling()
     } else {
-      document.body.style.overflow = 'initial'
+      enableScrolling()
     }
+    return enableScrolling
   }, [show])
 
   if (!show) {

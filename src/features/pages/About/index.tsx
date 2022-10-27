@@ -46,7 +46,7 @@ export default function AboutPage() {
             </section>
           </div>
           <div className="my-8 p-8 mx-auto w-full text-base flex-1 bg-white">
-            <div className="max-w-prose flex flex-col gap-12">
+            <div className="max-w-prose flex flex-col gap-12 mx-auto">
               <WhatSection />
               <GettingStarted />
               <MusicSelectionSection />

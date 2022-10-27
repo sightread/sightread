@@ -3,51 +3,19 @@ import { defaultUploadState, prevent } from './utils'
 import { UploadFormState } from './types'
 import { Sizer } from '@/components'
 import { palette } from '@/styles/common'
-import { css } from '@sightread/flake'
 import { LibrarySong } from '../../types'
 import { saveSong } from '@/features/persist'
+import clsx from 'clsx'
+import { CancelCircleIcon } from '@/icons'
+import { TextInput } from '@/components/TextInput'
 
-const classes = css({
-  submitButton: {
-    border: 'none',
-    borderRadius: '5px',
-    color: 'white',
-    padding: '8px 24px',
-    cursor: 'pointer',
-    outline: 'none',
-    fontSize: '18px',
-    backgroundColor: palette.purple.primary,
-    transition: '300ms',
-    '&:hover': {
-      backgroundColor: palette.purple.dark,
-    },
-  },
-  input: {
-    width: '100%',
-    outline: 'none',
-    fontSize: '18px',
-    padding: '5px',
-    borderRadius: '3px',
-    '&:focus': {
-      borderColor: '#80bdff',
-      outline: '0',
-      boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-    },
-  },
-  fileUpload: {
-    borderRadius: '5px',
-    padding: '20px',
-    border: '2px dashed grey',
-    cursor: 'pointer',
-    transition: '300ms',
-    textAlign: 'center',
-    '&:hover': {
-      boxShadow: '0px 0px 15px 0px #a2a2a2 !important',
-    },
-  },
-})
-
-export default function UploadForm({ onSuccess }: { onSuccess: (newSong: LibrarySong) => void }) {
+export default function UploadForm({
+  onSuccess,
+  onClose,
+}: {
+  onSuccess: (newSong: LibrarySong) => void
+  onClose: () => void
+}) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [state, setState] = useState<UploadFormState>(defaultUploadState())
   const [dragOver, setDragOver] = useState<boolean>(false)
@@ -127,84 +95,96 @@ export default function UploadForm({ onSuccess }: { onSuccess: (newSong: Library
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ fontSize: '21px' }}>
-      <label htmlFor="title" style={{ display: 'block' }}>
-        Title
-      </label>
-      <Sizer height={5} />
-      <input
-        onChange={handleChange}
-        id="title"
-        name="title"
-        type="text"
-        className={classes.input}
-        style={state.error ? { border: '1px solid red' } : {}}
-      />
-      <Sizer height={10} />
-      <label htmlFor="artist" style={{ display: 'block' }}>
-        Artist
-      </label>
-      <Sizer height={5} />
-      <input
-        onChange={handleChange}
-        id="artist"
-        name="artist"
-        type="text"
-        className={classes.input}
-        style={state.error ? { border: '1px solid red' } : {}}
-      />
-      <Sizer height={10} />
-      <label htmlFor="file" style={{ display: 'block' }}>
-        File
-      </label>
-      <Sizer height={5} />
-      <input
-        ref={inputRef}
-        onChange={handleAddFile}
-        id="file"
-        name="file"
-        type="file"
-        accept=".mid, .xml"
-        style={{ display: 'none' }}
-      />
-      <div
-        className={classes.fileUpload}
-        onClick={chooseFiles}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-        onDragEnter={handleDragIn}
-        onDragLeave={handleDragOut}
-        style={fileInputStyle()}
-      >
-        {state.file ? state.file.name : 'Drag and Drop'}
-        <div style={{ padding: '20px 0px' }}>{state.file ? '' : 'or'}</div>
-        <div style={{ color: palette.purple.primary }}>Click To Browse</div>
-      </div>
-      <Sizer height={15} />
-      <div style={{ textAlign: 'center' }}>
-        <button className={classes.submitButton} type="submit">
-          Submit
+    <form
+      onSubmit={handleSubmit}
+      className="text-base p-6 flex flex-col gap-5 w-[min(100vw,500px)]"
+    >
+      <div className="flex items-center">
+        <h1 className="text-2xl">Upload</h1>
+        <button
+          className="ml-auto fill-red fill-purple-primary hover:fill-purple-hover"
+          onClick={onClose}
+        >
+          <CancelCircleIcon height={24} width={24} />
         </button>
       </div>
-      <Sizer height={15} />
+      <Sizer height={24} />
+      <div className="flex flex-wrap gap-2 items-baseline">
+        <label htmlFor="title" className="w-12">
+          Title
+        </label>
+        <FormInput type="text" onChange={handleChange} name="title" error={!!state.error} />
+      </div>
+      <div className="flex flex-wrap gap-2 items-baseline">
+        <label htmlFor="artist" className="w-12">
+          Artist
+        </label>
+        <FormInput type="text" onChange={handleChange} name="artist" error={!!state.error} />
+      </div>
+      <div className="flex flex-wrap gap-2 items-baseline">
+        <label htmlFor="file" className="w-12">
+          File
+        </label>
+        <input
+          ref={inputRef}
+          onChange={handleAddFile}
+          id="file"
+          name="file"
+          type="file"
+          accept=".mid, .xml"
+          style={{ display: 'none' }}
+        />
+        <div
+          className="rounded-md p-5 border-2 border-dashed text-center transition cursor-pointer hover:shadow-lg flex-grow"
+          onClick={chooseFiles}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          onDragEnter={handleDragIn}
+          onDragLeave={handleDragOut}
+          style={fileInputStyle()}
+        >
+          {state.file ? state.file.name : 'Drag and Drop'}
+          <div className="px-5">{state.file ? '' : 'or'}</div>
+          <div className="text-purple-primary">Click To Browse</div>
+        </div>
+      </div>
+      <Sizer height={16} />
+      <button
+        className="rounded-md text-white py-2 w-full cursor-pointer bg-purple-primary transition hover:bg-purple-hover"
+        type="submit"
+      >
+        Submit
+      </button>
       {state.error && (
         <>
           <Sizer height={24} />
           <div
             aria-label="Error message"
-            style={{
-              padding: 24,
-              color: '#721c24',
-              backgroundColor: '#f8d7da',
-              borderColor: '#f5c6cb',
-              margin: 'auto',
-              maxWidth: '375px',
-            }}
+            className="p-6 text-red-900 bg-[#f8d7da] border-[#f5c6cb] m-auto max-w-sm"
           >
             {state.error}
           </div>
         </>
       )}
     </form>
+  )
+}
+
+type FormInputProps = {
+  type: string
+  onChange: any
+  name: string
+  className?: string
+  error?: boolean
+}
+function FormInput({ onChange, name, className, error, type }: FormInputProps) {
+  return (
+    <TextInput
+      onChange={onChange}
+      className={clsx(className, 'flex-grow max-w-full', 'text-base')}
+      error={error}
+      name={name}
+      type={type}
+    />
   )
 }

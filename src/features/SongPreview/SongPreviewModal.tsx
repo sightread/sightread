@@ -50,7 +50,7 @@ export default function SongPreviewModal({
         <div className="flex w-full align-baseline whitespace-nowrap gap-2 items-baseline">
           <span className="font-semibold text-2xl">{title}</span>
           <span className="overflow-hidden text-base text-gray-500">{artist}</span>
-          <button className="ml-auto hover:fill-purple-hover" onClick={onClose}>
+          <button className="ml-auto fill-purple-primary hover:fill-purple-hover" onClick={onClose}>
             <CancelCircleIcon height={24} width={24} />
           </button>
         </div>
@@ -84,7 +84,7 @@ export default function SongPreviewModal({
           </div>
           <Sizer height={16} />
           <button
-            className="w-full text-white h-10 border-none cursor-pointer rounded-md text-xl transition bg-purple-primary hover:bg-purple-dark"
+            className="w-full text-white h-10 border-none cursor-pointer rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover"
             onClick={handlePlayNow}
           >
             Play Now
