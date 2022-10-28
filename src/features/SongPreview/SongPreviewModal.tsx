@@ -55,9 +55,9 @@ export default function SongPreviewModal({
           </button>
         </div>
         <div className="flex rounded-md flex-col flex-grow overflow-hidden">
-          <div className="relative h-6">
+          <div className="relative">
             <div className="absolute w-full h-full z-10 pointer-events-none rounded-md shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" />
-            <SongScrubBar />
+            <SongScrubBar height={30} />
           </div>
           <div
             style={{

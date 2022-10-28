@@ -16,7 +16,7 @@ export function TableHead<T, D extends keyof T>({
           <div
             className={clsx(
               'select-none',
-              'z-10 top-0 sticky flex items-center font-medium text-purple-900 bg-gray-100 border-b',
+              'z-10 top-0 sticky flex items-center font-medium text-purple-darker bg-gray-100 border-b',
               `h-[${rowHeight}px]`,
             )}
             key={`col-${col.id.toString()}`}

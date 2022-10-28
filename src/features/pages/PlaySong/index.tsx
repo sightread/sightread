@@ -169,7 +169,7 @@ export function PlaySong() {
             isSelectingRange={isSelectingRange}
             sidebarOpen={sidebar}
           />
-          <SongScrubBar rangeSelecting={isSelectingRange} setRange={handleSetRange} />
+          <SongScrubBar rangeSelecting={isSelectingRange} setRange={handleSetRange} height={40} />
           <div className={clsx('relative w-full z-10', !sidebar && 'hidden')}>
             <div className="absolute right-0 overflow-auto max-h-[calc(100vh-101px)]">
               <SettingsSidebar

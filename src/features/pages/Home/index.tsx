@@ -2,7 +2,7 @@ import { AppBar, Sizer } from '@/components'
 import { palette } from '@/styles/common'
 import { css, mediaQuery } from '@sightread/flake'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { PauseIcon, PlayIcon } from '@/icons'
 import clsx from 'clsx'
 import { breakpoints } from '@/utils'
@@ -90,6 +90,15 @@ export default function LandingPage() {
     }
   })
 
+  const handleSongReady = useCallback(
+    (id) => {
+      if (id === songId) {
+        playerActions.ready()
+      }
+    },
+    [songId],
+  )
+
   return (
     <>
       <div
@@ -133,15 +142,7 @@ export default function LandingPage() {
             borderRadius: 8,
           }}
         >
-          <SongPreview
-            songId={songId}
-            source={source}
-            onReady={(id) => {
-              if (id === songId) {
-                playerActions.ready()
-              }
-            }}
-          />
+          <SongPreview songId={songId} source={source} onReady={handleSongReady} />
           <div className={classes.songPreviewOverlay}>
             <div
               className={clsx(classes.playPause, !playerState.canPlay && 'disabled')}

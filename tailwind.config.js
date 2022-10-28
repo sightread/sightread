@@ -18,6 +18,7 @@ module.exports = {
           hover: '#b99af4',
           primary: '#8147EB',
           dark: '#611AE5',
+          darker: '#5326a6',
         },
         orange: {
           light: '#DC7E52',

@@ -9,6 +9,7 @@ import clsx from 'clsx'
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
 export default function SongScrubBar({
+  height,
   rangeSelecting = false,
   setRange = () => {},
   onSeek = () => {},
@@ -16,6 +17,7 @@ export default function SongScrubBar({
   rangeSelecting?: boolean
   setRange?: any
   onSeek?: any
+  height: number
 }) {
   const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
   const [mouseOver, setMouseOver] = useState(false)
@@ -122,7 +124,8 @@ export default function SongScrubBar({
   return (
     <div
       ref={wrapperRef}
-      className="relative flex w-full h-10 border-b select-none"
+      className="relative flex w-full select-none"
+      style={{ height }}
       onMouseDown={(e) => {
         setMousePressed(true)
         if (isDraggingL.current || isDraggingR.current) {
