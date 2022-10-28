@@ -8,7 +8,7 @@ import { AppBar, Modal, Table, Sizer } from '@/components'
 import { LibrarySong, Filters } from './types'
 import { DifficultyLabel } from '@/types'
 import { useEventListener } from '@/hooks'
-import { FilterIcon, PlusIcon } from '@/icons'
+import { PlusIcon } from '@/icons'
 import { SearchBox } from '@/components/Table/SearchBox'
 import clsx from 'clsx'
 import { UploadForm } from './components'
@@ -43,7 +43,6 @@ export default function SelectSongPage(props: SelectSongPageProps) {
   const [addNew, setAddNew] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
-  const [filters, setFilters] = useState<Filters>({ show: false })
   const [search, setSearch] = useState('')
 
   useEventListener<KeyboardEvent>('keydown', (event) => {

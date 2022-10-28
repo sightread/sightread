@@ -52,7 +52,7 @@ export default function TopBar({
       >
         <VerticalDivider className="hidden md:flex" />
         <ButtonWithTooltip tooltip="Restart">
-          <PreviousIcon height={40} width={40} onClick={onClickRestart} />
+          <PreviousIcon height={24} width={24} onClick={onClickRestart} />
         </ButtonWithTooltip>
         <VerticalDivider />
         <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
@@ -65,18 +65,18 @@ export default function TopBar({
       <div className="flex md:ml-auto h-full items-center mr-[20px] gap-3">
         <VerticalDivider />
         <ButtonWithTooltip tooltip="Settings" isActive={sidebarOpen}>
-          <SettingsCog width={25} height={25} onClick={onClickSettings} />
+          <SettingsCog width={24} height={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
         <VerticalDivider />
         <ButtonWithTooltip tooltip="Loop" isActive={isSelectingRange}>
-          <HistoryIcon width={25} height={25} onClick={onSelectRange} />
+          <HistoryIcon width={24} height={24} onClick={onSelectRange} />
         </ButtonWithTooltip>
         <VerticalDivider />
         <ButtonWithTooltip className="" tooltip="Toggle volume" onClick={onClickSound}>
           {isSoundOff ? (
-            <SoundOffIcon width={25} height={25} />
+            <SoundOffIcon width={24} height={24} />
           ) : (
-            <SoundOnIcon width={25} height={25} />
+            <SoundOnIcon width={24} height={24} />
           )}
         </ButtonWithTooltip>
       </div>

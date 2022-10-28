@@ -16,7 +16,7 @@ function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
 export default function AboutPage() {
   return (
     <div className="relative">
-      <AppBar style={{ backgroundColor: palette.purple.dark }} />
+      <AppBar />
       <div className="md:bg-[#F7F4FE]">
         <div className="flex max-w-screen-lg mx-auto">
           <div className="hidden md:block sticky top-0 p-8 max-h-screen">

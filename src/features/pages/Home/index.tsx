@@ -111,7 +111,7 @@ export default function LandingPage() {
           color: 'white',
         }}
       >
-        <AppBar style={{ backgroundColor: palette.purple.dark }} />
+        <AppBar />
         <div
           style={{
             padding: 32,

@@ -25,7 +25,7 @@ interface AppBarProps {
 export default function AppBar({ style }: AppBarProps) {
   return (
     <div
-      className="h-[50px] min-h-[50px] bg-[#292929] flex flex-col justify-center relative"
+      className="h-[50px] min-h-[50px] bg-purple-dark flex flex-col justify-center relative"
       style={{
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
