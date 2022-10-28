@@ -112,16 +112,7 @@ export default function LandingPage() {
         }}
       >
         <AppBar />
-        <div
-          style={{
-            padding: 32,
-            backgroundColor: palette.purple.primary,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
+        <div className="p-8 bg-purple-primary flex flex-col items-center text-center">
           <h1 className={classes.bannerBigText}>Your Piano Journey Begins Here</h1>
           <Sizer height={8} />
           <h3 className={classes.bannerSmallText}>
@@ -140,6 +131,7 @@ export default function LandingPage() {
             marginTop: -75,
             overflow: 'hidden',
             borderRadius: 8,
+            backgroundColor: '#2e2e2e',
           }}
         >
           <SongPreview songId={songId} source={source} onReady={handleSongReady} />
