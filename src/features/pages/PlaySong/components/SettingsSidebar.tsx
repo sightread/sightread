@@ -62,22 +62,13 @@ export default function SettingsSidebar(props: SidebarProps) {
       <Sizer height={10} />
       <h3 style={{ fontSize: 24, color: colors.purple.primary, textAlign: 'center' }}>Settings</h3>
       <Sizer height={36} />
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          fontSize: 16,
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className="flex flex-row justify-around text-base">
+        <div className="flex flex-col gap-2">
           Left hand
-          <Sizer height={8} />
           <Toggle checked={left} onChange={() => handleHand('left')} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="flex flex-col gap-2">
           Right hand
-          <Sizer height={8} />
           <Toggle checked={right} onChange={() => handleHand('right')} />
         </div>
       </div>
@@ -109,7 +100,7 @@ export default function SettingsSidebar(props: SidebarProps) {
         <Sizer height={8} />
         <Toggle checked={waiting} onChange={handleWaiting} />
       </div>
-      <Sizer height={36} />
+      <Sizer height={24} />
       <div style={{ display: 'flex', fontSize: 16, flexDirection: 'column', alignItems: 'center' }}>
         Display note letter
         <Sizer height={8} />
@@ -121,6 +112,7 @@ export default function SettingsSidebar(props: SidebarProps) {
         <Sizer height={8} />
         <select
           name="keySignature"
+          className="border"
           value={keySignature ?? props.song?.keySignature}
           onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
         >
@@ -138,12 +130,6 @@ export default function SettingsSidebar(props: SidebarProps) {
           alignItems: 'center',
         }}
       >
-        <h3 style={{ textAlign: 'center' }}>Difficulty scaling</h3>
-        <Sizer height={10} />
-        <span>nps</span> <input type="range"></input>
-        <Sizer height={10} />
-        <span>notes</span> <input type="range"></input>
-        <Sizer height={36} />
         <h2 style={{ textAlign: 'center', fontSize: 18 }}>Tracks Configuration</h2>
         <AdjustInstruments
           config={props.config}

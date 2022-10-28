@@ -40,25 +40,29 @@ export default function TopBar({
   sidebarOpen,
 }: TopBarProps) {
   return (
-    <div className="h-[50px] w-screen bg-[#292929] flex items-center justify-between z-10">
-      <ButtonWithTooltip tooltip="Back">
+    <div className="h-[50px] w-screen bg-[#292929] flex z-10 px-1 relative justify-center align-center">
+      <ButtonWithTooltip tooltip="Back" className="!absolute left-3 top-1/2 -translate-y-1/2">
         <ArrowLeftIcon height={40} width={50} onClick={onClickBack} />
       </ButtonWithTooltip>
-      <div className="relative h-full gap-3 left-1/2 -translate-x-1/2 items-center flex justify-around">
-        <VerticalDivider />
+      <div
+        className={clsx(
+          'h-full gap-3 items-center flex',
+          'md:absolute md:left-1/2 md:-translate-x-1/2',
+        )}
+      >
+        <VerticalDivider className="hidden md:flex" />
         <ButtonWithTooltip tooltip="Restart">
           <PreviousIcon height={40} width={40} onClick={onClickRestart} />
         </ButtonWithTooltip>
-
         <VerticalDivider />
         <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
         <VerticalDivider />
         <div className="hidden md:flex">
           <BpmDisplay />
-          <VerticalDivider />
         </div>
+        <VerticalDivider className="hidden md:flex" />
       </div>
-      <div className="flex ml-auto h-full items-center min-w-[150px] mr-[20px] gap-3">
+      <div className="flex md:ml-auto h-full items-center mr-[20px] gap-3">
         <VerticalDivider />
         <ButtonWithTooltip tooltip="Settings" isActive={sidebarOpen}>
           <SettingsCog width={25} height={25} onClick={onClickSettings} />
@@ -80,8 +84,8 @@ export default function TopBar({
   )
 }
 
-function VerticalDivider() {
-  return <hr className="w-[1px] h-3/4 bg-white border-none" />
+function VerticalDivider({ className }: { className?: string }) {
+  return <hr className={clsx(className, 'w-[1px] h-3/4 bg-white border-none')} />
 }
 
 type ButtonWithTooltipProps = PropsWithChildren<{
@@ -94,21 +98,17 @@ type ButtonWithTooltipProps = PropsWithChildren<{
 
 export function ButtonWithTooltip(props: ButtonWithTooltipProps) {
   return (
-    <span
-      className="flex"
+    <button
+      onClick={props.onClick}
       data-tooltip={props.tooltip}
       data-tooltip-position={props.tooltipPosition ?? 'bottom'}
+      className={clsx(
+        props.className,
+        props.isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
+        'hover:fill-purple-hover hover:text-purple-hover',
+      )}
     >
-      <button
-        onClick={props.onClick}
-        className={clsx(
-          props.className,
-          props.isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
-          'hover:fill-purple-hover hover:text-purple-hover',
-        )}
-      >
-        {props.children}
-      </button>
-    </span>
+      {props.children}
+    </button>
   )
 }

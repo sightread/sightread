@@ -4,7 +4,7 @@ import { TextInput } from '../TextInput'
 export type SearchBoxProps = { onSearch: (val: string) => void; placeholder: string }
 export function SearchBox({ onSearch, placeholder }: SearchBoxProps) {
   return (
-    <div className="relative w-80">
+    <div className="relative w-80 h-[40px]">
       <TextInput
         type="search"
         onChange={(e: any) => onSearch(e.target.value)}

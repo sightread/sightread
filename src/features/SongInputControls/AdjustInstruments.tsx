@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { PropsWithChildren, useState } from 'react'
 import clsx from 'clsx'
 import { css } from '@sightread/flake'
 import { Select } from '@/components'
@@ -122,7 +122,7 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
   }
   return (
     <span className={classes.instrumentCard}>
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div className="flex justify-center items-center">
         <span style={{}}>
           Track {trackId + 1}
           {track.track.name ? ': ' + track.track.name : ''}
@@ -164,11 +164,6 @@ function InstrumentSelect({
       value={value}
       onChange={onSelect}
       options={gmInstruments as any}
-      classNames={{
-        select: classes.instrumentSelect,
-        icon: classes.selectIcon,
-        menu: classes.instrumentMenu,
-      }}
       format={formatInstrumentName}
       display={formatInstrumentName}
     />
@@ -224,29 +219,29 @@ type ToggleIconProps = {
 
 function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
   return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <button className="flex flex-col items-center">
       <LeftHandIcon
         height={32}
         width={32}
-        className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
+        fill={clsx(on ? 'fill-purple-primary' : 'fill-white hover:fill-purple-hover')}
         onClick={onClick}
       />
       <span style={labelStyle}>Left Hand</span>
-    </span>
+    </button>
   )
 }
 
 function ToggleRightHand({ on, onClick }: ToggleIconProps) {
   return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <button className="flex flex-col items-center">
       <RightHandIcon
         height={32}
         width={32}
-        className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
+        fill={clsx(on ? 'fill-purple-primary' : 'fill-white hover:fill-purple-hover')}
         onClick={onClick}
       />
       <span style={labelStyle}>Right Hand</span>
-    </span>
+    </button>
   )
 }
 

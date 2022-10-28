@@ -83,7 +83,7 @@ export default function SelectSongPage(props: SelectSongPageProps) {
       </Modal>
       <div className="bg-gray-100 w-full h-screen flex flex-col">
         <AppBar />
-        <div className="bg-gray-100 p-6 mx-auto max-w-screen-lg flex flex-col flex-grow w-full">
+        <div className="p-6 mx-auto max-w-screen-lg flex flex-col flex-grow w-full">
           <h2 className="text-4xl font-extralight">Songs</h2>
           <Sizer height={24} />
           <div className="flex gap-2">
