@@ -4,14 +4,14 @@ import { formatTime } from '@/utils'
 import { SongPreviewModal } from '@/features/SongPreview'
 import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/features/persist'
-import { AppBar, Modal, Table, Sizer } from '@/components'
+import { AppBar, Modal, Sizer } from '@/components'
 import { LibrarySong, Filters } from './types'
 import { DifficultyLabel } from '@/types'
 import { useEventListener } from '@/hooks'
 import { PlusIcon } from '@/icons'
-import { SearchBox } from '@/components/Table/SearchBox'
+import { SearchBox } from '@/features/pages/SelectSong/components/Table/SearchBox'
 import clsx from 'clsx'
-import { UploadForm } from './components'
+import { UploadForm, Table } from './components'
 
 const builtin = songManifest as unknown as LibrarySong[]
 

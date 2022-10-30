@@ -1,5 +1,5 @@
 import { SearchIcon } from '@/icons'
-import { TextInput } from '../TextInput'
+import { TextInput } from '@/components/TextInput'
 
 export type SearchBoxProps = { onSearch: (val: string) => void; placeholder: string }
 export function SearchBox({ onSearch, placeholder }: SearchBoxProps) {

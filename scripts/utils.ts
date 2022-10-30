@@ -1,4 +1,4 @@
-import { isPiano, parseMidi, parseMusicXML } from '../src/features/parsers'
+import { isPiano, parseMidi, parseMusicXml } from '../src/features/parsers'
 import { Song, Track } from '../src/types'
 import fs from 'fs'
 
@@ -20,7 +20,7 @@ export function parseFile(path: string): Song {
 
   // xml
   const txt = fs.readFileSync(path, { encoding: 'utf-8' })
-  return parseMusicXML(txt)
+  return parseMusicXml(txt)
 }
 
 export function last<T>(arr: Array<T>): T {
