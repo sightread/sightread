@@ -1,60 +1,11 @@
-import React, { useState } from 'react'
+import React, { PropsWithChildren, useState } from 'react'
 import clsx from 'clsx'
-import { css } from '@sightread/flake'
 import { Select } from '@/components'
 import { LeftHandIcon, RightHandIcon, SoundOnIcon, SoundOffIcon } from '@/icons'
 import Player from '@/features/player'
 import { InstrumentName, gmInstruments } from '@/features/synth'
 import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
-import { palette } from '@/styles/common'
-
-const classes = css({
-  instrumentsHeader: {
-    fontWeight: 600,
-    fontSize: '16px',
-  },
-  instrumentCard: {
-    width: '280px',
-    backgroundColor: 'white',
-    borderRadius: '6px',
-    margin: '15px',
-    border: '1px solid black',
-  },
-  cardLabelDivider: {
-    width: 2,
-    height: 24,
-    backgroundColor: palette.purple.light,
-    margin: '4px 8px',
-  },
-  instrumentSelect: {
-    borderRadius: 0,
-    width: '100%',
-    border: 'none',
-    height: '50px',
-    backgroundColor: palette.purple.light,
-    fontWeight: 'bold',
-    fontSize: '16px',
-  },
-  selectIcon: {
-    top: 18,
-    right: 15,
-  },
-  instrumentMenu: {
-    top: 30,
-  },
-  settingsIcon: {
-    '& path': {
-      transition: 'fill 200ms',
-    },
-    cursor: 'pointer',
-  },
-  settingsIconActive: {
-    '& path': {
-      fill: palette.purple.primary,
-    },
-  },
-})
 
 type InstrumentSettingsProps = {
   config: SongConfig
@@ -120,14 +71,15 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
     player.setTrackVolume(trackId, sound ? 1.0 : 0)
     setTrack(trackId, { ...track, sound })
   }
+
   return (
-    <span className={classes.instrumentCard}>
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <span className="bg-white rounded-md m-4 border border-black px-3">
+      <div className="flex justify-center items-center">
         <span style={{}}>
           Track {trackId + 1}
           {track.track.name ? ': ' + track.track.name : ''}
         </span>
-        <span className={classes.cardLabelDivider}></span>
+        <span className="w-[2px] h-6 bg-purple-light mx-1 my-2"></span>
         <span>{noteCount} Notes</span>
       </div>
       <InstrumentSelect
@@ -164,11 +116,6 @@ function InstrumentSelect({
       value={value}
       onChange={onSelect}
       options={gmInstruments as any}
-      classNames={{
-        select: classes.instrumentSelect,
-        icon: classes.selectIcon,
-        menu: classes.instrumentMenu,
-      }}
       format={formatInstrumentName}
       display={formatInstrumentName}
     />
@@ -182,19 +129,13 @@ type TrackSettingProps = {
   onToggleSound: (sound: boolean) => void
 }
 function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: TrackSettingProps) {
-  const handleSound = () => {
+  const handleSound = (e: React.MouseEvent) => {
+    e.stopPropagation()
     onToggleSound(!sound)
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        padding: '15px 10px',
-      }}
-    >
+    <div className="flex items-center jusitfy-around p-4 gap-4">
       <ToggleLeftHand
         on={hand === 'left'}
         onClick={() => {
@@ -219,61 +160,50 @@ const labelStyle = {
 
 type ToggleIconProps = {
   on: boolean
-  onClick: () => void
+  onClick: (e: React.MouseEvent) => void
 }
 
 function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
   return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <button className="flex flex-col items-center">
       <LeftHandIcon
         height={32}
         width={32}
-        className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
+        fill={clsx(on ? 'fill-purple-primary' : 'fill-white hover:fill-purple-hover')}
         onClick={onClick}
       />
       <span style={labelStyle}>Left Hand</span>
-    </span>
+    </button>
   )
 }
 
 function ToggleRightHand({ on, onClick }: ToggleIconProps) {
   return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <button className="flex flex-col items-center">
       <RightHandIcon
         height={32}
         width={32}
-        className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
+        fill={clsx(on ? 'fill-purple-primary' : 'fill-white hover:fill-purple-hover')}
         onClick={onClick}
       />
       <span style={labelStyle}>Right Hand</span>
-    </span>
+    </button>
   )
 }
 
 function ToggleSound({ on, onClick }: ToggleIconProps) {
+  const Icon = on ? SoundOnIcon : SoundOffIcon
+  const labelText = on ? 'Sound On' : 'Sound Off'
+
   return (
-    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {on ? (
-        <>
-          <SoundOnIcon
-            height={32}
-            width={32}
-            className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
-            onClick={onClick}
-          />
-          <span style={labelStyle}>Sound On</span>
-        </>
-      ) : (
-        <>
-          <SoundOffIcon
-            height={32}
-            width={32}
-            className={clsx(classes.settingsIcon, on ? classes.settingsIconActive : '')}
-            onClick={onClick}
-          />
-          <span style={labelStyle}>Sound Off</span>
-        </>
-      )}
-    </span>
+    <button className="flex flex-col items-center">
+      <Icon
+        height={32}
+        width={32}
+        className={clsx('transition', on && 'fill-purple-primary')}
+        onClick={onClick}
+      />
+      <span style={labelStyle}>{labelText}</span>
+    </button>
   )
 }

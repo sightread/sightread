@@ -43,34 +43,23 @@ export default function FreePlay() {
   }, [handleNoteDown, handleNoteUp])
 
   return (
-    <div className="App">
+    <div className="w-screen h-screen flex flex-col">
       <TopBar
         isLoading={synthState.loading}
         isError={synthState.error}
         value={instrumentName}
         onChange={(name) => setInstrumentName(name)}
       />
-      <div
-        style={{
-          backgroundColor: '#2e2e2e',
-          width: '100vw',
-          height: '100vh',
-          contain: 'strict',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div style={{ position: 'relative', flex: 1 }}>
-          <SongVisualizer
-            song={freePlayer.song}
-            config={{ visualization: 'falling-notes', noteLetter: false } as SongConfig}
-            hand="both"
-            handSettings={{ 1: { hand: 'right' } }}
-            getTime={() => freePlayer.getTime()}
-            constrictView={false}
-            disableTouchscroll={true}
-          />
-        </div>
+      <div className="flex-grow relative">
+        <SongVisualizer
+          song={freePlayer.song}
+          config={{ visualization: 'falling-notes', noteLetter: false } as SongConfig}
+          hand="both"
+          handSettings={{ 1: { hand: 'right' } }}
+          getTime={() => freePlayer.getTime()}
+          constrictView={false}
+          disableTouchscroll={true}
+        />
       </div>
     </div>
   )

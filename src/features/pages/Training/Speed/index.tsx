@@ -3,10 +3,9 @@ import { useRouter } from 'next/router'
 
 import { MidiStateEvent } from '@/types'
 import { useSingleton } from '@/hooks'
-import { css } from '@sightread/flake'
 import { getSynthStub, Synth } from '@/features/synth'
 import midiState from '@/features/midi'
-import { TopBar, SettingsSidebar } from './components'
+import { SettingsSidebar } from './components'
 import { usePersistedState } from '@/features/persist'
 import Canvas from './components/Canvas'
 import { render } from './canvas'
@@ -15,60 +14,6 @@ import { getRandomNote, KEY_SIGNATURE } from '@/features/theory'
 import { isBrowser } from '@/utils'
 
 export type Props = {}
-
-const classes = css({
-  topbarIcon: {
-    cursor: 'pointer',
-    fill: 'white',
-    '&:hover': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-    '& .active ': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-  },
-  figmaIcon: {
-    '&:hover path': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-    '&:hover path.outline': {
-      fill: 'black',
-    },
-    '& path': {
-      cursor: 'pointer',
-    },
-    cursor: 'pointer',
-  },
-  fillWhite: {
-    '& path': {
-      fill: 'white',
-    },
-    fill: 'white',
-  },
-  active: {
-    '& path': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-    '& path.outline': {
-      fill: 'black',
-    },
-  },
-  topbar: {
-    '& i': {
-      color: 'white',
-      cursor: 'pointer',
-      transition: 'color 0.1s',
-      fontSize: 24,
-      width: 22,
-    },
-    '& i:hover': {
-      color: 'rgba(58, 104, 231, 1)',
-    },
-    '& i.active': {
-      color: 'rgba(58, 104, 231, 1)',
-    },
-  },
-})
 
 export interface SpeedTrainingConfig {
   clef: 'bass' | 'treble'
@@ -143,13 +88,6 @@ export default function SpeedTraining({}: Props) {
   return (
     <div>
       <>
-        <TopBar
-          isSoundOff={soundOff}
-          onClickBack={() => router.back()}
-          onClickSettings={() => setSidebar(!sidebar)}
-          onClickSound={handleToggleSound}
-          classNames={{ settingsCog: sidebar && classes.active }}
-        />
         <div
           style={{
             position: 'absolute',

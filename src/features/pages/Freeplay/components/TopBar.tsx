@@ -4,33 +4,6 @@ import { formatInstrumentName } from '@/utils'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { ArrowLeftIcon } from '@/icons'
 import { useRouter } from 'next/router'
-import { css } from '@sightread/flake'
-
-const classes = css({
-  topbar: {
-    '& i': {
-      color: 'white',
-      cursor: 'pointer',
-      transition: 'color 0.1s',
-      fontSize: 24,
-      width: 22,
-    },
-    '& i:hover': {
-      color: 'rgba(58, 104, 231, 1)',
-    },
-    '& i.active': {
-      color: 'rgba(58, 104, 231, 1)',
-    },
-  },
-  topbarIcon: {
-    fill: 'white',
-    cursor: 'pointer',
-    transition: '100ms',
-    '&:hover': {
-      fill: 'rgba(58, 104, 231, 1)',
-    },
-  },
-})
 
 type TopBarProps = {
   isError: boolean
@@ -43,56 +16,23 @@ export default function TopBar({ isError, isLoading, value, onChange }: TopBarPr
   const router = useRouter()
 
   return (
-    <div
-      id="topbar"
-      className={`${classes.topbar}`}
-      style={{
-        position: 'fixed',
-        height: 55,
-        width: '100vw',
-        zIndex: 2,
-        backgroundColor: '#292929',
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <div aria-label="left-items" style={{ width: '33%', paddingLeft: '20px', cursor: 'pointer' }}>
-        <ArrowLeftIcon
-          className={classes.topbarIcon}
-          width={50}
-          height={40}
-          onClick={() => {
-            router.back()
-          }}
-        />
-      </div>
-      {/* TODO: what should go in the center here? its awkward space now. */}
-      <div
-        aria-label="center-items"
-        className="nav-buttons"
-        style={{ width: '33%', display: 'flex', justifyContent: 'center' }}
+    <div className="px-2 color-white transition text-2xl h-[50px] w-full bg-[#292929] flex items-center">
+      <ArrowLeftIcon
+        className="fill-white hover:fill-purple-hover cursor-pointer transition"
+        width={50}
+        height={40}
+        onClick={() => router.back()}
       />
-      <div
-        aria-label="right-items"
-        style={{
-          width: '34%',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          paddingRight: '20px',
-        }}
-      >
-        <span style={{ width: '200px', display: 'inline-block' }}>
-          <Select
-            loading={isLoading}
-            error={isError}
-            value={value}
-            onChange={onChange}
-            options={gmInstruments as any}
-            format={formatInstrumentName}
-            display={formatInstrumentName}
-          />
-        </span>
-      </div>
+      <Select
+        className="ml-auto max-w-fit h-3/4 text-base"
+        loading={isLoading}
+        error={isError}
+        value={value}
+        onChange={onChange}
+        options={gmInstruments as any}
+        format={formatInstrumentName}
+        display={formatInstrumentName}
+      />
     </div>
   )
 }

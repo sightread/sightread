@@ -1,4 +1,4 @@
-import { AppBar, Container } from '@/components'
+import { AppBar } from '@/components'
 import Link from 'next/link'
 
 export default function TrainingPage() {
@@ -10,15 +10,7 @@ export default function TrainingPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar style={{ backgroundColor: '#292929', display: 'flex' }} />
-      <Container
-        style={{
-          display: 'flex',
-          padding: '0 24px',
-          height: '100%',
-          flexGrow: 1,
-          alignContent: 'center',
-        }}
-      >
+      <div className="flex py-6 flex-grow h-full content-center">
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', alignContent: 'center' }}>
           {links.map(({ label, url }) => (
             <Link
@@ -44,7 +36,7 @@ export default function TrainingPage() {
             </Link>
           ))}
         </div>
-      </Container>
+      </div>
     </div>
   )
 }

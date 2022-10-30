@@ -1,34 +1,17 @@
 import { SearchIcon } from '@/icons'
-import { SearchBoxProps } from './types'
+import { TextInput } from '../TextInput'
 
+export type SearchBoxProps = { onSearch: (val: string) => void; placeholder: string }
 export function SearchBox({ onSearch, placeholder }: SearchBoxProps) {
   return (
-    <div style={{ position: 'relative', height: 32, width: 300 }}>
-      <input
+    <div className="relative w-80 h-[40px]">
+      <TextInput
         type="search"
         onChange={(e: any) => onSearch(e.target.value)}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          paddingLeft: 40,
-          backgroundColor: '#F9F9F9',
-          borderRadius: '5px',
-          boxShadow: 'inset 0px 1px 4px rgba(0, 0, 0, 0.25)',
-          border: 'none',
-        }}
-        placeholder="Search Songs by Title or Artist"
+        className="absolute h-full w-full pl-10 rounded-md"
+        placeholder={placeholder}
       />
-      <SearchIcon
-        height={25}
-        width={25}
-        style={{
-          position: 'absolute',
-          left: 10,
-          top: '50%',
-          transform: 'translateY(-50%)',
-        }}
-      />
+      <SearchIcon height={25} width={25} className="absolute left-2 top-1/2 -translate-y-1/2" />
     </div>
   )
 }

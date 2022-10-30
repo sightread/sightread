@@ -1,4 +1,4 @@
-import { parseMusicXml, parseMidi } from '@/features/parsers'
+import { parseMidi } from '@/features/parsers'
 import type { Song, SongMeasure, SongNote } from '@/types'
 import { getUploadedSong } from '@/features/persist'
 

@@ -55,10 +55,10 @@ function CanvasRenderer({
     [width, height],
   )
 
-  const canvasRect: DOMRect = useMemo(
-    () => canvasRef.current?.getBoundingClientRect() ?? {},
-    [width, height],
-  ) as DOMRect
+  const canvasRect: DOMRect = useMemo(() => {
+    return canvasRef.current?.getBoundingClientRect() ?? {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, height]) as DOMRect
 
   useRAFLoop(() => {
     if (!ctxRef.current || !song) {
@@ -84,6 +84,7 @@ function CanvasRenderer({
     render(state)
   })
 
+  disableTouchscroll = disableTouchscroll || config.visualization === 'sheet'
   return (
     <div
       style={{ position: 'absolute', width: '100%', height: '100%', touchAction: 'none' }}

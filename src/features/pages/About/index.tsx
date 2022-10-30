@@ -16,7 +16,7 @@ function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
 export default function AboutPage() {
   return (
     <div className="relative">
-      <AppBar style={{ backgroundColor: palette.purple.dark }} />
+      <AppBar />
       <div className="md:bg-[#F7F4FE]">
         <div className="flex max-w-screen-lg mx-auto">
           <div className="hidden md:block sticky top-0 p-8 max-h-screen">
@@ -46,7 +46,7 @@ export default function AboutPage() {
             </section>
           </div>
           <div className="my-8 p-8 mx-auto w-full text-base flex-1 bg-white">
-            <div className="max-w-prose flex flex-col gap-12">
+            <div className="max-w-prose flex flex-col gap-12 mx-auto">
               <WhatSection />
               <GettingStarted />
               <MusicSelectionSection />

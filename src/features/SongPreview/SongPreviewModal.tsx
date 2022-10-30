@@ -1,106 +1,13 @@
 import * as React from 'react'
-import { useEffect } from 'react'
 import { SongScrubBar } from '../SongInputControls'
-import { css, mediaQuery } from '@sightread/flake'
 import { useRouter } from 'next/router'
-import { usePlayerState } from '@/hooks'
-import { palette } from '@/styles/common'
+import { useEventListener, usePlayerState } from '@/hooks'
 import { Modal, Sizer } from '@/components'
 import PreviewIcon from './PreviewIcon'
 import { LibrarySong } from '../pages/SelectSong/types'
 import { SongPreview } from './SongPreview'
+import { CancelCircleIcon } from '@/icons'
 
-const classes = css({
-  songTitle: {
-    display: 'inline-block',
-    fontSize: '24px',
-    fontWeight: 'bold',
-    whiteSpace: 'nowrap',
-  },
-  artist: {
-    overflow: 'hidden',
-    padding: '0px 10px',
-    textAlign: 'center',
-    fontWeight: 600,
-    color: '#848484',
-    fontSize: '16px',
-  },
-  scrubBarBorder: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    boxShadow: 'inset 0px 4px 4px rgba(0, 0, 0, 0.25)',
-    zIndex: 5,
-    pointerEvents: 'none',
-    borderRadius: 5,
-  },
-  modalContent: {
-    [mediaQuery.up(450)]: {
-      minWidth: 'min(600px, 80%)',
-      width: 'min(600px, 80%)',
-    },
-    [mediaQuery.down(450)]: {
-      padding: '0px 16px 0px 16px',
-    },
-  },
-  buttonContainer: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'space-between',
-    minWidth: 300,
-  },
-  baseButton: {
-    transition: '150ms',
-    borderRadius: 5,
-    fontSize: 22,
-    height: 40,
-    border: 'none',
-    cursor: 'pointer',
-    width: '100%',
-  },
-  instrumentsButton: {
-    color: palette.purple.primary,
-    backgroundColor: 'white',
-    boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.2)',
-    '&:hover': {
-      backgroundColor: '#EAEAEA',
-    },
-  },
-  playNowButton: {
-    color: 'white',
-    height: 40,
-    width: '42%',
-    border: 'none',
-    cursor: 'pointer',
-    borderRadius: 5,
-    fontSize: 22,
-    transition: '150ms',
-    backgroundColor: palette.purple.primary,
-    '&:hover': {
-      backgroundColor: palette.purple.dark,
-    },
-  },
-  controlsHeader: {
-    fontSize: '20px',
-    marginBottom: '15px',
-  },
-  container: { display: 'flex', padding: '11px 0px' },
-  textWrapper: { marginLeft: '20px', maxWidth: '224px' },
-  controlTitle: { fontWeight: 'bold', paddingBottom: '10px' },
-  iconWrapper: {
-    width: '60px',
-    height: '60px',
-    borderRadius: '6px',
-    backgroundColor: palette.purple.light,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-})
-
-// TODO: have a way to reset to default track settings (adjust instruments)
-// TODO: remove count from trackSettings (notes per track) as it is static
-// TODO: put warning that you will have to return here to change the settings again?
 type ModalProps = {
   show: boolean
   onClose: () => void
@@ -115,73 +22,42 @@ export default function SongPreviewModal({
   const router = useRouter()
   const [playerState, playerActions] = usePlayerState()
 
-  useEffect(() => {
-    if (!show) {
-      return
-    }
+  useEventListener<KeyboardEvent>('keydown', (event) => {
+    if (!show) return
 
-    function handleKeyDown(e: KeyboardEvent) {
-      const keyPressed = e.key
-      if (keyPressed === ' ') {
-        e.preventDefault()
-        return playerActions.toggle()
-      }
+    if (event.key === ' ') {
+      event.preventDefault()
+      playerActions.toggle()
     }
+  })
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [show, onClose, playerState.playing, playerActions])
+  function handlePlayNow() {
+    router.push(`/play?id=${id}&source=${source}`)
+  }
 
-  const handleClose = () => {
+  function handleClose() {
     playerActions.reset()
     return onClose()
   }
 
-  const handlePlayNow = () => {
-    if (!id || !source) {
-      console.error('Song must be loaded to play.')
-      return
-    }
-
-    router.push(`/play?id=${id}&source=${source}`)
-  }
-
-  if (!show || !id) {
+  if (!show || !id || !source) {
     return null
   }
 
   return (
-    <Modal show={show && !!id} onClose={handleClose} classNames={classes.modalContent}>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          rowGap: 16,
-          columnGap: 30,
-        }}
-      >
-        <div style={{ display: 'flex', width: '100%' }}>
-          <div>
-            <span className={classes.songTitle}>{title}</span>
-            <span className={classes.artist}>{artist}</span>
-          </div>
+    <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
+      <div className="flex flex-col gap-3 px-8 py-6">
+        <div className="flex w-full align-baseline whitespace-nowrap gap-2 items-baseline">
+          <span className="font-semibold text-2xl">{title}</span>
+          <span className="overflow-hidden text-base text-gray-500">{artist}</span>
+          <button className="ml-auto fill-purple-primary hover:fill-purple-hover" onClick={onClose}>
+            <CancelCircleIcon height={24} width={24} />
+          </button>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            borderRadius: 6,
-            flexDirection: 'column',
-            flexGrow: 1,
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ position: 'relative', height: 24, minHeight: 24 }}>
-            <div className={classes.scrubBarBorder} />
-            <SongScrubBar />
+        <div className="flex rounded-md flex-col flex-grow overflow-hidden">
+          <div className="relative">
+            <div className="absolute w-full h-full z-10 pointer-events-none rounded-md shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" />
+            <SongScrubBar height={30} />
           </div>
           <div
             style={{
@@ -207,16 +83,12 @@ export default function SongPreviewModal({
             )}
           </div>
           <Sizer height={16} />
-          <div className={classes.buttonContainer}>
-            <button
-              className={classes.playNowButton}
-              onClick={handlePlayNow}
-              style={{ width: '100%' }}
-            >
-              Play Now
-            </button>
-          </div>
-          <Sizer height={16} />
+          <button
+            className="w-full text-white h-10 border-none cursor-pointer rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover"
+            onClick={handlePlayNow}
+          >
+            Play Now
+          </button>
         </div>
       </div>
     </Modal>

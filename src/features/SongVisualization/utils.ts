@@ -1,4 +1,4 @@
-import { Song, Track, SongNote, SongConfig, SongMeasure, Hand } from '@/types'
+import { Song, Track, SongNote, SongConfig, SongMeasure, Hand, TrackSetting } from '@/types'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
@@ -54,14 +54,21 @@ function getInstrument(track: Track): InstrumentName {
     : ((track.instrument || track.name) as InstrumentName) ?? gmInstruments[0]
 }
 
-export function getSongSettings(file: string, song: Song): SongConfig {
-  let persisted = getPersistedSongSettings(file)
-  if (persisted) {
-    return persisted
+export function getDefaultSongSettings(song?: Song): SongConfig {
+  const songConfig: SongConfig = {
+    left: true,
+    right: true,
+    waiting: false,
+    noteLetter: false,
+    visualization: 'falling-notes',
+    tracks: {},
+  }
+  if (!song) {
+    return songConfig
   }
 
   const { left, right } = inferHands(song)
-  const tracks = mapValues(song.tracks, (track, trackId) => {
+  const tracks: { [id: number]: TrackSetting } = mapValues(song.tracks, (track, trackId) => {
     const id = parseInt(trackId)
     const hand = left === id ? 'left' : right === id ? 'right' : 'none'
     return {
@@ -72,15 +79,16 @@ export function getSongSettings(file: string, song: Song): SongConfig {
       sound: true,
     }
   })
+  songConfig.tracks = tracks
+  return songConfig
+}
 
-  const songSettings: SongConfig = {
-    left: true,
-    right: true,
-    waiting: false,
-    noteLetter: false,
-    visualization: 'falling-notes',
-    tracks,
+export function getSongSettings(file: string, song: Song): SongConfig {
+  let persisted = getPersistedSongSettings(file)
+  if (persisted) {
+    return persisted
   }
+  const songSettings = getDefaultSongSettings(song)
   setPersistedSongSettings(file, songSettings)
   return songSettings
 }

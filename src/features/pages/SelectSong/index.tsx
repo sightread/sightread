@@ -4,10 +4,14 @@ import { formatTime } from '@/utils'
 import { SongPreviewModal } from '@/features/SongPreview'
 import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/features/persist'
-import { AppBar, Modal, Table, Sizer, Container } from '@/components'
+import { AppBar, Modal, Table, Sizer } from '@/components'
 import { LibrarySong, Filters } from './types'
-import { FilterPane, FilterTypeValue, TypeFilter, UploadForm } from './components'
 import { DifficultyLabel } from '@/types'
+import { useEventListener } from '@/hooks'
+import { PlusIcon } from '@/icons'
+import { SearchBox } from '@/components/Table/SearchBox'
+import clsx from 'clsx'
+import { UploadForm } from './components'
 
 const builtin = songManifest as unknown as LibrarySong[]
 
@@ -39,25 +43,19 @@ export default function SelectSongPage(props: SelectSongPageProps) {
   const [addNew, setAddNew] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
-  const [filters, setFilters] = useState<Filters>({ show: false })
+  const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    function closeModal(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setAddNew(false)
-      }
+  useEventListener<KeyboardEvent>('keydown', (event) => {
+    if (event.key === 'Escape') {
+      setAddNew(false)
     }
-    window.addEventListener('keydown', closeModal)
-    return () => {
-      window.removeEventListener('keydown', closeModal)
-    }
-  }, [])
+  })
 
   // TODO: this is a bug if the uploaded library changes, and s will only expand.
   const uploadedLibrary = getUploadedLibrary()
   useEffect(() => {
     setSongs(builtin.concat(Object.values(props.midishareManifest)).concat(uploadedLibrary))
-  }, [uploadedLibrary])
+  }, [uploadedLibrary, props.midishareManifest])
 
   const handleUpload = () => setAddNew(false)
 
@@ -70,14 +68,6 @@ export default function SelectSongPage(props: SelectSongPageProps) {
     setAddNew(false)
   }
 
-  const handleToggleOpenFilter = () => {
-    setFilters({ ...filters, show: !filters.show })
-  }
-
-  const handleFilterType = (type: FilterTypeValue): void => {
-    return setFilters({ ...filters, type })
-  }
-
   return (
     <>
       <SongPreviewModal
@@ -87,20 +77,29 @@ export default function SelectSongPage(props: SelectSongPageProps) {
           setSelectedSongId(null)
         }}
       />
-      <Modal show={addNew} onClose={handleCloseAdd} style={{ minWidth: '375px' }}>
-        <UploadForm onSuccess={handleUpload} />
+      <Modal show={addNew} onClose={handleCloseAdd}>
+        <UploadForm onSuccess={handleUpload} onClose={handleCloseAdd} />
       </Modal>
-      <AppBar style={{ backgroundColor: '#292929', display: 'flex' }} />
-      <Container style={{ backgroundColor: '#F2F2F2', padding: '0 24px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 60px)' }}>
+      <div className="bg-gray-100 w-full h-screen flex flex-col">
+        <AppBar />
+        <div className="p-6 mx-auto max-w-screen-lg flex flex-col flex-grow w-full">
+          <h2 className="text-4xl font-extralight">Songs</h2>
           <Sizer height={24} />
-          <h2 style={{ fontSize: 36, fontWeight: 200 }}>Songs</h2>
-          <FilterPane show={filters.show}>
-            <div style={{ display: 'flex' }}>
-              <TypeFilter onSelect={handleFilterType} value={filters.type} />
-            </div>
-          </FilterPane>
-          <Sizer height={24} />
+          <div className="flex gap-2">
+            <SearchBox placeholder={'Search Songs by Title or Artist'} onSearch={setSearch} />
+            <button
+              className={clsx(
+                'hidden sm:flex whitespace-nowrap flex-nowrap',
+                'py-2 px-4 items-center rounded-md gap-1 ml-auto',
+                'bg-purple-dark transition hover:bg-purple-hover text-white fill-white',
+              )}
+              onClick={handleAddNew}
+            >
+              <PlusIcon width={20} height={20} />
+              <span>Add New</span>
+            </button>
+          </div>
+          <Sizer height={8} />
           <Table
             columns={[
               { label: 'Title', id: 'title', keep: true },
@@ -113,17 +112,14 @@ export default function SelectSongPage(props: SelectSongPageProps) {
               },
               { label: 'Source', id: 'source' },
             ]}
-            searchBoxPlaceholder="Search Songs by Title or Artist"
             getId={(s: LibrarySong) => s.id}
             rows={songs}
             filter={['title', 'artist']}
             onSelectRow={setSelectedSongId}
-            onCreate={handleAddNew}
-            onFilter={handleToggleOpenFilter}
+            search={search}
           />
-          <Sizer height={60} />
         </div>
-      </Container>
+      </div>
     </>
   )
 }
