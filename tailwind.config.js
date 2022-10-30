@@ -3,8 +3,8 @@ module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     screens: {
-      sm: '500px',
-      md: '760px',
+      sm: '650px',
+      md: '800px',
       lg: '1100px',
 
       // This breakpoint exists solely for right padding on the AppBar GitHub Icon
@@ -12,6 +12,10 @@ module.exports = {
       lgminus: '1130px',
     },
     extend: {
+      fontSize: {
+        reponsive2Xl: 'clamp(1.7rem, 1rem + 3vw, 4rem)',
+        reponsiveXl: 'clamp(1rem, 1rem + 1vw, 1.2rem)',
+      },
       colors: {
         purple: {
           light: '#EEE5FF',

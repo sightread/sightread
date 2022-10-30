@@ -1,75 +1,10 @@
 import { AppBar, Sizer } from '@/components'
-import { palette } from '@/styles/common'
-import { css, mediaQuery } from '@sightread/flake'
 import Link from 'next/link'
 import React, { useCallback, useState } from 'react'
 import { PauseIcon, PlayIcon } from '@/icons'
 import clsx from 'clsx'
-import { breakpoints } from '@/utils'
 import { SongPreview } from '../../SongPreview/SongPreview'
 import { useEventListener, usePlayerState } from '@/hooks'
-
-const classes = css({
-  bannerBigText: {
-    fontWeight: 700,
-    fontSize: 'clamp(1.7rem, 1rem + 3vw, 4rem)',
-  },
-  bannerSmallText: {
-    fontSize: 'clamp(1rem, 1rem + 1vw, 1.2rem)',
-  },
-  purpleBtn: {
-    backgroundColor: palette.purple.primary,
-    color: 'white',
-    '&:hover': {
-      backgroundColor: palette.purple.dark,
-    },
-  },
-  ghostBtn: {
-    backgroundColor: 'white',
-    color: palette.purple.primary,
-    border: `1px solid ${palette.purple.primary}`,
-    '&:hover': {
-      backgroundColor: palette.purple.light,
-    },
-  },
-  songPreviewOverlay: {
-    position: 'absolute',
-    top: 0,
-    width: '100%',
-    height: 50,
-    backgroundColor: 'rgba(0,0,0,0.83)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectSong: {
-    position: 'absolute',
-    right: 20,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    color: 'white',
-  },
-  playPause: {
-    cursor: 'pointer',
-    display: 'flex',
-    gap: 4,
-    alignItems: 'center',
-    fill: 'white',
-    '&.disabled': {
-      fill: 'gray',
-    },
-
-    '&:hover': {
-      fill: 'grey',
-      color: 'grey',
-    },
-
-    [mediaQuery.down(breakpoints.sm)]: {
-      position: 'absolute',
-      left: 20,
-    },
-  },
-})
 
 export const FEATURED_SONGS = {
   fur_elise: { source: 'builtin', id: 'b3decef157a073fbef49430250bb7015' },
@@ -77,7 +12,7 @@ export const FEATURED_SONGS = {
   moonlight: { source: 'builtin', id: '33e41ebf6367374ce7a5f033a5baa796' },
 }
 
-export default function LandingPage(props: any) {
+export default function Home() {
   const [playerState, playerActions] = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('twinkle')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
@@ -101,21 +36,12 @@ export default function LandingPage(props: any) {
 
   return (
     <>
-      <div
-        style={{
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          minHeight: 'max(800px, 100vh)',
-          color: 'white',
-        }}
-      >
+      <div className="relative flex flex-col w-full min-h-[800px,100vh] text-white">
         <AppBar />
         <div className="p-8 bg-purple-primary flex flex-col items-center text-center">
-          <h1 className={classes.bannerBigText}>Your Piano Journey Begins Here</h1>
+          <h1 className="font-bold text-reponsive2Xl">Your Piano Journey Begins Here</h1>
           <Sizer height={8} />
-          <h3 className={classes.bannerSmallText}>
+          <h3 className="text-reponsiveXl">
             Plug in your keyboard and learn, right in your browser
           </h3>
           <Sizer height={75 + 18} />
@@ -135,9 +61,13 @@ export default function LandingPage(props: any) {
           }}
         >
           <SongPreview songId={songId} source={source} onReady={handleSongReady} />
-          <div className={classes.songPreviewOverlay}>
-            <div
-              className={clsx(classes.playPause, !playerState.canPlay && 'disabled')}
+          <div className="absolute top-0 w-full h-[50px] bg-black/80 flex items-center justify-center">
+            <button
+              className={clsx(
+                'gap-1 items-center hover:fill-gray-300 hover:text-gray-300',
+                'flex absolute left-5 sm:static',
+                playerState.canPlay ? 'fill-white' : 'fill-gray-300',
+              )}
               onClick={playerActions.toggle}
             >
               {playerState.playing ? (
@@ -151,8 +81,8 @@ export default function LandingPage(props: any) {
                   Play
                 </>
               )}
-            </div>
-            <div className={classes.selectSong}>
+            </button>
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 text-white">
               <select
                 style={{
                   padding: 6,
@@ -200,10 +130,14 @@ export default function LandingPage(props: any) {
             }}
           >
             <Link href={'/songs'}>
-              <Button className={classes.purpleBtn}>Learn a song</Button>
+              <Button className="bg-purple-primary text-white hover:bg-purple-hover">
+                Learn a song
+              </Button>
             </Link>
             <Link href={'/freeplay'}>
-              <Button className={classes.ghostBtn}>Free play</Button>
+              <Button className="bg-white text-purple-primary border border-purple-primary hover:bg-purple-light">
+                Free play
+              </Button>
             </Link>
           </div>
         </div>

@@ -1,77 +1,8 @@
 import * as React from 'react'
-import { css } from '@sightread/flake'
 import { useState, useRef } from 'react'
 import { ArrowDown, LoadingIcon } from '@/icons'
 import clsx from 'clsx'
 import { useWhenClickedOutside } from '@/hooks'
-
-const classes = css({
-  root: {
-    position: 'relative',
-    display: 'inline-block',
-    width: '100%',
-  },
-  rootError: {
-    border: '1px solid red',
-  },
-  input: {
-    width: '100%',
-    border: '1px solid lightgrey',
-    borderRadius: '4px',
-    padding: '5px 20px 5px 5px',
-    '&:hover': {
-      cursor: 'pointer',
-      border: '1px solid #7029FB',
-    },
-    '&:focus': {
-      border: '1px solid #7029FB',
-      outline: 'none',
-    },
-    zIndex: 1,
-  },
-  inputError: {
-    color: 'red',
-  },
-  arrowIcon: {
-    cursor: 'pointer',
-    position: 'absolute',
-    right: 5,
-    top: '30%',
-    zIndex: 0,
-    userSelect: 'none',
-    transition: '150ms',
-  },
-  arrowRotated: {
-    transform: 'rotate(180deg)',
-  },
-  menuRoot: {
-    transition: '150ms',
-    maxHeight: '250px',
-    overflowY: 'auto',
-    border: '1px solid #7029FB',
-    borderRadius: 5,
-  },
-  menuOpen: {
-    height: '100%',
-    backgroundColor: 'white',
-  },
-  menuClosed: {
-    display: 'none',
-  },
-  option: {
-    padding: 5,
-    '&:hover': {
-      cursor: 'pointer',
-      backgroundColor: '#d9d5ec',
-    },
-  },
-  loading: {
-    position: 'absolute',
-    top: 5,
-    left: 5,
-    animation: 'spinner 2s infinite linear',
-  },
-})
 
 type SelectProps = {
   value: any
@@ -110,11 +41,16 @@ export default function Select({
   useWhenClickedOutside(() => setOpenMenu(false), menuRef)
 
   return (
-    <div className={clsx(className, classes.root, { [classes.rootError]: error }, className)}>
+    <div
+      className={clsx(className, 'relative inline-block w-full', error && 'border border-red-600')}
+    >
       <input
         value={!loading ? display(selected) : ''}
         type="text"
-        className={clsx(classes.input, 'max-h-full')}
+        className={clsx(
+          'max-h-full w-full border border-gray-200 rounded-md cursor-pointer p-2',
+          'hover:border hover:border-purple-primary focus:border-purple-primary focus:outline-none',
+        )}
         onClick={(e) => {
           e.stopPropagation()
           toggleMenu()
@@ -124,25 +60,32 @@ export default function Select({
       <ArrowDown
         width={15}
         height={15}
-        className={clsx(classes.arrowIcon, { [classes.arrowRotated]: openMenu })}
+        className={clsx(
+          'cursor-pointer absolute right-1 top-1/2 -translate-y-1/2 transition',
+          openMenu && 'rotate-180',
+        )}
         onClick={(e) => {
           e.stopPropagation()
           toggleMenu()
         }}
       />
-      {loading && <LoadingIcon width={15} height={15} className={clsx(classes.loading)} />}
-      <div style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: 0, width: '100%', zIndex: 1 }}>
+      {loading && (
+        <LoadingIcon width={15} height={15} className="absolute top-1 left-1 animate-spin" />
+      )}
+      <div className="relative">
+        <div className="absolute top-0 w-full z-10">
           <div
             ref={menuRef}
-            style={{ width: '100%' }}
-            className={clsx(classes.menuRoot, openMenu ? classes.menuOpen : classes.menuClosed)}
+            className={clsx(
+              'w-full h-full bg-white transition max-h-[250px] overflow-y-auto border border-purple-primary rounded-md',
+              openMenu ? '' : 'hidden',
+            )}
           >
             {options.map((option) => {
               return (
                 <div
                   key={option}
-                  className={clsx(classes.option)}
+                  className={clsx('p-1 cursor-pointer hover:bg-purple-light')}
                   onClick={(e) => {
                     e.stopPropagation()
                     handleSelect(option)

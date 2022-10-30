@@ -1,7 +1,6 @@
 import * as React from 'react'
 
 import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
-import { extractCss, FLAKE_STYLE_ID } from '@sightread/flake'
 import { GA_TRACKING_ID } from '@/features/analytics'
 
 class MyDocument extends Document {
@@ -19,7 +18,6 @@ class MyDocument extends Document {
           <link rel="icon" href="/favicon.ico" />
           <link rel="apple-touch-icon" href="/favicon.ico" />
           <link rel="preconnect" href="https://fonts.gstatic.com" />
-          <style id={FLAKE_STYLE_ID} dangerouslySetInnerHTML={{ __html: extractCss() }} />
 
           {/* Global Site Tag (gtag.js) - Google Analytics */}
           <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`} />

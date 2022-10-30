@@ -11,7 +11,6 @@ import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
 import { TopBar, SettingsSidebar } from './components'
-import useDebugTraceUpdate from '@/hooks/useDebugTraceUpdate'
 import clsx from 'clsx'
 
 export function PlaySong() {
@@ -62,7 +61,6 @@ export function PlaySong() {
       player.stop()
     }
   }, [player])
-  useDebugTraceUpdate({ source, id, player, setSongConfig, playerActions })
 
   useEffect(() => {
     if (!source || !id) return

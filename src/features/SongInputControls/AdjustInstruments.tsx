@@ -73,7 +73,7 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
   }
 
   return (
-    <span className="w-[280px] bg-white rounded-md m-4 border border-black px-3">
+    <span className="bg-white rounded-md m-4 border border-black px-3">
       <div className="flex justify-center items-center">
         <span style={{}}>
           Track {trackId + 1}
@@ -129,20 +129,13 @@ type TrackSettingProps = {
   onToggleSound: (sound: boolean) => void
 }
 function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: TrackSettingProps) {
-  const handleSound = (e: MouseEvent) => {
+  const handleSound = (e: React.MouseEvent) => {
     e.stopPropagation()
     onToggleSound(!sound)
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        padding: '15px 10px',
-      }}
-    >
+    <div className="flex items-center jusitfy-around p-4 gap-4">
       <ToggleLeftHand
         on={hand === 'left'}
         onClick={() => {
@@ -167,7 +160,7 @@ const labelStyle = {
 
 type ToggleIconProps = {
   on: boolean
-  onClick: () => void
+  onClick: (e: React.MouseEvent) => void
 }
 
 function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
