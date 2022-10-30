@@ -71,16 +71,19 @@ const classes = css({
   },
 })
 
-const FEATURED_SONGS = {
+export const FEATURED_SONGS = {
   fur_elise: { source: 'builtin', id: 'b3decef157a073fbef49430250bb7015' },
   twinkle: { source: 'builtin', id: 'ec6acc14d631630c22ca796d0a5d5b0a' },
   moonlight: { source: 'builtin', id: '33e41ebf6367374ce7a5f033a5baa796' },
 }
 
-export default function LandingPage() {
+export default function LandingPage(props: any) {
   const [playerState, playerActions] = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('twinkle')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
+  const featuredSongBytes = props.featuredSongBytes
+  console.log(props)
+  const songBytes = featuredSongBytes[songId]
 
   useEventListener('keydown', (event: Event) => {
     const e = event as KeyboardEvent
@@ -131,10 +134,15 @@ export default function LandingPage() {
             marginTop: -75,
             overflow: 'hidden',
             borderRadius: 8,
-            backgroundColor: '#2e2e2e',
+            // backgroundColor: '#2e2e2e',
           }}
         >
-          <SongPreview songId={songId} source={source} onReady={handleSongReady} />
+          <SongPreview
+            songId={songId}
+            source={source}
+            onReady={handleSongReady}
+            songBytes={songBytes}
+          />
           <div className={classes.songPreviewOverlay}>
             <div
               className={clsx(classes.playPause, !playerState.canPlay && 'disabled')}
