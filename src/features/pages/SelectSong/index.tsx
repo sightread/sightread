@@ -9,7 +9,7 @@ import { LibrarySong, Filters } from './types'
 import { DifficultyLabel } from '@/types'
 import { useEventListener } from '@/hooks'
 import { PlusIcon } from '@/icons'
-import { SearchBox } from '@/features/pages/SelectSong/components/Table/SearchBox'
+import { SearchBox } from './components/Table/SearchBox'
 import clsx from 'clsx'
 import { UploadForm, Table } from './components'
 
