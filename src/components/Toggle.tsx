@@ -6,6 +6,7 @@ type ToggleProps = {
   onChange?: (value: boolean) => void
   width?: number
   height?: number
+  className?: string
 }
 export default function Toggle(props: ToggleProps) {
   const [checkedState, setChecked] = useState(!!props.checked)
@@ -23,7 +24,7 @@ export default function Toggle(props: ToggleProps) {
   }, [isControlled, checked, onChange])
 
   return (
-    <label className="relative" style={{ width, height }}>
+    <label className={clsx(props.className, 'relative')} style={{ width, height }}>
       <input
         type="checkbox"
         className="opacity-0 w-0 h-0"

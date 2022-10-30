@@ -68,14 +68,14 @@ export default function SettingsSidebar(props: SidebarProps) {
       <Sizer height={10} />
       <h3 style={{ fontSize: 24, color: colors.purple.primary, textAlign: 'center' }}>Settings</h3>
       <Sizer height={36} />
-      <div className="flex flex-row justify-around text-base">
+      <div className="flex flex-row justify-center gap-9 text-base">
         <div className="flex flex-col gap-2">
           Left hand
-          <Toggle checked={left} onChange={() => handleHand('left')} />
+          <Toggle className="self-center" checked={left} onChange={() => handleHand('left')} />
         </div>
         <div className="flex flex-col gap-2">
           Right hand
-          <Toggle checked={right} onChange={() => handleHand('right')} />
+          <Toggle className="self-center" checked={right} onChange={() => handleHand('right')} />
         </div>
       </div>
       <Sizer height={36} />
