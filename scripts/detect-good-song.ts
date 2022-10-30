@@ -1,6 +1,5 @@
 /**
  * Generate all of the parsed music files + manifest as used by the app.
- * Note: CRA messes with tsconfig.json. Need to switch to commonjs when running this command.
  * @fileoverview
  */
 
