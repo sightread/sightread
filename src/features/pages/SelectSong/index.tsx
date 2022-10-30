@@ -91,7 +91,7 @@ export default function SelectSongPage(props: SelectSongPageProps) {
               className={clsx(
                 'hidden sm:flex whitespace-nowrap flex-nowrap',
                 'py-2 px-4 items-center rounded-md gap-1 ml-auto',
-                'bg-purple-primary hover:bg-purple-hover text-white fill-white',
+                'bg-purple-dark transition hover:bg-purple-hover text-white fill-white',
               )}
               onClick={handleAddNew}
             >

@@ -124,7 +124,7 @@ export default function SongScrubBar({
   return (
     <div
       ref={wrapperRef}
-      className="relative flex w-full select-none"
+      className="relative flex w-full select-none border-b border-b-black"
       style={{ height }}
       onMouseDown={(e) => {
         setMousePressed(true)

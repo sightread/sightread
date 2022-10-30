@@ -1,46 +1,10 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { breakpoints } from '@/utils'
-import { css } from '@sightread/flake'
-import { palette } from '@/styles/common'
 import { useWindowWidth } from '@/hooks'
 import { TableProps, Row, RowValue } from './types'
 import { sortBy } from './utils'
 import { TableHead } from './TableHead'
-
-const classes = css({
-  expandIcon: {
-    fill: '#1B0EA6',
-  },
-  button: {
-    background: palette.purple.primary,
-    color: 'white',
-    display: 'flex',
-    borderRadius: '5px',
-    alignItems: 'center',
-    fontSize: '16px',
-    width: '150px',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: '200ms',
-    border: 'none',
-    padding: 5,
-    '&:hover': {
-      backgroundColor: palette.purple.dark,
-    },
-  },
-  actionButton: {
-    '&:hover': {
-      backgroundColor: 'white !important',
-    },
-  },
-  tableRow: {
-    '&:hover > *': {
-      backgroundColor: 'rgb(159 133 221 / 45%)',
-    },
-    cursor: 'pointer',
-  },
-})
 
 export default function Table<T extends Row>({
   columns,
@@ -93,12 +57,11 @@ export default function Table<T extends Row>({
           onSelectCol={handleSelectCol}
           rowHeight={rowHeight}
         />
-        {sorted.length === 0 && <h2 style={{ fontSize: '24px', padding: 20 }}>No results</h2>}
+        {sorted.length === 0 && <h2 className="text-2xl p-5">No results</h2>}
         {sorted.map((row: T, i) => {
           return (
             <div
-              className={classes.tableRow}
-              style={{ display: 'contents' }}
+              className="cursor-pointer contents group"
               onClick={(e) => {
                 e.stopPropagation()
                 onSelectRow(getId(row))
@@ -110,18 +73,9 @@ export default function Table<T extends Row>({
                 const paddingLeft = j === 0 ? 20 : 0
                 return (
                   <span
-                    className={classes.tableRow}
+                    className="relative px-3 text-sm flex items-center flex-shrink-0 border-b border-b-gray-200 group-hover:bg-purple-hover"
                     key={`row-${i}-col-${j}`}
-                    style={{
-                      position: 'relative',
-                      paddingLeft,
-                      height: rowHeight,
-                      fontSize: 14,
-                      display: 'flex',
-                      alignItems: 'center',
-                      flexShrink: 0,
-                      borderBottom: '#d9d5ec solid 1px',
-                    }}
+                    style={{ paddingLeft, height: rowHeight }}
                   >
                     {cellValue}
                   </span>

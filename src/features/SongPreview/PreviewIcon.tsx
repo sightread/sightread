@@ -1,4 +1,5 @@
 import { PlayIcon, LoadingIcon } from '@/icons'
+import clsx from 'clsx'
 import { MouseEvent } from 'react'
 
 type PreviewIconProps = {
@@ -13,13 +14,14 @@ export default function PreviewIcon({ isPlaying, isLoading, onPlay }: PreviewIco
   const icon = isLoading ? (
     <LoadingIcon width={60} height={60} className="fill-white animate-spin" />
   ) : (
-    <div className="rounded-full bg-gray-200 w-16 h-16 grid place-items-center">
-      <PlayIcon
-        height={36}
-        width={36}
-        className="fill-purple-primary relative left-1 hover:fill-purple-hover cursor-pointer"
-        onClick={onPlay}
-      />
+    <div
+      className={clsx(
+        'fill-purple-primary hover:fill-purple-hover cursor-pointer',
+        'rounded-full bg-white w-16 h-16 grid place-items-center',
+      )}
+      onClick={onPlay}
+    >
+      <PlayIcon height={36} width={36} className="relative left-1" />
     </div>
   )
   return (

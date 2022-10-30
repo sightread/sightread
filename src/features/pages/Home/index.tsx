@@ -81,9 +81,6 @@ export default function LandingPage(props: any) {
   const [playerState, playerActions] = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('twinkle')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
-  const featuredSongBytes = props.featuredSongBytes
-  console.log(props)
-  const songBytes = featuredSongBytes[songId]
 
   useEventListener('keydown', (event: Event) => {
     const e = event as KeyboardEvent
@@ -134,15 +131,10 @@ export default function LandingPage(props: any) {
             marginTop: -75,
             overflow: 'hidden',
             borderRadius: 8,
-            // backgroundColor: '#2e2e2e',
+            backgroundColor: '#2e2e2e',
           }}
         >
-          <SongPreview
-            songId={songId}
-            source={source}
-            onReady={handleSongReady}
-            songBytes={songBytes}
-          />
+          <SongPreview songId={songId} source={source} onReady={handleSongReady} />
           <div className={classes.songPreviewOverlay}>
             <div
               className={clsx(classes.playPause, !playerState.canPlay && 'disabled')}
