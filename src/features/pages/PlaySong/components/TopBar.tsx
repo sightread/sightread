@@ -41,7 +41,11 @@ export default function TopBar({
 }: TopBarProps) {
   return (
     <div className="h-[50px] w-screen bg-[#292929] flex z-10 px-1 relative justify-center align-center">
-      <ButtonWithTooltip tooltip="Back" className="!absolute left-3 top-1/2 -translate-y-1/2">
+      <ButtonWithTooltip
+        tooltip="Back"
+        className="!absolute left-3 top-1/2 -translate-y-1/2"
+        style={{ transform: 'translateY(-50%)' }}
+      >
         <ArrowLeftIcon height={40} width={50} onClick={onClickBack} />
       </ButtonWithTooltip>
       <div
@@ -94,6 +98,7 @@ type ButtonWithTooltipProps = PropsWithChildren<{
   onClick?: () => void
   className?: string
   isActive?: boolean
+  style?: React.CSSProperties
 }>
 
 export function ButtonWithTooltip(props: ButtonWithTooltipProps) {
@@ -102,6 +107,7 @@ export function ButtonWithTooltip(props: ButtonWithTooltipProps) {
       onClick={props.onClick}
       data-tooltip={props.tooltip}
       data-tooltip-position={props.tooltipPosition ?? 'bottom'}
+      style={props.style}
       className={clsx(
         props.className,
         props.isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',

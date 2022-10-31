@@ -43,6 +43,7 @@ export default function Toggle(props: ToggleProps) {
           'top-1/2 -translate-y-1/2',
           checked && '!left-[calc(100%-25px)]',
         )}
+        style={{ transform: 'translateY(-50%)' }}
       />
     </label>
   )

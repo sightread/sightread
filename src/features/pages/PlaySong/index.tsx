@@ -70,7 +70,7 @@ export function PlaySong() {
       const config = getSongSettings(id, song)
       setSong(song)
       setSongConfig(config)
-      player.setSong(song, config).then(() => playerActions.ready())
+      player.setSong(song, config).then(playerActions.ready)
     })
   }, [source, id, player, setSongConfig, playerActions])
 
@@ -182,7 +182,7 @@ export function PlaySong() {
         </>
       )}
       <div
-        className="w-screen flex flex-col flex-grow"
+        className="w-screen flex flex-col flex-grow relative"
         style={{
           backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
           contain: 'strict',

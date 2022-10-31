@@ -50,10 +50,16 @@ export default function usePlayerState(): PlayerStateHookReturn {
   const playing = state === 'Playing'
   const paused = state === 'Paused'
 
+  // TODO: since the reducer is side effecting this is actually all a bug in case of dismounts.
+  // React believes reducer calls should be capable of dropping without any issue, which in this case is not true.
+  // Real fix is to make a new pub/sub for PlayerState within the actual player. For a future PR.
   const playerActions: PlayerDispatcher = useMemo(
     () => ({
       play: () => dispatch('play'),
-      pause: () => dispatch('pause'),
+      pause: () => {
+        Player.player().pause()
+        dispatch('pause')
+      },
       reset: () => dispatch('reset'),
       ready: () => dispatch('ready'),
       toggle: () => dispatch('toggle'),

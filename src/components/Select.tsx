@@ -64,6 +64,7 @@ export default function Select({
           'cursor-pointer absolute right-1 top-1/2 -translate-y-1/2 transition',
           openMenu && 'rotate-180',
         )}
+        style={{ transform: 'translateY(-50%)' }}
         onClick={(e) => {
           e.stopPropagation()
           toggleMenu()
