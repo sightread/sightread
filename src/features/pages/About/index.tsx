@@ -4,6 +4,7 @@ import { palette } from '@/styles/common'
 import Link from 'next/link'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
+import Head from 'next/head'
 
 function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
   return (
@@ -15,49 +16,54 @@ function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
 
 export default function AboutPage() {
   return (
-    <div className="relative">
-      <AppBar />
-      <div className="md:bg-[#F7F4FE]">
-        <div className="flex max-w-screen-lg mx-auto">
-          <div className="hidden md:block sticky top-0 p-8 max-h-screen">
-            <section className="flex flex-col mx-auto">
-              <h2 className="text-3xl">About</h2>
-              <Sizer height={32} />
-              <ul className="text-xl flex flex-col gap-5 whitespace-nowrap">
-                <li>
-                  <SidebarLink>What</SidebarLink>
-                </li>
-                <li>
-                  <SidebarLink>Getting started</SidebarLink>
-                </li>
-                <li>
-                  <SidebarLink>Music selection</SidebarLink>
-                </li>
-                <li>
-                  <SidebarLink>Browser compatibility</SidebarLink>
-                </li>
-                <li>
-                  <SidebarLink>Roadmap</SidebarLink>
-                </li>
-                <li>
-                  <SidebarLink>Feedback</SidebarLink>
-                </li>
-              </ul>
-            </section>
-          </div>
-          <div className="my-8 p-8 mx-auto w-full text-base flex-1 bg-white">
-            <div className="max-w-prose flex flex-col gap-12 mx-auto">
-              <WhatSection />
-              <GettingStarted />
-              <MusicSelectionSection />
-              <BrowserCompatibilitySection />
-              <RoadmapSection />
-              <FeedbackSection />
+    <>
+      <Head>
+        <title>Sightread: About</title>
+      </Head>
+      <div className="relative">
+        <AppBar />
+        <div className="md:bg-[#F7F4FE]">
+          <div className="flex max-w-screen-lg mx-auto">
+            <div className="hidden md:block sticky top-0 p-8 max-h-screen">
+              <section className="flex flex-col mx-auto">
+                <h2 className="text-3xl">About</h2>
+                <Sizer height={32} />
+                <ul className="text-xl flex flex-col gap-5 whitespace-nowrap">
+                  <li>
+                    <SidebarLink>What</SidebarLink>
+                  </li>
+                  <li>
+                    <SidebarLink>Getting started</SidebarLink>
+                  </li>
+                  <li>
+                    <SidebarLink>Music selection</SidebarLink>
+                  </li>
+                  <li>
+                    <SidebarLink>Browser compatibility</SidebarLink>
+                  </li>
+                  <li>
+                    <SidebarLink>Roadmap</SidebarLink>
+                  </li>
+                  <li>
+                    <SidebarLink>Feedback</SidebarLink>
+                  </li>
+                </ul>
+              </section>
+            </div>
+            <div className="my-8 p-8 mx-auto w-full text-base flex-1 bg-white">
+              <div className="max-w-prose flex flex-col gap-12 mx-auto">
+                <WhatSection />
+                <GettingStarted />
+                <MusicSelectionSection />
+                <BrowserCompatibilitySection />
+                <RoadmapSection />
+                <FeedbackSection />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

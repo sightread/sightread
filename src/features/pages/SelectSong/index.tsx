@@ -5,13 +5,14 @@ import { SongPreviewModal } from '@/features/SongPreview'
 import songManifest from '@/manifest.json'
 import { getUploadedLibrary } from '@/features/persist'
 import { AppBar, Modal, Sizer } from '@/components'
-import { LibrarySong, Filters } from './types'
+import { LibrarySong } from './types'
 import { DifficultyLabel } from '@/types'
 import { useEventListener } from '@/hooks'
 import { PlusIcon } from '@/icons'
 import { SearchBox } from './components/Table/SearchBox'
 import clsx from 'clsx'
 import { UploadForm, Table } from './components'
+import Head from 'next/head'
 
 const builtin = songManifest as unknown as LibrarySong[]
 
@@ -70,6 +71,9 @@ export default function SelectSongPage(props: SelectSongPageProps) {
 
   return (
     <>
+      <Head>
+        <title>Sightread: Select a song</title>
+      </Head>
       <SongPreviewModal
         show={!!selectedSongId}
         songMeta={selectedSongMeta}

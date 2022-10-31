@@ -14,7 +14,7 @@ import { useRouter } from 'next/router'
 type NavItem = { route: string; label: string }
 const navItems: NavItem[] = [
   { route: '/songs', label: 'Learn a song' },
-  { route: '/freeplay', label: 'Free Play' },
+  { route: '/freeplay', label: 'Free play' },
   { route: '/about', label: 'About' },
 ]
 

@@ -5,6 +5,7 @@ import { PauseIcon, PlayIcon } from '@/icons'
 import clsx from 'clsx'
 import { SongPreview } from '../../SongPreview/SongPreview'
 import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
+import Head from 'next/head'
 
 export const FEATURED_SONGS = {
   fur_elise: { source: 'builtin', id: 'b3decef157a073fbef49430250bb7015' },
@@ -38,6 +39,9 @@ export default function Home() {
 
   return (
     <>
+      <Head>
+        <title>Sightread</title>
+      </Head>
       <div className="relative flex flex-col w-full min-h-[800px,100vh] text-white">
         <AppBar />
         <div className="p-8 bg-purple-primary flex flex-col items-center text-center">

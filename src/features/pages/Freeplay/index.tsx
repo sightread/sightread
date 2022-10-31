@@ -6,6 +6,7 @@ import midiState from '@/features/midi'
 import { useSingleton } from '@/hooks'
 import FreePlayer from './utils/freePlayer'
 import TopBar from './components/TopBar'
+import Head from 'next/head'
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
@@ -43,24 +44,29 @@ export default function FreePlay() {
   }, [handleNoteDown, handleNoteUp])
 
   return (
-    <div className="w-screen h-screen flex flex-col">
-      <TopBar
-        isLoading={synthState.loading}
-        isError={synthState.error}
-        value={instrumentName}
-        onChange={(name) => setInstrumentName(name)}
-      />
-      <div className="flex-grow relative">
-        <SongVisualizer
-          song={freePlayer.song}
-          config={{ visualization: 'falling-notes', noteLetter: false } as SongConfig}
-          hand="both"
-          handSettings={{ 1: { hand: 'right' } }}
-          getTime={() => freePlayer.getTime()}
-          constrictView={false}
-          disableTouchscroll={true}
+    <>
+      <Head>
+        <title>Sightread: Free play</title>
+      </Head>
+      <div className="w-screen h-screen flex flex-col">
+        <TopBar
+          isLoading={synthState.loading}
+          isError={synthState.error}
+          value={instrumentName}
+          onChange={(name) => setInstrumentName(name)}
         />
+        <div className="flex-grow relative">
+          <SongVisualizer
+            song={freePlayer.song}
+            config={{ visualization: 'falling-notes', noteLetter: false } as SongConfig}
+            hand="both"
+            handSettings={{ 1: { hand: 'right' } }}
+            getTime={() => freePlayer.getTime()}
+            constrictView={false}
+            disableTouchscroll={true}
+          />
+        </div>
       </div>
-    </div>
+    </>
   )
 }

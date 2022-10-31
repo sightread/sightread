@@ -12,6 +12,7 @@ import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
 import { TopBar, SettingsSidebar } from './components'
 import clsx from 'clsx'
+import Head from 'next/head'
 
 export function PlaySong() {
   const router = useRouter()
@@ -139,64 +140,69 @@ export function PlaySong() {
   }
 
   return (
-    <div
-      className={clsx(
-        // Enable fixed to remove all scrolling.
-        'fixed',
-        'flex flex-col h-screen max-h-screen max-w-screen',
-      )}
-    >
-      {!isRecording && (
-        <>
-          <TopBar
-            isLoading={!playerState.canPlay}
-            isPlaying={playerState.playing}
-            isSoundOff={soundOff}
-            onTogglePlaying={playerActions.toggle}
-            onSelectRange={handleBeginRangeSelection}
-            onClickRestart={playerActions.restart}
-            onClickBack={() => {
-              playerActions.reset()
-              router.back()
-            }}
-            onClickSettings={(e) => {
-              e.stopPropagation()
-              setSidebar(!sidebar)
-            }}
-            onClickSound={handleToggleSound}
-            isSelectingRange={isSelectingRange}
-            sidebarOpen={sidebar}
-          />
-          <SongScrubBar rangeSelecting={isSelectingRange} setRange={handleSetRange} height={40} />
-          <div className={clsx('relative z-10 w-full h-0', !sidebar && 'hidden')}>
-            <div className="absolute right-0 min-w-fit overflow-auto max-h-[calc(100vh-90px)] bg-white">
-              <SettingsSidebar
-                open={sidebar}
-                onClose={() => setSidebar(false)}
-                onChange={setSongConfig}
-                config={songConfig}
-                song={song}
-              />
-            </div>
-          </div>
-        </>
-      )}
+    <>
+      <Head>
+        <title>Sightread: Playing</title>
+      </Head>
       <div
-        className="w-screen flex flex-col flex-grow relative"
-        style={{
-          backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
-          contain: 'strict',
-        }}
+        className={clsx(
+          // Enable fixed to remove all scrolling.
+          'fixed',
+          'flex flex-col h-screen max-h-screen max-w-screen',
+        )}
       >
-        <SongVisualizer
-          song={song}
-          config={songConfig}
-          hand={hand}
-          handSettings={getHandSettings(songConfig)}
-          selectedRange={range}
-          getTime={() => Player.player().getTime()}
-        />
+        {!isRecording && (
+          <>
+            <TopBar
+              isLoading={!playerState.canPlay}
+              isPlaying={playerState.playing}
+              isSoundOff={soundOff}
+              onTogglePlaying={playerActions.toggle}
+              onSelectRange={handleBeginRangeSelection}
+              onClickRestart={playerActions.restart}
+              onClickBack={() => {
+                playerActions.reset()
+                router.back()
+              }}
+              onClickSettings={(e) => {
+                e.stopPropagation()
+                setSidebar(!sidebar)
+              }}
+              onClickSound={handleToggleSound}
+              isSelectingRange={isSelectingRange}
+              sidebarOpen={sidebar}
+            />
+            <SongScrubBar rangeSelecting={isSelectingRange} setRange={handleSetRange} height={40} />
+            <div className={clsx('relative z-10 w-full h-0', !sidebar && 'hidden')}>
+              <div className="absolute right-0 min-w-fit overflow-auto max-h-[calc(100vh-90px)] bg-white">
+                <SettingsSidebar
+                  open={sidebar}
+                  onClose={() => setSidebar(false)}
+                  onChange={setSongConfig}
+                  config={songConfig}
+                  song={song}
+                />
+              </div>
+            </div>
+          </>
+        )}
+        <div
+          className="w-screen flex flex-col flex-grow relative"
+          style={{
+            backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
+            contain: 'strict',
+          }}
+        >
+          <SongVisualizer
+            song={song}
+            config={songConfig}
+            hand={hand}
+            handSettings={getHandSettings(songConfig)}
+            selectedRange={range}
+            getTime={() => Player.player().getTime()}
+          />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
