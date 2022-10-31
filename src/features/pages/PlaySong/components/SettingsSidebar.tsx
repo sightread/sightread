@@ -20,13 +20,9 @@ export default function SettingsSidebar(props: SidebarProps) {
 
   const sidebarRef = useRef<HTMLDivElement>(null)
 
-  const clickedOutsideHandler = useCallback(
-    (e) => {
-      console.log(e)
-      open && onClose?.()
-    },
-    [open, onClose],
-  )
+  const clickedOutsideHandler = useCallback(() => {
+    open && onClose?.()
+  }, [open, onClose])
   useWhenClickedOutside(clickedOutsideHandler, sidebarRef)
 
   const handleHand = (selected: 'left' | 'right') => {

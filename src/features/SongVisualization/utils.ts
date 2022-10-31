@@ -172,6 +172,12 @@ export function getFontSize(
     width: metrics.width,
     height: metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent,
   }
+
+  // If height detection is unsupported, fallback to width of M character which is
+  // an approxmiation according to StackOverflow: https://stackoverflow.com/a/13318387
+  if (!size.height) {
+    size.height = ctx.measureText('M').width
+  }
   fontSizeCache[fontPx][text] = size
   return size
 }

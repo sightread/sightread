@@ -2,8 +2,12 @@ import { isBrowser } from '@/utils'
 
 let wakeLock: null | { release: () => void } = null
 
+function supportsWakeLock() {
+  return isBrowser() && (navigator as any).wakeLock
+}
+
 export async function lock() {
-  if (!isBrowser()) {
+  if (!supportsWakeLock()) {
     return
   }
 
@@ -27,6 +31,6 @@ function handleVisibilityChange() {
   }
 }
 
-if (isBrowser()) {
+if (supportsWakeLock()) {
   document.addEventListener('visibilitychange', handleVisibilityChange)
 }

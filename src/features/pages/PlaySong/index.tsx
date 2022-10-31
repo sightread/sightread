@@ -70,7 +70,7 @@ export function PlaySong() {
       const config = getSongSettings(id, song)
       setSong(song)
       setSongConfig(config)
-      player.setSong(song, config).then(() => playerActions.ready())
+      player.setSong(song, config).then(playerActions.ready)
     })
   }, [source, id, player, setSongConfig, playerActions])
 

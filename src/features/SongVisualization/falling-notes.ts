@@ -252,6 +252,7 @@ export function renderFallingNote(note: SongNote, state: State): void {
     const textWidth = getFontSize(ctx, noteText, fontPx).width
     ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 2)
   }
+
   ctx.restore()
 }
 
