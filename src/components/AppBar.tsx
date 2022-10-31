@@ -35,7 +35,10 @@ export default function AppBar({ style }: AppBarProps) {
       }}
     >
       <div className="flex items-center pl-6 justify-center mx-auto w-full md:max-w-screen-lg">
-        <div className="absolute top-1/2 -translate-y-1/2 md:hidden left-5 right-5 z-10">
+        <div
+          className="absolute top-1/2 -translate-y-1/2 md:hidden left-5 right-5 z-10"
+          style={{ transform: 'translateY(-50%)' }}
+        >
           <SmallWindowNav />
         </div>
         <NavLink href={'/'} className="flex items-baseline text-white hover:text-purple-hover">

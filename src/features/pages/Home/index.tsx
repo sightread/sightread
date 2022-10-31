@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react'
 import { PauseIcon, PlayIcon } from '@/icons'
 import clsx from 'clsx'
 import { SongPreview } from '../../SongPreview/SongPreview'
-import { useEventListener, usePlayerState } from '@/hooks'
+import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
 
 export const FEATURED_SONGS = {
   fur_elise: { source: 'builtin', id: 'b3decef157a073fbef49430250bb7015' },
@@ -24,6 +24,8 @@ export default function Home() {
       return playerActions.toggle()
     }
   })
+
+  useOnUnmount(playerActions.pause)
 
   const handleSongReady = useCallback(
     (id) => {
@@ -82,7 +84,10 @@ export default function Home() {
                 </>
               )}
             </button>
-            <div className="absolute right-5 top-1/2 -translate-y-1/2 text-white">
+            <div
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-white"
+              style={{ transform: 'translateY(-50%)' }}
+            >
               <select
                 style={{
                   padding: 6,

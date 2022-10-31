@@ -11,7 +11,12 @@ export function SearchBox({ onSearch, placeholder }: SearchBoxProps) {
         className="absolute h-full w-full pl-10 rounded-md"
         placeholder={placeholder}
       />
-      <SearchIcon height={25} width={25} className="absolute left-2 top-1/2 -translate-y-1/2" />
+      <SearchIcon
+        height={25}
+        width={25}
+        className="absolute left-2 top-1/2 -translate-y-1/2"
+        style={{ transform: 'translateY(-50%)' }}
+      />
     </div>
   )
 }

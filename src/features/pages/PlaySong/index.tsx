@@ -182,7 +182,7 @@ export function PlaySong() {
         </>
       )}
       <div
-        className="w-screen flex flex-col flex-grow"
+        className="w-screen flex flex-col flex-grow relative"
         style={{
           backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
           contain: 'strict',
