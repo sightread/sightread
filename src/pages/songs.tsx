@@ -16,14 +16,13 @@ export type MidishareManifestSong = {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  // const midishareManifest: { [id: string]: MusicFile } = await getMidishareManifest()
-  // for (const song of Object.values(midishareManifest)) {
-  //   song.source = 'midishare'
-  // }
+  const midishareManifest: { [id: string]: MusicFile } = await getMidishareManifest()
+  for (const song of Object.values(midishareManifest)) {
+    song.source = 'midishare'
+  }
 
   return {
-    // props: { midishareManifest },
-    props: {},
+    props: { midishareManifest },
     revalidate: 60 * 60, // once an hour.
   }
 }

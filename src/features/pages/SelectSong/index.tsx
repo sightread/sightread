@@ -38,7 +38,8 @@ type SelectSongPageProps = {
   midishareManifest: LibrarySong[]
 }
 export default function SelectSongPage(props: SelectSongPageProps) {
-  const [songs, setSongs] = useState<LibrarySong[]>(builtin)
+  const midishareSongs = Object.values(props.midishareManifest)
+  const [songs, setSongs] = useState<LibrarySong[]>(builtin.concat(midishareSongs))
   const [addNew, setAddNew] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
@@ -53,7 +54,7 @@ export default function SelectSongPage(props: SelectSongPageProps) {
   // TODO: this is a bug if the uploaded library changes, and s will only expand.
   const uploadedLibrary = getUploadedLibrary()
   useEffect(() => {
-    setSongs(builtin.concat(uploadedLibrary))
+    setSongs(builtin.concat(uploadedLibrary).concat(midishareSongs))
   }, [uploadedLibrary, props.midishareManifest])
 
   const handleUpload = () => setAddNew(false)
@@ -106,7 +107,7 @@ export default function SelectSongPage(props: SelectSongPageProps) {
             columns={[
               { label: 'Title', id: 'title', keep: true },
               { label: 'Artist', id: 'artist', keep: true },
-              { label: 'Difficulty', id: 'difficulty', format: getDifficultyLabel as any },
+              // { label: 'Difficulty', id: 'difficulty', format: getDifficultyLabel as any },
               {
                 label: 'Length',
                 id: 'duration',
