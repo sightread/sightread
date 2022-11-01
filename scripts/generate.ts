@@ -14,6 +14,7 @@ import { musicFiles } from './songdata'
 import crypto, { BinaryLike } from 'crypto'
 import fs from 'fs'
 import { join as pathJoin } from 'path'
+import prettier from 'prettier'
 
 function hash(bytes: BinaryLike): string {
   return crypto.createHash('md5').update(bytes).digest('hex')
@@ -51,4 +52,5 @@ const manifestJson = parsedMusic.map((parsed: MusicFile) => {
   return v
 })
 const manifestSrcPath = pathJoin(__dirname, '..', 'src', 'manifest.json')
-fs.writeFileSync(manifestSrcPath, JSON.stringify(manifestJson))
+const json = prettier.format(JSON.stringify(manifestJson), { filepath: 'manifest.json' })
+fs.writeFileSync(manifestSrcPath, json)
