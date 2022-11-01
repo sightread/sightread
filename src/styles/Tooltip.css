@@ -6,7 +6,7 @@
   content: attr(data-tooltip);
   display: none;
   position: absolute;
-  background: var(--purplelighthover);
+  background: #8147eb;
   color: #fff;
   padding: 4px 8px;
   font-size: 14px;
@@ -75,22 +75,22 @@
 [data-tooltip-position='top']:after {
   bottom: 100%;
   border-width: 6px 6px 0;
-  border-top-color: var(--purplelighthover);
+  border-top-color: #8147eb;
 }
 [data-tooltip-position='right']:after {
   left: 100%;
   border-width: 6px 6px 6px 0;
-  border-right-color: var(--purplelighthover);
+  border-right-color: #8147eb;
 }
 [data-tooltip-position='bottom']:after {
   top: 100%;
   border-width: 0 6px 6px;
-  border-bottom-color: var(--purplelighthover);
+  border-bottom-color: #8147eb;
 }
 [data-tooltip-position='left']:after {
   right: 100%;
   border-width: 6px 0 6px 6px;
-  border-left-color: var(--purplelighthover);
+  border-left-color: #8147eb;
 }
 /* Show the tooltip when hovering */
 [data-tooltip]:hover:before,
