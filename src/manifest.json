@@ -1,6 +1,6 @@
 [
   {
-    "file": "music/songs/Prelude I in C Major.1.mid",
+    "file": "music/songs/Prelude I in C Major.mid",
     "title": "Prelude I in C Major",
     "artist": "Bach",
     "source": "builtin",
@@ -8,7 +8,7 @@
     "duration": 119.14015151515304
   },
   {
-    "file": "music/songs/Ode to Joy.2.mid",
+    "file": "music/songs/Ode to Joy.mid",
     "title": "Ode to Joy",
     "artist": "Friedrich Schiller",
     "source": "builtin",
@@ -16,11 +16,65 @@
     "duration": 33.850000000000016
   },
   {
-    "file": "music/songs/Canon in D.3.mid",
+    "file": "music/songs/Canon in D.mid",
     "title": "Canon in D",
     "artist": "Pachelbel",
     "source": "builtin",
     "id": "7641a769d0e9ec9c95b2b967f2ad2cf3",
     "duration": 127.08000000000034
+  },
+  {
+    "file": "music/songs/Twinkle Twinkle Little Star.mid",
+    "title": "Twinkle Twinkle Little Star",
+    "artist": "Jane Taylor",
+    "source": "builtin",
+    "id": "b3fa743cca3ba0c6e0a9aa4f2a51092b",
+    "duration": 23.95
+  },
+  {
+    "file": "music/songs/Soon May The Wellerman Come.mid",
+    "title": "Soon May The Wellerman Come",
+    "source": "builtin",
+    "id": "eb574301c4eb30ad4d6a4dd57d091509",
+    "duration": 119.9711538461538
+  },
+  {
+    "file": "music/songs/The Star Spangled Banner.mid",
+    "title": "The Star Spangled Banner",
+    "artist": "John Smith",
+    "source": "builtin",
+    "id": "bb4edb91d3a12b8c745e59b8435f74c2",
+    "duration": 64.45735294117637
+  },
+  {
+    "file": "music/songs/Mexican Hat Dance.mid",
+    "title": "Mexican Hat Dance",
+    "artist": "Jesus Rubio",
+    "source": "builtin",
+    "id": "b50ee876b785c66a70dba3159d21e81e",
+    "duration": 41.33263888888888
+  },
+  {
+    "file": "music/songs/Comin Round The Mountain.mid",
+    "title": "Comin Round The Mountain",
+    "artist": "Sandberg and Wallace",
+    "source": "builtin",
+    "id": "4aaf49c8b4c28a7cea7433d54de2fcc9",
+    "duration": 34.88181818181824
+  },
+  {
+    "file": "music/songs/Blue Danube.mid",
+    "title": "Blue Danube",
+    "artist": "Johan Strauss",
+    "source": "builtin",
+    "id": "9b78807499154198f17eb7c8bff91879",
+    "duration": 379.92857142857196
+  },
+  {
+    "file": "music/songs/La Cucaracha.mid",
+    "title": "La Cucaracha",
+    "source": "builtin",
+    "id": "ba3bed184b79d04a48a19913ff29d6da",
+    "duration": 47
   }
 ]
