@@ -111,16 +111,22 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
     }
   }
 
+  notes = sort(notes)
+  measures = sort(measures)
   return {
     duration: currTime,
-    measures: [],
-    notes: [],
+    measures,
+    notes,
     tracks,
     bpms,
     timeSignature,
     keySignature,
-    items: [...measures, ...notes].sort((i1, i2) => i1.time - i2.time),
+    items: sort([...measures, ...notes]),
   }
+}
+
+function sort<T extends { time: number }>(arr: T[]): T[] {
+  return arr.sort((i1, i2) => i1.time - i2.time)
 }
 
 function inferProgram(instrumentName: string): number {

@@ -1,4 +1,4 @@
-import { useState, useRef, Children, CSSProperties, PropsWithChildren } from 'react'
+import { useState, useRef, CSSProperties, PropsWithChildren } from 'react'
 import { Sizer } from '@/components'
 import { GithubIcon, Logo, MenuIcon } from '@/icons'
 import Link from 'next/link'

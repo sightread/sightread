@@ -8,7 +8,7 @@ export function SearchBox({ onSearch, placeholder }: SearchBoxProps) {
       <TextInput
         type="search"
         onChange={(e: any) => onSearch(e.target.value)}
-        className="absolute h-full w-full pl-10 rounded-md"
+        className="absolute h-full w-full pl-10 rounded-md bg-gray-100 placeholder:text-base placeholder-gray-700"
         placeholder={placeholder}
       />
       <SearchIcon

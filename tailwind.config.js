@@ -18,11 +18,14 @@ module.exports = {
       },
       colors: {
         purple: {
+          lightest: '#F7F4FE',
           light: '#EEE5FF',
           hover: '#b99af4',
           primary: '#8147EB',
           dark: '#611AE5',
           darker: '#5326a6',
+          darkest: '#280A6C',
+          // B29BDF maybe
         },
         orange: {
           light: '#DC7E52',

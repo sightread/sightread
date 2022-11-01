@@ -1,19 +1,22 @@
-import type { Song, SongConfig } from '@/types'
+import type { Song, SongConfig, SongMetadata } from '@/types'
 import { fileToUint8 } from '@/utils'
-import type { LibrarySong } from '../pages/SelectSong/types'
 import { parseMidi } from '../parsers'
 import { LOCAL_STORAGE_SONG_LIST_KEY, LOCAL_STORAGE_SONG_SUFFIX } from './constants'
 import Storage from './storage'
+
+export function hasUploadedSong(id: string): Song | null {
+  return Storage.get<Song>(id)
+}
 
 export function getUploadedSong(id: string): Song | null {
   return Storage.get<Song>(id)
 }
 
-export function getUploadedLibrary(): LibrarySong[] {
+export function getUploadedLibrary(): SongMetadata[] {
   if (!Storage.has(LOCAL_STORAGE_SONG_LIST_KEY)) {
-    Storage.set<LibrarySong[]>(LOCAL_STORAGE_SONG_LIST_KEY, [])
+    Storage.set<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY, [])
   }
-  return Storage.get<LibrarySong[]>(LOCAL_STORAGE_SONG_LIST_KEY) ?? []
+  return Storage.get<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY) ?? []
 }
 
 /**
@@ -23,11 +26,11 @@ export function getUploadedLibrary(): LibrarySong[] {
  *
  * This function creates entries in both.
  */
-export async function saveSong(file: File, title: string, artist: string): Promise<LibrarySong> {
+export async function saveSong(file: File, title: string, artist: string): Promise<SongMetadata> {
   const buffer = await fileToUint8(file)
   const song = parseMidi(buffer.buffer)
   const id = await sha1(buffer)
-  const uploadedSong: LibrarySong = {
+  const uploadedSong: SongMetadata = {
     id,
     title,
     artist,

@@ -1,8 +1,8 @@
-import { MusicFile } from '@/types'
+import { SongMetadata } from '@/types'
 
 const builtinManifest = require('./builtin-manifest.json')
 
-const songs: MusicFile[] = builtinManifest.map((s: any) => {
+const songs: SongMetadata[] = builtinManifest.map((s: any) => {
   return {
     file: `music/songs/${s.title}.mid`,
     title: s.title,
@@ -12,6 +12,6 @@ const songs: MusicFile[] = builtinManifest.map((s: any) => {
   }
 })
 
-const musicFiles: MusicFile[] = songs
+const musicFiles: SongMetadata[] = songs
 
 export { musicFiles }

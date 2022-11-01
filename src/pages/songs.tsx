@@ -1,6 +1,6 @@
 import type { GetStaticProps } from 'next'
 import { SelectSong } from '@/features/pages'
-import { MusicFile } from '@/types'
+import { SongMetadata } from '@/types'
 
 export type MidishareManifestSong = {
   title: string
@@ -16,13 +16,13 @@ export type MidishareManifestSong = {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const midishareManifest: { [id: string]: MusicFile } = await getMidishareManifest()
-  for (const song of Object.values(midishareManifest)) {
+  const midishareMetadata: SongMetadata[] = Object.values(await getMidishareManifest())
+  for (const song of midishareMetadata) {
     song.source = 'midishare'
   }
 
   return {
-    props: { midishareManifest },
+    props: { songMetadata: midishareMetadata },
     revalidate: 60 * 60, // once an hour.
   }
 }

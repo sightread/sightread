@@ -59,19 +59,6 @@ export class Deferred<T> {
   }
 }
 
-// Allows you to use multiple ref handlers.
-export function refs<T>(arr: Ref<T>[]) {
-  return (ref: T) => {
-    for (let cb of arr) {
-      if (typeof cb === 'function') {
-        cb(ref)
-      } else {
-        ;(cb as any).current = ref
-      }
-    }
-  }
-}
-
 export function formatInstrumentName(instrument: InstrumentName): string {
   if (!instrument) {
     return ''

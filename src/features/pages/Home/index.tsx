@@ -6,8 +6,9 @@ import clsx from 'clsx'
 import { SongPreview } from '../../SongPreview/SongPreview'
 import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
 import Head from 'next/head'
+import { SongSource } from '@/types'
 
-export const FEATURED_SONGS = {
+export const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
   prelude: { source: 'builtin', id: 'fa7a5d0bf5012a4cb4a19f1de2e58b10' },
   ode: { source: 'builtin', id: '8d4441d47b332772da481c529bd38e24' },
   canon: { source: 'builtin', id: '7641a769d0e9ec9c95b2b967f2ad2cf3' },
@@ -27,15 +28,6 @@ export default function Home() {
   })
 
   useOnUnmount(playerActions.pause)
-
-  const handleSongReady = useCallback(
-    (id) => {
-      if (id === songId) {
-        playerActions.ready()
-      }
-    },
-    [songId],
-  )
 
   return (
     <>
@@ -66,7 +58,7 @@ export default function Home() {
             backgroundColor: '#2e2e2e',
           }}
         >
-          <SongPreview songId={songId} source={source} onReady={handleSongReady} />
+          <SongPreview songId={songId} source={source} />
           <div className="absolute top-0 w-full h-[50px] bg-black/80 flex items-center justify-center">
             <button
               className={clsx(

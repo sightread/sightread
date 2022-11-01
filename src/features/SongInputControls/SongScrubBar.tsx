@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { clamp, formatTime } from '@/utils'
-import { useRAFLoop, useSize } from '@/hooks'
+import { useEventListener, useRAFLoop, useSize } from '@/hooks'
 import { Song } from '@/types'
 import Player from '@/features/player'
-import { palette } from '@/styles/common'
 import clsx from 'clsx'
+import { Tooltip } from '@/components'
 
 // TODO: animate filling up the green of current measure
 // TODO support seeking to start of current measure
@@ -13,32 +13,37 @@ export default function SongScrubBar({
   rangeSelecting = false,
   setRange = () => {},
   onSeek = () => {},
+  onClick = () => {},
+  rangeSelection,
 }: {
+  rangeSelection?: undefined | { start: number; end: number }
   rangeSelecting?: boolean
   setRange?: any
   onSeek?: any
   height: number
+  onClick?: any
 }) {
-  const [mousePressed, setMousePressed] = useState(false) // TODO: mouse state shouldn't need to be ui state.
-  const [mouseOver, setMouseOver] = useState(false)
+  const [pointerOver, setPointerOver] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
-  const wrapperRef = useRef<HTMLDivElement>(null)
+  const progressBarLeftOffsetMeasure = useRef<HTMLDivElement>(null)
   const { width, measureRef } = useSize()
   const currentTimeRef = useRef<HTMLSpanElement>(null)
   const timeSpanRef = useRef<HTMLSpanElement>(null)
   const measureSpanRef = useRef<HTMLSpanElement>(null)
   const toolTipRef = useRef<HTMLDivElement>(null)
   const rangeRef = useRef<HTMLDivElement>(null)
-  const rangeSelection = useRef<null | { start: number; end: number }>(null)
-  const startX = useRef<number>(0)
+  const progressBarLeftOffset = useRef<number>(0)
   const player = Player.player()
   const isDraggingL = useRef(false)
   const isDraggingR = useRef(false)
   const song: Song | null = player.song
+  const progressBarRef: React.Ref<HTMLDivElement> = useRef<any>()
+  const wrapperRef: React.Ref<HTMLDivElement> = useRef<any>()
+  const isScrubbing = useRef<boolean>(false)
 
   const getProgress = useCallback(
-    (x: number) => {
-      return Math.min(Math.max((x - startX.current) / width, 0), 1)
+    (e: MouseEvent) => {
+      return clamp((e.clientX - progressBarLeftOffset.current) / width, { min: 0, max: 1 })
     },
     [width],
   )
@@ -47,34 +52,34 @@ export default function SongScrubBar({
     if (!divRef.current) {
       return
     }
-    const progress = Math.min(player.getTime() / player.getDuration(), 1)
+    const progress = player.getTime() / player.getDuration()
     divRef.current.style.transform = `translateX(${progress * width}px)`
     if (currentTimeRef.current) {
       const time = player.getRealTimeDuration(0, player.getTime())
       currentTimeRef.current.innerText = String(formatTime(time))
     }
-    if (rangeRef.current && rangeSelection.current) {
-      const start = Math.min(rangeSelection.current.start, rangeSelection.current.end)
-      const end = Math.max(rangeSelection.current.start, rangeSelection.current.end)
-      rangeRef.current.style.left = (start / player.getDuration()) * width + 'px'
+    if (rangeRef.current && rangeSelection) {
+      let start = rangeSelection.start
+      let end = rangeSelection.end
+      if (end < start) {
+        ;[start, end] = [end, start]
+        isDraggingL.current = !isDraggingL.current
+        isDraggingR.current = !isDraggingR.current
+      }
+      rangeRef.current.style.left =
+        progressBarLeftOffset.current + (start / player.getDuration()) * width + 'px'
       rangeRef.current.style.width = ((end - start) / player.getDuration()) * width + 'px'
     }
   })
   useEffect(() => {
-    if (wrapperRef.current) {
-      startX.current = wrapperRef.current.getBoundingClientRect().x
+    if (progressBarLeftOffsetMeasure.current) {
+      progressBarLeftOffset.current = progressBarLeftOffsetMeasure.current.getBoundingClientRect().x
     }
   }, [width])
 
-  useEffect(() => {
-    if (rangeSelecting) {
-      rangeSelection.current = null
-    }
-  }, [rangeSelecting, player])
-
   const seekPlayer = useCallback(
-    (clientX: number) => {
-      const progress = getProgress(clientX)
+    (e: MouseEvent) => {
+      const progress = getProgress(e)
       const songTime = progress * player.getDuration()
       onSeek()
       player.seek(songTime)
@@ -82,121 +87,78 @@ export default function SongScrubBar({
     [player, getProgress, onSeek],
   )
 
-  useEffect(() => {
-    if (mousePressed) {
-      const handleUp = () => {
-        setMousePressed(false)
-        isDraggingL.current = false
-        isDraggingR.current = false
-        if (rangeSelecting) {
-          const { start, end } = rangeSelection.current!
-          const range = { start, end: end ?? 0 }
-          setRange(range)
-        }
-      }
-      const handler = (e: MouseEvent) => {
-        const progress = getProgress(e.clientX)
-        const songTime = progress * player.getDuration()
-        if (rangeSelecting) {
-          rangeSelection.current = { start: rangeSelection.current?.start ?? 0, end: songTime }
-        } else if ((isDraggingL.current || isDraggingR.current) && rangeSelection.current) {
-          if (isDraggingL.current) {
-            rangeSelection.current.start = songTime
-          } else {
-            rangeSelection.current.end = songTime
-          }
-          seekPlayer(e.clientX - 4)
-          setRange(rangeSelection.current)
-        } else {
-          seekPlayer(e.clientX)
-        }
-      }
-
-      window.addEventListener('mousemove', handler)
-      window.addEventListener('mouseup', handleUp)
-      return () => {
-        window.removeEventListener('mousemove', handler)
-        window.removeEventListener('mouseup', handleUp)
-      }
+  useEventListener<PointerEvent>('pointerdown', (e) => {
+    const target = e.target as HTMLElement
+    if (progressBarRef.current?.contains(target) && !isDraggingL.current && !isDraggingR.current) {
+      isScrubbing.current = true
+      seekPlayer(e)
     }
-  }, [mousePressed, rangeSelecting, player, getProgress, setRange, seekPlayer])
+  })
+
+  useEventListener<PointerEvent>(
+    'click',
+    (e) => {
+      const target = e.target as HTMLElement
+      const completedAction = isDraggingL.current || isDraggingR.current || isScrubbing.current
+      const minorMissclick = wrapperRef.current?.contains(target)
+      if (completedAction || minorMissclick) {
+        e.stopPropagation()
+      }
+      isDraggingL.current = false
+      isDraggingR.current = false
+      isScrubbing.current = false
+    },
+    undefined,
+    { capture: true },
+  )
+
+  useEventListener<PointerEvent>('pointermove', (e) => {
+    const progress = getProgress(e)
+    const songTime = progress * player.getDuration()
+    if ((isDraggingL.current || isDraggingR.current) && rangeSelection) {
+      if (isDraggingL.current) {
+        rangeSelection.start = songTime // Math.min(songTime, rangeSelection.end)
+      } else {
+        rangeSelection.end = songTime // Math.max(songTime, rangeSelection.start)
+      }
+      setRange(rangeSelection)
+    } else if (isScrubbing.current) {
+      seekPlayer(e)
+    }
+  })
 
   return (
     <div
-      ref={wrapperRef}
-      className="relative flex w-full select-none border-b border-b-black"
+      className="relative flex w-full select-none border-b border-b-black bg-gray-300"
+      onClick={onClick}
       style={{ height }}
-      onMouseDown={(e) => {
-        setMousePressed(true)
-        if (isDraggingL.current || isDraggingR.current) {
-          seekPlayer(e.clientX - 4)
-          return
-        } else if (!rangeSelecting) {
-          seekPlayer(e.clientX)
+      ref={wrapperRef}
+      onPointerMove={(e: React.MouseEvent) => {
+        if (
+          !player.song ||
+          !measureSpanRef.current ||
+          !timeSpanRef.current ||
+          !toolTipRef.current
+        ) {
           return
         }
 
-        const progress = getProgress(e.clientX)
+        const progress = getProgress(e as any)
         const songTime = progress * player.getDuration()
-        rangeSelection.current = { start: songTime, end: songTime }
-      }}
-      onMouseOver={() => setMouseOver(true)}
-      onMouseOut={() => setMouseOver(false)}
-      onMouseMove={(e: React.MouseEvent) => {
-        if (!player.song) {
-          return
-        }
-
-        if (measureSpanRef.current && timeSpanRef.current && toolTipRef.current) {
-          const progress = getProgress(e.clientX)
-          const songTime = progress * player.getDuration()
-          const measure = player.getMeasureForTime(songTime)
-          // TODO: The 225 in the line below should be dynamic based on the size of ToolTipRef
-          toolTipRef.current.style.left = `${clamp(e.clientX - startX.current - 24, {
-            min: 0,
-            max: width - 235,
-          })}px`
-          measureSpanRef.current.innerText = String(measure?.number)
-          timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime))
-        }
+        const measure = player.getMeasureForTime(songTime)
+        // TODO: The 225 in the line below should be dynamic based on the size of ToolTipRef
+        toolTipRef.current.style.left = `${clamp(e.clientX - progressBarLeftOffset.current - 24, {
+          min: 0,
+          max: width - 90,
+        })}px`
+        measureSpanRef.current.innerText = String(measure?.number)
+        timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime))
       }}
     >
-      <div ref={measureRef} className="w-full h-full absolute" />
-      <div className="relative w-full h-full overflow-hidden">
-        <div className={`absolute h-full bg-gray-400`} style={{ width }} />
-        <div
-          className={`absolute h-full pointer-events-none bg-white`}
-          ref={divRef}
-          style={{ left: -width, width }}
-        />
-      </div>
-      <span
-        ref={currentTimeRef}
-        style={{
-          position: 'absolute',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          left: 4,
-          color: '#242632',
-          fontSize: 16,
-        }}
-      />
-      <span
-        style={{
-          position: 'absolute',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          right: 4,
-          color: '#242632',
-          fontSize: 16,
-        }}
-      >
-        {song && formatTime(player.getRealTimeDuration(0, song.duration))}
-      </span>
       <div
         className={clsx(
-          mouseOver ? 'flex' : 'hidden',
-          'absolute z-10 min-w-max gap-8 items-center justify-between',
+          pointerOver ? 'flex' : 'hidden',
+          'absolute min-w-max gap-8 items-center justify-between z-30',
           'px-4 py-2 -top-1 rounded-lg bg-black/90',
           '-translate-y-full',
         )}
@@ -209,47 +171,43 @@ export default function SongScrubBar({
           Measure: <span className="text-sm text-purple-hover" ref={measureSpanRef} />
         </span>
       </div>
-      {rangeSelection.current && (
+      <span ref={currentTimeRef} className="self-center text-black py-2 px-4 min-w-[80px]" />
+      <div
+        ref={progressBarRef}
+        className="relative h-4 overflow-hidden self-center flex-grow rounded-full"
+        onPointerOver={() => setPointerOver(true)}
+        onPointerOut={() => setPointerOver(false)}
+      >
+        <div ref={progressBarLeftOffsetMeasure} className="absolute" />
+        <div ref={measureRef} className={`absolute h-full w-full bg-gray-400`} />
         <div
-          ref={rangeRef}
-          style={{
-            position: 'absolute',
-            height: '100%',
-          }}
-        >
+          ref={divRef}
+          className={`absolute h-full w-full pointer-events-none bg-purple-primary`}
+          style={{ left: -width }}
+        />
+      </div>
+      <span className="self-center text-black py-2 px-4 min-w-[80px]">
+        {song ? formatTime(player.getRealTimeDuration(0, song.duration)) : '00:00'}
+      </span>
+      {rangeSelection && (
+        <div ref={rangeRef} className="absolute h-full flex items-center pointer-events-none">
+          <div className="absolute w-[calc(100%-10px)] h-4 bg-purple-dark/40" />
           <div
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: 'calc(100% - 10px)',
-              borderTop: `5px solid ${palette.green.light}`,
-              borderBottom: `5px solid ${palette.green.light}`,
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              width: 4,
-              cursor: 'ew-resize',
-              height: '100%',
-              backgroundColor: palette.green.light,
-            }}
+            className="pointer-events-auto absolute left-0 cursor-pointer h-6 w-6 bg-purple-dark/90 hover:bg-purple-hover/90 rounded-full -translate-x-1/2 transition"
+            onMouseEnter={() => setPointerOver(true)}
+            onMouseLeave={() => setPointerOver(false)}
             onMouseDown={() => (isDraggingL.current = true)}
           />
           <div
-            style={{
-              position: 'absolute',
-              height: '100%',
-              cursor: 'ew-resize',
-              right: -4,
-              width: 4,
-              backgroundColor: palette.green.light,
-            }}
+            className="pointer-events-auto absolute right-0 translate-x-1/2 cursor-pointer h-6 w-6 bg-purple-dark/90 hover:bg-purple-hover/90 rounded-full transition"
             onMouseDown={() => (isDraggingR.current = true)}
+            onMouseEnter={() => setPointerOver(true)}
+            onMouseLeave={() => setPointerOver(false)}
           />
         </div>
       )}
     </div>
   )
 }
+
+function ProgressBar() {}

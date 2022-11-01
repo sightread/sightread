@@ -1,5 +1,4 @@
 import '@/styles/global.css'
-import '@/styles/Tooltip.css'
 
 import type { AppProps } from 'next/app'
 import * as React from 'react'
@@ -8,6 +7,8 @@ import Head from 'next/head'
 import { Inter } from '@next/font/google'
 
 import * as analytics from '@/features/analytics'
+import { TooltipProvider } from '@radix-ui/react-tooltip'
+import { addMetadata } from '@/features/data/library'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,12 +25,18 @@ function App({ Component, pageProps }: AppProps) {
     }
   }, [router.events])
 
+  if (pageProps.songMetadata) {
+    addMetadata(pageProps.songMetadata)
+  }
+
   return (
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Component {...pageProps} />
+      <TooltipProvider>
+        <Component {...pageProps} />
+      </TooltipProvider>
     </>
   )
 }
