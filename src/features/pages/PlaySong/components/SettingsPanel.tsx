@@ -1,10 +1,11 @@
 import React, { PropsWithChildren, useCallback, useRef, useState } from 'react'
 import { Toggle } from '@/components'
 import { Song, SongConfig, VisualizationMode } from '@/types'
-import { AdjustInstruments, BpmDisplay } from '@/features/SongInputControls'
+import { AdjustInstruments } from '@/features/SongInputControls'
 import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import clsx from 'clsx'
+import BpmDisplay from './BpmDisplay'
 
 type SidebarProps = {
   open: boolean
@@ -80,14 +81,19 @@ export default function SettingsPanel(props: SidebarProps) {
             className="flex gap-1 items-center justify-center"
             onClick={() => handleVisualization('falling-notes')}
           >
-            <input type="radio" className="w-5" checked={visualization === 'falling-notes'} />
+            <input
+              type="radio"
+              className="w-5"
+              checked={visualization === 'falling-notes'}
+              readOnly
+            />
             <span className="block w-[120px] text-left">Falling notes</span>
           </button>
           <button
             className="flex gap-1 items-center justify-center"
             onClick={() => handleVisualization('sheet')}
           >
-            <input className="w-5" type="radio" checked={visualization === 'sheet'} />
+            <input className="w-5" type="radio" checked={visualization === 'sheet'} readOnly />
             <span className="block w-[120px] text-left"> Sheet hero (Beta)</span>
           </button>
         </Section>

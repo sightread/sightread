@@ -4,20 +4,15 @@ import { useEventListener, useRAFLoop, useSize } from '@/hooks'
 import { Song } from '@/types'
 import Player from '@/features/player'
 import clsx from 'clsx'
-import { Tooltip } from '@/components'
 
-// TODO: animate filling up the green of current measure
-// TODO support seeking to start of current measure
 export default function SongScrubBar({
   height,
-  rangeSelecting = false,
   setRange = () => {},
   onSeek = () => {},
   onClick = () => {},
   rangeSelection,
 }: {
   rangeSelection?: undefined | { start: number; end: number }
-  rangeSelecting?: boolean
   setRange?: any
   onSeek?: any
   height: number
@@ -117,9 +112,9 @@ export default function SongScrubBar({
     const songTime = progress * player.getDuration()
     if ((isDraggingL.current || isDraggingR.current) && rangeSelection) {
       if (isDraggingL.current) {
-        rangeSelection.start = songTime // Math.min(songTime, rangeSelection.end)
+        rangeSelection.start = songTime
       } else {
-        rangeSelection.end = songTime // Math.max(songTime, rangeSelection.start)
+        rangeSelection.end = songTime
       }
       setRange(rangeSelection)
     } else if (isScrubbing.current) {
@@ -146,7 +141,7 @@ export default function SongScrubBar({
         const progress = getProgress(e as any)
         const songTime = progress * player.getDuration()
         const measure = player.getMeasureForTime(songTime)
-        // TODO: The 225 in the line below should be dynamic based on the size of ToolTipRef
+        // TODO: The 90 in the line below should be dynamic based on the size of ToolTipRef
         toolTipRef.current.style.left = `${clamp(e.clientX - progressBarLeftOffset.current - 24, {
           min: 0,
           max: width - 90,

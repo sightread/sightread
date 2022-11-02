@@ -78,7 +78,7 @@ type ButtonWithTooltipProps = PropsWithChildren<{
 
 export function ButtonWithTooltip(props: ButtonWithTooltipProps) {
   return (
-    <Tooltip content={props.tooltip}>
+    <Tooltip label={props.tooltip}>
       <button
         onClick={props.onClick}
         style={props.style}

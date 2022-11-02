@@ -181,12 +181,7 @@ export function PlaySong() {
               />
             </div>
             <div className="relative min-w-full">
-              <SongScrubBar
-                rangeSelection={range}
-                rangeSelecting={isLooping}
-                setRange={handleSetRange}
-                height={40}
-              />
+              <SongScrubBar rangeSelection={range} setRange={handleSetRange} height={40} />
             </div>
           </>
         )}

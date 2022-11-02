@@ -6,7 +6,7 @@ const songs: Map<string, Song> = new Map()
 const songsMetadata: Map<string, SongMetadata> = new Map()
 
 export function addSong(id: string, source: SongSource, song: Song) {
-  const key = getKey(source, id)
+  const key = getKey(id, source)
   songs.set(key, song)
 }
 

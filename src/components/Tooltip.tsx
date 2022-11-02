@@ -1,7 +1,22 @@
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 
-export function Tooltip({ children, content, open, defaultOpen, onOpenChange, ...props }: any) {
+type TooltipProps = PropsWithChildren<{
+  label: string
+  open?: boolean
+  defaultOpen?: boolean
+  onOpenChange?: () => void
+  [key: string]: any
+}>
+
+export function Tooltip({
+  children,
+  label,
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}: TooltipProps) {
   return (
     <TooltipPrimitive.Root
       open={open}
@@ -17,7 +32,7 @@ export function Tooltip({ children, content, open, defaultOpen, onOpenChange, ..
           align="center"
           {...props}
         >
-          {content}
+          {label}
           <TooltipPrimitive.Arrow width={11} height={5} className="fill-purple-primary" />
         </TooltipPrimitive.Content>
       </TooltipPrimitive.Portal>
