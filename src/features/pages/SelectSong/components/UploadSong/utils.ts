@@ -1,7 +1,5 @@
 import { isBrowser, isLocalStorageAvailable } from '@/utils'
-import { saveSong } from '@/features/persist'
 import { UploadFormState } from './types'
-import { LibrarySong } from '../../types'
 
 export function prevent(e: React.MouseEvent) {
   e.preventDefault()

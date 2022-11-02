@@ -22,7 +22,7 @@ export default function AboutPage() {
       </Head>
       <div className="relative">
         <AppBar />
-        <div className="md:bg-[#F7F4FE]">
+        <div className="md:bg-purple-lightest">
           <div className="flex max-w-screen-lg mx-auto">
             <div className="hidden md:block sticky top-0 p-8 max-h-screen">
               <section className="flex flex-col mx-auto">

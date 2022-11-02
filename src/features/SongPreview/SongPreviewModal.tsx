@@ -4,14 +4,13 @@ import { useRouter } from 'next/router'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { Modal, Sizer } from '@/components'
 import PreviewIcon from './PreviewIcon'
-import { LibrarySong } from '../pages/SelectSong/types'
+import { SongMetadata } from '@/types'
 import { SongPreview } from './SongPreview'
-import { CancelCircleIcon } from '@/icons'
 
 type ModalProps = {
   show: boolean
   onClose: () => void
-  songMeta?: LibrarySong
+  songMeta?: SongMetadata
 }
 export default function SongPreviewModal({
   show = true,
@@ -46,17 +45,14 @@ export default function SongPreviewModal({
 
   return (
     <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
-      <div className="flex flex-col gap-3 px-8 py-6">
-        <div className="flex w-full align-baseline whitespace-nowrap gap-2 items-baseline">
+      <div className="flex flex-col gap-3 p-8">
+        <div className="flex flex-col w-full whitespace-nowrap">
           <span className="font-semibold text-2xl">{title}</span>
           <span className="overflow-hidden text-base text-gray-500">{artist}</span>
-          <button className="ml-auto fill-purple-primary hover:fill-purple-hover" onClick={onClose}>
-            <CancelCircleIcon height={24} width={24} />
-          </button>
         </div>
         <div className="flex rounded-md flex-col flex-grow overflow-hidden">
           <div className="relative">
-            <div className="absolute w-full h-full z-10 pointer-events-none rounded-md shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]" />
+            <div className="absolute w-full h-full z-20 pointer-events-none rounded-md" />
             <SongScrubBar height={30} />
           </div>
           <div
@@ -78,9 +74,7 @@ export default function SongPreviewModal({
                 playerActions.play()
               }}
             />
-            {id && source && (
-              <SongPreview songId={id} source={source} onReady={playerActions.ready} />
-            )}
+            {id && source && <SongPreview songId={id} source={source} />}
           </div>
           <Sizer height={16} />
           <button

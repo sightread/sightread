@@ -1,2 +1,2 @@
 export { default as TopBar } from './TopBar'
-export { default as SettingsSidebar } from './SettingsSidebar'
+export { default as SettingsPanel } from './SettingsPanel'

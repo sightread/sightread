@@ -73,7 +73,7 @@ export default function Table<T extends Row>({
                 const paddingLeft = j === 0 ? 20 : 0
                 return (
                   <span
-                    className="relative px-3 text-sm flex items-center flex-shrink-0 border-b border-b-gray-200 group-hover:bg-purple-hover"
+                    className="relative px-3 text-sm flex items-center flex-shrink-0 group-hover:bg-purple-hover group-even:bg-gray-100"
                     key={`row-${i}-col-${j}`}
                     style={{ paddingLeft, height: rowHeight }}
                   >

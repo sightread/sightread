@@ -4,6 +4,7 @@ export default function useEventListener<T extends Event>(
   eventName: string,
   handler: (event: T) => void,
   element: Element | typeof globalThis = globalThis,
+  opts?: AddEventListenerOptions,
 ) {
   // Create a ref that stores handler
   // This allows our effect below to always get latest handler ...
@@ -14,7 +15,7 @@ export default function useEventListener<T extends Event>(
 
   useEffect(() => {
     const handler = (e: T) => savedHandler.current(e)
-    element.addEventListener(eventName, handler as any)
-    return () => element.removeEventListener(eventName, handler as any)
+    element.addEventListener(eventName, handler as any, opts)
+    return () => element.removeEventListener(eventName, handler as any, opts)
   }, [eventName, element])
 }

@@ -9,7 +9,7 @@ const window = new jsdom.JSDOM().window
 globalThis.DOMParser = window.DOMParser
 globalThis.NodeFilter = window.NodeFilter
 import { parseMidi, parseMusicXml } from '../src/features/parsers'
-import type { MusicFile, Song } from '../src/types'
+import type { Song, SongMetadata } from '../src/types'
 import { musicFiles } from './songdata'
 import crypto, { BinaryLike } from 'crypto'
 import fs from 'fs'
@@ -22,7 +22,7 @@ function hash(bytes: BinaryLike): string {
 
 const baseDir = pathJoin(__dirname, '..', 'public')
 
-type ParsedMusicFile = MusicFile & { parsedSong: Song }
+type ParsedMusicFile = SongMetadata & { parsedSong: Song }
 const parsedMusic: ParsedMusicFile[] = musicFiles
   .map((musicFile) => {
     const path = pathJoin(baseDir, musicFile.file)
@@ -45,7 +45,7 @@ const parsedMusic: ParsedMusicFile[] = musicFiles
   })
   .filter((x) => !!x) as ParsedMusicFile[]
 
-const manifestJson = parsedMusic.map((parsed: MusicFile) => {
+const manifestJson = parsedMusic.map((parsed: SongMetadata) => {
   let v: any = { ...parsed }
   v.duration = v.parsedSong.duration
   delete v.parsedSong

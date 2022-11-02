@@ -3,11 +3,11 @@ import type { IncomingMessage } from 'http'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import fs from 'fs'
-import { MusicFile } from '@/types'
+import { SongMetadata } from '@/types'
 import https from 'https'
 
 const songManifest = require('@/manifest.json')
-const map: Map<string, MusicFile> = new Map(songManifest.map((s: MusicFile) => [s.id, s]))
+const map: Map<string, SongMetadata> = new Map(songManifest.map((s: SongMetadata) => [s.id, s]))
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   const { id, source } = req.query

@@ -2,20 +2,11 @@ import { useState, useRef } from 'react'
 import { defaultUploadState, prevent } from './utils'
 import { UploadFormState } from './types'
 import { Sizer } from '@/components'
-import { palette } from '@/styles/common'
-import { LibrarySong } from '../../types'
 import { saveSong } from '@/features/persist'
 import clsx from 'clsx'
-import { CancelCircleIcon } from '@/icons'
 import { TextInput } from '@/components/TextInput'
 
-export default function UploadForm({
-  onSuccess,
-  onClose,
-}: {
-  onSuccess: (newSong: LibrarySong) => void
-  onClose: () => void
-}) {
+export default function UploadForm({ onClose }: { onClose: () => void }) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [state, setState] = useState<UploadFormState>(defaultUploadState())
   const [dragOver, setDragOver] = useState<boolean>(false)
@@ -36,9 +27,9 @@ export default function UploadForm({
     e.preventDefault()
     if (state.file && state.artist && state.title) {
       try {
-        const song = await saveSong(state.file, state.title, state.artist)
+        await saveSong(state.file, state.title, state.artist)
         setState(defaultUploadState())
-        onSuccess(song)
+        onClose()
       } catch (error: any) {
         console.error('Something went wrong', error)
         setState({ ...state, error: error.toString() })
@@ -97,32 +88,36 @@ export default function UploadForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="text-base p-6 flex flex-col gap-5 w-[min(100vw,500px)]"
+      className="relative text-base p-8 flex flex-col gap-5 w-[min(100vw,500px)]"
     >
-      <div className="flex items-center">
-        <h1 className="text-2xl">Upload</h1>
-        <button
-          className="ml-auto fill-red fill-purple-primary hover:fill-purple-hover"
-          onClick={onClose}
-        >
-          <CancelCircleIcon height={24} width={24} />
-        </button>
-      </div>
-      <Sizer height={24} />
+      <h1 className="text-3xl font-bold">Upload</h1>
+      <Sizer height={0} />
       <div className="flex flex-wrap gap-2 items-baseline">
         <label htmlFor="title" className="w-12">
           Title
         </label>
-        <FormInput type="text" onChange={handleChange} name="title" error={!!state.error} />
+        <FormInput
+          type="text"
+          name="title"
+          placeholder="Enter a title"
+          onChange={handleChange}
+          error={!!state.error}
+        />
       </div>
       <div className="flex flex-wrap gap-2 items-baseline">
         <label htmlFor="artist" className="w-12">
           Artist
         </label>
-        <FormInput type="text" onChange={handleChange} name="artist" error={!!state.error} />
+        <FormInput
+          type="text"
+          name="artist"
+          placeholder="Enter an artist"
+          onChange={handleChange}
+          error={!!state.error}
+        />
       </div>
       <div className="flex flex-wrap gap-2 items-baseline">
-        <label htmlFor="file" className="w-12">
+        <label htmlFor="file" className="w-12 self-center">
           File
         </label>
         <input
@@ -132,10 +127,13 @@ export default function UploadForm({
           name="file"
           type="file"
           accept=".mid, .xml"
-          style={{ display: 'none' }}
+          className="hidden"
         />
         <div
-          className="rounded-md p-5 border-2 border-dashed text-center transition cursor-pointer hover:shadow-lg flex-grow"
+          className={clsx(
+            'rounded-md p-5 transition cursor-pointer flex-grow text-center',
+            'border-2 border-dashed border-gray-400 hover:shadow-lg bg-gray-50',
+          )}
           onClick={chooseFiles}
           onDragOver={handleDrag}
           onDrop={handleDrop}
@@ -153,7 +151,7 @@ export default function UploadForm({
         className="rounded-md text-white py-2 w-full cursor-pointer bg-purple-primary transition hover:bg-purple-hover"
         type="submit"
       >
-        Submit
+        Upload
       </button>
       {state.error && (
         <>
@@ -176,15 +174,17 @@ type FormInputProps = {
   name: string
   className?: string
   error?: boolean
+  placeholder?: string
 }
-function FormInput({ onChange, name, className, error, type }: FormInputProps) {
+function FormInput({ onChange, name, className, error, type, placeholder }: FormInputProps) {
   return (
     <TextInput
       onChange={onChange}
-      className={clsx(className, 'flex-grow max-w-full', 'text-base')}
+      className={clsx(className, 'flex-grow max-w-full text-base bg-gray-50')}
       error={error}
       name={name}
       type={type}
+      placeholder={placeholder}
     />
   )
 }

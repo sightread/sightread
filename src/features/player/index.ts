@@ -7,7 +7,9 @@ import midi from '../midi'
 
 let player: Player
 
+export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
 class Player {
+  state: PlayerState = 'CannotPlay'
   song!: Song
   playInterval: any = null
   currentSongTime = 0
@@ -15,7 +17,6 @@ class Player {
   currentBpm = 0
   currentIndex = 0
   lastIntervalFiredTime = 0
-  notes: Array<SongNote> = []
   playing: Array<SongNote> = []
   synths: Array<Synth> = []
   volume = 1
@@ -27,7 +28,6 @@ class Player {
   wait = false
   lastPressedKeys = new Map<number, number>()
   dirty = false
-  instrumentsLoaded = false
   songHands: { left?: number; right?: number } = {}
 
   static player(): Player {
@@ -42,7 +42,7 @@ class Player {
   }
 
   isPlaying() {
-    return !!this.playInterval
+    return this.state === 'Playing'
   }
 
   init(): void {
@@ -57,8 +57,9 @@ class Player {
   async setSong(song: Song, songConfig: SongConfig) {
     this.song = song
     this.songHands = getHands(songConfig)
-    this.instrumentsLoaded = false
-    this.stop()
+    this.reset_()
+    this.state = 'CannotPlay'
+    this.notify()
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
@@ -69,8 +70,9 @@ class Player {
       this.setTrackVolume(+trackId, vol)
     })
     await Promise.all(synths).then((s) => {
-      this.instrumentsLoaded = true
       this.synths = s
+      this.state = 'Paused'
+      this.notify()
     })
   }
 
@@ -108,7 +110,7 @@ class Player {
   }
 
   getTime() {
-    if (!this.playInterval) {
+    if (!this.isPlaying()) {
       return this.currentSongTime
     }
     const nextNote = this.song?.notes[this.currentIndex]
@@ -135,11 +137,13 @@ class Player {
   }
 
   increaseBpm() {
-    this.bpmModifier += 0.05
+    const delta = 0.05
+    this.bpmModifier = parseFloat((this.bpmModifier + delta).toFixed(2))
   }
 
   decreaseBpm() {
-    this.bpmModifier -= 0.05
+    const delta = 0.05
+    this.bpmModifier = parseFloat((this.bpmModifier - delta).toFixed(2))
   }
 
   getBpmModifier() {
@@ -167,15 +171,16 @@ class Player {
   }
 
   play() {
-    if (this.playInterval) {
+    if (this.isPlaying()) {
       return
     }
+    this.state = 'Playing'
+    this.notify()
 
     this.lastIntervalFiredTime = performance.now()
     this.playInterval = setInterval(() => this.playLoop_(), 1)
     // continue playing everything we were in the middle of, but at a lower vol
     this.playing.forEach((note) => this.playNote(note))
-    this.notify()
   }
 
   playNote(note: SongNote) {
@@ -196,9 +201,8 @@ class Player {
   }
 
   updateTime_() {
-    const isPlaying = !!this.playInterval
     let dt = 0
-    if (isPlaying) {
+    if (this.isPlaying()) {
       const now = performance.now()
       dt = (now - this.lastIntervalFiredTime) * this.bpmModifier
       this.lastIntervalFiredTime = now
@@ -255,26 +259,40 @@ class Player {
       this.playNote(note)
       this.currentIndex++
     }
-    this.notify()
+  }
+
+  toggle() {
+    if (this.state === 'Playing') {
+      this.pause()
+      return
+    }
+    this.play()
   }
 
   stopAllSounds() {
     this.stopNotes(this.playing)
-    this.notify()
   }
 
   pause() {
+    if (this.state !== 'Playing') {
+      return
+    }
     clearInterval(this.playInterval)
     this.playInterval = null
     this.stopAllSounds()
+    this.state = 'Paused'
+    this.notify()
   }
 
   stop() {
     this.pause()
+    this.reset_()
+  }
+
+  reset_() {
     this.currentSongTime = 0
     this.currentIndex = 0
     this.playing = []
-    this.notify(true)
     this.range = null
   }
 
@@ -286,12 +304,11 @@ class Player {
     })
     // TODO: play notes that are partway through after seeking. We need to ensure that a seek has completed
     //       because currently a single seek-session comes through as many separate seek events.
-    if (!!this.playInterval) {
-      // this.playing.forEach((note) => this.playNote(note))
-    }
+    // if (!!this.playInterval) {
+    // this.playing.forEach((note) => this.playNote(note))
+    // }
     this.currentIndex = this.song.notes.findIndex((note) => note.time > this.currentSongTime)
     this.currentBpm = this.getBpmIndexForTime(time)
-    this.notify()
   }
 
   /* Convert between songtime and real human time. Includes bpm calculations*/
@@ -310,6 +327,7 @@ class Player {
 
   setRange(range?: { start: number; end: number }) {
     if (!range) {
+      this.range = null
       return
     }
 
@@ -317,25 +335,18 @@ class Player {
     this.range = [Math.min(start, end), Math.max(start, end)]
   }
 
-  subscribe(fn: () => void) {
+  subscribe(fn: (state: PlayerState) => void) {
     this.listeners.push(fn)
   }
-  unsubscribe(fn: () => void) {
+
+  unsubscribe(fn: (state: PlayerState) => void) {
     let i = this.listeners.indexOf(fn)
     this.listeners.splice(i, 1)
   }
-  notify(force = false) {
-    if (!this.dirty && !force) {
-      return
-    }
-    this.dirty = false
-    this.listeners.forEach((fn) => fn(this.getPressedKeys()))
+
+  notify() {
+    this.listeners.forEach((fn) => fn(this.state))
   }
 }
 
 export default Player
-
-if (isBrowser()) {
-  const w = window as any
-  w.Player = Player
-}
