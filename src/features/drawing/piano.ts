@@ -103,7 +103,7 @@ export function drawPianoRoll(
     const isC = getKey(+midiNote) == 'C'
     if (isC) {
       const octave = getOctave(+midiNote)
-      ctx.fillStyle = octave === 4 ? 'rgb(126,126,126)' : 'rgb(190,190,190)'
+      ctx.fillStyle = 'rgb(190,190,190)'
       ctx.font = `${width * 0.65}px ${TEXT_FONT}`
       const txt = `C${octave}`
       const { width: textWidth } = ctx.measureText(txt)

@@ -1,30 +1,26 @@
-import { getSong } from '@/features/api'
+import { useSong } from '@/features/data'
 import Player from '@/features/player'
 import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
-import { Song } from '@/types'
-import { useState, useEffect, useRef } from 'react'
+import { SongSource } from '@/types'
+import { useEffect } from 'react'
 import { getDefaultSongSettings } from '../SongVisualization/utils'
 
 interface SongPreviewProps {
   songBytes?: ArrayBuffer
   songId: string
-  source: string
-  onReady?: (songId: string) => void
+  source: SongSource
 }
 
-function SongPreview({ songId, source, onReady, songBytes }: SongPreviewProps) {
-  const [song, setSong] = useState<Song>()
+function SongPreview({ songId, source }: SongPreviewProps) {
   const player = Player.player()
-  const onReadyRef = useRef<any>()
-  onReadyRef.current = onReady
+  const { song, error } = useSong(songId, source)
 
   useEffect(() => {
-    getSong(source, songId).then((song) => {
-      setSong(song)
-      player.setSong(song, getDefaultSongSettings(song))
-      onReadyRef.current?.(songId)
-    })
-  }, [songId, source, player])
+    if (!song) {
+      return
+    }
+    player.setSong(song, getDefaultSongSettings(song))
+  }, [song, player])
 
   const songConfig = getDefaultSongSettings(song)
   return (

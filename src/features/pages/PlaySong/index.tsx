@@ -1,33 +1,34 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 
-import { Song, MidiStateEvent } from '@/types'
+import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
-import { usePlayerState, useSingleton, useSongSettings } from '@/hooks'
-import { getSong } from '@/features/api'
+import { useEventListener, usePlayerState, useSingleton, useSongSettings } from '@/hooks'
+import { useSong, useSongMetadata } from '@/features/data'
 import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
 import * as wakelock from '@/features/wakelock'
-import { TopBar, SettingsSidebar } from './components'
+import { TopBar, SettingsPanel } from './components'
 import clsx from 'clsx'
 import Head from 'next/head'
 
 export function PlaySong() {
   const router = useRouter()
-  const { source, id, recording }: { source: string; id: string; recording?: string } =
+  const { source, id, recording }: { source: SongSource; id: string; recording?: string } =
     router.query as any
-  const [sidebar, setSidebar] = useState(false)
+  const [settingsOpen, setSettingsPanel] = useState(false)
   const [playerState, playerActions] = usePlayerState()
-  const [isSelectingRange, setIsSelectingRange] = useState(false)
+  const [isLooping, setIsLooping] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
-  const [song, setSong] = useState<Song>()
+  const { song, error } = useSong(id, source)
   const [songConfig, setSongConfig] = useSongSettings(id)
   const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
   const isRecording = !!recording
+  const songMeta = useSongMetadata(id, source)
 
   const hand =
     songConfig.left && songConfig.right
@@ -64,31 +65,23 @@ export function PlaySong() {
   }, [player])
 
   useEffect(() => {
-    if (!source || !id) return
-
+    if (!song) return
     // TODO: handle invalid song. Pipe up not-found midi for 400s etc.
-    getSong(source, id).then((song: Song) => {
-      const config = getSongSettings(id, song)
-      setSong(song)
-      setSongConfig(config)
-      player.setSong(song, config).then(playerActions.ready)
-    })
-  }, [source, id, player, setSongConfig, playerActions])
+    const config = getSongSettings(id, song)
+    setSongConfig(config)
+    player.setSong(song, config)
+  }, [song, player, setSongConfig, playerActions])
 
-  useEffect(() => {
-    const keyboardHandler = (evt: KeyboardEvent) => {
-      if (evt.code === 'Space') {
-        evt.preventDefault()
-        playerActions.toggle()
-      } else if (evt.code === 'Comma') {
-        player.seek(player.currentSongTime - 16 / 1000)
-      } else if (evt.code === 'Period') {
-        player.seek(player.currentSongTime + 16 / 1000)
-      }
+  useEventListener<KeyboardEvent>('keydown', (evt: KeyboardEvent) => {
+    if (evt.code === 'Space') {
+      evt.preventDefault()
+      playerActions.toggle()
+    } else if (evt.code === 'Comma') {
+      player.seek(player.currentSongTime - 16 / 1000)
+    } else if (evt.code === 'Period') {
+      player.seek(player.currentSongTime + 16 / 1000)
     }
-    window.addEventListener('keydown', keyboardHandler)
-    return () => window.removeEventListener('keydown', keyboardHandler)
-  }, [player, playerActions])
+  })
 
   useEffect(() => {
     const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
@@ -109,9 +102,8 @@ export function PlaySong() {
     (range?: { start: number; end: number }) => {
       player.setRange(range)
       setRange(range)
-      setIsSelectingRange(false)
     },
-    [setIsSelectingRange, setRange, player],
+    [setRange, player],
   )
 
   // If source or id is messed up, redirect to the homepage
@@ -128,15 +120,21 @@ export function PlaySong() {
     setSoundOff(false)
   }
 
-  const handleBeginRangeSelection = () => {
-    if (isSelectingRange) {
+  const handleLoopingToggle = (b: boolean) => {
+    if (!b) {
       handleSetRange(undefined)
-      setIsSelectingRange(false)
+      setIsLooping(false)
+      player.setRange()
       return
+    } else {
+      const duration = Player.player().getDuration()
+      const tenth = duration / 10
+      setIsLooping(true)
+      handleSetRange({
+        start: duration / 2 - tenth,
+        end: duration / 2 + tenth,
+      })
     }
-    setIsSelectingRange(true)
-    playerActions.pause()
-    player.pause()
   }
 
   return (
@@ -154,11 +152,11 @@ export function PlaySong() {
         {!isRecording && (
           <>
             <TopBar
+              title={songMeta?.title}
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
               isSoundOff={soundOff}
               onTogglePlaying={playerActions.toggle}
-              onSelectRange={handleBeginRangeSelection}
               onClickRestart={playerActions.restart}
               onClickBack={() => {
                 playerActions.reset()
@@ -166,32 +164,32 @@ export function PlaySong() {
               }}
               onClickSettings={(e) => {
                 e.stopPropagation()
-                setSidebar(!sidebar)
+                setSettingsPanel(!settingsOpen)
               }}
               onClickSound={handleToggleSound}
-              isSelectingRange={isSelectingRange}
-              sidebarOpen={sidebar}
+              settingsOpen={settingsOpen}
             />
-            <SongScrubBar rangeSelecting={isSelectingRange} setRange={handleSetRange} height={40} />
-            <div className={clsx('relative z-10 w-full h-0', !sidebar && 'hidden')}>
-              <div className="absolute right-0 min-w-fit overflow-auto max-h-[calc(100vh-90px)] bg-white">
-                <SettingsSidebar
-                  open={sidebar}
-                  onClose={() => setSidebar(false)}
-                  onChange={setSongConfig}
-                  config={songConfig}
-                  song={song}
-                />
-              </div>
+            <div className={clsx('w-full z-10', !settingsOpen && 'hidden')}>
+              <SettingsPanel
+                open={settingsOpen}
+                onClose={() => setSettingsPanel(false)}
+                onChange={setSongConfig}
+                config={songConfig}
+                song={song}
+                onLoopToggled={handleLoopingToggle}
+                isLooping={isLooping}
+              />
+            </div>
+            <div className="relative min-w-full">
+              <SongScrubBar rangeSelection={range} setRange={handleSetRange} height={40} />
             </div>
           </>
         )}
         <div
-          className="w-screen flex flex-col flex-grow relative"
-          style={{
-            backgroundColor: songConfig.visualization === 'sheet' ? 'white' : '#2e2e2e',
-            contain: 'strict',
-          }}
+          className={clsx(
+            'fixed w-screen h-screen -z-10',
+            songConfig.visualization === 'sheet' ? 'bg-white' : 'bg-[#2e2e2e]',
+          )}
         >
           <SongVisualizer
             song={song}
