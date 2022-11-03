@@ -187,7 +187,8 @@ export function PlaySong() {
         )}
         <div
           className={clsx(
-            'fixed w-screen h-screen -z-10',
+            'fixed w-screen h-[100vh] -z-10',
+            '!h-[100dvh]',
             songConfig.visualization === 'sheet' ? 'bg-white' : 'bg-[#2e2e2e]',
           )}
         >

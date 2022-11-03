@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useState } from 'react'
+import React, { useState } from 'react'
 import clsx from 'clsx'
 import { Select } from '@/components'
 import { LeftHandIcon, RightHandIcon, SoundOnIcon, SoundOffIcon } from '@/icons'
