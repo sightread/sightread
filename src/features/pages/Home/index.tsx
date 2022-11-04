@@ -45,18 +45,12 @@ export default function Home() {
           <Sizer height={75 + 18} />
         </div>
         <div
-          style={{
-            position: 'relative',
-            minWidth: 'min(100vw - 40px, 400px)',
-            width: '75%',
-            maxWidth: 760,
-            height: 400,
-            alignSelf: 'center',
-            marginTop: -75,
-            overflow: 'hidden',
-            borderRadius: 8,
-            backgroundColor: '#2e2e2e',
-          }}
+          className={clsx(
+            'relative w-3/4 max-w-[760px] h-[400px] self-center  mt-[-75px]',
+            'overflow-hidden rounded-lg bg-gray-[#2e2e2e]',
+            'shadow-xl',
+          )}
+          style={{ minWidth: 'min(100vw - 40px, 400px)' }}
         >
           <SongPreview songId={songId} source={source} />
           <div className="absolute top-0 w-full h-[50px] bg-black/80 flex items-center justify-center">

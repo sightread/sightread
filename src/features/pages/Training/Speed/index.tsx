@@ -109,7 +109,6 @@ export default function SpeedTraining({}: Props) {
           height: `calc(100vh - 55px)`,
           position: 'fixed',
           top: 55,
-          contain: 'strict',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
