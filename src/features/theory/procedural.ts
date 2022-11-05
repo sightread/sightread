@@ -119,9 +119,56 @@ const dMajorChordProgression: Chord[] = [
   'emHigh',
 ]
 
-export async function getGeneratedSong(): Promise<Song> {
+const dMinorChordProgression: Chord[] = [
+  // First Act
+  'dLow',
+  'emLow',
+  'dLow',
+  'gLow',
+  'dLow',
+  'emLow',
+  'gLow',
+  'dLow',
+
+  'dLow',
+  'emLow',
+  'dLow',
+  'gLow',
+  'dLow',
+  'emLow',
+  'gLow',
+  'dLow',
+  'dLow',
+  'emLow',
+  'dLow',
+  'gLow',
+  'dLow',
+  'emLow',
+  'gLow',
+  'dLow',
+
+  // Second Act
+  'dHigh',
+  'emHigh',
+  'dHigh',
+  'gHigh',
+  'dHigh',
+  'emHigh',
+  'gHigh',
+  'dHigh',
+  'dHigh',
+  'emHigh',
+  'dHigh',
+  'gHigh',
+  'dHigh',
+  'emHigh',
+  'gHigh',
+  'dHigh',
+]
+
+export async function getGeneratedSong(type: 'dMaj' | 'dMin'): Promise<Song> {
   const chordMap = await getMeasuresPerChord()
-  const progression = dMajorChordProgression
+  const progression = type === 'dMaj' ? dMajorChordProgression : dMinorChordProgression
 
   let measures: SongMeasure[] = [{ type: 'measure', time: 0, number: 1 }]
   let measureNumber = 1

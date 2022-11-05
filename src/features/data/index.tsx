@@ -26,7 +26,7 @@ export function useSong(id: string, source: SongSource) {
 
     const key = getKey(id, source)
     if (source === 'generated') {
-      const promise = getGeneratedSong()
+      const promise = getGeneratedSong(id as any)
       inflight.set(key, promise)
       promise
         .then((song) => {
