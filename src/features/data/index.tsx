@@ -3,6 +3,7 @@ import { Song, SongMetadata, SongSource } from '@/types'
 import { getUploadedSong } from '@/features/persist'
 import * as library from './library'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { getGeneratedSong } from '../theory/procedural'
 
 const inflight: Map<string, Promise<Song>> = new Map()
 
@@ -24,7 +25,17 @@ export function useSong(id: string, source: SongSource) {
     if (!id || !source) return
 
     const key = getKey(id, source)
-    if (source === 'upload') {
+    if (source === 'generated') {
+      const promise = getGeneratedSong()
+      inflight.set(key, promise)
+      promise
+        .then((song) => {
+          library.addSong(id, source, song)
+          setSong(song)
+        })
+        .catch(setError)
+        .finally(() => inflight.delete(key))
+    } else if (source === 'upload') {
       const uploadedSong = getUploadedSong(id)
       if (!uploadedSong) {
         setError(new Error(`Uploaded song could not be found: ${id}`))

@@ -26,11 +26,12 @@ export function PlaySong() {
   const [soundOff, setSoundOff] = useState(false)
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
-  const { song, error } = useSong(id, source)
+  let { song, error } = useSong(id, source)
   const [songConfig, setSongConfig] = useSongSettings(id)
   const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
   const isRecording = !!recording
   const songMeta = useSongMetadata(id, source)
+  const [refresh, forceRefresh] = useState<boolean>()
 
   const hand =
     songConfig.left && songConfig.right
