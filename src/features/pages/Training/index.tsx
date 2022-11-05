@@ -9,7 +9,7 @@ export default function TrainingPage() {
   ]
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar style={{ backgroundColor: '#292929', display: 'flex' }} />
+      <AppBar />
       <div className="flex py-6 flex-grow h-full content-center">
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', alignContent: 'center' }}>
           {links.map(({ label, url }) => (

@@ -189,20 +189,18 @@ export default function SongScrubBar({
           <div className="absolute w-[calc(100%-10px)] h-4 bg-purple-dark/40" />
           <div
             className="pointer-events-auto absolute left-0 cursor-pointer h-6 w-6 bg-purple-dark/90 hover:bg-purple-hover/90 rounded-full -translate-x-1/2 transition"
-            onMouseEnter={() => setPointerOver(true)}
-            onMouseLeave={() => setPointerOver(false)}
-            onMouseDown={() => (isDraggingL.current = true)}
+            onPointerEnter={() => setPointerOver(true)}
+            onPointerLeave={() => setPointerOver(false)}
+            onPointerDown={() => (isDraggingL.current = true)}
           />
           <div
             className="pointer-events-auto absolute right-0 translate-x-1/2 cursor-pointer h-6 w-6 bg-purple-dark/90 hover:bg-purple-hover/90 rounded-full transition"
-            onMouseDown={() => (isDraggingR.current = true)}
-            onMouseEnter={() => setPointerOver(true)}
-            onMouseLeave={() => setPointerOver(false)}
+            onPointerDown={() => (isDraggingR.current = true)}
+            onPointerEnter={() => setPointerOver(true)}
+            onPointerLeave={() => setPointerOver(false)}
           />
         </div>
       )}
     </div>
   )
 }
-
-function ProgressBar() {}
