@@ -63,7 +63,6 @@ export default function FreePlay() {
             handSettings={{ 1: { hand: 'right' } }}
             getTime={() => freePlayer.getTime()}
             constrictView={false}
-            disableTouchscroll={true}
           />
         </div>
       </div>

@@ -71,7 +71,9 @@ export default function Select({
         }}
       />
       {loading && (
-        <LoadingIcon width={15} height={15} className="absolute top-1 left-1 animate-spin" />
+        <div className="absolute top-0 w-full h-full grid place-items-center pointer-events-none">
+          <LoadingIcon width={24} height={24} className="animate-spin fill-purple-primary" />
+        </div>
       )}
       <div className="relative">
         <div className="absolute top-0 w-full z-10">

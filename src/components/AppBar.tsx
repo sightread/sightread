@@ -6,11 +6,6 @@ import clsx from 'clsx'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { useRouter } from 'next/router'
 
-/**
- * route should be in the form of /route
- * label if given will override the infered label
- * the infered label will in the form Route (with the first / removed)
- */
 type NavItem = { route: string; label: string }
 const navItems: NavItem[] = [
   { route: '/songs', label: 'Learn a song' },
@@ -20,9 +15,8 @@ const navItems: NavItem[] = [
 
 interface AppBarProps {
   classNames?: string
-  style?: CSSProperties
 }
-export default function AppBar({ style }: AppBarProps) {
+export default function AppBar(props: AppBarProps) {
   return (
     <div
       className="h-[50px] min-h-[50px] bg-purple-dark flex flex-col justify-center relative"
@@ -31,7 +25,6 @@ export default function AppBar({ style }: AppBarProps) {
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
         // Credit goes to: https://aykevl.nl/2014/09/fix-jumping-scrollbar
         paddingLeft: 'calc(100vw - 100%)',
-        ...style,
       }}
     >
       <div className="flex items-center pl-6 justify-center mx-auto w-full md:max-w-screen-lg">
@@ -42,7 +35,7 @@ export default function AppBar({ style }: AppBarProps) {
           <SmallWindowNav />
         </div>
         <NavLink href={'/'} className="flex items-baseline text-white hover:text-purple-hover">
-          <Logo height={24} width={24} style={{ position: 'relative', top: 3 }} />
+          <Logo height={24} width={24} className="relative top-[3px]" />
           <Sizer width={8} />
           <span className="font-extralight text-2xl"> SIGHTREAD</span>
         </NavLink>
@@ -53,9 +46,8 @@ export default function AppBar({ style }: AppBarProps) {
                 className="text-white hover:text-purple-hover"
                 href={nav.route}
                 key={nav.label}
-              >
-                {nav.label}
-              </NavLink>
+                label={nav.label}
+              />
             )
           })}
           <NavLink
@@ -82,9 +74,8 @@ function SmallWindowNav() {
             className={clsx(
               'text-purple-dark text-2xl px-6 transition hover:text-purple-hover inline-block cursor-pointer w-fit',
             )}
-          >
-            {nav.label}
-          </NavLink>
+            label={nav.label}
+          />
         )
       })}
     </Dropdown>
@@ -128,14 +119,23 @@ function Dropdown({ children, target }: React.PropsWithChildren<{ target: React.
   )
 }
 
-function NavLink(props: PropsWithChildren<{ href: string; className?: string; style?: any }>) {
+function NavLink(
+  props: PropsWithChildren<{ href: string; className?: string; style?: any; label?: string }>,
+) {
   const currentRoute = useRouter().route
   return (
     <Link
       {...props}
-      className={clsx(props.className, 'transition', currentRoute === props.href && 'font-bold')}
+      className={clsx(
+        props.className,
+        'transition',
+        currentRoute === props.href && 'font-bold',
+        props.label &&
+          'after:block after:font-bold after:overflow-hidden after:invisible after:text-transparent after:h-0 after:content-[attr(label)]',
+      )}
+      data-label={props.label}
     >
-      {props.children}
+      {props.label ?? props.children}
     </Link>
   )
 }

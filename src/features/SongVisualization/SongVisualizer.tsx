@@ -19,7 +19,7 @@ type CanvasRendererProps = {
   getTime: () => number
   constrictView?: boolean
   selectedRange?: { start: number; end: number }
-  disableTouchscroll?: boolean
+  enableTouchscroll?: boolean
 }
 
 function CanvasRenderer({
@@ -30,7 +30,7 @@ function CanvasRenderer({
   selectedRange,
   getTime,
   constrictView = true,
-  disableTouchscroll = false,
+  enableTouchscroll = false,
 }: CanvasRendererProps) {
   const { width, height, measureRef } = useSize()
   const ctxRef = useRef<CanvasRenderingContext2D>()
@@ -84,14 +84,13 @@ function CanvasRenderer({
     render(state)
   })
 
-  disableTouchscroll = disableTouchscroll || config.visualization === 'sheet'
   return (
     <div
-      style={{ position: 'absolute', width: '100%', height: '100%', touchAction: 'none' }}
+      className="absolute w-full h-full touch-none"
       ref={measureRef}
-      onPointerMove={(e) => !disableTouchscroll && touchscroll.handleMove(e.nativeEvent)}
-      onPointerDown={(e) => !disableTouchscroll && touchscroll.handleDown(e.nativeEvent)}
-      onPointerUp={(e) => !disableTouchscroll && touchscroll.handleUp(e.nativeEvent)}
+      onPointerMove={(e) => enableTouchscroll && touchscroll.handleMove(e.nativeEvent)}
+      onPointerDown={(e) => enableTouchscroll && touchscroll.handleDown(e.nativeEvent)}
+      onPointerUp={(e) => enableTouchscroll && touchscroll.handleUp(e.nativeEvent)}
     >
       <canvas ref={setupCanvas} width={width} height={height} />
     </div>
