@@ -173,6 +173,10 @@ class Player {
     if (this.isPlaying()) {
       return
     }
+    if (this.song.backing) {
+      this.song.backing.volume = 0.15
+      this.song.backing?.play()
+    }
     this.state = 'Playing'
     this.notify()
 
@@ -273,6 +277,7 @@ class Player {
       return
     }
     clearInterval(this.playInterval)
+    this.song.backing?.pause()
     this.playInterval = null
     this.stopAllSounds()
     this.state = 'Paused'
@@ -289,11 +294,17 @@ class Player {
     this.currentIndex = 0
     this.playing = []
     this.range = null
+    if (this.song.backing) {
+      this.song.backing.currentTime = 0.1
+    }
   }
 
   seek(time: number) {
     this.stopAllSounds()
     this.currentSongTime = time
+    if (this.song.backing) {
+      this.song.backing.currentTime = time + 0.1
+    }
     this.playing = this.song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
     })

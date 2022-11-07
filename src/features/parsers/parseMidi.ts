@@ -110,6 +110,9 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
       delete tracks[t]
     }
   }
+  if (measures.length === 0) {
+    measures.push({ time: 0, number: 1, type: 'measure' })
+  }
 
   notes = sort(notes)
   measures = sort(measures)

@@ -1,5 +1,5 @@
 import { Song, SongMeasure, SongNote } from '@/types'
-import { isBrowser } from '@/utils'
+import { Deferred, isBrowser } from '@/utils'
 import { parseMidi } from '../parsers'
 
 function splitMeasures(song: Song): SongNote[][] {
@@ -12,7 +12,7 @@ function splitMeasures(song: Song): SongNote[][] {
   let notesByMeasure: SongNote[][] = [[]]
   while (notes.length) {
     const note = notes.shift()!
-    if (note?.time < measures[0].time) {
+    if (note.time < measures[0]?.time || !measures.length) {
       notesByMeasure.at(-1)?.push(note)
     } else {
       notesByMeasure.push([note])
@@ -22,6 +22,21 @@ function splitMeasures(song: Song): SongNote[][] {
 
   return notesByMeasure
 }
+
+// // TOD
+// export function joinMeasures(measures: SongNote[][]): SongNote[] {
+//   const notes = progression.flatMap((c) => {
+//     const notes = structuredClone(randomChoice(chordMap.get(c)!)!)
+//     for (const note of notes) {
+//       note.time += time
+//     }
+//     const last = notes.at(-1)!
+//     time = last.time + last.duration
+//     measures.push({ type: 'measure', time, number: ++measureNumber })
+//     return notes
+//   })
+//   return []
+// }
 
 function normalizeMeasures(measures: SongNote[][]): SongNote[][] {
   measures = structuredClone(measures)
@@ -76,6 +91,7 @@ async function getMeasuresPerChord() {
         .then((song) => {
           measurePerChord.set(chord, normalizeMeasures(splitMeasures(song)))
         })
+        .catch((err) => console.error(err))
     }),
   )
   return (cachedMeasuresPerChord = measurePerChord)
@@ -166,8 +182,22 @@ const dMinorChordProgression: Chord[] = [
   'dHigh',
 ]
 
-export async function getGeneratedSong(type: 'dMaj' | 'dMin'): Promise<Song> {
-  const chordMap = await getMeasuresPerChord()
+const dMajBacking = 'DM (Full BPM 120) v1.0 DB.mp3'
+const dMinBacking = 'EM (Full BPM 120) v1.0 DB.mp3'
+
+type ChordProgression = 'dMaj' | 'dMin'
+async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement> {
+  const url = `/music/irish/backing/${type === 'dMaj' ? dMajBacking : dMinBacking}`
+  const track = new Audio(url)
+  const deferred: Deferred<HTMLAudioElement> = new Deferred()
+  track.addEventListener('canplaythrough', () => deferred.resolve(track))
+  track.addEventListener('error', (err) => deferred.reject(err as any))
+
+  return deferred.promise
+}
+
+export async function getGeneratedSong(type: ChordProgression): Promise<Song> {
+  const [chordMap, backing] = await Promise.all([getMeasuresPerChord(), getBackingTrack(type)])
   const progression = type === 'dMaj' ? dMajorChordProgression : dMinorChordProgression
 
   let measures: SongMeasure[] = [{ type: 'measure', time: 0, number: 1 }]
@@ -184,8 +214,6 @@ export async function getGeneratedSong(type: 'dMaj' | 'dMin'): Promise<Song> {
     return notes
   })
 
-  // console.log(chordMap)
-  // console.log(notes)
   return {
     duration: time,
     measures,
@@ -195,6 +223,7 @@ export async function getGeneratedSong(type: 'dMaj' | 'dMin'): Promise<Song> {
     timeSignature: { numerator: 4, denominator: 4 },
     keySignature: 'C',
     items: sort([...measures, ...notes]),
+    backing,
   }
 }
 

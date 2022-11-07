@@ -73,6 +73,7 @@ export type Song = {
   timeSignature?: { numerator: number; denominator: number }
   keySignature: KEY_SIGNATURE
   items: Array<SongNote | SongMeasure>
+  backing?: HTMLAudioElement
 }
 
 export type Clef = 'bass' | 'treble'
