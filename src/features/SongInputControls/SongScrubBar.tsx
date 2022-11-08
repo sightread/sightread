@@ -5,6 +5,8 @@ import { Song } from '@/types'
 import Player from '@/features/player'
 import clsx from 'clsx'
 
+const CAPTURE_OPT = { capture: true }
+
 export default function SongScrubBar({
   height,
   setRange = () => {},
@@ -104,7 +106,7 @@ export default function SongScrubBar({
       isScrubbing.current = false
     },
     undefined,
-    { capture: true },
+    CAPTURE_OPT,
   )
 
   useEventListener<PointerEvent>('pointermove', (e) => {
