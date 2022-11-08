@@ -138,11 +138,17 @@ class Player {
   increaseBpm() {
     const delta = 0.05
     this.bpmModifier = parseFloat((this.bpmModifier + delta).toFixed(2))
+    if (this.song.backing) {
+      this.song.backing.playbackRate = this.bpmModifier
+    }
   }
 
   decreaseBpm() {
     const delta = 0.05
     this.bpmModifier = parseFloat((this.bpmModifier - delta).toFixed(2))
+    if (this.song.backing) {
+      this.song.backing.playbackRate = this.bpmModifier
+    }
   }
 
   getBpmModifier() {
@@ -178,7 +184,8 @@ class Player {
       this.song.backing.volume = 0.15
       backingTrack.play().then(() => {
         // Sync up with the midi playing in case the play() took longer than expected.
-        backingTrack.currentTime = this.currentSongTime
+        // TODO: should i keep the + 0.1? hopefully  not.
+        backingTrack.currentTime = this.currentSongTime + 0.1
       })
     }
     this.state = 'Playing'
@@ -299,7 +306,7 @@ class Player {
     this.playing = []
     this.range = null
     if (this.song.backing) {
-      this.song.backing.currentTime = 0
+      this.song.backing.currentTime = 0 // 0.1
     }
   }
 
@@ -307,7 +314,7 @@ class Player {
     this.stopAllSounds()
     this.currentSongTime = time
     if (this.song.backing) {
-      this.song.backing.currentTime = time
+      this.song.backing.currentTime = time + 0.1 // TODO: remove 0.1?
     }
     this.playing = this.song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration

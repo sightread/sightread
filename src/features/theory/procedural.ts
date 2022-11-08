@@ -35,21 +35,19 @@ function joinMeasures(measures: Measure[]): { notes: SongNote[]; measures: SongM
   const songNotes: SongNote[] = []
   const songMeasures: SongMeasure[] = []
 
-  let currentTime = 0
+  let measureStart = 0
   for (const measure of measures) {
-    const lastMeasureStart = currentTime
     songMeasures.push({
       type: 'measure',
       number: songMeasures.length,
       duration: measure.duration,
-      time: currentTime,
+      time: measureStart,
     })
     for (const note of structuredClone(measure.notes) as SongNote[]) {
-      note.time = currentTime
+      note.time += measureStart
       songNotes.push(note)
-      currentTime += note.duration
     }
-    currentTime = lastMeasureStart + measure.duration
+    measureStart += measure.duration
   }
 
   return { notes: songNotes, measures: songMeasures }
