@@ -39,8 +39,8 @@ export interface SongNote {
   track: number
   time: number
   duration: number
-  pitch: Pitch
   velocity?: number
+  measure: number
 }
 
 export interface Bpm {
@@ -61,6 +61,7 @@ export interface Track {
 export type SongMeasure = {
   type: 'measure'
   time: number
+  duration: number
   number: number
 }
 

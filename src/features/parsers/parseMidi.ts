@@ -37,9 +37,18 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
 
     currTick += orderedEvent.ticksToEvent
     currTime += calcWallDuration(orderedEvent.ticksToEvent)
-    if (currTick - lastMeasureTickedAt >= ticksPerMeasure()) {
+
+    // Important to ensure ticks occur before the next event. Esp so we don't record a measure before processing meta events.
+    const hasSongHadNotes =
+      orderedEvent.ticksToEvent > 0 || midiEvent.subType == 'noteOn' || notes.length > 0
+    if (hasSongHadNotes && currTick - lastMeasureTickedAt >= ticksPerMeasure()) {
       lastMeasureTickedAt = currTick
-      measures.push({ type: 'measure', time: currTime, number: measures.length + 1 })
+      measures.push({
+        type: 'measure',
+        time: currTime,
+        number: measures.length,
+        duration: calcWallDuration(ticksPerMeasure()),
+      })
     }
 
     if (!tracks[track]) {
@@ -74,8 +83,8 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
         duration: 0,
         midiNote,
         track,
-        pitch: getPitch(midiNote),
         velocity: midiEvent.velocity,
+        measure: measures.length,
       }
       openNotes.set(noteKey(midiNote), note)
       notes.push(note)
@@ -97,12 +106,6 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
     }
   }
 
-  // Calc duration
-  let duration = 0
-  for (let n of notes) {
-    duration = Math.max(duration, n.time + n.duration)
-  }
-
   // TODO: evaluate if this is necessary.
   for (let t of Object.keys(tracks).map(Number)) {
     // Remove empty tracks.
@@ -110,14 +113,13 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
       delete tracks[t]
     }
   }
-  if (measures.length === 0) {
-    measures.push({ time: 0, number: 1, type: 'measure' })
-  }
 
   notes = sort(notes)
   measures = sort(measures)
+  const duration = measures.reduce((sum, m) => sum + m.duration, 0)
+
   return {
-    duration: currTime,
+    duration,
     measures,
     notes,
     tracks,

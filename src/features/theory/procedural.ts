@@ -2,51 +2,57 @@ import { Song, SongMeasure, SongNote } from '@/types'
 import { Deferred, isBrowser } from '@/utils'
 import { parseMidi } from '../parsers'
 
-function splitMeasures(song: Song): SongNote[][] {
-  let { notes, measures } = song
-  notes = notes.slice(0)
-  measures = measures.slice(0)
-
-  measures.shift()
-
-  let notesByMeasure: SongNote[][] = [[]]
-  while (notes.length) {
-    const note = notes.shift()!
-    if (note.time < measures[0]?.time || !measures.length) {
-      notesByMeasure.at(-1)?.push(note)
-    } else {
-      notesByMeasure.push([note])
-      measures.shift()
-    }
-  }
-
-  return notesByMeasure
+interface Measure {
+  number: number
+  notes: SongNote[]
+  duration: number
 }
 
-// // TOD
-// export function joinMeasures(measures: SongNote[][]): SongNote[] {
-//   const notes = progression.flatMap((c) => {
-//     const notes = structuredClone(randomChoice(chordMap.get(c)!)!)
-//     for (const note of notes) {
-//       note.time += time
-//     }
-//     const last = notes.at(-1)!
-//     time = last.time + last.duration
-//     measures.push({ type: 'measure', time, number: ++measureNumber })
-//     return notes
-//   })
-//   return []
-// }
+function splitMeasures(song: Song): Measure[] {
+  const measures: Measure[] = []
+  for (const note of song.notes) {
+    measures[note.measure - 1] ??= {
+      duration: song.measures[note.measure - 1].duration,
+      number: note.measure,
+      notes: [],
+    }
+    measures[note.measure - 1].notes.push(note)
+  }
 
-function normalizeMeasures(measures: SongNote[][]): SongNote[][] {
-  measures = structuredClone(measures)
+  // Now normalize the measures s.t. each starts at time 0.
   for (const measure of measures) {
-    let firstNoteTime = measure[0].time
-    for (const note of measure) {
+    let firstNoteTime = measure.notes[0].time
+    for (const note of measure.notes) {
       note.time -= firstNoteTime
     }
   }
+
   return measures
+}
+
+// TODO: create symmetry with splitMeasure
+function joinMeasures(measures: Measure[]): { notes: SongNote[]; measures: SongMeasure[] } {
+  const songNotes: SongNote[] = []
+  const songMeasures: SongMeasure[] = []
+
+  let currentTime = 0
+  for (const measure of measures) {
+    const lastMeasureStart = currentTime
+    songMeasures.push({
+      type: 'measure',
+      number: songMeasures.length,
+      duration: measure.duration,
+      time: currentTime,
+    })
+    for (const note of structuredClone(measure.notes) as SongNote[]) {
+      note.time = currentTime
+      songNotes.push(note)
+      currentTime += note.duration
+    }
+    currentTime = lastMeasureStart + measure.duration
+  }
+
+  return { notes: songNotes, measures: songMeasures }
 }
 
 type Chord =
@@ -76,12 +82,12 @@ const midiFiles: { [chord in Chord]: string } = {
   gLow: 'G_Low_Lvl_3.mid',
 }
 
-let cachedMeasuresPerChord: Map<Chord, SongNote[][]>
+let cachedMeasuresPerChord: Map<Chord, Measure[]>
 async function getMeasuresPerChord() {
   if (cachedMeasuresPerChord) {
     return cachedMeasuresPerChord
   }
-  const measurePerChord: Map<Chord, SongNote[][]> = new Map()
+  const measurePerChord: Map<Chord, Measure[]> = new Map()
 
   await Promise.all(
     Object.entries(midiFiles).map(([chord, filename]: any) => {
@@ -89,7 +95,7 @@ async function getMeasuresPerChord() {
         .then((response) => response.arrayBuffer())
         .then(parseMidi)
         .then((song) => {
-          measurePerChord.set(chord, normalizeMeasures(splitMeasures(song)))
+          measurePerChord.set(chord, splitMeasures(song))
         })
         .catch((err) => console.error(err))
     }),
@@ -154,14 +160,6 @@ const dMinorChordProgression: Chord[] = [
   'emLow',
   'gLow',
   'dLow',
-  'dLow',
-  'emLow',
-  'dLow',
-  'gLow',
-  'dLow',
-  'emLow',
-  'gLow',
-  'dLow',
 
   // Second Act
   'dHigh',
@@ -182,12 +180,12 @@ const dMinorChordProgression: Chord[] = [
   'dHigh',
 ]
 
-const dMajBacking = 'DM (Full BPM 120) v1.0 DB.mp3'
-const dMinBacking = 'EM (Full BPM 120) v1.0 DB.mp3'
+const dMajorBacking = 'DM (Full BPM 120) v1.0 DB.mp3'
+const eMinorBacking = 'EM (Full BPM 120) v1.0 DB.mp3'
 
-type ChordProgression = 'dMaj' | 'dMin'
+type ChordProgression = 'eMinor' | 'dMajor'
 async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement> {
-  const url = `/music/irish/backing/${type === 'dMaj' ? dMajBacking : dMinBacking}`
+  const url = `/music/irish/backing/${type === 'eMinor' ? eMinorBacking : dMajorBacking}`
   const track = new Audio(url)
   const deferred: Deferred<HTMLAudioElement> = new Deferred()
   track.addEventListener('canplaythrough', () => deferred.resolve(track))
@@ -198,26 +196,17 @@ async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement
 
 export async function getGeneratedSong(type: ChordProgression): Promise<Song> {
   const [chordMap, backing] = await Promise.all([getMeasuresPerChord(), getBackingTrack(type)])
-  const progression = type === 'dMaj' ? dMajorChordProgression : dMinorChordProgression
+  const progression = type === 'eMinor' ? dMajorChordProgression : dMinorChordProgression
 
-  let measures: SongMeasure[] = [{ type: 'measure', time: 0, number: 1 }]
-  let measureNumber = 1
-  let time = 0
-  const notes = progression.flatMap((c) => {
-    const notes = structuredClone(randomChoice(chordMap.get(c)!)!)
-    for (const note of notes) {
-      note.time += time
-    }
-    const last = notes.at(-1)!
-    time = last.time + last.duration
-    measures.push({ type: 'measure', time, number: ++measureNumber })
-    return notes
-  })
+  const { notes, measures } = joinMeasures(progression.map((c) => randomChoice(chordMap.get(c)!)!))
+  const duration = measures.reduce((sum, m) => sum + m.duration, 0)
+
+  console.log(notes, measures)
 
   return {
-    duration: time,
-    measures,
+    duration,
     notes,
+    measures,
     tracks: { 0: {}, 1: {} },
     bpms: [],
     timeSignature: { numerator: 4, denominator: 4 },

@@ -1,4 +1,4 @@
-import { Song, Track, SongNote, SongConfig, SongMeasure, Hand, TrackSetting } from '@/types'
+import { Song, Track, SongNote, SongConfig, SongMeasure, TrackSetting } from '@/types'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
