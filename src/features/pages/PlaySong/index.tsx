@@ -70,7 +70,7 @@ export function PlaySong() {
     const config = getSongSettings(id, song)
     setSongConfig(config)
     player.setSong(song, config)
-  }, [song, player, setSongConfig, playerActions])
+  }, [song, player, setSongConfig, playerActions, id])
 
   useEventListener<KeyboardEvent>('keydown', (evt: KeyboardEvent) => {
     if (evt.code === 'Space') {

@@ -17,5 +17,5 @@ export default function useEventListener<T extends Event>(
     const handler = (e: T) => savedHandler.current(e)
     element.addEventListener(eventName, handler as any, opts)
     return () => element.removeEventListener(eventName, handler as any, opts)
-  }, [eventName, element])
+  }, [eventName, element, opts])
 }

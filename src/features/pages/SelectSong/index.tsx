@@ -40,9 +40,10 @@ export default function SelectSongPage() {
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
 
+  const uploadedLibrary = getUploadedLibrary()
   useEffect(() => {
-    addSongs(getUploadedLibrary())
-  }, [getUploadedLibrary()])
+    addSongs(uploadedLibrary)
+  }, [uploadedLibrary, addSongs])
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (event.key === 'Escape') {

@@ -39,7 +39,7 @@ export default function usePlayerState(): PlayerStateHookReturn {
       toggle: () => player.toggle(),
       restart: () => player.seek(0),
     }),
-    [],
+    [player],
   )
 
   return useMemo(() => {

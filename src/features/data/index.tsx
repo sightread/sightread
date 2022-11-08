@@ -32,7 +32,6 @@ export function useSong(id: string, source: SongSource) {
         setSong(uploadedSong)
       }
     } else if (library.hasSong(id, source)) {
-      console.log('GOT IT')
       setSong(library.getSong(id, source))
     } else if (inflight.has(key)) {
       inflight.get(key)?.then(setSong).catch(setError)
@@ -62,7 +61,7 @@ export function useSongManifest(): SongManifestHookReturn {
     setSongs(library.getSongsMetadata())
   }, [])
 
-  return useMemo(() => [songs, add], [songs])
+  return useMemo(() => [songs, add], [songs, add])
 }
 
 export function useSongMetadata(id: string, source: SongSource) {

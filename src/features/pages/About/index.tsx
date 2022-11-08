@@ -1,6 +1,5 @@
-import React, { PropsWithChildren, ReactChild } from 'react'
+import React, { PropsWithChildren } from 'react'
 import { AppBar, Sizer } from '@/components'
-import { palette } from '@/styles/common'
 import Link from 'next/link'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
@@ -134,9 +133,12 @@ function MusicSelectionSection() {
   return (
     <Article
       header="Music selection"
-      first="The Sightread catalog has two components: builtin music from the public domain, and local file uploads."
+      first="The Sightread catalog has three components: midishare, builtin, and local file uploads."
     >
-      <p>Sightread includes works from the public domain.</p>
+      <p>
+        Sightread includes works from <AboutLink href="https://midishare.com">midishare</AboutLink>,
+        as well as builtin music from the public domain.
+      </p>
       <p>
         You can <AboutLink href="https://midishare.com/upload">upload</AboutLink> MIDI files to
         midishare where they’ll be available for the entire community. If you’d prefer to keep them
