@@ -178,8 +178,7 @@ class Player {
       this.song.backing.volume = 0.15
       backingTrack.play().then(() => {
         // Sync up with the midi playing in case the play() took longer than expected.
-        // TODO: should i keep the + 0.1? hopefully  not.
-        backingTrack.currentTime = this.currentSongTime + 0.1
+        backingTrack.currentTime = this.currentSongTime
       })
     }
     this.state = 'Playing'
@@ -300,7 +299,7 @@ class Player {
     this.playing = []
     this.range = null
     if (this.song.backing) {
-      this.song.backing.currentTime = 0 // 0.1
+      this.song.backing.currentTime = 0
     }
   }
 
@@ -308,7 +307,7 @@ class Player {
     this.stopAllSounds()
     this.currentSongTime = time
     if (this.song.backing) {
-      this.song.backing.currentTime = time // + 0.1
+      this.song.backing.currentTime = time
     }
     this.playing = this.song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
