@@ -49,7 +49,6 @@ class Player {
     this.bpmModifier = 1
     this.currentSongTime = 0
     this.currentIndex = 0
-    this.currentSongTime = 0
     this.playing = []
   }
 
@@ -109,9 +108,12 @@ class Player {
   }
 
   getTime() {
-    if (!this.isPlaying()) {
+    if (this.song?.backing) {
+      return this.song.backing.currentTime
+    } else if (!this.isPlaying()) {
       return this.currentSongTime
     }
+
     const nextNote = this.song?.notes[this.currentIndex]
     if (this.wait && nextNote && this.isActiveHand(nextNote)) {
       const isntPressed =
@@ -181,12 +183,8 @@ class Player {
     }
     if (this.song.backing) {
       const backingTrack = this.song.backing
-      this.song.backing.volume = 0.15
-      backingTrack.play().then(() => {
-        // Sync up with the midi playing in case the play() took longer than expected.
-        // TODO: should i keep the + 0.1? hopefully  not.
-        backingTrack.currentTime = this.currentSongTime + 0.1
-      })
+      backingTrack.volume = 0.15
+      backingTrack.play()
     }
     this.state = 'Playing'
     this.notify()
@@ -211,6 +209,10 @@ class Player {
   }
 
   updateTime_() {
+    if (this.song.backing) {
+      return (this.currentSongTime = this.song.backing.currentTime)
+    }
+
     let dt = 0
     if (this.isPlaying()) {
       const now = performance.now()
@@ -224,7 +226,7 @@ class Player {
 
   playLoop_() {
     const prevTime = this.currentSongTime
-    const time = this.updateTime_()
+    let time = this.updateTime_()
 
     // If at the end of the song, stop playing.
     if (this.currentSongTime >= this.getDuration()) {
@@ -306,7 +308,7 @@ class Player {
     this.playing = []
     this.range = null
     if (this.song.backing) {
-      this.song.backing.currentTime = 0 // 0.1
+      this.song.backing.currentTime = 0
     }
   }
 
@@ -314,7 +316,7 @@ class Player {
     this.stopAllSounds()
     this.currentSongTime = time
     if (this.song.backing) {
-      this.song.backing.currentTime = time + 0.1 // TODO: remove 0.1?
+      this.song.backing.currentTime = time
     }
     this.playing = this.song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration

@@ -199,8 +199,6 @@ export async function getGeneratedSong(type: ChordProgression): Promise<Song> {
   const { notes, measures } = joinMeasures(progression.map((c) => randomChoice(chordMap.get(c)!)!))
   const duration = measures.reduce((sum, m) => sum + m.duration, 0)
 
-  console.log(notes, measures)
-
   return {
     duration,
     notes,
