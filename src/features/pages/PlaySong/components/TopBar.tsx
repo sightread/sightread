@@ -54,7 +54,7 @@ export default function TopBar({
       </div>
       <div className="items-center hidden sm:flex sm:ml-auto h-full text-white">{title}</div>
       <div className="flex h-full items-center mr-[20px] gap-8">
-        <ButtonWithTooltip tooltip="Choose a MIDI device" isActive={false}>
+        <ButtonWithTooltip tooltip="Choose a MIDI device">
           <Midi size={24} onClick={onClickMidi} />
         </ButtonWithTooltip>
         <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
