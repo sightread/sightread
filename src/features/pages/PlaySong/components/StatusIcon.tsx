@@ -1,4 +1,4 @@
-import { PauseIcon, PlayIcon, LoadingIcon } from '@/icons'
+import { Pause, Play, Loader } from 'react-feather'
 import { ButtonWithTooltip } from './TopBar'
 
 export default function StatusIcon({
@@ -13,7 +13,7 @@ export default function StatusIcon({
   if (isPlaying) {
     return (
       <ButtonWithTooltip tooltip="Pause" onClick={onTogglePlaying}>
-        <PauseIcon width={24} height={24} />
+        <Pause size={24} />
       </ButtonWithTooltip>
     )
   }
@@ -21,9 +21,9 @@ export default function StatusIcon({
   if (!isLoading) {
     return (
       <ButtonWithTooltip tooltip="Play" onClick={onTogglePlaying}>
-        <PlayIcon height={24} width={24} />
+        <Play size={24} />
       </ButtonWithTooltip>
     )
   }
-  return <LoadingIcon width={24} height={24} className="fill-white animate-spin m-0 p-0" />
+  return <Loader width={24} height={24} className="text-white animate-spin m-0 p-0" />
 }

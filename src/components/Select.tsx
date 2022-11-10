@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState, useRef } from 'react'
-import { ArrowDown, LoadingIcon } from '@/icons'
+import { ArrowDown, Loader } from '@/icons'
 import clsx from 'clsx'
 import { useWhenClickedOutside } from '@/hooks'
 
@@ -72,7 +72,7 @@ export default function Select({
       />
       {loading && (
         <div className="absolute top-0 w-full h-full grid place-items-center pointer-events-none">
-          <LoadingIcon width={24} height={24} className="animate-spin fill-purple-primary" />
+          <Loader size={24} height={24} className="animate-spin text-purple-primary" />
         </div>
       )}
       <div className="relative">

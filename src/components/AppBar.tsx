@@ -1,6 +1,6 @@
 import { useState, useRef, CSSProperties, PropsWithChildren } from 'react'
 import { Sizer } from '@/components'
-import { GithubIcon, Logo, MenuIcon } from '@/icons'
+import { Logo, GitHub, Menu } from '@/icons'
 import Link from 'next/link'
 import clsx from 'clsx'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
@@ -52,9 +52,9 @@ export default function AppBar(props: AppBarProps) {
           })}
           <NavLink
             href={'https://github.com/sightread/sightread'}
-            className="pr-8 lgminus:pr-0 ml-auto flex gap-2 items-center text-white fill-white hover:text-purple-hover hover:fill-purple-hover"
+            className="pr-8 lgminus:pr-0 ml-auto flex gap-2 items-center text-white hover:text-purple-hover"
           >
-            <GithubIcon width={16} height={16} className="relative t-[2px]" />
+            <GitHub size={16} className="relative t-[2px]" />
             GitHub
           </NavLink>
         </div>
@@ -65,7 +65,7 @@ export default function AppBar(props: AppBarProps) {
 
 function SmallWindowNav() {
   return (
-    <Dropdown target={<MenuIcon height={24} width={24} className="block fill-white" />}>
+    <Dropdown target={<Menu height={24} width={24} className="block text-white" />}>
       {navItems.map((nav, i) => {
         return (
           <NavLink

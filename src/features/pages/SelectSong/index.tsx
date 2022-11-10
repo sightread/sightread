@@ -5,14 +5,13 @@ import { SongPreviewModal } from '@/features/SongPreview'
 import { AppBar, Modal, Sizer } from '@/components'
 import { DifficultyLabel, SongMetadata } from '@/types'
 import { useEventListener } from '@/hooks'
-import { PlusIcon } from '@/icons'
+import { Plus } from '@/icons'
 import { SearchBox } from './components/Table/SearchBox'
 import clsx from 'clsx'
 import { UploadForm, Table } from './components'
 import Head from 'next/head'
 import { useSongManifest } from '@/features/data'
 import { getUploadedLibrary } from '@/features/persist'
-import { addMetadata } from '@/features/data/library'
 
 function getDifficultyLabel(s: number): DifficultyLabel {
   if (!s) {
@@ -88,11 +87,11 @@ export default function SelectSongPage() {
               className={clsx(
                 'hidden sm:flex whitespace-nowrap flex-nowrap',
                 'py-2 px-4 items-center rounded-md gap-1',
-                'bg-purple-dark transition hover:bg-purple-hover text-white fill-white',
+                'bg-purple-dark transition hover:bg-purple-hover text-white',
               )}
               onClick={handleAddNew}
             >
-              <PlusIcon width={20} height={20} />
+              <Plus width={20} height={20} />
               <span>Add New</span>
             </button>
           </div>
