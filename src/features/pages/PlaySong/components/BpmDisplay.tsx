@@ -1,8 +1,7 @@
 import { useRef } from 'react'
 import Player from '@/features/player'
 import { useRAFLoop } from '@/hooks'
-import { ArrowUp, ArrowDown } from '@/icons'
-import { Sizer } from '@/components'
+import { ChevronUp, ChevronDown } from 'react-feather'
 
 export default function BpmDisplay() {
   const bpmRef = useRef<HTMLSpanElement>(null)
@@ -26,16 +25,14 @@ export default function BpmDisplay() {
         <span className="text-sm text-center" ref={bpmRef} />
       </div>
       <div className="flex flex-col justify-between">
-        <ArrowUp
-          height={iconSize}
-          width={iconSize}
-          className="fill-black hover:cursor-pointer hover:fill-purple-hover"
+        <ChevronUp
+          size={iconSize}
+          className="text-black hover:cursor-pointer hover:text-purple-hover"
           onClick={player.increaseBpm.bind(player)}
         />
-        <ArrowDown
-          height={iconSize}
-          width={iconSize}
-          className="fill-black hover:cursor-pointer hover:fill-purple-hover"
+        <ChevronDown
+          size={iconSize}
+          className="text-black hover:cursor-pointer hover:text-purple-hover"
           onClick={player.decreaseBpm.bind(player)}
         />
       </div>

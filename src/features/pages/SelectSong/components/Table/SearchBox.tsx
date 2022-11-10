@@ -1,4 +1,4 @@
-import { SearchIcon } from '@/icons'
+import { Search } from '@/icons'
 import { TextInput } from '@/components/TextInput'
 
 export type SearchBoxProps = { onSearch: (val: string) => void; placeholder: string }
@@ -11,9 +11,8 @@ export function SearchBox({ onSearch, placeholder }: SearchBoxProps) {
         className="absolute h-full w-full pl-10 rounded-md bg-gray-100 placeholder:text-base placeholder-gray-700"
         placeholder={placeholder}
       />
-      <SearchIcon
-        height={25}
-        width={25}
+      <Search
+        size={24}
         className="absolute left-2 top-1/2 -translate-y-1/2"
         style={{ transform: 'translateY(-50%)' }}
       />

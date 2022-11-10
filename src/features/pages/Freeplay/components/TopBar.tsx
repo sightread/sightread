@@ -2,7 +2,7 @@ import React from 'react'
 import { Select } from '@/components'
 import { formatInstrumentName } from '@/utils'
 import { gmInstruments, InstrumentName } from '@/features/synth'
-import { ArrowLeftIcon } from '@/icons'
+import { ArrowLeft } from 'react-feather'
 import { useRouter } from 'next/router'
 
 type TopBarProps = {
@@ -17,8 +17,8 @@ export default function TopBar({ isError, isLoading, value, onChange }: TopBarPr
 
   return (
     <div className="px-2 color-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center">
-      <ArrowLeftIcon
-        className="fill-white hover:fill-purple-hover cursor-pointer transition"
+      <ArrowLeft
+        className="text-white hover:text-purple-hover cursor-pointer transition"
         width={50}
         height={40}
         onClick={() => router.back()}

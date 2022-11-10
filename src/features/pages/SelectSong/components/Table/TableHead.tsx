@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { TableHeadProps } from './types'
-import { ExpandDownIcon } from '@/icons'
+import { ChevronDown } from '@/icons'
 
 export function TableHead<T, D extends keyof T>({
   columns,
@@ -26,13 +26,7 @@ export function TableHead<T, D extends keyof T>({
               onClick={() => onSelectCol(i + 1)}
             >
               {col.label}
-              {isActive && (
-                <ExpandDownIcon
-                  width={16}
-                  height={16}
-                  className={clsx(sortCol < 0 && 'rotate-180', 'stroke-white fill-white')}
-                />
-              )}
+              {isActive && <ChevronDown className={clsx(sortCol < 0 && 'rotate-180')} />}
             </span>
           </div>
         )

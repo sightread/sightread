@@ -1,7 +1,7 @@
 import { PropsWithChildren, useEffect, useRef } from 'react'
 import clsx from 'clsx'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
-import { XMark } from '@/icons'
+import { X as XMark } from '@/icons'
 
 type ModalProps = {
   show: boolean
@@ -55,7 +55,7 @@ export default function Modal({
         )}
       >
         <button
-          className="absolute right-5 top-5 fill-purple-primary hover:fill-purple-hover z-10"
+          className="absolute right-5 top-5 text-purple-primary hover:text-purple-hover z-10"
           onClick={onClose}
         >
           <XMark height={24} width={24} />
