@@ -12,8 +12,8 @@ export function SearchBox({ onSearch, placeholder }: SearchBoxProps) {
         placeholder={placeholder}
       />
       <Search
-        size={24}
-        className="absolute left-2 top-1/2 -translate-y-1/2"
+        size={20}
+        className="absolute left-3 top-1/2 -translate-y-1/2"
         style={{ transform: 'translateY(-50%)' }}
       />
     </div>

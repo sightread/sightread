@@ -22,11 +22,13 @@ export function TableHead<T, D extends keyof T>({
             key={`col-${col.id.toString()}`}
           >
             <span
-              className={clsx('flex items-center cursor-pointer gap-2', i === 0 && 'ml-5')}
+              className={clsx('flex items-center cursor-pointer gap-1', i === 0 && 'ml-5')}
               onClick={() => onSelectCol(i + 1)}
             >
               {col.label}
-              {isActive && <ChevronDown className={clsx(sortCol < 0 && 'rotate-180')} />}
+              {isActive && (
+                <ChevronDown className={clsx('relative top-[1px]', sortCol < 0 && 'rotate-180')} />
+              )}
             </span>
           </div>
         )
