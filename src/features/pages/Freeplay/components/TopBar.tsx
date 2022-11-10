@@ -2,7 +2,7 @@ import React from 'react'
 import { Select } from '@/components'
 import { formatInstrumentName } from '@/utils'
 import { gmInstruments, InstrumentName } from '@/features/synth'
-import { ArrowLeft } from 'react-feather'
+import { ArrowLeft } from '@/icons'
 import { useRouter } from 'next/router'
 
 type TopBarProps = {
