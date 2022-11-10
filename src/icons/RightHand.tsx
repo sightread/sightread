@@ -1,13 +1,6 @@
-import { IconInput } from './types'
+import type { IconProps } from 'react-feather'
 
-function RightHand({
-  width,
-  height,
-  style,
-  className,
-  onClick,
-  fill,
-}: IconInput & { fill?: string }) {
+function RightHand({ width, height, style, className, onClick, fill }: IconProps) {
   return (
     <svg
       width={width}

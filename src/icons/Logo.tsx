@@ -1,6 +1,7 @@
-import { IconInput } from './types'
+import type { IconProps } from 'react-feather'
 
-export default function Logo({ width, height, className, style }: Partial<IconInput>) {
+export default function Logo(props: IconProps) {
+  const { width, height, className, style } = props
   return (
     <svg
       width={width ?? 34}

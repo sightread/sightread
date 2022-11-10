@@ -1,7 +1,7 @@
 import { AppBar, Sizer } from '@/components'
 import Link from 'next/link'
-import React, { useCallback, useState } from 'react'
-import { PauseIcon, PlayIcon } from '@/icons'
+import React, { useState } from 'react'
+import { Pause, Play } from '@/icons'
 import clsx from 'clsx'
 import { SongPreview } from '../../SongPreview/SongPreview'
 import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
@@ -56,20 +56,19 @@ export default function Home() {
           <div className="absolute top-0 w-full h-[50px] bg-black/80 flex items-center justify-center">
             <button
               className={clsx(
-                'gap-1 items-center hover:fill-gray-300 hover:text-gray-300',
+                'gap-1 items-center hover:text-gray-300',
                 'flex absolute left-5 sm:static',
-                playerState.canPlay ? 'fill-white' : 'fill-gray-300',
+                playerState.canPlay ? 'text-white' : 'text-gray-300',
               )}
               onClick={playerActions.toggle}
             >
               {playerState.playing ? (
                 <>
-                  <PauseIcon height={24} width={24} />
-                  Pause
+                  <Pause size={24} /> Pause
                 </>
               ) : (
                 <>
-                  <PlayIcon height={24} width={24} />
+                  <Play size={24} />
                   Play
                 </>
               )}

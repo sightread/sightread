@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react'
+import { ArrowLeft, SkipBack, Settings, VolumeX, Volume2 } from 'react-feather'
 import { MouseEvent } from 'react'
-import { ArrowLeftIcon, PreviousIcon, SoundOnIcon, SoundOffIcon, SettingsCog } from '@/icons'
 import StatusIcon from './StatusIcon'
 import clsx from 'clsx'
 import { Tooltip } from '@/components'
@@ -37,7 +37,7 @@ export default function TopBar({
         className="!absolute left-3 top-1/2 -translate-y-1/2"
         style={{ transform: 'translateY(-50%)' }}
       >
-        <ArrowLeftIcon height={40} width={50} onClick={onClickBack} />
+        <ArrowLeft size={24} onClick={onClickBack} />
       </ButtonWithTooltip>
       <div
         className={clsx(
@@ -46,21 +46,17 @@ export default function TopBar({
         )}
       >
         <ButtonWithTooltip tooltip="Restart">
-          <PreviousIcon height={24} width={24} onClick={onClickRestart} />
+          <SkipBack size={24} onClick={onClickRestart} />
         </ButtonWithTooltip>
         <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
       </div>
       <div className="items-center hidden sm:flex sm:ml-auto h-full text-white">{title}</div>
       <div className="flex h-full items-center mr-[20px] gap-8">
         <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
-          <SettingsCog width={24} height={24} onClick={onClickSettings} />
+          <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
         <ButtonWithTooltip className="" tooltip="Toggle volume" onClick={onClickSound}>
-          {isSoundOff ? (
-            <SoundOffIcon width={24} height={24} />
-          ) : (
-            <SoundOnIcon width={24} height={24} />
-          )}
+          {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
         </ButtonWithTooltip>
       </div>
     </div>
@@ -84,8 +80,8 @@ export function ButtonWithTooltip(props: ButtonWithTooltipProps) {
         style={props.style}
         className={clsx(
           props.className,
-          props.isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
-          'hover:fill-purple-hover hover:text-purple-hover',
+          props.isActive ? 'text-purple-primary' : 'text-white',
+          'hover:text-purple-hover',
         )}
       >
         {props.children}

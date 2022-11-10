@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import clsx from 'clsx'
 import { Select } from '@/components'
-import { LeftHandIcon, RightHandIcon, SoundOnIcon, SoundOffIcon } from '@/icons'
+import { LeftHand, RightHand, Volume2, VolumeX } from '@/icons'
 import Player from '@/features/player'
 import { InstrumentName, gmInstruments } from '@/features/synth'
 import { Song, SongConfig, TrackSetting } from '@/types'
@@ -166,7 +166,7 @@ type ToggleIconProps = {
 function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
   return (
     <button className="flex flex-col items-center">
-      <LeftHandIcon
+      <LeftHand
         height={32}
         width={32}
         fill={clsx(on ? 'fill-purple-primary' : 'fill-white hover:fill-purple-hover')}
@@ -180,7 +180,7 @@ function ToggleLeftHand({ on, onClick }: ToggleIconProps) {
 function ToggleRightHand({ on, onClick }: ToggleIconProps) {
   return (
     <button className="flex flex-col items-center">
-      <RightHandIcon
+      <RightHand
         height={32}
         width={32}
         fill={clsx(on ? 'fill-purple-primary' : 'fill-white hover:fill-purple-hover')}
@@ -192,7 +192,7 @@ function ToggleRightHand({ on, onClick }: ToggleIconProps) {
 }
 
 function ToggleSound({ on, onClick }: ToggleIconProps) {
-  const Icon = on ? SoundOnIcon : SoundOffIcon
+  const Icon = on ? Volume2 : VolumeX
   const labelText = on ? 'Sound On' : 'Sound Off'
 
   return (
@@ -200,7 +200,7 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
       <Icon
         height={32}
         width={32}
-        className={clsx('transition', on && 'fill-purple-primary')}
+        className={clsx('transition', on && 'text-purple-primary')}
         onClick={onClick}
       />
       <span style={labelStyle}>{labelText}</span>
