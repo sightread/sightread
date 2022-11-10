@@ -53,9 +53,9 @@ class Player {
   }
 
   async setSong(song: Song, songConfig: SongConfig) {
+    this.stop()
     this.song = song
     this.songHands = getHands(songConfig)
-    this.reset_()
     this.state = 'CannotPlay'
     this.notify()
 
@@ -307,7 +307,7 @@ class Player {
     this.currentIndex = 0
     this.playing = []
     this.range = null
-    if (this.song.backing) {
+    if (this.song?.backing) {
       this.song.backing.currentTime = 0
     }
   }

@@ -80,10 +80,6 @@ export default function SpeedTraining({}: Props) {
     }
   }, [synth, soundOff, setSpeedState, speedState])
 
-  const handleToggleSound = () => {
-    setSoundOff(!soundOff)
-  }
-
   return (
     <div>
       <>

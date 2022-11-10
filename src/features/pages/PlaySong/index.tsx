@@ -5,11 +5,17 @@ import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
-import { useEventListener, usePlayerState, useSingleton, useSongSettings } from '@/hooks'
+import {
+  useEventListener,
+  useOnUnmount,
+  usePlayerState,
+  useSingleton,
+  useSongSettings,
+  useWakeLock,
+} from '@/hooks'
 import { useSong, useSongMetadata } from '@/features/data'
 import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
-import * as wakelock from '@/features/wakelock'
 import { TopBar, SettingsPanel } from './components'
 import clsx from 'clsx'
 import Head from 'next/head'
@@ -31,7 +37,8 @@ export function PlaySong() {
   const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
   const isRecording = !!recording
   const songMeta = useSongMetadata(id, source)
-  const [refresh, forceRefresh] = useState<boolean>()
+
+  useWakeLock()
 
   const hand =
     songConfig.left && songConfig.right
@@ -41,12 +48,6 @@ export function PlaySong() {
       : songConfig.right
       ? 'right'
       : 'none'
-
-  // Stops screen from dimming during a song.
-  useEffect(() => {
-    wakelock.lock()
-    return () => wakelock.unlock()
-  }, [])
 
   // Hack for updating player when config changes.
   // Maybe move to the onChange? Or is this chill.
@@ -60,12 +61,7 @@ export function PlaySong() {
     }
   }, [player, waiting, left, right])
 
-  // Register ummount fns
-  useEffect(() => {
-    return () => {
-      player.stop()
-    }
-  }, [player])
+  useOnUnmount(() => player.stop())
 
   useEffect(() => {
     if (!song) return

@@ -1,7 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 type Destructor = () => void
 
 export default function useOnUnmount(fn: Destructor) {
-  return useEffect(() => fn, [fn])
+  const unmountFnRef = useRef<Destructor>()
+  unmountFnRef.current = fn
+  return useEffect(() => () => unmountFnRef.current?.(), [])
 }

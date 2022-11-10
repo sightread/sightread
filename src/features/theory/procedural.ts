@@ -1,6 +1,84 @@
 import { Song, SongMeasure, SongNote } from '@/types'
 import { Deferred, isBrowser } from '@/utils'
 import { parseMidi } from '../parsers'
+import { getRandomNote, KEY_SIGNATURE } from './keySignature'
+
+const dMajorChordProgression: Chord[] = [
+  // First act
+  'emLow',
+  'gLow',
+  'emLow',
+  'gLow',
+  'emLow',
+  'gLow',
+  'gLow',
+  'emLow',
+  'emLow',
+  'gLow',
+  'emLow',
+  'gLow',
+  'emLow',
+  'gLow',
+  'gLow',
+  'emLow',
+
+  // Second act
+  'emHigh',
+  'aHigh',
+  'emHigh',
+  'gHigh',
+  'emHigh',
+  'aHigh',
+  'gHigh',
+  'emHigh',
+  'emHigh',
+  'aHigh',
+  'emHigh',
+  'gHigh',
+  'emHigh',
+  'aHigh',
+  'gHigh',
+  'emHigh',
+]
+
+const dMinorChordProgression: Chord[] = [
+  // First Act
+  'dLow',
+  'emLow',
+  'dLow',
+  'gLow',
+  'dLow',
+  'emLow',
+  'gLow',
+  'dLow',
+
+  'dLow',
+  'emLow',
+  'dLow',
+  'gLow',
+  'dLow',
+  'emLow',
+  'gLow',
+  'dLow',
+
+  // Second Act
+  'dHigh',
+  'emHigh',
+  'dHigh',
+  'gHigh',
+  'dHigh',
+  'emHigh',
+  'gHigh',
+  'dHigh',
+  'dHigh',
+  'emHigh',
+  'dHigh',
+  'gHigh',
+  'dHigh',
+  'emHigh',
+  'gHigh',
+  'dHigh',
+]
 
 interface Measure {
   number: number
@@ -101,87 +179,11 @@ async function getMeasuresPerChord() {
   return (cachedMeasuresPerChord = measurePerChord)
 }
 
-const dMajorChordProgression: Chord[] = [
-  // First act
-  'emLow',
-  'gLow',
-  'emLow',
-  'gLow',
-  'emLow',
-  'gLow',
-  'gLow',
-  'emLow',
-  'emLow',
-  'gLow',
-  'emLow',
-  'gLow',
-  'emLow',
-  'gLow',
-  'gLow',
-  'emLow',
-
-  // Second act
-  'emHigh',
-  'aHigh',
-  'emHigh',
-  'gHigh',
-  'emHigh',
-  'aHigh',
-  'gHigh',
-  'emHigh',
-  'emHigh',
-  'aHigh',
-  'emHigh',
-  'gHigh',
-  'emHigh',
-  'aHigh',
-  'gHigh',
-  'emHigh',
-]
-
-const dMinorChordProgression: Chord[] = [
-  // First Act
-  'dLow',
-  'emLow',
-  'dLow',
-  'gLow',
-  'dLow',
-  'emLow',
-  'gLow',
-  'dLow',
-
-  'dLow',
-  'emLow',
-  'dLow',
-  'gLow',
-  'dLow',
-  'emLow',
-  'gLow',
-  'dLow',
-
-  // Second Act
-  'dHigh',
-  'emHigh',
-  'dHigh',
-  'gHigh',
-  'dHigh',
-  'emHigh',
-  'gHigh',
-  'dHigh',
-  'dHigh',
-  'emHigh',
-  'dHigh',
-  'gHigh',
-  'dHigh',
-  'emHigh',
-  'gHigh',
-  'dHigh',
-]
-
 const dMajorBacking = 'DM (Full BPM 120) v1.0 DB.mp3'
 const eMinorBacking = 'EM (Full BPM 120) v1.0 DB.mp3'
 
-type ChordProgression = 'eMinor' | 'dMajor'
+type ChordProgression = 'eMinor' | 'dMajor' | 'random'
+
 async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement> {
   const url = `/music/irish/backing/${type === 'eMinor' ? eMinorBacking : dMajorBacking}`
   const track = new Audio(url)
@@ -193,6 +195,10 @@ async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement
 }
 
 export async function getGeneratedSong(type: ChordProgression): Promise<Song> {
+  if (type === 'random') {
+    return getRandomSong()
+  }
+
   const [chordMap, backing] = await Promise.all([getMeasuresPerChord(), getBackingTrack(type)])
   const progression = type === 'eMinor' ? dMajorChordProgression : dMinorChordProgression
 
@@ -205,10 +211,52 @@ export async function getGeneratedSong(type: ChordProgression): Promise<Song> {
     measures,
     tracks: { 0: {}, 1: {} },
     bpms: [],
-    timeSignature: { numerator: 4, denominator: 4 },
+    timeSignature: { numerator: 6, denominator: 8 },
     keySignature: 'C',
     items: sort([...measures, ...notes]),
     backing,
+  }
+}
+
+function getRandomSong(): Song {
+  const clef = 'treble'
+  let minOctave = 4
+  let maxOctave = 5
+  // if (clef === 'bass') {
+  //   minOctave = 2
+  //   maxOctave = 3
+  // }
+
+  const duration = 20
+  let time = 0
+  const notes: SongNote[] = []
+  const measures: SongMeasure[] = []
+  Array.from({ length: duration * 4 }).forEach(() => {
+    const note: SongNote = {
+      type: 'note',
+      track: 0,
+      time,
+      duration: 0.25,
+      midiNote: getRandomNote(minOctave, maxOctave, 'C'),
+      measure: time / 1,
+    }
+    notes.push(note)
+    time += 0.25
+  })
+  for (let i = 0; i < duration; i += 1) {
+    const measure: SongMeasure = { type: 'measure', number: measures.length, time: i, duration: 1 }
+    measures.push(measure)
+  }
+
+  return {
+    duration,
+    notes,
+    measures,
+    tracks: { 0: {}, 1: {} },
+    bpms: [],
+    timeSignature: { numerator: 4, denominator: 4 },
+    keySignature: 'C',
+    items: sort([...measures, ...notes]),
   }
 }
 
