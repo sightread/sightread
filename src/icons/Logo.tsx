@@ -1,4 +1,4 @@
-import type { IconProps } from 'react-feather'
+import type { IconProps } from '@/icons'
 
 export default function Logo(props: IconProps) {
   const { width, height, className, style } = props

@@ -1,4 +1,4 @@
-import { Pause, Play, Loader } from 'react-feather'
+import { Pause, Play, Loader } from '@/icons'
 import { ButtonWithTooltip } from './TopBar'
 
 export default function StatusIcon({

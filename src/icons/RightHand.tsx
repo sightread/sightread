@@ -1,4 +1,4 @@
-import type { IconProps } from 'react-feather'
+import type { IconProps } from '@/icons'
 
 function RightHand({ width, height, style, className, onClick, fill }: IconProps) {
   return (

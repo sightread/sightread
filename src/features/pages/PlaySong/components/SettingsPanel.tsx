@@ -8,7 +8,6 @@ import clsx from 'clsx'
 import BpmDisplay from './BpmDisplay'
 
 type SidebarProps = {
-  open: boolean
   onChange: (settings: SongConfig) => void
   config: SongConfig
   song?: Song
@@ -19,14 +18,12 @@ type SidebarProps = {
 
 export default function SettingsPanel(props: SidebarProps) {
   const { left, right, visualization, waiting, noteLetter, keySignature } = props.config
-  const { open, onClose, onLoopToggled, isLooping } = props
+  const { onClose, onLoopToggled, isLooping } = props
   const [showTrackConfig, setShowTrackConfig] = useState(false)
 
   const sidebarRef = useRef<HTMLDivElement>(null)
 
-  const clickedOutsideHandler = useCallback(() => {
-    open && onClose?.()
-  }, [open, onClose])
+  const clickedOutsideHandler = useCallback(() => onClose?.(), [onClose])
   useWhenClickedOutside(clickedOutsideHandler, sidebarRef)
   useEventListener<KeyboardEvent>('keydown', (e) => {
     if (e.key === 'Escape') {

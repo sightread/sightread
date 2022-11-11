@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react'
-import { ArrowLeft, SkipBack, Settings, VolumeX, Volume2 } from 'react-feather'
+import { ArrowLeft, SkipBack, Settings, VolumeX, Volume2, Midi } from '@/icons'
 import { MouseEvent } from 'react'
 import StatusIcon from './StatusIcon'
 import clsx from 'clsx'
@@ -15,6 +15,7 @@ type TopBarProps = {
   onClickBack: () => void
   onClickRestart: () => void
   onClickSound: () => void
+  onClickMidi: (e: MouseEvent<any>) => void
   settingsOpen: boolean
 }
 
@@ -29,6 +30,7 @@ export default function TopBar({
   onClickSound,
   settingsOpen,
   title,
+  onClickMidi,
 }: TopBarProps) {
   return (
     <div className="h-[50px] min-h-[50px] w-screen bg-[#292929] flex px-1 relative justify-center align-center gap-8 z-10">
@@ -52,10 +54,13 @@ export default function TopBar({
       </div>
       <div className="items-center hidden sm:flex sm:ml-auto h-full text-white">{title}</div>
       <div className="flex h-full items-center mr-[20px] gap-8">
+        <ButtonWithTooltip tooltip="Choose a MIDI device">
+          <Midi size={24} onClick={onClickMidi} />
+        </ButtonWithTooltip>
         <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
           <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
-        <ButtonWithTooltip className="" tooltip="Toggle volume" onClick={onClickSound}>
+        <ButtonWithTooltip tooltip="Toggle volume" onClick={onClickSound}>
           {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
         </ButtonWithTooltip>
       </div>
@@ -63,28 +68,32 @@ export default function TopBar({
   )
 }
 
-type ButtonWithTooltipProps = PropsWithChildren<{
-  tooltip: string
-  tooltipPosition?: string
-  onClick?: () => void
-  className?: string
-  isActive?: boolean
-  style?: React.CSSProperties
-}>
+type ButtonProps = React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+>
+type ButtonWithTooltipProps = PropsWithChildren<
+  ButtonProps & { tooltip: string; isActive?: boolean }
+>
 
-export function ButtonWithTooltip(props: ButtonWithTooltipProps) {
+export function ButtonWithTooltip({
+  tooltip,
+  children,
+  isActive,
+  className,
+  ...rest
+}: ButtonWithTooltipProps) {
   return (
-    <Tooltip label={props.tooltip}>
+    <Tooltip label={tooltip}>
       <button
-        onClick={props.onClick}
-        style={props.style}
+        {...rest}
         className={clsx(
-          props.className,
-          props.isActive ? 'text-purple-primary' : 'text-white',
-          'hover:text-purple-hover',
+          className,
+          isActive ? 'text-purple-primary fill-purple-primary' : 'text-white fill-white',
+          'hover:text-purple-hover hover:fill-purple-hover',
         )}
       >
-        {props.children}
+        {children}
       </button>
     </Tooltip>
   )

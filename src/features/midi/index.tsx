@@ -1,31 +1,47 @@
 import { getNote } from '@/features/theory'
 import { MidiStateEvent } from '@/types'
+import { isBrowser } from '@/utils'
 
-// TODO: create ui for selecting midi device instead of grabbing
-// all of them.
-
-export async function setupMidiDeviceListeners() {
-  if (typeof window === 'undefined' || !window.navigator.requestMIDIAccess) {
-    return
+export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
+  if (!isBrowser() || !window.navigator.requestMIDIAccess) {
+    return new Map()
   }
+
   try {
     const midiAccess = await window.navigator.requestMIDIAccess()
-    const attachListeners = (inputs: WebMidi.MIDIInputMap) => {
-      for (let entry of inputs) {
-        entry[1].onmidimessage = onMidiMessage
-      }
-    }
-
-    attachListeners(midiAccess.inputs)
-    midiAccess.addEventListener('statechange', () => {
-      attachListeners(midiAccess.inputs)
-    })
+    return midiAccess.inputs
   } catch (error) {
     console.error('Error accessing MIDI devices: ' + error)
+    return new Map()
   }
 }
 
+const enabledDevices: Map<string, WebMidi.MIDIInput> = new Map()
+export function isMidiDeviceEnabled(device: WebMidi.MIDIInput) {
+  return enabledDevices.has(device.id)
+}
+export function enableMidiDevice(device: WebMidi.MIDIInput) {
+  device.open()
+  device.addEventListener('midimessage', onMidiMessage)
+  enabledDevices.set(device.id, device)
+}
+export function disableMidiDevice(deviceParam: WebMidi.MIDIInput) {
+  const device = enabledDevices.get(deviceParam.id)
+  if (!device) {
+    return
+  }
+  device.removeEventListener('midimessage', onMidiMessage as any)
+  device.close()
+  enabledDevices.delete(device.id)
+}
+
 setupMidiDeviceListeners()
+async function setupMidiDeviceListeners() {
+  const inputs = await getMidiInputs()
+  for (const device of inputs.values()) {
+    enableMidiDevice(device)
+  }
+}
 
 type MidiEvent = {
   type: 'on' | 'off'

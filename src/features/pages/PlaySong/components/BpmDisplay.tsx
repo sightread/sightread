@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import Player from '@/features/player'
 import { useRAFLoop } from '@/hooks'
-import { ChevronUp, ChevronDown } from 'react-feather'
+import { ChevronUp, ChevronDown } from '@/icons'
 
 export default function BpmDisplay() {
   const bpmRef = useRef<HTMLSpanElement>(null)
