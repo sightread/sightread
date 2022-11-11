@@ -60,7 +60,7 @@ export default function SettingsPanel(props: SidebarProps) {
     >
       <h3 className="text-2xl text-purple-primary text-center">Settings</h3>
       <div className="flex flex-col items-center sm:items-stretch sm:flex-row gap-4 whitespace-nowrap flex-wrap flex-grow">
-        <Section title="Speed" className="min-w-[150px] flex-grow">
+        <Section title="Speed" className="flex flex-grow">
           <BpmDisplay />
         </Section>
         <Section title="Hands" className="flex flex-col flex-grow">

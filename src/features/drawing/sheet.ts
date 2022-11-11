@@ -1,7 +1,7 @@
 import { getKey, getKeyDetails, getNote, getOctave, KEY_SIGNATURE, glyphs } from '@/features/theory'
+import { Clef } from '@/types'
 import { line } from './index'
 
-type Clef = 'bass' | 'treble'
 const MUSIC_FONT = 'Leland'
 export const STAFF_FIVE_LINES_HEIGHT = 80
 export const STAFF_SPACE = STAFF_FIVE_LINES_HEIGHT / 4
@@ -133,7 +133,7 @@ export function drawKeySignature(
   x: number,
   staffTopY: number,
   keySignature: KEY_SIGNATURE,
-  staff: 'treble' | 'bass',
+  staff: Clef,
 ) {
   ctx.save()
   const type = getKeyDetails(keySignature).type
@@ -149,7 +149,7 @@ export function drawKeySignature(
   ctx.restore()
 }
 
-function getKeySignatureNotes(keySignature: KEY_SIGNATURE, staff: 'treble' | 'bass') {
+function getKeySignatureNotes(keySignature: KEY_SIGNATURE, staff: Clef) {
   return getKeyDetails(keySignature).notes.map((note) => {
     let octave = staff === 'treble' ? 5 : 3
     if (note === 'A' || note === 'B') {

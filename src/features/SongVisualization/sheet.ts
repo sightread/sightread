@@ -11,7 +11,7 @@ import {
   drawTimeSignature,
   STAFF_SPACE,
 } from '@/features/drawing'
-import { SongNote } from '@/types'
+import { Clef, SongMeasure, SongNote } from '@/types'
 import { pickHex } from '@/utils'
 import {
   drawLedgerLines,
@@ -58,7 +58,7 @@ export function renderSheetVis(givenState: GivenState): void {
     }
     renderSheetNote(state, item)
   }
-  renderMidiPressedKeys(state)
+  renderMidiPressedKeys(state, items)
 }
 
 function getSheetItemsInView(state: State): CanvasItem[] {
@@ -189,11 +189,18 @@ function sheetNoteColor(x: number, length: number): string {
 // TODO pick side based not just on side of C4 but also
 // the current song, i.e. if there are notes that should be played by left or right hand
 // then show it on that hand.
-function renderMidiPressedKeys(state: State): void {
+function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]): void {
   const { ctx } = state
   const pressed = midiState.getPressedNotes()
   for (let note of pressed.keys()) {
-    const staff = note < getNote('C4') ? 'bass' : 'treble'
+    let staff: Clef = note < getNote('C4') ? 'bass' : 'treble'
+    const inRangeNote = inRange.find((n) => n.type === 'note' && n.midiNote === +note) as
+      | SongNote
+      | undefined
+    if (inRangeNote) {
+      staff = state.hands?.[inRangeNote.track].hand === 'right' ? 'treble' : 'bass'
+    }
+
     const staffTopY = staff === 'bass' ? getBassStaffTopY(state) : getTrebleStaffTopY(state)
     const canvasY = getNoteY(note, staff, staffTopY)
     let canvasX = getPlayNotesLineX(state) - 2

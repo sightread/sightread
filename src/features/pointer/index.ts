@@ -6,9 +6,15 @@ type Velocity = { x: number; y: number }
 let isPointerDown_ = false
 let pointerCoordinates: Point = { x: Infinity, y: Infinity }
 let pointerVelocity: Velocity = { x: 0, y: 0 }
-const setPointerDown = () => (isPointerDown_ = true)
-const setPointerUp = () => (isPointerDown_ = false)
-const setPointerLocation = (e: MouseEvent) => {
+function setPointerDown(e: PointerEvent) {
+  isPointerDown_ = true
+  setPointerLocation(e)
+}
+function setPointerUp(e: PointerEvent) {
+  isPointerDown_ = false
+  setPointerLocation(e)
+}
+const setPointerLocation = (e: PointerEvent) => {
   const { clientX: x, clientY: y } = e
   if (isPointerDown_) {
     pointerVelocity = { x: x - pointerCoordinates.x, y: y - pointerCoordinates.y }
@@ -19,9 +25,9 @@ const setPointerLocation = (e: MouseEvent) => {
 }
 
 if (isBrowser()) {
-  window.addEventListener('pointerdown', setPointerDown, { passive: true })
-  window.addEventListener('pointerup', setPointerUp, { passive: true })
-  window.addEventListener('pointermove', setPointerLocation, { passive: true })
+  window.addEventListener('pointerdown', setPointerDown, { passive: true, capture: true })
+  window.addEventListener('pointerup', setPointerUp, { passive: true, capture: true })
+  window.addEventListener('pointermove', setPointerLocation, { passive: true, capture: true })
 }
 
 export function isPointerDown(): boolean {

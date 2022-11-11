@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 
-import { MidiStateEvent } from '@/types'
+import { Clef, MidiStateEvent } from '@/types'
 import { useSingleton } from '@/hooks'
 import { getSynthStub, Synth } from '@/features/synth'
 import midiState from '@/features/midi'
@@ -16,7 +16,7 @@ import { isBrowser } from '@/utils'
 export type Props = {}
 
 export interface SpeedTrainingConfig {
-  clef: 'bass' | 'treble'
+  clef: Clef
   displayLetter: boolean
   generator: 'excerpts' | 'random'
   keySignature: KEY_SIGNATURE
@@ -259,7 +259,7 @@ if (isBrowser()) {
   failSound.volume = 0.25
 }
 
-function generateRandomNotes(clef: 'bass' | 'treble', keySignature: KEY_SIGNATURE) {
+function generateRandomNotes(clef: Clef, keySignature: KEY_SIGNATURE) {
   let minOctave = 4
   let maxOctave = 5
   if (clef === 'bass') {
