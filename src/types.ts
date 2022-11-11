@@ -27,13 +27,13 @@ export interface Size {
   height: number
 }
 
-export type Pitch = {
+export interface Pitch {
   step: string
   octave: number
   alter: number
 }
 
-export type SongNote = {
+export interface SongNote {
   type: 'note'
   midiNote: number
   track: number
@@ -43,13 +43,16 @@ export type SongNote = {
   velocity?: number
 }
 
-export type Bpm = { time: number; bpm: number }
+export interface Bpm {
+  time: number
+  bpm: number
+}
 
-export type Tracks = {
+export interface Tracks {
   [id: number]: Track
 }
 
-export type Track = {
+export interface Track {
   instrument?: string
   name?: string
   program?: number
@@ -72,6 +75,7 @@ export type Song = {
   items: Array<SongNote | SongMeasure>
 }
 
+export type Clef = 'bass' | 'treble'
 export type VisualizationMode = 'falling-notes' | 'sheet'
 export type Hand = 'both' | 'left' | 'right' | 'none'
 export type SongConfig = {
