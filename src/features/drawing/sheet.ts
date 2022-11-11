@@ -1,7 +1,7 @@
 import { getKey, getKeyDetails, getNote, getOctave, KEY_SIGNATURE, glyphs } from '@/features/theory'
 import { line } from './index'
 
-type Clef = 'bass' | 'treble'
+export type Clef = 'bass' | 'treble'
 const MUSIC_FONT = 'Leland'
 export const STAFF_FIVE_LINES_HEIGHT = 80
 export const STAFF_SPACE = STAFF_FIVE_LINES_HEIGHT / 4

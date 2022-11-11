@@ -1,7 +1,7 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 import { SongNote, Song, SongConfig, SongMeasure } from '@/types'
 import { InstrumentName } from '@/features/synth'
-import { getHands, isBrowser } from '@/utils'
+import { getHands } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
 
@@ -27,7 +27,6 @@ class Player {
   listeners: Array<Function> = []
   wait = false
   lastPressedKeys = new Map<number, number>()
-  dirty = false
   songHands: { left?: number; right?: number } = {}
 
   static player(): Player {
@@ -185,9 +184,6 @@ class Player {
 
   playNote(note: SongNote) {
     this.synths[note.track].playNote(note.midiNote, note.velocity)
-    if (this.isActiveTrack(note)) {
-      this.dirty = true
-    }
   }
 
   stopNotes(notes: Array<SongNote>) {
@@ -197,7 +193,6 @@ class Player {
     for (let note of notes) {
       this.synths[note.track].stopNote(note.midiNote)
     }
-    this.dirty = true
   }
 
   updateTime_() {
@@ -216,7 +211,7 @@ class Player {
     const prevTime = this.currentSongTime
     const time = this.updateTime_()
 
-    // If at the end of the song, then reset.
+    // If at the end of the song, stop playing.
     if (this.currentSongTime >= this.getDuration()) {
       this.pause()
     }
@@ -300,14 +295,9 @@ class Player {
     this.stopAllSounds()
     this.currentSongTime = time
     this.playing = this.song.notes.filter((note) => {
-      return note.time <= this.currentSongTime && note.time + note.duration > this.currentSongTime
+      return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
     })
-    // TODO: play notes that are partway through after seeking. We need to ensure that a seek has completed
-    //       because currently a single seek-session comes through as many separate seek events.
-    // if (!!this.playInterval) {
-    // this.playing.forEach((note) => this.playNote(note))
-    // }
-    this.currentIndex = this.song.notes.findIndex((note) => note.time > this.currentSongTime)
+    this.currentIndex = this.song.notes.findIndex((note) => note.time >= this.currentSongTime)
     this.currentBpm = this.getBpmIndexForTime(time)
   }
 
