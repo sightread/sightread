@@ -4,6 +4,7 @@ import { palette as colors } from '@/styles/common'
 import { AdjustInstruments } from '@/features/SongInputControls'
 import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
 import { SpeedTrainingConfig } from '..'
+import { Clef } from '@/types'
 
 type SidebarProps = {
   open: boolean
@@ -18,7 +19,7 @@ export default function SettingsSidebar(props: SidebarProps) {
   const handleGenerator = (generator: Generator) => {
     props.onChange({ ...props.config, generator })
   }
-  const handleClef = (clef: 'bass' | 'treble') => {
+  const handleClef = (clef: Clef) => {
     props.onChange({ ...props.config, clef })
   }
   function handleDisplayLetter() {
