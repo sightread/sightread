@@ -7,11 +7,13 @@ import { useSingleton } from '@/hooks'
 import FreePlayer from './utils/freePlayer'
 import TopBar from './components/TopBar'
 import Head from 'next/head'
+import { MidiModal } from '../PlaySong/components/MidiModal'
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
   const synthState = useSynth(instrumentName)
   const freePlayer = useSingleton(() => new FreePlayer())
+  const [isMidiModalOpen, setMidiModal] = useState(false)
 
   const handleNoteDown = useCallback(
     (note: number, velocity: number = 80) => {
@@ -50,11 +52,16 @@ export default function FreePlay() {
       </Head>
       <div className="w-screen h-screen flex flex-col">
         <TopBar
+          onClickMidi={(e) => {
+            e.stopPropagation()
+            setMidiModal(!isMidiModalOpen)
+          }}
           isLoading={synthState.loading}
           isError={synthState.error}
           value={instrumentName}
           onChange={(name) => setInstrumentName(name)}
         />
+        <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
         <div className="flex-grow relative">
           <SongVisualizer
             song={freePlayer.song}

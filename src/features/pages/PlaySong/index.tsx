@@ -13,12 +13,14 @@ import * as wakelock from '@/features/wakelock'
 import { TopBar, SettingsPanel } from './components'
 import clsx from 'clsx'
 import Head from 'next/head'
+import { MidiModal } from './components/MidiModal'
 
 export function PlaySong() {
   const router = useRouter()
   const { source, id, recording }: { source: SongSource; id: string; recording?: string } =
     router.query as any
   const [settingsOpen, setSettingsPanel] = useState(false)
+  const [isMidiModalOpen, setMidiModal] = useState(false)
   const [playerState, playerActions] = usePlayerState()
   const [isLooping, setIsLooping] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
@@ -162,6 +164,10 @@ export function PlaySong() {
                 playerActions.reset()
                 router.back()
               }}
+              onClickMidi={(e) => {
+                e.stopPropagation()
+                setMidiModal(!isMidiModalOpen)
+              }}
               onClickSettings={(e) => {
                 e.stopPropagation()
                 setSettingsPanel(!settingsOpen)
@@ -169,9 +175,9 @@ export function PlaySong() {
               onClickSound={handleToggleSound}
               settingsOpen={settingsOpen}
             />
+            <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
             <div className={clsx('w-full z-10', !settingsOpen && 'hidden')}>
               <SettingsPanel
-                open={settingsOpen}
                 onClose={() => setSettingsPanel(false)}
                 onChange={setSongConfig}
                 config={songConfig}
