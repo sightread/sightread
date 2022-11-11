@@ -60,7 +60,7 @@ export default function TopBar({
         <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
           <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
-        <ButtonWithTooltip className="" tooltip="Toggle volume" onClick={onClickSound}>
+        <ButtonWithTooltip tooltip="Toggle volume" onClick={onClickSound}>
           {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
         </ButtonWithTooltip>
       </div>
@@ -68,28 +68,32 @@ export default function TopBar({
   )
 }
 
-type ButtonWithTooltipProps = PropsWithChildren<{
-  tooltip: string
-  tooltipPosition?: string
-  onClick?: () => void
-  className?: string
-  isActive?: boolean
-  style?: React.CSSProperties
-}>
+type ButtonProps = React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+>
+type ButtonWithTooltipProps = PropsWithChildren<
+  ButtonProps & { tooltip: string; isActive?: boolean }
+>
 
-export function ButtonWithTooltip(props: ButtonWithTooltipProps) {
+export function ButtonWithTooltip({
+  tooltip,
+  children,
+  isActive,
+  className,
+  ...rest
+}: ButtonWithTooltipProps) {
   return (
-    <Tooltip label={props.tooltip}>
+    <Tooltip label={tooltip}>
       <button
-        onClick={props.onClick}
-        style={props.style}
+        {...rest}
         className={clsx(
-          props.className,
-          props.isActive ? 'text-purple-primary fill-purple-primary' : 'text-white fill-white',
+          className,
+          isActive ? 'text-purple-primary fill-purple-primary' : 'text-white fill-white',
           'hover:text-purple-hover hover:fill-purple-hover',
         )}
       >
-        {props.children}
+        {children}
       </button>
     </Tooltip>
   )

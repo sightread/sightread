@@ -18,10 +18,10 @@ export function MidiModal(props: MidiModalProps) {
   return (
     <Modal show={isOpen} onClose={onClose}>
       <div className="relative text-base p-8 flex flex-col w-[min(100vw,500px)]">
-        <h1 className="text-2xl font-bold">Connect a device</h1>
+        <h1 className="text-3xl font-bold">Connect Your Piano</h1>
         <Sizer height={32} />
         <div className="flex gap-3">
-          <h1 className="text-xl font-medium">Available devices</h1>
+          <h1 className="text-lg font-medium">Available devices</h1>
           <button
             style={{ animationIterationCount: 0.5 }}
             className={clsx('hover:text-purple-hover', animating && 'animate-spin')}
@@ -36,7 +36,7 @@ export function MidiModal(props: MidiModalProps) {
             <RefreshCw />
           </button>
         </div>
-        <Sizer height={16} />
+        <Sizer height={8} />
         <div className="flex flex-col gap-1 min-h-[200px] bg-gray-100 rounded-md">
           {!inputs?.size && (
             <span className="p-5 text-gray-900">
