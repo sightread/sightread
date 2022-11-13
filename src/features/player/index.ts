@@ -1,15 +1,28 @@
 // TODO: handle when users don't have an AudioContext supporting browser
+import { signal, Signal } from '@preact/signals-react'
 import { SongNote, Song, SongConfig, SongMeasure } from '@/types'
 import { InstrumentName } from '@/features/synth'
-import { getHands } from '@/utils'
+import { getHands, isBrowser } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
+import { getAudioContext } from '../synth/utils'
 
 let player: Player
+
+interface Score {
+  perfect: Signal<number>
+  good: Signal<number>
+  miss: Signal<number>
+}
+
+function getInitialScore(): Score {
+  return { perfect: signal(0), good: signal(0), miss: signal(0) }
+}
 
 export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
 class Player {
   state: PlayerState = 'CannotPlay'
+  score: Score = getInitialScore()
   song!: Song
   playInterval: any = null
   currentSongTime = 0
@@ -26,8 +39,14 @@ class Player {
   hand = 'both'
   listeners: Array<Function> = []
   wait = false
-  lastPressedKeys = new Map<number, number>()
+  lastPressedKeys = new Map<number, { time: number; used: boolean }>()
   songHands: { left?: number; right?: number } = {}
+
+  constructor() {
+    midi.subscribe((midiEvent) => {
+      this.lastPressedKeys.set(midiEvent.note, { used: false, time: midiEvent.time })
+    })
+  }
 
   static player(): Player {
     if (!player) {
@@ -78,6 +97,9 @@ class Player {
     this.synths?.forEach((synth) => {
       synth?.setMasterVolume(vol)
     })
+    if (this.song.backing) {
+      this.song.backing.volume = 0.15 * vol
+    }
   }
 
   setTrackVolume(track: number | string, vol: number) {
@@ -107,27 +129,32 @@ class Player {
     return this.songHands.left === note.track || this.songHands.right === note.track
   }
 
-  getTime() {
+  getTimeForVisuals() {
+    const offset = getAudioContext().outputLatency
+
     if (this.song?.backing) {
+      console.log('hi')
       return this.song.backing.currentTime
-    } else if (!this.isPlaying()) {
-      return this.currentSongTime
     }
 
-    const nextNote = this.song?.notes[this.currentIndex]
-    if (this.wait && nextNote && this.isActiveHand(nextNote)) {
-      const isntPressed =
-        !midi.getPressedNotes().has(nextNote.midiNote) ||
-        midi.getPressedNotes().get(nextNote.midiNote) ===
-          this.lastPressedKeys.get(nextNote.midiNote)
-      if (isntPressed) {
-        return this.currentSongTime
-      }
+    if (!this.isPlaying()) {
+      return Math.max(0, this.currentSongTime - offset)
     }
+
+    // const nextNote = this.song?.notes[this.currentIndex]
+    // if (this.wait && nextNote && this.isActiveHand(nextNote)) {
+    //   const isntPressed =
+    //     !midi.getPressedNotes().has(nextNote.midiNote) ||
+    //     midi.getPressedNotes().get(nextNote.midiNote) ===
+    //       this.lastPressedKeys.get(nextNote.midiNote)
+    //   if (isntPressed) {
+    //     return this.currentSongTime - offset
+    //   }
+    // }
 
     const now = performance.now()
     const dt = now - this.lastIntervalFiredTime
-    return this.currentSongTime + dt / 1000
+    return Math.max(0, this.currentSongTime + dt / 1000 - offset)
   }
   // ms * |___1s___|
   //      | 1000ms |
@@ -178,9 +205,10 @@ class Player {
   }
 
   play() {
-    if (this.isPlaying()) {
+    if (this.isPlaying() || this.state == 'CannotPlay') {
       return
     }
+
     if (this.song.backing) {
       const backingTrack = this.song.backing
       backingTrack.volume = 0.15
@@ -210,7 +238,8 @@ class Player {
 
   updateTime_() {
     if (this.song.backing) {
-      return (this.currentSongTime = this.song.backing.currentTime)
+      return (this.currentSongTime =
+        this.song.backing.currentTime + getAudioContext().outputLatency)
     }
 
     let dt = 0
@@ -252,17 +281,39 @@ class Player {
     while (this.song.notes[this.currentIndex]?.time < time) {
       const note = this.song.notes[this.currentIndex]
 
-      if (this.wait && this.isActiveHand(note)) {
-        const lastPressedTime = this.lastPressedKeys.get(note.midiNote)
-        const currPressedTime = midi.getPressedNotes().get(note.midiNote)?.time
-        if (currPressedTime && currPressedTime !== lastPressedTime) {
-          this.lastPressedKeys.set(note.midiNote, currPressedTime)
+      /**
+       * The problem: have access to 'currently hit notes'. can save that in any way i like.
+       * need to determineif recently pressed, but that recent press needs to have not been spent.
+       */
+      if (this.isActiveHand(note)) {
+        const lastPress = this.lastPressedKeys.get(note.midiNote)
+        const withinPerfectTimeLimit =
+          lastPress &&
+          !lastPress.used &&
+          Math.abs(Date.now() - lastPress.time) < 50 * (1 / this.bpmModifier)
+        const withinGoodTimeLimit =
+          lastPress &&
+          !lastPress.used &&
+          Math.abs(Date.now() - lastPress.time) < 100 * (1 / this.bpmModifier)
+
+        if (lastPress && !lastPress.used) {
+          console.log(Math.abs(Date.now() - lastPress.time))
         }
 
-        const withinMsLimit =
-          currPressedTime && Date.now() - currPressedTime < 100 * (1 / this.bpmModifier)
+        if (lastPress) {
+          lastPress.used = true
+        }
 
-        if (!currPressedTime || !withinMsLimit || currPressedTime === lastPressedTime) {
+        if (withinPerfectTimeLimit) {
+          this.score.perfect.value++
+        } else if (withinGoodTimeLimit) {
+          this.score.good.value++
+        } else {
+          this.score.miss.value++
+        }
+        const isHit = withinGoodTimeLimit || withinPerfectTimeLimit
+
+        if (this.wait && !isHit) {
           this.currentSongTime = note.time
           return
         }
@@ -307,6 +358,7 @@ class Player {
     this.currentIndex = 0
     this.playing = []
     this.range = null
+    this.score = getInitialScore()
     if (this.song?.backing) {
       this.song.backing.currentTime = 0
     }
@@ -361,6 +413,10 @@ class Player {
   notify() {
     this.listeners.forEach((fn) => fn(this.state))
   }
+}
+
+if (isBrowser()) {
+  ;(window as any).SR = Player.player()
 }
 
 export default Player

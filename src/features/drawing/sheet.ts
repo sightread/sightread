@@ -102,11 +102,6 @@ export function drawPlayNotesLine(
 ): void {
   ctx.save()
   ctx.strokeStyle = PLAY_NOTES_LINE_COLOR
-  ctx.lineWidth = PLAY_NOTES_WIDTH
-  line(ctx, x, y1, x, y2)
-
-  // Vertical lil bar for center.
-  ctx.strokeStyle = 'rgba(255,0,0,0.3)'
   ctx.lineWidth = 3
   line(ctx, x, y1, x, y2)
   ctx.restore()

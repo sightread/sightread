@@ -18,7 +18,7 @@ export default function TopBar({ isError, isLoading, value, onChange, onClickMid
   const router = useRouter()
 
   return (
-    <div className="px-4 color-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center gap-4">
+    <div className="px-4 text-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center gap-4">
       <ButtonWithTooltip tooltip="Choose a MIDI device" onClick={() => router.back()}>
         <ArrowLeft size={24} />
       </ButtonWithTooltip>

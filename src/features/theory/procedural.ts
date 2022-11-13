@@ -1,7 +1,7 @@
 import { Song, SongMeasure, SongNote } from '@/types'
 import { Deferred, isBrowser } from '@/utils'
 import { parseMidi } from '../parsers'
-import { getRandomNote, KEY_SIGNATURE } from './keySignature'
+import { getNote, getRandomNote, KEY_SIGNATURE } from './keySignature'
 
 const dMajorChordProgression: Chord[] = [
   // First act
@@ -131,9 +131,10 @@ function joinMeasures(measures: Measure[]): { notes: SongNote[]; measures: SongM
   return { notes: songNotes, measures: songMeasures }
 }
 
+export type Level = 1 | 2 | 3
 type Chord =
   | 'aHigh'
-  | 'amHigh'
+  // | 'amHigh'
   | 'amLow'
   | 'cHigh'
   | 'cLow'
@@ -144,29 +145,31 @@ type Chord =
   | 'gHigh'
   | 'gLow'
 
-const midiFiles: { [chord in Chord]: string } = {
-  aHigh: 'A_High_Lvl_3.mid',
-  amHigh: 'Am_High_Lvl_3.mid',
-  amLow: 'Am_Low_Lvl_3.mid',
-  cHigh: 'C_High_Lvl_3.mid',
-  cLow: 'C_Low_Lvl_3.mid',
-  dHigh: 'D_High_Lvl_3.mid',
-  dLow: 'D_Low_Lvl_3.mid',
-  emHigh: 'Em_High_Lvl_3.mid',
-  emLow: 'Em_Low_Lvl_3.mid',
-  gHigh: 'G_High_Lvl_3.mid',
-  gLow: 'G_Low_Lvl_3.mid',
+const irishMidiFiles: { [chord in Chord]: string } = {
+  aHigh: 'A_High',
+  // amHigh: 'Am_High',
+  amLow: 'Am_Low',
+  cHigh: 'C_High',
+  cLow: 'C_Low',
+  dHigh: 'D_High',
+  dLow: 'D_Low',
+  emHigh: 'Em_High',
+  emLow: 'Em_Low',
+  gHigh: 'G_High',
+  gLow: 'G_Low',
 }
 
-let cachedMeasuresPerChord: Map<Chord, Measure[]>
-async function getMeasuresPerChord() {
-  if (cachedMeasuresPerChord) {
-    return cachedMeasuresPerChord
+let cachedMeasuresPerChord: Map<string, Map<Chord, Measure[]>> = new Map()
+async function getMeasuresPerChord(type: 'irish', level: number) {
+  const cacheKey = `${type}-${level}`
+  if (cachedMeasuresPerChord.has(cacheKey)) {
+    cachedMeasuresPerChord.get(cacheKey)
   }
   const measurePerChord: Map<Chord, Measure[]> = new Map()
 
   await Promise.all(
-    Object.entries(midiFiles).map(([chord, filename]: any) => {
+    Object.entries(irishMidiFiles).map(([chord, prefix]: any) => {
+      const filename = `${prefix}_Lvl_${level}.mid`
       return fetch(`/music/irish/${filename}`)
         .then((response) => response.arrayBuffer())
         .then(parseMidi)
@@ -176,7 +179,8 @@ async function getMeasuresPerChord() {
         .catch((err) => console.error(err))
     }),
   )
-  return (cachedMeasuresPerChord = measurePerChord)
+  cachedMeasuresPerChord.set(cacheKey, measurePerChord)
+  return measurePerChord
 }
 
 const dMajorBacking = 'DM (Full BPM 120) v1.0 DB.mp3'
@@ -194,12 +198,15 @@ async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement
   return deferred.promise
 }
 
-export async function getGeneratedSong(type: ChordProgression): Promise<Song> {
+export async function getGeneratedSong(type: ChordProgression, level?: Level): Promise<Song> {
   if (type === 'random') {
     return getRandomSong()
   }
 
-  const [chordMap, backing] = await Promise.all([getMeasuresPerChord(), getBackingTrack(type)])
+  const [chordMap, backing] = await Promise.all([
+    getMeasuresPerChord('irish', level ?? 3),
+    getBackingTrack(type),
+  ])
   const progression = type === 'eMinor' ? dMajorChordProgression : dMinorChordProgression
 
   const { notes, measures } = joinMeasures(progression.map((c) => randomChoice(chordMap.get(c)!)!))
@@ -237,7 +244,8 @@ function getRandomSong(): Song {
       track: 0,
       time,
       duration: 0.25,
-      midiNote: getRandomNote(minOctave, maxOctave, 'C'),
+      midiNote: getNote('G4'),
+      // midiNote: getRandomNote(minOctave, maxOctave, 'C'),
       measure: time / 1,
     }
     notes.push(note)

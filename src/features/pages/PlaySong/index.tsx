@@ -113,10 +113,11 @@ export function PlaySong() {
   const handleToggleSound = () => {
     if (!soundOff) {
       player.setVolume(0)
-      return setSoundOff(true)
+      setSoundOff(true)
+    } else {
+      player.setVolume(1)
+      setSoundOff(false)
     }
-    player.setVolume(1)
-    setSoundOff(false)
   }
 
   const handleLoopingToggle = (b: boolean) => {
@@ -201,7 +202,7 @@ export function PlaySong() {
             hand={hand}
             handSettings={getHandSettings(songConfig)}
             selectedRange={range}
-            getTime={() => Player.player().getTime()}
+            getTime={() => Player.player().getTimeForVisuals()}
             enableTouchscroll={songConfig.visualization === 'falling-notes'}
           />
         </div>

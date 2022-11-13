@@ -49,10 +49,10 @@ export default function SongScrubBar({
     if (!divRef.current) {
       return
     }
-    const progress = player.getTime() / player.getDuration()
+    const progress = player.getTimeForVisuals() / player.getDuration()
     divRef.current.style.transform = `translateX(${progress * width}px)`
     if (currentTimeRef.current) {
-      const time = player.getRealTimeDuration(0, player.getTime())
+      const time = player.getRealTimeDuration(0, player.getTimeForVisuals())
       currentTimeRef.current.innerText = String(formatTime(time))
     }
     if (rangeRef.current && rangeSelection) {

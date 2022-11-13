@@ -4,8 +4,7 @@ import Link from 'next/link'
 export default function TrainingPage() {
   const links = [
     { label: 'Speed', url: '/training/speed' },
-    { label: 'Infinite', url: '/training/infinite' },
-    { label: 'Teacher', url: '/training/teacher' },
+    { label: 'Infinite', url: '/training/phrases' },
   ]
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

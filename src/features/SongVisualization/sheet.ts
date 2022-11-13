@@ -9,6 +9,7 @@ import {
   drawStaffConnectingLine,
   drawStaffLines,
   drawTimeSignature,
+  line,
   STAFF_SPACE,
 } from '@/features/drawing'
 import { Clef, SongMeasure, SongNote } from '@/types'
@@ -18,6 +19,7 @@ import {
   drawMusicNote,
   drawSymbol,
   getNoteY,
+  PIXELS_PER_ROW,
   PLAY_NOTES_WIDTH,
 } from '../drawing/sheet'
 import { getKey, getKeyDetails, getNote, glyphs } from '../theory'
@@ -50,7 +52,7 @@ function deriveState(state: GivenState) {
 export function renderSheetVis(givenState: GivenState): void {
   const state = deriveState(givenState)
   state.ctx.clearRect(0, 0, state.windowWidth, state.height)
-  drawStatics(state)
+  drawStaticsUnderlay(state)
   const items = getSheetItemsInView(state)
   for (const item of items) {
     if (item.type === 'measure') {
@@ -59,6 +61,7 @@ export function renderSheetVis(givenState: GivenState): void {
     renderSheetNote(state, item)
   }
   renderMidiPressedKeys(state, items)
+  drawStaticsOverlay(state)
 }
 
 function getSheetItemsInView(state: State): CanvasItem[] {
@@ -67,8 +70,9 @@ function getSheetItemsInView(state: State): CanvasItem[] {
   return getItemsInView(state, startPred, endPred)
 }
 
-function drawStatics(state: State) {
+function drawStaticsOverlay(state: State) {
   const { ctx, keySignature } = state
+  ctx.clearRect(0, 0, getPlayNotesLineX(state), state.height)
   ctx.fillStyle = 'black'
   ctx.strokeStyle = 'black'
 
@@ -79,8 +83,8 @@ function drawStatics(state: State) {
   const staffHeight = STAFF_FIVE_LINES_HEIGHT
   const trebleTopY = getTrebleStaffTopY(state)
   const bassTopY = getBassStaffTopY(state)
-  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, state.windowWidth)
-  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, state.windowWidth)
+  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, getPlayNotesLineX(state))
+  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, getPlayNotesLineX(state))
   drawStaffConnectingLine(state.ctx, STAFF_START_X, trebleTopY - 1, bassTopY + staffHeight + 1)
 
   const playLineTop = trebleTopY - PLAY_NOTES_LINE_OFFSET
@@ -97,6 +101,17 @@ function drawStatics(state: State) {
     drawTimeSignature(ctx, x, trebleTopY, state.timeSignature)
     drawTimeSignature(ctx, x, bassTopY, state.timeSignature)
   }
+}
+
+function drawStaticsUnderlay(state: State) {
+  const { ctx, keySignature } = state
+  ctx.fillStyle = 'black'
+  ctx.strokeStyle = 'black'
+
+  const trebleTopY = getTrebleStaffTopY(state)
+  const bassTopY = getBassStaffTopY(state)
+  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, state.windowWidth)
+  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, state.windowWidth)
 }
 
 function getTrebleStaffTopY(state: State) {
@@ -157,9 +172,10 @@ function renderSheetNote(state: State, note: SongNote): void {
   const key = getKey(note.midiNote, state.keySignature)
   const accidental = key.length == 2 && key[1]
   if (accidental) {
-    ctx.font = `bold 16px ${TEXT_FONT}`
+    const symbol = accidental === '#' ? glyphs.accidentalSharp : glyphs.accidentalFlat
+    const symbolX = canvasX - (STAFF_SPACE + 8)
     ctx.fillStyle = 'black'
-    ctx.fillText(accidental, canvasX - 20, canvasY + 6)
+    drawSymbol(ctx, symbol, symbolX, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.8)
   }
   if (state.drawNotes) {
     ctx.font = `9px ${TEXT_FONT}`
