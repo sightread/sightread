@@ -8,7 +8,7 @@ on:
       - main
 
 env:
-  NODE_ENV: production
+  NODE_ENV: development
 
 jobs:
   lint-build:
@@ -20,6 +20,6 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: npm ci --production-only --no-audit
+      - run: npm ci --no-audit
       - run: npm run lint
       - run: npm run build
