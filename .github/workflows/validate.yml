@@ -20,6 +20,6 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: npm run lint
       - run: npm ci --production-only --no-audit
+      - run: npm run lint
       - run: npm run build
