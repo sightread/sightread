@@ -9,11 +9,11 @@ on:
 
 env:
   NODE_ENV: development
+  NEXT_PUBLIC_GA_ID: mock-ga-id
 
 jobs:
   lint-build:
     runs-on: ubuntu-latest
-    
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
