@@ -7,13 +7,11 @@ on:
     branches:
       - main
 
-env:
-  NODE_ENV: development
-  NEXT_PUBLIC_GA_ID: mock-ga-id
-
 jobs:
-  lint-build:
+  lint:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: development
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -22,4 +20,17 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm ci --no-audit
       - run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+      NEXT_PUBLIC_GA_ID: mock-ga-id
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci --no-audit
       - run: npm run build
