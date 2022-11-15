@@ -1,0 +1,24 @@
+# Ensure PRs can be successfully built
+# The build process also includes linting
+
+name: Validate
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+      NEXT_PUBLIC_GA_ID: mock-ga-id
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci --include dev
+      - run: npm run build
