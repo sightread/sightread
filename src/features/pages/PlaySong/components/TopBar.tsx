@@ -1,9 +1,10 @@
-import React, { PropsWithChildren } from 'react'
+import React, { InputHTMLAttributes, PropsWithChildren, useState } from 'react'
 import { ArrowLeft, SkipBack, Settings, VolumeX, Volume2, Midi } from '@/icons'
 import { MouseEvent } from 'react'
 import StatusIcon from './StatusIcon'
 import clsx from 'clsx'
 import { Tooltip } from '@/components'
+import { Dropdown } from '@/components/AppBar'
 
 type TopBarProps = {
   isLoading: boolean
@@ -14,8 +15,8 @@ type TopBarProps = {
   onClickSettings: (e: MouseEvent<any>) => void
   onClickBack: () => void
   onClickRestart: () => void
-  onClickSound: () => void
   onClickMidi: (e: MouseEvent<any>) => void
+  onChangeVolume: (volume: number) => void
   settingsOpen: boolean
 }
 
@@ -27,7 +28,7 @@ export default function TopBar({
   onClickSettings,
   onClickBack,
   onClickRestart,
-  onClickSound,
+  onChangeVolume,
   settingsOpen,
   title,
   onClickMidi,
@@ -60,9 +61,15 @@ export default function TopBar({
         <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
           <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
-        <ButtonWithTooltip tooltip="Toggle volume" onClick={onClickSound}>
-          {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
-        </ButtonWithTooltip>
+        <Dropdown
+          target={
+            <ButtonWithTooltip tooltip="Volume">
+              {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
+            </ButtonWithTooltip>
+          }
+        >
+          <VerticalSliderVolume onChangeVolume={onChangeVolume} />
+        </Dropdown>
       </div>
     </div>
   )
@@ -96,5 +103,28 @@ export function ButtonWithTooltip({
         {children}
       </button>
     </Tooltip>
+  )
+}
+
+type ButtonProps22 = React.InputHTMLAttributes<HTMLInputElement> & {
+  onChangeVolume: (volume: number) => void
+}
+
+export function VerticalSliderVolume({ onChangeVolume, ...rest }: ButtonProps22) {
+  return (
+    <input
+      {...rest}
+      id="default-range"
+      type="range"
+      orient="vertical"
+      style={{ WebkitAppearance: 'slider-vertical' }}
+      step={0.05}
+      min={0}
+      max={1}
+      onChange={(e) => {
+        onChangeVolume(Number(e.target.value))
+      }}
+      className="h-48 w-8 bg-blue-100 appearance-none"
+    />
   )
 }

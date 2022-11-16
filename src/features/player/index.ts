@@ -79,6 +79,7 @@ class Player {
     this.synths?.forEach((synth) => {
       synth?.setMasterVolume(vol)
     })
+    this.volume = vol
   }
 
   setTrackVolume(track: number | string, vol: number) {
