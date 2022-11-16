@@ -208,6 +208,7 @@ class Player {
     if (backingTrack) {
       backingTrack.volume = 0.15 * vol
     }
+    this.volume = vol
   }
 
   setTrackVolume(track: number | string, vol: number) {

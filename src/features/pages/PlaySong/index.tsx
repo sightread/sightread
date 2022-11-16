@@ -112,11 +112,14 @@ export function PlaySong() {
   const handleToggleSound = () => {
     if (!soundOff) {
       player.setVolume(0)
-      setSoundOff(true)
-    } else {
-      player.setVolume(1)
-      setSoundOff(false)
+      return setSoundOff(true)
     }
+    player.setVolume(1)
+    setSoundOff(false)
+  }
+  const handleChangeVolume = (vol: number) => {
+    player.setVolume(vol)
+    setSoundOff(vol === 0)
   }
 
   const handleLoopingToggle = (b: boolean) => {
@@ -169,7 +172,7 @@ export function PlaySong() {
                 e.stopPropagation()
                 setSettingsPanel(!settingsOpen)
               }}
-              onClickSound={handleToggleSound}
+              onChangeVolume={handleChangeVolume}
               settingsOpen={settingsOpen}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />

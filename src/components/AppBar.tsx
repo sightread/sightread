@@ -81,7 +81,10 @@ function SmallWindowNav() {
   )
 }
 
-function Dropdown({ children, target }: React.PropsWithChildren<{ target: React.ReactElement }>) {
+export function Dropdown({
+  children,
+  target,
+}: React.PropsWithChildren<{ target: React.ReactElement }>) {
   const [open, setOpen] = useState<boolean>(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -106,7 +109,7 @@ function Dropdown({ children, target }: React.PropsWithChildren<{ target: React.
         <div
           ref={menuRef}
           className={clsx(
-            'absolute top-1 bg-white rounded-lg overflow-hidden transition shadow-xl w-full px-8',
+            'absolute top-1 bg-white rounded-lg overflow-hidden transition shadow-xl w-full px-4',
             'flex flex-col py-3 gap-4 items-center',
             !open && 'hidden',
           )}
