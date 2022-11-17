@@ -116,7 +116,6 @@ export function VerticalSliderVolume({ onChangeVolume, ...rest }: ButtonProps22)
       {...rest}
       id="default-range"
       type="range"
-      orient="vertical"
       style={{ WebkitAppearance: 'slider-vertical' }}
       step={0.05}
       min={0}
