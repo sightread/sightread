@@ -159,8 +159,8 @@ export function PlaySong() {
               onTogglePlaying={playerActions.toggle}
               onClickRestart={playerActions.restart}
               onClickBack={() => {
-                playerActions.reset()
-                router.back()
+                playerActions.restart()
+                router.push('/')
               }}
               onClickMidi={(e) => {
                 e.stopPropagation()

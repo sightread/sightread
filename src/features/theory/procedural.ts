@@ -238,7 +238,7 @@ function getRandomSong(): Song {
   let time = 0
   const notes: SongNote[] = []
   const measures: SongMeasure[] = []
-  Array.from({ length: duration * 4 }).forEach(() => {
+  Array.from({ length: duration }).forEach(() => {
     const note: SongNote = {
       type: 'note',
       track: 0,
@@ -249,7 +249,7 @@ function getRandomSong(): Song {
       measure: time / 1,
     }
     notes.push(note)
-    time += 0.25
+    time += 1
   })
   for (let i = 0; i < duration; i += 1) {
     const measure: SongMeasure = { type: 'measure', number: measures.length, time: i, duration: 1 }

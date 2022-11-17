@@ -60,8 +60,8 @@ export function renderSheetVis(givenState: GivenState): void {
     }
     renderSheetNote(state, item)
   }
-  renderMidiPressedKeys(state, items)
   drawStaticsOverlay(state)
+  renderMidiPressedKeys(state, items)
 }
 
 function getSheetItemsInView(state: State): CanvasItem[] {
@@ -226,7 +226,7 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
     // is sharp
     if (key.length === 2) {
       ctx.fillStyle = 'black'
-      drawSymbol(ctx, glyphs.accidentalSharp, canvasX - 17, canvasY, STAFF_SPACE)
+      drawSymbol(ctx, glyphs.accidentalSharp, canvasX - 24, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.6)
     }
     if (state.drawNotes) {
       ctx.font = `9px ${TEXT_FONT}`

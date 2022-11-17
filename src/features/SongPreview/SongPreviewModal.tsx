@@ -35,7 +35,7 @@ export default function SongPreviewModal({
   }
 
   function handleClose() {
-    playerActions.reset()
+    playerActions.restart()
     return onClose()
   }
 

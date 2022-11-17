@@ -4,7 +4,6 @@ import { useMemo, useState, useEffect } from 'react'
 type PlayerDispatcher = {
   play: () => void
   pause: () => void
-  reset: () => void
   toggle: () => void
   restart: () => void
 }
@@ -35,7 +34,6 @@ export default function usePlayerState(): PlayerStateHookReturn {
     () => ({
       play: () => player.play(),
       pause: () => player.pause(),
-      reset: () => player.stop(),
       toggle: () => player.toggle(),
       restart: () => player.seek(0),
     }),
