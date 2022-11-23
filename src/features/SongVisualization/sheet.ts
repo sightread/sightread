@@ -9,7 +9,6 @@ import {
   drawStaffConnectingLine,
   drawStaffLines,
   drawTimeSignature,
-  line,
   STAFF_SPACE,
 } from '@/features/drawing'
 import { Clef, SongMeasure, SongNote } from '@/types'
@@ -19,7 +18,6 @@ import {
   drawMusicNote,
   drawSymbol,
   getNoteY,
-  PIXELS_PER_ROW,
   PLAY_NOTES_WIDTH,
 } from '../drawing/sheet'
 import { getKey, getKeyDetails, getNote, glyphs } from '../theory'
@@ -72,7 +70,8 @@ function getSheetItemsInView(state: State): CanvasItem[] {
 
 function drawStaticsOverlay(state: State) {
   const { ctx, keySignature } = state
-  ctx.clearRect(0, 0, getPlayNotesLineX(state), state.height)
+  const overlayEnd = getPlayNotesLineX(state) - STAFF_SPACE * 2
+  ctx.clearRect(0, 0, overlayEnd, state.height)
   ctx.fillStyle = 'black'
   ctx.strokeStyle = 'black'
 
@@ -83,13 +82,13 @@ function drawStaticsOverlay(state: State) {
   const staffHeight = STAFF_FIVE_LINES_HEIGHT
   const trebleTopY = getTrebleStaffTopY(state)
   const bassTopY = getBassStaffTopY(state)
-  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, getPlayNotesLineX(state))
-  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, getPlayNotesLineX(state))
+  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, overlayEnd)
+  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, overlayEnd)
   drawStaffConnectingLine(state.ctx, STAFF_START_X, trebleTopY - 1, bassTopY + staffHeight + 1)
 
   const playLineTop = trebleTopY - PLAY_NOTES_LINE_OFFSET
   const playLineBottom = bassTopY + staffHeight + PLAY_NOTES_LINE_OFFSET
-  drawPlayNotesLine(ctx, getPlayNotesLineX(state), playLineTop, playLineBottom)
+  drawPlayNotesLine(ctx, getPlayNotesLineX(state) - 2, playLineTop, playLineBottom)
 
   drawGClef(ctx, getClefX(), trebleTopY)
   drawFClef(ctx, getClefX(), bassTopY)
@@ -104,7 +103,7 @@ function drawStaticsOverlay(state: State) {
 }
 
 function drawStaticsUnderlay(state: State) {
-  const { ctx, keySignature } = state
+  const { ctx } = state
   ctx.fillStyle = 'black'
   ctx.strokeStyle = 'black'
 
@@ -151,30 +150,48 @@ function renderSheetNote(state: State, note: SongNote): void {
   const playNotesLineX = getPlayNotesLineX(state)
   let canvasX = posX + playNotesLineX + PLAY_NOTES_WIDTH / 2
   let canvasY = getNoteY(note.midiNote, staff, staffTopY, keySignature)
-  ctx.fillStyle = color + NOTE_ALPHA
-  const trailLength = length - 15 - (canvasX > playNotesLineX ? 0 : playNotesLineX - canvasX)
+
+  const isPlayingNote = canvasX <= playNotesLineX
+  const purplePrefix = `121,74,227`
+  const blackPrefix = `0,0,0`
+  const prefix = isPlayingNote ? purplePrefix : blackPrefix
+  const gradient = ctx.createLinearGradient(playNotesLineX - STAFF_SPACE * 2, 0, playNotesLineX, 0)
+  gradient.addColorStop(0, `rgba(${prefix},0)`)
+  gradient.addColorStop(0.5, `rgba(${prefix},0.1)`)
+  gradient.addColorStop(0.8, `rgba(${prefix},0.3`)
+  gradient.addColorStop(1, `rgba(${prefix},1)`)
+
+  ctx.fillStyle = gradient // color + NOTE_ALPHA
+  ctx.strokeStyle = gradient // color + NOTE_ALPHA
+  const trailLength = length - STAFF_SPACE
   const trailHeight = 10
-  ctx.fillRect(
-    Math.max(canvasX, playNotesLineX + 1.5),
-    canvasY - trailHeight / 2,
-    trailLength,
-    trailHeight,
-  )
+  // ctx.globalCompositeOperation = 'source-out'
+  ctx.fillRect(canvasX + STAFF_SPACE / 2, canvasY - trailHeight / 2, trailLength, trailHeight)
+  ctx.globalCompositeOperation = 'source-over'
+
   // Return after drawing the tail for the notes that have already crossed.
-  if (canvasX < playNotesLineX - 10) {
+  if (canvasX < playNotesLineX - STAFF_SPACE * 2) {
     ctx.restore()
     return
   }
 
-  drawLedgerLines(ctx, canvasX - 13, 33, staffTopY, note.midiNote, staff, state.keySignature)
-  drawMusicNote(ctx, canvasX, canvasY, color)
+  drawLedgerLines(
+    ctx,
+    canvasX - STAFF_SPACE,
+    STAFF_SPACE * 2,
+    staffTopY,
+    note.midiNote,
+    staff,
+    state.keySignature,
+  )
+  drawMusicNote(ctx, canvasX, canvasY, gradient)
 
   const key = getKey(note.midiNote, state.keySignature)
   const accidental = key.length == 2 && key[1]
   if (accidental) {
     const symbol = accidental === '#' ? glyphs.accidentalSharp : glyphs.accidentalFlat
     const symbolX = canvasX - (STAFF_SPACE + 8)
-    ctx.fillStyle = 'black'
+    ctx.fillStyle = gradient
     drawSymbol(ctx, symbol, symbolX, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.8)
   }
   if (state.drawNotes) {

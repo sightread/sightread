@@ -200,7 +200,7 @@ async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement
 
 export async function getGeneratedSong(type: ChordProgression, level?: Level): Promise<Song> {
   if (type === 'random') {
-    return getRandomSong()
+    return getRandomSong(level ?? 3)
   }
 
   const [chordMap, backing] = await Promise.all([
@@ -225,7 +225,7 @@ export async function getGeneratedSong(type: ChordProgression, level?: Level): P
   }
 }
 
-function getRandomSong(): Song {
+function getRandomSong(level: number): Song {
   const clef = 'treble'
   let minOctave = 4
   let maxOctave = 5
@@ -234,23 +234,26 @@ function getRandomSong(): Song {
   //   maxOctave = 3
   // }
 
-  const duration = 20
+  const duration = 10
   let time = 0
   const notes: SongNote[] = []
   const measures: SongMeasure[] = []
-  Array.from({ length: duration }).forEach(() => {
+  const noteDuration = level === 1 ? 1 : level === 2 ? 0.5 : 0.25
+
+  while (time < duration) {
     const note: SongNote = {
       type: 'note',
       track: 0,
       time,
-      duration: 0.25,
-      midiNote: getNote('G4'),
-      // midiNote: getRandomNote(minOctave, maxOctave, 'C'),
-      measure: time / 1,
+      duration: noteDuration - 0.05, // Leave a tiny amount of breathing room
+      // midiNote: getNote('G4'),
+      midiNote: getRandomNote(minOctave, maxOctave, 'C'),
+      measure: Math.floor(time / 4),
     }
     notes.push(note)
-    time += 1
-  })
+    time += noteDuration
+  }
+
   for (let i = 0; i < duration; i += 1) {
     const measure: SongMeasure = { type: 'measure', number: measures.length, time: i, duration: 1 }
     measures.push(measure)

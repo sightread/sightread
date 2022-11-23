@@ -26,7 +26,7 @@ function getInitialScore(): Score {
   const pointless = signal(0)
   const durationHeld = signal(0)
   const combined = computed(
-    () => perfect.value * 100 + good.value * 50 - pointless.value * 100 + durationHeld.value,
+    () => perfect.value * 100 + good.value * 50 - pointless.value * 25 + durationHeld.value,
   )
   const accuracy = computed(() => {
     if (perfect.value + good.value + miss.value === 0) {
@@ -326,8 +326,10 @@ class Player {
 
   updateTime_() {
     if (this.song?.backing) {
-      return (this.currentSongTime =
-        this.song.backing.currentTime + getAudioContext().outputLatency)
+      const newTime = this.song.backing.currentTime + getAudioContext().outputLatency
+      // const diff = newTime - this.currentSongTime
+      // console.log(`Diff: ${diff * 1000}`)
+      this.currentSongTime = newTime
     }
 
     let dt = 0

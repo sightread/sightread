@@ -56,9 +56,7 @@ export function Phrases() {
   const hand = 'right'
 
   function handleReplay() {
-    player.reset_()
-    player.pause()
-    player.seek(0)
+    player.stop()
   }
 
   function handleNext() {

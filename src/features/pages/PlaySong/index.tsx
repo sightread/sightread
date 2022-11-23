@@ -156,9 +156,9 @@ export function PlaySong() {
               isPlaying={playerState.playing}
               isSoundOff={soundOff}
               onTogglePlaying={playerActions.toggle}
-              onClickRestart={playerActions.restart}
+              onClickRestart={playerActions.stop}
               onClickBack={() => {
-                playerActions.restart()
+                playerActions.stop()
                 router.push('/')
               }}
               onClickMidi={(e) => {

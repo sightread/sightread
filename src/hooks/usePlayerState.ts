@@ -1,11 +1,11 @@
-import Player, { PlayerState } from '@/features/player'
-import { useMemo, useState, useEffect } from 'react'
+import Player from '@/features/player'
+import { useMemo } from 'react'
 
 type PlayerDispatcher = {
   play: () => void
   pause: () => void
   toggle: () => void
-  restart: () => void
+  stop: () => void
 }
 
 type PlayerStateHookReturn = [
@@ -22,7 +22,7 @@ export default function usePlayerState(): PlayerStateHookReturn {
       play: () => player.play(),
       pause: () => player.pause(),
       toggle: () => player.toggle(),
-      restart: () => player.seek(0),
+      stop: () => player.stop(),
     }),
     [player],
   )

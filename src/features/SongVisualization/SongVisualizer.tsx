@@ -46,8 +46,16 @@ function CanvasRenderer({
       return
     }
 
+    const time = getTime()
+    // const now = Date.now()
+    // const songDiff = (time - (window as any).lastSongTime) * 1000
+    // const realDiff = now - (window as any).lastRealTime
+    // console.log(`Diff of songtime vs. realtime: ${Math.abs(realDiff - songDiff)}`)
+    // ;(window as any).lastSongTime = time
+    // ;(window as any).lastRealTime = now
+
     const state: GivenState = {
-      time: getTime(),
+      time,
       visualization: config.visualization,
       drawNotes: config.noteLetter,
       windowWidth: width,

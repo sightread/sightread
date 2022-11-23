@@ -102,7 +102,12 @@ export function drawPlayNotesLine(
 ): void {
   ctx.save()
   ctx.strokeStyle = PLAY_NOTES_LINE_COLOR
-  ctx.lineWidth = 3
+  ctx.shadowOffsetX = -4
+  ctx.shadowOffsetY = 1
+  ctx.shadowBlur = 5
+  ctx.shadowColor = 'black'
+
+  ctx.lineWidth = 4
   line(ctx, x, y1, x, y2)
   ctx.restore()
 }
@@ -155,7 +160,12 @@ function getKeySignatureNotes(keySignature: KEY_SIGNATURE, staff: Clef) {
   })
 }
 
-export function drawMusicNote(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
+export function drawMusicNote(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  color: string | CanvasGradient,
+) {
   ctx.save()
   ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
   ctx.fillStyle = color
