@@ -1,4 +1,4 @@
-import { useState, useRef, CSSProperties, PropsWithChildren } from 'react'
+import { useState, useRef, PropsWithChildren } from 'react'
 import { Sizer } from '@/components'
 import { Logo, GitHub, Menu } from '@/icons'
 import Link from 'next/link'
@@ -10,13 +10,11 @@ type NavItem = { route: string; label: string }
 const navItems: NavItem[] = [
   { route: '/songs', label: 'Learn a song' },
   { route: '/freeplay', label: 'Free play' },
+  { route: '/training/phrases', label: 'Training' },
   { route: '/about', label: 'About' },
 ]
 
-interface AppBarProps {
-  classNames?: string
-}
-export default function AppBar(props: AppBarProps) {
+export default function AppBar() {
   return (
     <div
       className="h-[50px] min-h-[50px] bg-purple-dark flex flex-col justify-center relative"

@@ -16,8 +16,6 @@ type TopBarProps = {
 }
 
 export default function TopBar({ isError, isLoading, value, onChange, onClickMidi }: TopBarProps) {
-  const router = useRouter()
-
   return (
     <div className="px-4 text-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center gap-4">
       <ButtonWithTooltip tooltip="Choose a MIDI device">
@@ -29,7 +27,7 @@ export default function TopBar({ isError, isLoading, value, onChange, onClickMid
         <Midi size={24} />
       </ButtonWithTooltip>
       <Select
-        className="max-w-fit h-3/4 text-base"
+        className="max-w-fit h-3/4 text-base text-black"
         loading={isLoading}
         error={isError}
         value={value}

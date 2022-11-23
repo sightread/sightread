@@ -42,7 +42,11 @@ export default function Select({
 
   return (
     <div
-      className={clsx(className, 'relative inline-block w-full', error && 'border border-red-600')}
+      className={clsx(
+        className,
+        'relative inline-block w-full text-black',
+        error && 'border border-red-600',
+      )}
     >
       <input
         value={!loading ? display(selected) : ''}
@@ -64,7 +68,6 @@ export default function Select({
           'cursor-pointer absolute right-1 top-1/2 -translate-y-1/2 transition',
           openMenu && 'rotate-180',
         )}
-        style={{ transform: 'translateY(-50%)' }}
         onClick={(e) => {
           e.stopPropagation()
           toggleMenu()

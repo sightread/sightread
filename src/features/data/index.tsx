@@ -2,53 +2,43 @@ import { parseMidi } from '@/features/parsers'
 import { Song, SongMetadata, SongSource } from '@/types'
 import { getUploadedSong } from '@/features/persist'
 import * as library from './library'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { useFetch } from '@/hooks'
+import { FetchState } from '@/hooks/useFetch'
+import useDebugTraceUpdate from '@/hooks/useDebugTraceUpdate'
 
-const inflight: Map<string, Promise<Song>> = new Map()
-
-function fetchSong(id: string, source: SongSource): Promise<Song> {
-  return fetch(`/api/midi?id=${id}&source=${source}`)
-    .then((response) => response.arrayBuffer())
-    .then(parseMidi)
+function handleSong(response: Response): Promise<Song> {
+  return response.arrayBuffer().then(parseMidi)
 }
 
 export function getKey(id: string, source: SongSource) {
   return `${source}/${id}`
 }
 
-export function useSong(id: string, source: SongSource) {
-  const [song, setSong] = useState<Song | undefined>(library.getSong(id, source))
-  const [error, setError] = useState<Error | undefined>()
+function getSongUrl(id: string, source: SongSource) {
+  return `/api/midi?id=${id}&source=${source}`
+}
 
-  useEffect(() => {
-    if (!id || !source) return
+export function useSong(id: string, source: SongSource): FetchState<Song> {
+  const url =
+    id && source && (source === 'midishare' || source === 'builtin')
+      ? getSongUrl(id, source)
+      : undefined
+  const fetchState = useFetch(url, handleSong)
+  const uploadState: FetchState<Song> = useMemo(() => {
+    if (source !== 'upload') {
+      return { status: 'idle' }
+    }
 
-    const key = getKey(id, source)
-    if (source === 'upload') {
-      const uploadedSong = getUploadedSong(id)
-      if (!uploadedSong) {
-        setError(new Error(`Uploaded song could not be found: ${id}`))
-      } else {
-        setSong(uploadedSong)
-      }
-    } else if (library.hasSong(id, source)) {
-      setSong(library.getSong(id, source))
-    } else if (inflight.has(key)) {
-      inflight.get(key)?.then(setSong).catch(setError)
+    const data = getUploadedSong(id)
+    if (data) {
+      return { status: 'success', data }
     } else {
-      const promise = fetchSong(id, source)
-      inflight.set(key, promise)
-      promise
-        .then((song) => {
-          library.addSong(id, source, song)
-          setSong(song)
-        })
-        .catch(setError)
-        .finally(() => inflight.delete(key))
+      return { status: 'error', error: new Error(`Could not find uploaded song: ${id}`) }
     }
   }, [id, source])
 
-  return { error, song, isLoading: error === null && song === null }
+  return source === 'upload' ? uploadState : fetchState
 }
 
 // TODO: replace with a signals-like library, so that setting from one component is reflected elsewhere.

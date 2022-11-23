@@ -1,22 +1,8 @@
-import { Song, SongMetadata, SongSource } from '@/types'
+import { SongMetadata, SongSource } from '@/types'
 import { getKey } from '.'
 import songManifest from '@/manifest.json'
 
-const songs: Map<string, Song> = new Map()
 const songsMetadata: Map<string, SongMetadata> = new Map()
-
-export function addSong(id: string, source: SongSource, song: Song) {
-  const key = getKey(id, source)
-  songs.set(key, song)
-}
-
-export function hasSong(id: string, source: SongSource) {
-  return songs.has(getKey(id, source))
-}
-
-export function getSong(id: string, source: SongSource) {
-  return songs.get(getKey(id, source))
-}
 
 const seen = new WeakSet()
 export function addMetadata(metadataList: SongMetadata[]) {
