@@ -155,7 +155,7 @@ export function fileToString(file: File): Promise<string | null> {
 /**
  * XORs the keys. Find all the keys that are in one object but not the other.
  */
-export function diffKeys<T>(o1: T, o2: T): Array<keyof T> {
+export function diffKeys<T extends Object>(o1: T, o2: T): Array<keyof T> {
   let diff = []
   for (let k in o1) {
     !(k in o2) && diff.push(k)
