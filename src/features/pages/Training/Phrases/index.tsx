@@ -135,6 +135,7 @@ export function Phrases() {
             hand={hand}
             handSettings={getHandSettings(songConfig)}
             getTime={() => Player.player().getTimeForVisuals()}
+            game={true}
           />
         </div>
         <div className="p-8 flex basis-0 items-center justify-center gap-4 text-white">

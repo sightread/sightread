@@ -22,6 +22,7 @@ import {
 } from '../drawing/sheet'
 import { getKey, getKeyDetails, getNote, glyphs } from '../theory'
 import midiState from '../midi'
+import { isHitNote, isMissedNote } from '../player'
 
 const TEXT_FONT = 'Arial'
 const STAFF_START_X = 100
@@ -139,6 +140,37 @@ function getPlayNotesLineX(state: State) {
   return getTimeSignatureX(state) + STAFF_SPACE * 4
 }
 
+const colorMap = {
+  primary: '121,74,227',
+  hover: '185,154,244',
+  disabled: '100,100,100',
+  black: '0,0,0',
+}
+
+function getGameColorPrefix(state: State, note: SongNote, canvasX: number) {
+  const playNotesLineX = getPlayNotesLineX(state)
+  const isPlayingNote = canvasX <= playNotesLineX
+
+  if (isHitNote(note) && midiState.getPressedNotes().has(note.midiNote)) {
+    return colorMap.hover
+  } else if (isMissedNote(note)) {
+    return colorMap.disabled
+  } else if (isPlayingNote) {
+    return colorMap.primary
+  }
+  return colorMap.black
+}
+
+function getLearnSongColorPrefix(state: State, note: SongNote, canvasX: number) {
+  const playNotesLineX = getPlayNotesLineX(state)
+  const isPlayingNote = canvasX <= playNotesLineX
+
+  if (isPlayingNote) {
+    return colorMap.primary
+  }
+  return colorMap.black
+}
+
 function renderSheetNote(state: State, note: SongNote): void {
   const { ctx, pps, keySignature } = state
   ctx.save()
@@ -151,10 +183,9 @@ function renderSheetNote(state: State, note: SongNote): void {
   let canvasX = posX + playNotesLineX + PLAY_NOTES_WIDTH / 2
   let canvasY = getNoteY(note.midiNote, staff, staffTopY, keySignature)
 
-  const isPlayingNote = canvasX <= playNotesLineX
-  const purplePrefix = `121,74,227`
-  const blackPrefix = `0,0,0`
-  const prefix = isPlayingNote ? purplePrefix : blackPrefix
+  const prefix = state.game
+    ? getGameColorPrefix(state, note, canvasX)
+    : getLearnSongColorPrefix(state, note, canvasX)
   const gradient = ctx.createLinearGradient(playNotesLineX - STAFF_SPACE * 2, 0, playNotesLineX, 0)
   gradient.addColorStop(0, `rgba(${prefix},0)`)
   gradient.addColorStop(0.5, `rgba(${prefix},0.1)`)
@@ -165,7 +196,8 @@ function renderSheetNote(state: State, note: SongNote): void {
   ctx.strokeStyle = gradient // color + NOTE_ALPHA
   const trailLength = length - STAFF_SPACE
   const trailHeight = 10
-  // ctx.globalCompositeOperation = 'source-out'
+  // TODO: find a way to make the trail not combine alphas with the notehead.
+  // ctx.globalCompositeOperation = 'destination-over'
   ctx.fillRect(canvasX + STAFF_SPACE / 2, canvasY - trailHeight / 2, trailLength, trailHeight)
   ctx.globalCompositeOperation = 'source-over'
 
@@ -219,9 +251,6 @@ function sheetNoteColor(x: number, length: number): string {
   return pickHex('#8147EB', black, ratio)
 }
 
-// TODO pick side based not just on side of C4 but also
-// the current song, i.e. if there are notes that should be played by left or right hand
-// then show it on that hand.
 function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]): void {
   const { ctx } = state
   const pressed = midiState.getPressedNotes()
@@ -232,6 +261,10 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
       | undefined
     if (inRangeNote) {
       staff = state.hands?.[inRangeNote.track].hand === 'right' ? 'treble' : 'bass'
+    }
+
+    if (state.game && isHitNote(inRangeNote)) {
+      return
     }
 
     const staffTopY = staff === 'bass' ? getBassStaffTopY(state) : getTrebleStaffTopY(state)

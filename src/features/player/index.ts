@@ -1,8 +1,8 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { batch, computed, signal, Signal } from '@preact/signals-react'
+import { computed, signal, Signal } from '@preact/signals-react'
 import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
 import { InstrumentName } from '@/features/synth'
-import { clamp, getHands, isBrowser } from '@/utils'
+import { getHands, isBrowser } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
 import { getAudioContext } from '../synth/utils'
@@ -69,9 +69,11 @@ class Player {
   wait = false
   songHands: { left?: number; right?: number } = {}
 
+  hitNotes: Set<SongNote> = new Set()
+  missedNotes: Set<SongNote> = new Set()
   midiPressedNotes: Set<number> = new Set()
-  lateNotes: Map<number, number> = new Map()
-  earlyNotes: Map<number, number> = new Map()
+  lateNotes: Map<number, SongNote> = new Map()
+  earlyNotes: Map<number, SongNote> = new Map()
 
   constructor() {
     midi.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
@@ -79,11 +81,12 @@ class Player {
 
   clearMissedNotes_() {
     let missedNotes = 0
-    for (const [midiNote, missedTime] of this.lateNotes.entries()) {
-      const diff = ((this.currentSongTime - missedTime) * 1000) / this.bpmModifier
+    for (const [midiNote, missedNote] of this.lateNotes.entries()) {
+      const diff = ((this.currentSongTime - missedNote.time) * 1000) / this.bpmModifier
       if (diff > 100) {
         this.lateNotes.delete(midiNote)
         missedNotes++
+        this.missedNotes.add(missedNote)
       }
     }
     if (missedNotes > 0) {
@@ -107,20 +110,22 @@ class Player {
 
     // First check if the note already passed.
     this.clearMissedNotes_()
-    const missedNote = this.lateNotes.get(midiNote)
-    if (missedNote) {
+    const lateNote = this.lateNotes.get(midiNote)
+    if (lateNote) {
       const currentTime = this.currentSongTime
       this.lateNotes.delete(midiNote)
-      const diff = (1000 * (currentTime - missedNote)) / this.bpmModifier
+      const diff = (1000 * (currentTime - lateNote.time)) / this.bpmModifier
+      const isHit = diff < GOOD_RANGE
       if (diff < PERFECT_RANGE) {
         console.log('Perfect (late)', diff)
         this.score.perfect.value++
-        this.score.streak.value++
-        return
       } else if (diff < GOOD_RANGE) {
         console.log('Good (late)', diff)
         this.score.good.value++
+      }
+      if (isHit) {
         this.score.streak.value++
+        this.hitNotes.add(lateNote)
         return
       }
     }
@@ -129,7 +134,8 @@ class Player {
     let upcomingNote
     for (
       let i = this.currentIndex;
-      i < this.song.notes.length && (this.song.notes[i].time - this.currentSongTime) * 1000 < 100;
+      i < this.song.notes.length &&
+      (this.song.notes[i].time - this.currentSongTime) * 1000 < GOOD_RANGE;
       i++
     ) {
       const note = this.song.notes[i]
@@ -140,21 +146,20 @@ class Player {
     }
     if (upcomingNote && !this.earlyNotes.has(midiNote)) {
       const diff = ((upcomingNote.time - this.currentSongTime) * 1000) / this.bpmModifier
+      const isHit = diff < GOOD_RANGE
       if (diff < PERFECT_RANGE) {
         console.log('Perfect (early)', diff)
-        batch(() => {
-          this.score.streak.value++
-          this.score.perfect.value++
-        })
+        this.score.perfect.value++
       } else if (diff < GOOD_RANGE) {
         console.log('Good (early)', diff)
-        batch(() => {
-          this.score.streak.value++
-          this.score.good.value++
-        })
+        this.score.good.value++
       }
-      this.earlyNotes.set(midiNote, upcomingNote.time)
-      return
+      if (isHit) {
+        this.score.streak.value++
+        this.earlyNotes.set(midiNote, upcomingNote)
+        this.hitNotes.add(upcomingNote)
+        return
+      }
     }
 
     this.score.pointless.value++
@@ -392,7 +397,9 @@ class Player {
 
     // Update scoring details
     this.clearMissedNotes_()
-    const heldNotes = this.playing.filter((n) => this.midiPressedNotes.has(n.midiNote)).length
+    const heldNotes = this.playing.filter(
+      (n) => this.midiPressedNotes.has(n.midiNote) && this.hitNotes.has(n),
+    ).length
     if (heldNotes > 0) {
       this.score.durationHeld.value += heldNotes
     }
@@ -408,7 +415,7 @@ class Player {
           this.earlyNotes.delete(note.midiNote)
         } else if (prevTime < note.time) {
           // Only mark as late during the tick in which it is first played.
-          this.lateNotes.set(note.midiNote, this.currentSongTime)
+          this.lateNotes.set(note.midiNote, note)
         }
       }
       this.playing.push(note)
@@ -456,6 +463,8 @@ class Player {
       this.song.backing.currentTime = 0
     }
 
+    this.hitNotes.clear()
+    this.missedNotes.clear()
     this.score.good.value = 0
     this.score.miss.value = 0
     this.score.perfect.value = 0
@@ -499,6 +508,16 @@ class Player {
     const { start, end } = range
     this.range = [Math.min(start, end), Math.max(start, end)]
   }
+}
+
+export function isHitNote(note?: SongNote) {
+  if (!note) return false
+  return Player.player().hitNotes.has(note)
+}
+
+export function isMissedNote(note?: SongNote) {
+  if (!note) return false
+  return Player.player().missedNotes.has(note)
 }
 
 if (isBrowser()) {

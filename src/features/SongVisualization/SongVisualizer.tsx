@@ -21,6 +21,7 @@ type CanvasRendererProps = {
   constrictView?: boolean
   selectedRange?: { start: number; end: number }
   enableTouchscroll?: boolean
+  game?: boolean
 }
 
 function CanvasRenderer({
@@ -32,6 +33,7 @@ function CanvasRenderer({
   getTime,
   constrictView = true,
   enableTouchscroll = false,
+  game = false,
 }: CanvasRendererProps) {
   const { width, height, measureRef } = useSize()
   const canvasRef = useRef<HTMLCanvasElement>()
@@ -70,6 +72,7 @@ function CanvasRenderer({
       timeSignature: song.timeSignature,
       canvasRect,
       selectedRange,
+      game,
     }
     render(state)
   }
