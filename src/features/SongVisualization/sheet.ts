@@ -26,7 +26,7 @@ import midiState from '../midi'
 const TEXT_FONT = 'Arial'
 const STAFF_START_X = 100
 const STAFF_FIVE_LINES_HEIGHT = 80
-const PLAY_NOTES_LINE_OFFSET = STAFF_SPACE * 4 // offset above and below the staff lines
+const PLAY_NOTES_LINE_OFFSET = STAFF_SPACE // offset above and below the staff lines
 const NOTE_ALPHA = 'A2'
 
 function getViewport(state: Readonly<GivenState>): Viewport {

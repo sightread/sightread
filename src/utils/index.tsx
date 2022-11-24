@@ -166,12 +166,18 @@ export function diffKeys<T extends Object>(o1: T, o2: T): Array<keyof T> {
   return diff
 }
 
-export function clamp(number: number, { min = number, max = number }) {
+export function clamp(number: number, { min, max }: { min?: number; max?: number }): number {
   if (isNaN(number)) {
-    return max
+    return (max ?? min) as number
   }
 
-  return Math.min(Math.max(number, min), max)
+  if (min != null) {
+    number = Math.max(number, min)
+  }
+  if (max != null) {
+    number = Math.min(number, max)
+  }
+  return number
 }
 
 export function mapValues<From, To>(

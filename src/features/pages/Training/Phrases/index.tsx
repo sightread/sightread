@@ -1,9 +1,9 @@
-import React, { useState, useEffect, PropsWithChildren, useReducer } from 'react'
+import React, { useState, useEffect, PropsWithChildren, useReducer, useRef } from 'react'
 
 import { Song, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings } from '@/features/SongVisualization'
 import Player from '@/features/player'
-import { useOnUnmount, useWakeLock } from '@/hooks'
+import { useOnUnmount, useRAFLoop, useWakeLock } from '@/hooks'
 import clsx from 'clsx'
 import Head from 'next/head'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils'
@@ -46,10 +46,7 @@ export function Phrases() {
   const [generatorType, setGeneratorType] = useState<Generator>('dMajor')
   const [level, setLevel] = useState<Level>(1)
   const [song, forceNewSong] = useGeneratedSong(generatorType, level)
-
-  useEffect(() => {
-    setSongConfig({ ...songConfig, noteLetter: showNoteLetters })
-  }, [showNoteLetters])
+  songConfig.noteLetter = showNoteLetters
 
   useWakeLock()
   useOnUnmount(() => player.stop())
@@ -80,6 +77,7 @@ export function Phrases() {
   }, [song, player, setSongConfig])
   const accuracy = player.score.accuracy.value + '%'
   const score = player.score.combined.value
+  const streak = player.score.streak.value
 
   return (
     <>
@@ -94,11 +92,12 @@ export function Phrases() {
             setMidiModal(!isMidiModalOpen)
           }}
         />
-        <Sizer height={16} />
-        <div className="px-8 flex w-full justify-center gap-4">
-          <div className="flex items-center gap-2">
-            <label>Show note letters</label>
+        <div className="px-8 py-4 flex w-full justify-center gap-4 bg-gray-200">
+          <div className="flex items-center gap-2 bg-white rounded-md p-2">
+            <label>Show letter</label>
             <Toggle
+              width={50}
+              height={24}
               checked={showNoteLetters}
               onChange={() => setShowNoteLetters(!showNoteLetters)}
             />
@@ -117,27 +116,76 @@ export function Phrases() {
             display={(lvl) => `Level: ${lvl}`}
           />
         </div>
-        <div className="h-[100px] w-full flex justify-center gap-2 items-center">
-          <span>Accuracy: {accuracy}</span>
-          <span>Score: {score}</span>
+        <Sizer height={24} />
+        <div className="h-[100px] w-full flex justify-center gap-8 items-center">
+          <ProgressDisplay />
+          <StatDisplay label="Accuracy">{accuracy}</StatDisplay>
+          <StatDisplay label="Score">{score}</StatDisplay>
+          <StatDisplay label="Streak">{streak}</StatDisplay>
         </div>
-        <div className={clsx('relative flex-grow flex bg-white px-8 justify-center')}>
-          <div className={clsx('relative w-[min(100vw,900px)]')}>
-            <SongVisualizer
-              song={song}
-              config={songConfig}
-              hand={hand}
-              handSettings={getHandSettings(songConfig)}
-              getTime={() => Player.player().getTimeForVisuals()}
-            />
-          </div>
-          <div className="p-8 flex flex-col basis-0 items-center justify-center gap-4 text-white">
-            <InfiniteBtn onClick={handleReplay}>Replay</InfiniteBtn>
-            <InfiniteBtn onClick={handleNext}>Next</InfiniteBtn>
-          </div>
+        <Sizer height={32} />
+        <div
+          className={
+            'relative w-screen max-w-[1100px] bg-white px-8 justify-center h-[425px] mx-auto'
+          }
+        >
+          <SongVisualizer
+            song={song}
+            config={songConfig}
+            hand={hand}
+            handSettings={getHandSettings(songConfig)}
+            getTime={() => Player.player().getTimeForVisuals()}
+          />
+        </div>
+        <div className="p-8 flex basis-0 items-center justify-center gap-4 text-white">
+          <InfiniteBtn onClick={handleNext} className="bg-purple-primary hover:bg-purple-hover">
+            Next
+          </InfiniteBtn>
+          <InfiniteBtn
+            onClick={handleReplay}
+            className="bg-white text-purple-primary border border-purple-primary hover:bg-purple-light"
+          >
+            Replay
+          </InfiniteBtn>
         </div>
       </div>
     </>
+  )
+}
+
+function ProgressDisplay() {
+  const progressRef = useRef<HTMLDivElement>(null)
+  useRAFLoop(() => {
+    if (!progressRef.current) {
+      return
+    }
+    const player = Player.player()
+    const progress = (player.getTimeForVisuals() / player.getDuration()) * 100
+    progressRef.current.style.width = `${progress}%`
+  })
+  return (
+    <div className="flex flex-col gap-2 min-w-[150px]">
+      <span className="text-black text-xl font-semibold w-full">Progress</span>
+      <div className="relative w-full h-[40px]">
+        <div className="absolute w-full bg-gray-300 rounded-r-3xl h-[34px] bottom-0" />
+        <div
+          style={{
+            boxShadow: `inset 0px 2px 3px rgba(255, 255, 255, 0.4), inset 0px 7px 11px rgba(255, 255, 255, 0.25)`,
+          }}
+          className="absolute rounded-r-3xl h-[34px] bottom-0 bg-gradient-to-r from-purple-darkest to-purple-primary"
+          ref={progressRef}
+        />
+      </div>
+    </div>
+  )
+}
+
+function StatDisplay(props: PropsWithChildren<{ label: string }>) {
+  return (
+    <div className="flex flex-col gap-2 min-w-[150px]">
+      <span className="text-black text-xl font-semibold">{props.label}</span>
+      <span className="text-purple-primary text-4xl font-semibold">{props.children}</span>
+    </div>
   )
 }
 
@@ -146,7 +194,7 @@ function InfiniteBtn({ children, ...rest }: PropsWithChildren<ButtonProps>) {
   return (
     <button
       {...(rest as any)}
-      className="text-xl px-2 py-2 bg-purple-primary hover:bg-purple-hover rounded-md w-[100px]"
+      className={clsx(rest.className, 'text-xl px-2 py-2 rounded-md w-[100px] transition')}
     >
       {children}
     </button>

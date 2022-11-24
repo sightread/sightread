@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState, useRef } from 'react'
-import { ArrowDown, Loader } from '@/icons'
+import { ChevronDown, Loader } from '@/icons'
 import clsx from 'clsx'
 import { useWhenClickedOutside } from '@/hooks'
 
@@ -61,7 +61,7 @@ export default function Select({
         }}
         readOnly
       />
-      <ArrowDown
+      <ChevronDown
         width={15}
         height={15}
         className={clsx(

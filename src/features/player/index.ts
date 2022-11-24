@@ -1,13 +1,16 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { computed, signal, Signal } from '@preact/signals-react'
+import { batch, computed, signal, Signal } from '@preact/signals-react'
 import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
 import { InstrumentName } from '@/features/synth'
-import { getHands, isBrowser } from '@/utils'
+import { clamp, getHands, isBrowser } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
 import { getAudioContext } from '../synth/utils'
 
 let player: Player
+
+const GOOD_RANGE = 200
+const PERFECT_RANGE = 100
 
 interface Score {
   perfect: Signal<number>
@@ -17,6 +20,7 @@ interface Score {
   pointless: Signal<number>
   combined: Signal<number>
   accuracy: Signal<number>
+  streak: Signal<number>
 }
 
 function getInitialScore(): Score {
@@ -25,9 +29,11 @@ function getInitialScore(): Score {
   const miss = signal(0)
   const pointless = signal(0)
   const durationHeld = signal(0)
+  const streak = signal(0)
   const combined = computed(
     () => perfect.value * 100 + good.value * 50 - pointless.value * 25 + durationHeld.value,
   )
+
   const accuracy = computed(() => {
     if (perfect.value + good.value + miss.value === 0) {
       return 100
@@ -38,7 +44,7 @@ function getInitialScore(): Score {
     ).toFixed(0)
   })
 
-  return { perfect, good, miss, pointless, durationHeld, combined, accuracy }
+  return { perfect, good, miss, pointless, durationHeld, combined, accuracy, streak }
 }
 
 export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
@@ -80,6 +86,9 @@ class Player {
         missedNotes++
       }
     }
+    if (missedNotes > 0) {
+      this.score.streak.value = 0
+    }
     this.score.miss.value += missedNotes
   }
 
@@ -103,13 +112,15 @@ class Player {
       const currentTime = this.currentSongTime
       this.lateNotes.delete(midiNote)
       const diff = (1000 * (currentTime - missedNote)) / this.bpmModifier
-      if (diff < 50) {
+      if (diff < PERFECT_RANGE) {
         console.log('Perfect (late)', diff)
         this.score.perfect.value++
+        this.score.streak.value++
         return
-      } else if (diff < 100) {
+      } else if (diff < GOOD_RANGE) {
         console.log('Good (late)', diff)
         this.score.good.value++
+        this.score.streak.value++
         return
       }
     }
@@ -129,18 +140,25 @@ class Player {
     }
     if (upcomingNote && !this.earlyNotes.has(midiNote)) {
       const diff = ((upcomingNote.time - this.currentSongTime) * 1000) / this.bpmModifier
-      if (diff < 50) {
+      if (diff < PERFECT_RANGE) {
         console.log('Perfect (early)', diff)
-        this.score.perfect.value++
-      } else if (diff < 100) {
+        batch(() => {
+          this.score.streak.value++
+          this.score.perfect.value++
+        })
+      } else if (diff < GOOD_RANGE) {
         console.log('Good (early)', diff)
-        this.score.good.value++
+        batch(() => {
+          this.score.streak.value++
+          this.score.good.value++
+        })
       }
       this.earlyNotes.set(midiNote, upcomingNote.time)
       return
     }
 
     this.score.pointless.value++
+    this.score.streak.value = 0
     console.log('Pointless hit!')
   }
 
@@ -443,6 +461,7 @@ class Player {
     this.score.perfect.value = 0
     this.score.pointless.value = 0
     this.score.durationHeld.value = 0
+    this.score.streak.value = 0
   }
 
   seek(time: number) {
