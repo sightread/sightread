@@ -249,7 +249,7 @@ class Player {
     )
   }
 
-  getTimeForVisuals() {
+  getTime() {
     const offset = 0 // getAudioContext().outputLatency
 
     const song = this.getSong()
@@ -361,8 +361,6 @@ class Player {
     const backingTrack = this.getSong()?.backing
     if (backingTrack) {
       const newTime = backingTrack.currentTime + getAudioContext().outputLatency
-      // const diff = newTime - this.currentSongTime
-      // console.log(`Diff: ${diff * 1000}`)
       this.currentSongTime = newTime
     }
 

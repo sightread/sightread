@@ -28,7 +28,7 @@ function SongPreview({ songId, source, className }: SongPreviewProps) {
     <SongVisualizer
       song={song}
       config={songConfig}
-      getTime={() => Player.player().getTimeForVisuals()}
+      getTime={() => Player.player().getTime()}
       hand="both"
       handSettings={getHandSettings(songConfig)}
     />

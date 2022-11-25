@@ -1,6 +1,6 @@
 import React, { useState, useEffect, PropsWithChildren, useReducer, useRef } from 'react'
 
-import { Clef, Hand, Song, SongConfig } from '@/types'
+import { Hand, Song, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings } from '@/features/SongVisualization'
 import Player from '@/features/player'
 import { useOnUnmount, useRAFLoop, useWakeLock } from '@/hooks'
@@ -21,15 +21,6 @@ import { playFailSound } from '../sound-effects'
 type Generator = 'eMinor' | 'dMajor' | 'random'
 type Level = 1 | 2 | 3
 export type GeneratedSongSettings = SongConfig & { generator: Generator }
-
-/**
- * Needs:
- * - Wait first note, then no more waiting.
- * - Next generates new song
- * - Restart resets all stats etc back to 0
- *
- * - BPM Modifier (soon)
- */
 
 function useGeneratedSong(type: Generator, level: Level): [Song | undefined, () => void] {
   const [song, setSong] = useState<Song>()
@@ -92,6 +83,7 @@ export function Phrases() {
     setSongConfig(config)
     player.setSong(song, config)
   }, [song, player, setSongConfig])
+
   const accuracy = player.score.accuracy.value + '%'
   const score = player.score.combined.value
   const streak = player.score.streak.value
@@ -99,7 +91,7 @@ export function Phrases() {
   return (
     <>
       <Head>
-        <title>Sightread: Infinite</title>
+        <title>Sightread: Phrases</title>
       </Head>
       <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
       <div className={clsx('flex flex-col h-screen', 'h-[100dvh]')}>
@@ -178,20 +170,20 @@ export function Phrases() {
             config={songConfig}
             hand={hand as Hand}
             handSettings={getHandSettings(songConfig)}
-            getTime={() => Player.player().getTimeForVisuals()}
+            getTime={() => Player.player().getTime()}
             game={true}
           />
         </div>
         <div className="flex basis-0 items-center justify-center gap-4 text-white">
-          <InfiniteBtn
+          <PhrasesBtn
             onClick={handleReplay}
             className="bg-white text-purple-primary border border-purple-primary hover:bg-purple-light"
           >
             Replay
-          </InfiniteBtn>
-          <InfiniteBtn onClick={handleNext} className="bg-purple-primary hover:bg-purple-hover">
+          </PhrasesBtn>
+          <PhrasesBtn onClick={handleNext} className="bg-purple-primary hover:bg-purple-hover">
             Next
-          </InfiniteBtn>
+          </PhrasesBtn>
         </div>
       </div>
     </>
@@ -205,7 +197,7 @@ function ProgressDisplay() {
       return
     }
     const player = Player.player()
-    const progress = (player.getTimeForVisuals() / player.getDuration()) * 100
+    const progress = (player.getTime() / player.getDuration()) * 100
     progressRef.current.style.width = `${progress}%`
   })
   return (
@@ -235,7 +227,7 @@ function StatDisplay(props: PropsWithChildren<{ label: string }>) {
 }
 
 type ButtonProps = React.HTMLProps<{}>
-function InfiniteBtn({ children, ...rest }: PropsWithChildren<ButtonProps>) {
+function PhrasesBtn({ children, ...rest }: PropsWithChildren<ButtonProps>) {
   return (
     <button
       {...(rest as any)}

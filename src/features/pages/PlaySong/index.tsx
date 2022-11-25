@@ -201,7 +201,7 @@ export function PlaySong() {
             hand={hand}
             handSettings={getHandSettings(songConfig)}
             selectedRange={range}
-            getTime={() => Player.player().getTimeForVisuals()}
+            getTime={() => Player.player().getTime()}
             enableTouchscroll={songConfig.visualization === 'falling-notes'}
           />
         </div>

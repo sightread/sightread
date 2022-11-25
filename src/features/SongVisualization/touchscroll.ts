@@ -12,7 +12,7 @@ export function isDragging(): boolean {
 }
 
 function seekSeconds(seconds: number) {
-  const songTime = clamp(seconds + player.getTimeForVisuals(), {
+  const songTime = clamp(seconds + player.getTime(), {
     min: 0,
     max: player.getDuration(),
   })

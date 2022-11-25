@@ -61,8 +61,8 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     waiting: false,
     noteLetter: false,
     skipMissedNotes: false,
-    tracks: {},
     visualization: 'falling-notes',
+    tracks: {},
   }
   if (!song) {
     return songConfig

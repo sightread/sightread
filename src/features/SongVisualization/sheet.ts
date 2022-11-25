@@ -28,7 +28,6 @@ const TEXT_FONT = 'Arial'
 const STAFF_START_X = 100
 const STAFF_FIVE_LINES_HEIGHT = 80
 const PLAY_NOTES_LINE_OFFSET = STAFF_SPACE // offset above and below the staff lines
-const NOTE_ALPHA = 'A2'
 
 function getViewport(state: Readonly<GivenState>): Viewport {
   return {
@@ -192,12 +191,10 @@ function renderSheetNote(state: State, note: SongNote): void {
   gradient.addColorStop(0.8, `rgba(${prefix},0.3`)
   gradient.addColorStop(1, `rgba(${prefix},1)`)
 
-  ctx.fillStyle = gradient // color + NOTE_ALPHA
-  ctx.strokeStyle = gradient // color + NOTE_ALPHA
+  ctx.fillStyle = gradient
+  ctx.strokeStyle = gradient
   const trailLength = length - STAFF_SPACE
   const trailHeight = 10
-  // TODO: find a way to make the trail not combine alphas with the notehead.
-  // ctx.globalCompositeOperation = 'destination-over'
   ctx.fillRect(canvasX + STAFF_SPACE / 2, canvasY - trailHeight / 2, trailLength, trailHeight)
   ctx.globalCompositeOperation = 'source-over'
 
