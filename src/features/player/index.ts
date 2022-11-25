@@ -9,8 +9,8 @@ import { getAudioContext } from '../synth/utils'
 
 let player: Player
 
-const GOOD_RANGE = 200
-const PERFECT_RANGE = 100
+const GOOD_RANGE = 300
+const PERFECT_RANGE = 150
 
 interface Score {
   perfect: Signal<number>
@@ -91,7 +91,7 @@ class Player {
     let missedNotes = 0
     for (const [midiNote, missedNote] of this.lateNotes.entries()) {
       const diff = ((this.currentSongTime - missedNote.time) * 1000) / this.bpmModifier.value
-      if (diff > 100) {
+      if (diff > GOOD_RANGE) {
         this.lateNotes.delete(midiNote)
         missedNotes++
         this.missedNotes.add(missedNote)
@@ -212,6 +212,7 @@ class Player {
       this.state.value = 'Paused'
     })
     this.skipMissedNotes = songConfig.skipMissedNotes
+    this.wait = songConfig.waiting
   }
 
   setVolume(vol: number) {
@@ -418,7 +419,7 @@ class Player {
       const note = song.notes[this.currentIndex]
 
       if (this.isActiveHand(note)) {
-        if (this.wait && this.lateNotes.has(note.midiNote)) {
+        if (this.wait && !this.hitNotes.has(note)) {
           this.currentSongTime = note.time
           return
         } else if (this.earlyNotes.has(note.midiNote)) {
