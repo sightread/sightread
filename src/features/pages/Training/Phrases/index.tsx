@@ -15,6 +15,8 @@ import TopBar from './components/TopBar'
 import { ButtonWithTooltip } from '../../PlaySong/components/TopBar'
 import { ChevronDown, ChevronUp } from '@/icons'
 import { round } from '@/utils'
+import { useSignalEffect } from '@preact/signals-react'
+import { playFailSound } from '../sound-effects'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
 type Level = 1 | 2 | 3
@@ -50,6 +52,11 @@ export function Phrases() {
   const [level, setLevel] = useState<Level>(1)
   const [song, forceNewSong] = useGeneratedSong(generatorType, level)
   songConfig.noteLetter = showNoteLetters
+  useSignalEffect(() => {
+    if (player.score.pointless.value !== 0) {
+      playFailSound()
+    }
+  })
 
   useWakeLock()
   useOnUnmount(() => player.stop())
@@ -75,6 +82,7 @@ export function Phrases() {
     if (!song) return
     const config = getDefaultSongSettings(song)
     config.visualization = 'sheet'
+    config.skipMissedNotes = true
     setSongConfig(config)
     player.setSong(song, config)
   }, [song, player, setSongConfig])
@@ -95,8 +103,8 @@ export function Phrases() {
             setMidiModal(!isMidiModalOpen)
           }}
         />
-        <div className="px-8 py-4 flex w-full justify-center gap-4 bg-gray-200">
-          <div className="flex items-center gap-2 bg-white rounded-md p-2 text-black">
+        <div className="relative px-8 py-4 flex w-full justify-center gap-4 bg-gray-200">
+          <div className="flex items-center gap-2 bg-white rounded-md p-2 text-black whitespace-nowrap">
             <label>BPM {round(player.bpmModifier.value * 100)}%</label>
             <ButtonWithTooltip tooltip="Increase BPM" onClick={() => player.increaseBpm()}>
               <ChevronUp className="text-black hover:text-purple-primary" />
@@ -105,7 +113,7 @@ export function Phrases() {
               <ChevronDown className="text-black hover:text-purple-primary" />
             </ButtonWithTooltip>
           </div>
-          <div className="flex items-center gap-2 bg-white rounded-md p-2">
+          <div className="flex items-center gap-2 bg-white rounded-md p-2 whitespace-nowrap">
             <label>Show letter</label>
             <Toggle
               width={50}
@@ -136,11 +144,7 @@ export function Phrases() {
           <StatDisplay label="Streak">{streak}</StatDisplay>
         </div>
         <Sizer height={32} />
-        <div
-          className={
-            'relative w-screen max-w-[1100px] bg-white px-8 justify-center h-[425px] mx-auto'
-          }
-        >
+        <div className={'relative w-[calc(100%-100px)] bg-white justify-center h-[325px] mx-auto'}>
           <SongVisualizer
             song={song}
             config={songConfig}
@@ -150,7 +154,7 @@ export function Phrases() {
             game={true}
           />
         </div>
-        <div className="p-8 flex basis-0 items-center justify-center gap-4 text-white">
+        <div className="flex basis-0 items-center justify-center gap-4 text-white">
           <InfiniteBtn onClick={handleNext} className="bg-purple-primary hover:bg-purple-hover">
             Next
           </InfiniteBtn>

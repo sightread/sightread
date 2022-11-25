@@ -11,6 +11,7 @@ import { render } from './canvas'
 import { Canvas, Sizer } from '@/components'
 import { getRandomNote, KEY_SIGNATURE } from '@/features/theory'
 import { isBrowser, round } from '@/utils'
+import { playFailSound } from '../sound-effects'
 
 export type Props = {}
 
@@ -218,9 +219,7 @@ function advanceGame(
       complete,
     })
   } else {
-    if (failSound) {
-      failSound.play()
-    }
+    playFailSound()
     setSpeedState({
       ...speedState,
       currentNoteIndex: speedState.currentNoteIndex + 1,
@@ -228,13 +227,6 @@ function advanceGame(
       complete,
     })
   }
-}
-
-let failSound: HTMLAudioElement | null = null
-if (isBrowser()) {
-  failSound = new Audio('/effects/wrong-sound-effect.mp3')
-  failSound.playbackRate = 6
-  failSound.volume = 0.25
 }
 
 function generateRandomNotes(clef: Clef, keySignature: KEY_SIGNATURE) {

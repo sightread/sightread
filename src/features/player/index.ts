@@ -77,6 +77,7 @@ class Player {
   midiPressedNotes: Set<number> = new Set()
   lateNotes: Map<number, SongNote> = new Map()
   earlyNotes: Map<number, SongNote> = new Map()
+  skipMissedNotes = false
 
   constructor() {
     midi.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
@@ -134,6 +135,9 @@ class Player {
       if (isHit) {
         this.score.streak.value++
         this.hitNotes.add(lateNote)
+        if (this.skipMissedNotes) {
+          this.playNote(lateNote)
+        }
         return
       }
     }
@@ -207,6 +211,7 @@ class Player {
       this.synths = s
       this.state.value = 'Paused'
     })
+    this.skipMissedNotes = songConfig.skipMissedNotes
   }
 
   setVolume(vol: number) {
@@ -426,7 +431,9 @@ class Player {
         }
       }
       this.playing.push(note)
-      this.playNote(note)
+      if (!this.skipMissedNotes || isHitNote(note)) {
+        this.playNote(note)
+      }
       this.currentIndex++
     }
   }

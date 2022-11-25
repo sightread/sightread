@@ -86,6 +86,7 @@ export type SongConfig = {
   waiting: boolean
   visualization: VisualizationMode
   noteLetter: boolean
+  skipMissedNotes: boolean
   keySignature?: KEY_SIGNATURE
   tracks: {
     [trackId: number]: TrackSetting

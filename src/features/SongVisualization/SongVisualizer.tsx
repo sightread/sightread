@@ -1,7 +1,7 @@
 import { Hand, Song, SongConfig } from '@/types'
 import { GivenState, render } from './canvasRenderer'
-import { useRAFLoop, useSize } from '@/hooks'
-import { useRef, useCallback, useMemo } from 'react'
+import { useSize } from '@/hooks'
+import { useRef, useMemo } from 'react'
 import * as touchscroll from '@/features/SongVisualization/touchscroll'
 import { PIXELS_PER_SECOND as pps } from './utils'
 import { Canvas } from '@/components'
@@ -48,16 +48,8 @@ function CanvasRenderer({
       return
     }
 
-    const time = getTime()
-    // const now = Date.now()
-    // const songDiff = (time - (window as any).lastSongTime) * 1000
-    // const realDiff = now - (window as any).lastRealTime
-    // console.log(`Diff of songtime vs. realtime: ${Math.abs(realDiff - songDiff)}`)
-    // ;(window as any).lastSongTime = time
-    // ;(window as any).lastRealTime = now
-
     const state: GivenState = {
-      time,
+      time: getTime(),
       visualization: config.visualization,
       drawNotes: config.noteLetter,
       windowWidth: width,
