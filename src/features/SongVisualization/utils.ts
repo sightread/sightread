@@ -1,4 +1,4 @@
-import { Song, Track, SongNote, SongConfig, SongMeasure, TrackSetting } from '@/types'
+import { Song, Track, SongNote, SongConfig, SongMeasure, Hand, TrackSetting } from '@/types'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
@@ -60,9 +60,9 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     right: true,
     waiting: false,
     noteLetter: false,
-    visualization: 'falling-notes',
-    tracks: {},
     skipMissedNotes: false,
+    tracks: {},
+    visualization: 'falling-notes',
   }
   if (!song) {
     return songConfig

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, PropsWithChildren, useReducer, useRef } from 'react'
 
-import { Song, SongConfig } from '@/types'
+import { Clef, Hand, Song, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings } from '@/features/SongVisualization'
 import Player from '@/features/player'
 import { useOnUnmount, useRAFLoop, useWakeLock } from '@/hooks'
@@ -43,15 +43,22 @@ function useGeneratedSong(type: Generator, level: Level): [Song | undefined, () 
   return [song, forceNewSong]
 }
 
+type PhraseClefType = 'treble' | 'bass' | 'grand'
 export function Phrases() {
   const [songConfig, setSongConfig] = useState(getDefaultSongSettings())
   const player = Player.player()
   const [showNoteLetters, setShowNoteLetters] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const [generatorType, setGeneratorType] = useState<Generator>('dMajor')
+  const [clefType, setClefType] = useState<PhraseClefType>('treble')
   const [level, setLevel] = useState<Level>(1)
   const [song, forceNewSong] = useGeneratedSong(generatorType, level)
+
+  const handMap = { bass: 'left', grand: 'both', treble: 'right' }
+  const hand = handMap[clefType]
+  player.setHand(hand)
   songConfig.noteLetter = showNoteLetters
+
   useSignalEffect(() => {
     if (player.score.pointless.value !== 0) {
       playFailSound()
@@ -60,7 +67,6 @@ export function Phrases() {
 
   useWakeLock()
   useOnUnmount(() => player.stop())
-  const hand = 'right'
 
   function handleReplay() {
     player.stop()
@@ -135,6 +141,12 @@ export function Phrases() {
             onChange={(val) => setLevel(val)}
             display={(lvl) => `Level: ${lvl}`}
           />
+          <Select
+            className="max-w-fit"
+            options={['treble', 'bass', 'grand']}
+            value={clefType}
+            onChange={(val) => setClefType(val)}
+          />
         </div>
         <Sizer height={24} />
         <div className="h-[100px] w-full flex justify-center gap-8 items-center">
@@ -148,21 +160,21 @@ export function Phrases() {
           <SongVisualizer
             song={song}
             config={songConfig}
-            hand={hand}
+            hand={hand as Hand}
             handSettings={getHandSettings(songConfig)}
             getTime={() => Player.player().getTimeForVisuals()}
             game={true}
           />
         </div>
         <div className="flex basis-0 items-center justify-center gap-4 text-white">
-          <InfiniteBtn onClick={handleNext} className="bg-purple-primary hover:bg-purple-hover">
-            Next
-          </InfiniteBtn>
           <InfiniteBtn
             onClick={handleReplay}
             className="bg-white text-purple-primary border border-purple-primary hover:bg-purple-light"
           >
             Replay
+          </InfiniteBtn>
+          <InfiniteBtn onClick={handleNext} className="bg-purple-primary hover:bg-purple-hover">
+            Next
           </InfiniteBtn>
         </div>
       </div>

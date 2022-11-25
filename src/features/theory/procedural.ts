@@ -226,13 +226,10 @@ export async function getGeneratedSong(type: ChordProgression, level?: Level): P
 }
 
 function getRandomSong(level: number): Song {
-  const clef = 'treble'
-  let minOctave = 4
-  let maxOctave = 5
-  // if (clef === 'bass') {
-  //   minOctave = 2
-  //   maxOctave = 3
-  // }
+  const octaves = {
+    bass: { min: 2, max: 3 },
+    treble: { min: 4, max: 5 },
+  }
 
   const duration = 10
   let time = 0
@@ -241,16 +238,24 @@ function getRandomSong(level: number): Song {
   const noteDuration = level === 1 ? 1 : level === 2 ? 0.5 : 0.25
 
   while (time < duration) {
-    const note: SongNote = {
-      type: 'note',
-      track: 0,
+    const sharedNotes = {
+      type: 'note' as 'note',
       time,
       duration: noteDuration - 0.05, // Leave a tiny amount of breathing room
-      // midiNote: getNote('G4'),
-      midiNote: getRandomNote(minOctave, maxOctave, 'C'),
       measure: Math.floor(time / 4),
     }
-    notes.push(note)
+    const bass: SongNote = {
+      ...sharedNotes,
+      track: 0,
+      midiNote: getRandomNote(octaves.bass.max, octaves.bass.max, 'C'),
+    }
+    const treble: SongNote = {
+      ...sharedNotes,
+      track: 1,
+      midiNote: getRandomNote(octaves.treble.max, octaves.treble.max, 'C'),
+    }
+    notes.push(bass)
+    notes.push(treble)
     time += noteDuration
   }
 

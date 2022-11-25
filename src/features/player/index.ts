@@ -1,5 +1,5 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { computed, effect, ReadonlySignal, signal, Signal } from '@preact/signals-react'
+import { computed, ReadonlySignal, signal, Signal } from '@preact/signals-react'
 import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
 import { InstrumentName } from '@/features/synth'
 import { getHands, isBrowser, round } from '@/utils'
@@ -431,7 +431,7 @@ class Player {
         }
       }
       this.playing.push(note)
-      if (!this.skipMissedNotes || isHitNote(note)) {
+      if (!this.skipMissedNotes || !this.isActiveHand(note) || isHitNote(note)) {
         this.playNote(note)
       }
       this.currentIndex++
