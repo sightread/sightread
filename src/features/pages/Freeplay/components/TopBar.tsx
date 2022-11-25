@@ -33,8 +33,8 @@ export default function TopBar({ isError, isLoading, value, onChange, onClickMid
         value={value}
         onChange={onChange}
         options={gmInstruments as any}
-        format={formatInstrumentName}
-        display={formatInstrumentName}
+        format={formatInstrumentName as any}
+        display={formatInstrumentName as any}
       />
     </div>
   )

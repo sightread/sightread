@@ -8,8 +8,8 @@ type SelectProps = {
   value: any
   options: any[]
   onChange: (value: any) => void
-  format?: (value: any) => any
-  display?: (value: any) => string | number
+  format?: (value: string) => string | undefined
+  display?: (value: string) => string | number | undefined
   loading?: boolean
   error?: boolean
   className?: string

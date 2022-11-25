@@ -133,6 +133,20 @@ export function Phrases() {
             options={['random', 'eMinor', 'dMajor']}
             value={generatorType}
             onChange={(val) => setGeneratorType(val)}
+            display={(v) =>
+              ({
+                random: 'Random',
+                eMinor: 'Irish Folk in E Minor',
+                dMajor: 'Irish Folk in D Major',
+              }[v])
+            }
+            format={(v) =>
+              ({
+                random: 'Random',
+                eMinor: 'Irish Folk in E Minor',
+                dMajor: 'Irish Folk in D Major',
+              }[v])
+            }
           />
           <Select
             className="max-w-fit"
@@ -146,6 +160,8 @@ export function Phrases() {
             options={['treble', 'bass', 'grand']}
             value={clefType}
             onChange={(val) => setClefType(val)}
+            display={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' }[v])}
+            format={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' }[v])}
           />
         </div>
         <Sizer height={24} />
