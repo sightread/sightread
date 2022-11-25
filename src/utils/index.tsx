@@ -180,6 +180,10 @@ export function clamp(number: number, { min, max }: { min?: number; max?: number
   return number
 }
 
+export function round(num: number, fractionDigits: number = 0) {
+  return parseFloat(num.toFixed(fractionDigits))
+}
+
 export function mapValues<From, To>(
   obj: { [str: string]: From },
   fn: (t: From, key: string) => To,

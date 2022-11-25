@@ -12,6 +12,9 @@ import { Select, Sizer, Toggle } from '@/components'
 import { getGeneratedSong } from '@/features/theory/procedural'
 import midiState from '@/features/midi'
 import TopBar from './components/TopBar'
+import { ButtonWithTooltip } from '../../PlaySong/components/TopBar'
+import { ChevronDown, ChevronUp } from '@/icons'
+import { round } from '@/utils'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
 type Level = 1 | 2 | 3
@@ -93,6 +96,15 @@ export function Phrases() {
           }}
         />
         <div className="px-8 py-4 flex w-full justify-center gap-4 bg-gray-200">
+          <div className="flex items-center gap-2 bg-white rounded-md p-2 text-black">
+            <label>BPM {round(player.bpmModifier.value * 100)}%</label>
+            <ButtonWithTooltip tooltip="Increase BPM" onClick={() => player.increaseBpm()}>
+              <ChevronUp className="text-black hover:text-purple-primary" />
+            </ButtonWithTooltip>
+            <ButtonWithTooltip tooltip="Decrease BPM" onClick={() => player.decreaseBpm()}>
+              <ChevronDown className="text-black hover:text-purple-primary" />
+            </ButtonWithTooltip>
+          </div>
           <div className="flex items-center gap-2 bg-white rounded-md p-2">
             <label>Show letter</label>
             <Toggle

@@ -10,7 +10,7 @@ import { usePersistedState } from '@/features/persist'
 import { render } from './canvas'
 import { Canvas, Sizer } from '@/components'
 import { getRandomNote, KEY_SIGNATURE } from '@/features/theory'
-import { isBrowser } from '@/utils'
+import { isBrowser, round } from '@/utils'
 
 export type Props = {}
 
@@ -160,12 +160,11 @@ export default function SpeedTraining({}: Props) {
 
 function ScoreInfo({ speedState }: { speedState: SpeedState }) {
   const { correct, notes, currentNoteIndex, lastNoteHitTime, startTime } = speedState
-  const accuracy = (100 * (correct / currentNoteIndex)).toFixed(2)
-  const npm = (
-    (currentNoteIndex / (lastNoteHitTime.getTime() - startTime.getTime())) *
-    1000 *
-    60
-  ).toFixed(2)
+  const accuracy = round(100 * (correct / currentNoteIndex), 2)
+  const npm = round(
+    (currentNoteIndex / (lastNoteHitTime.getTime() - startTime.getTime())) * 1000 * 60,
+    2,
+  )
   return (
     <div
       style={{

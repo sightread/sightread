@@ -33,7 +33,7 @@ export default function SongScrubBar({
   const player = Player.player()
   const isDraggingL = useRef(false)
   const isDraggingR = useRef(false)
-  const song: Song | undefined = player.song
+  const song: Song | null = player.song.value
   const progressBarRef: React.Ref<HTMLDivElement> = useRef<any>()
   const wrapperRef: React.Ref<HTMLDivElement> = useRef<any>()
   const isScrubbing = useRef<boolean>(false)
@@ -132,7 +132,7 @@ export default function SongScrubBar({
       ref={wrapperRef}
       onPointerMove={(e: React.MouseEvent) => {
         if (
-          !player.song ||
+          !player.getSong() ||
           !measureSpanRef.current ||
           !timeSpanRef.current ||
           !toolTipRef.current

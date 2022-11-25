@@ -1,8 +1,8 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { computed, signal, Signal } from '@preact/signals-react'
+import { computed, effect, ReadonlySignal, signal, Signal } from '@preact/signals-react'
 import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
 import { InstrumentName } from '@/features/synth'
-import { getHands, isBrowser } from '@/utils'
+import { getHands, isBrowser, round } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
 import { getAudioContext } from '../synth/utils'
@@ -38,10 +38,7 @@ function getInitialScore(): Score {
     if (perfect.value + good.value + miss.value === 0) {
       return 100
     }
-    return +(
-      (100 * (perfect.value + good.value)) /
-      (perfect.value + good.value + miss.value)
-    ).toFixed(0)
+    return round((100 * (perfect.value + good.value)) / (perfect.value + good.value + miss.value))
   })
 
   return { perfect, good, miss, pointless, durationHeld, combined, accuracy, streak }
@@ -51,19 +48,25 @@ export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
 class Player {
   state: Signal<PlayerState> = signal('CannotPlay')
   score: Score = getInitialScore()
-  song?: Song
+  song: Signal<Song | null> = signal(null)
   playInterval: any = null
   currentSongTime = 0
+
   // TODO: Determine if MIDI always assumes BPM means quarter notes per minute.
   // Add link to documentation if so.
-  currentBpm = 0
+  bpmModifier = signal(1)
+  currentBpmIndex = signal(0)
+  currentBpm: ReadonlySignal<number> = computed(() => {
+    const currSongBpm = this.song.value?.bpms[this.currentBpmIndex.value]?.bpm ?? 120
+    return currSongBpm * this.bpmModifier.value
+  })
+
   currentIndex = 0
   lastIntervalFiredTime = 0
   playing: Array<SongNote> = []
   synths: Array<Synth> = []
   volume = 1
   handlers: any = {}
-  bpmModifier = 1
   range: null | [number, number] = null
   hand = 'both'
   wait = false
@@ -79,10 +82,14 @@ class Player {
     midi.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
   }
 
+  getSong() {
+    return this.song.value
+  }
+
   clearMissedNotes_() {
     let missedNotes = 0
     for (const [midiNote, missedNote] of this.lateNotes.entries()) {
-      const diff = ((this.currentSongTime - missedNote.time) * 1000) / this.bpmModifier
+      const diff = ((this.currentSongTime - missedNote.time) * 1000) / this.bpmModifier.value
       if (diff > 100) {
         this.lateNotes.delete(midiNote)
         missedNotes++
@@ -96,7 +103,8 @@ class Player {
   }
 
   processMidiEvent(midiEvent: MidiStateEvent) {
-    if (!this.song) {
+    const song = this.getSong()
+    if (!song) {
       return
     }
 
@@ -114,7 +122,7 @@ class Player {
     if (lateNote) {
       const currentTime = this.currentSongTime
       this.lateNotes.delete(midiNote)
-      const diff = (1000 * (currentTime - lateNote.time)) / this.bpmModifier
+      const diff = (1000 * (currentTime - lateNote.time)) / this.bpmModifier.value
       const isHit = diff < GOOD_RANGE
       if (diff < PERFECT_RANGE) {
         console.log('Perfect (late)', diff)
@@ -134,18 +142,17 @@ class Player {
     let upcomingNote
     for (
       let i = this.currentIndex;
-      i < this.song.notes.length &&
-      (this.song.notes[i].time - this.currentSongTime) * 1000 < GOOD_RANGE;
+      i < song.notes.length && (song.notes[i].time - this.currentSongTime) * 1000 < GOOD_RANGE;
       i++
     ) {
-      const note = this.song.notes[i]
+      const note = song.notes[i]
       if (note.midiNote === midiNote) {
         upcomingNote = note
         break
       }
     }
     if (upcomingNote && !this.earlyNotes.has(midiNote)) {
-      const diff = ((upcomingNote.time - this.currentSongTime) * 1000) / this.bpmModifier
+      const diff = ((upcomingNote.time - this.currentSongTime) * 1000) / this.bpmModifier.value
       const isHit = diff < GOOD_RANGE
       if (diff < PERFECT_RANGE) {
         console.log('Perfect (early)', diff)
@@ -182,17 +189,9 @@ class Player {
     return this.state.value === 'Playing'
   }
 
-  init(): void {
-    this.currentBpm = 0
-    this.bpmModifier = 1
-    this.currentSongTime = 0
-    this.currentIndex = 0
-    this.playing = []
-  }
-
   async setSong(song: Song, songConfig: SongConfig) {
     this.stop()
-    this.song = song
+    this.song.value = song
     this.songHands = getHands(songConfig)
     this.state.value = 'CannotPlay'
 
@@ -214,8 +213,10 @@ class Player {
     this.synths?.forEach((synth) => {
       synth?.setMasterVolume(vol)
     })
-    if (this.song?.backing) {
-      this.song.backing.volume = 0.15 * vol
+
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      backingTrack.volume = 0.15 * vol
     }
   }
 
@@ -246,8 +247,9 @@ class Player {
   getTimeForVisuals() {
     const offset = 0 // getAudioContext().outputLatency
 
-    if (this.song?.backing) {
-      return this.song.backing.currentTime
+    const song = this.getSong()
+    if (song?.backing) {
+      return song.backing.currentTime
     }
 
     if (!this.isPlaying()) {
@@ -264,23 +266,24 @@ class Player {
   }
 
   getBpm() {
-    const currBpm = this.song?.bpms[this.currentBpm]?.bpm ?? 120
-    return currBpm * this.bpmModifier
+    return this.currentBpm
   }
 
   increaseBpm() {
     const delta = 0.05
-    this.bpmModifier = parseFloat((this.bpmModifier + delta).toFixed(2))
-    if (this.song?.backing) {
-      this.song.backing.playbackRate = this.bpmModifier
+    this.bpmModifier.value = round(this.bpmModifier.value + delta, 2)
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      backingTrack.playbackRate = this.bpmModifier.value
     }
   }
 
   decreaseBpm() {
     const delta = 0.05
-    this.bpmModifier = parseFloat((this.bpmModifier - delta).toFixed(2))
-    if (this.song?.backing) {
-      this.song.backing.playbackRate = this.bpmModifier
+    this.bpmModifier.value = round(this.bpmModifier.value - delta, 2)
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      backingTrack.playbackRate = this.bpmModifier.value
     }
   }
 
@@ -293,27 +296,29 @@ class Player {
   }
 
   getBpmIndexForTime(time: number) {
-    if (!this.song) {
+    const song = this.getSong()
+    if (!song) {
       return 0
     }
 
-    const index = this.song.bpms.findIndex((m) => m.time > time) - 1
+    const index = song.bpms.findIndex((m) => m.time > time) - 1
     if (index < 0) {
-      return this.song.bpms.length - 1
+      return song.bpms.length - 1
     }
     return index
   }
 
   getMeasureForTime(time: number): SongMeasure {
-    if (!this.song) {
+    const song = this.getSong()
+    if (!song) {
       return { type: 'measure', number: 0, duration: 0, time: 0 }
     }
 
-    let index = this.song.measures.findIndex((m) => m.time > time) - 1
+    let index = song.measures.findIndex((m) => m.time > time) - 1
     if (index < 0) {
-      index = this.song.measures.length - 1
+      index = song.measures.length - 1
     }
-    return this.song.measures[index]
+    return song.measures[index]
   }
 
   play() {
@@ -321,8 +326,8 @@ class Player {
       return
     }
 
-    if (this.song?.backing) {
-      const backingTrack = this.song.backing
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
       backingTrack.volume = 0.15
       backingTrack.play()
     }
@@ -348,8 +353,9 @@ class Player {
   }
 
   updateTime_() {
-    if (this.song?.backing) {
-      const newTime = this.song.backing.currentTime + getAudioContext().outputLatency
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      const newTime = backingTrack.currentTime + getAudioContext().outputLatency
       // const diff = newTime - this.currentSongTime
       // console.log(`Diff: ${diff * 1000}`)
       this.currentSongTime = newTime
@@ -358,7 +364,7 @@ class Player {
     let dt = 0
     if (this.isPlaying()) {
       const now = performance.now()
-      dt = (now - this.lastIntervalFiredTime) * this.bpmModifier
+      dt = (now - this.lastIntervalFiredTime) * this.bpmModifier.value
       this.lastIntervalFiredTime = now
       this.currentSongTime += dt / 1000
     }
@@ -367,7 +373,8 @@ class Player {
   }
 
   playLoop_() {
-    if (!this.song) {
+    const song = this.getSong()
+    if (!song) {
       return
     }
 
@@ -388,8 +395,8 @@ class Player {
       }
     }
 
-    if (this.song.bpms[this.currentBpm + 1]?.time < time) {
-      this.currentBpm++
+    if (song.bpms[this.currentBpmIndex.value + 1]?.time < time) {
+      this.currentBpmIndex.value++
     }
     const stillPlaying = (n: SongNote) => n.time + n.duration > time
     this.stopNotes(this.playing.filter((n) => !stillPlaying(n)))
@@ -404,8 +411,8 @@ class Player {
       this.score.durationHeld.value += heldNotes
     }
 
-    while (this.song.notes[this.currentIndex]?.time < time) {
-      const note = this.song.notes[this.currentIndex]
+    while (song.notes[this.currentIndex]?.time < time) {
+      const note = song.notes[this.currentIndex]
 
       if (this.isActiveHand(note)) {
         if (this.wait && this.lateNotes.has(note.midiNote)) {
@@ -442,7 +449,7 @@ class Player {
     }
     this.state.value = 'Paused'
     clearInterval(this.playInterval)
-    this.song?.backing?.pause()
+    this.song.value?.backing?.pause()
     this.playInterval = null
     this.stopAllSounds()
   }
@@ -459,8 +466,8 @@ class Player {
     this.range = null
     this.earlyNotes.clear()
     this.lateNotes.clear()
-    if (this.song?.backing) {
-      this.song.backing.currentTime = 0
+    if (this.song.value?.backing) {
+      this.song.value.backing.currentTime = 0
     }
 
     this.hitNotes.clear()
@@ -474,20 +481,21 @@ class Player {
   }
 
   seek(time: number) {
-    if (!this.song) {
+    const song = this.getSong()
+    if (!song) {
       return
     }
 
     this.stopAllSounds()
     this.currentSongTime = time
-    if (this.song.backing) {
-      this.song.backing.currentTime = time
+    if (song.backing) {
+      song.backing.currentTime = time
     }
-    this.playing = this.song.notes.filter((note) => {
+    this.playing = song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
     })
-    this.currentIndex = this.song.notes.findIndex((note) => note.time >= this.currentSongTime)
-    this.currentBpm = this.getBpmIndexForTime(time)
+    this.currentIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
+    this.currentBpmIndex.value = this.getBpmIndexForTime(time)
   }
 
   /* Convert between songtime and real human time. Includes bpm calculations*/
@@ -496,7 +504,7 @@ class Player {
   }
 
   getDuration() {
-    return this.song?.duration ?? 0
+    return this.song.value?.duration ?? 0
   }
 
   setRange(range?: { start: number; end: number }) {

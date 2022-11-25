@@ -14,7 +14,7 @@ export function isDragging(): boolean {
 function seekSeconds(seconds: number) {
   const songTime = clamp(seconds + player.getTimeForVisuals(), {
     min: 0,
-    max: player.song?.duration ?? 0,
+    max: player.getDuration(),
   })
   player.seek(songTime)
 }
@@ -26,7 +26,7 @@ function decay() {
   requestAnimationFrame(() => {
     const songSeconds = acceleration / pps
     // End touchscroll when the acceleration catches up to the natural song velocity.
-    const endSnap = (1 / 60) * player.bpmModifier // TODO: instead of 1/60 it should be 1 / frameRate.
+    const endSnap = (1 / 60) * player.bpmModifier.value // TODO: instead of 1/60 it should be 1 / frameRate.
     if (Math.abs(songSeconds) > endSnap) {
       seekSeconds(songSeconds)
       acceleration *= decayRate
