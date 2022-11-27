@@ -3,7 +3,6 @@ import { Select } from '@/components'
 import { formatInstrumentName } from '@/utils'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { ArrowLeft, Midi } from '@/icons'
-import { useRouter } from 'next/router'
 import { ButtonWithTooltip } from '../../PlaySong/components/TopBar'
 import Link from 'next/link'
 

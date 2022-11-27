@@ -26,14 +26,12 @@ export default function Select({
   display = (value) => value,
 }: SelectProps) {
   const [openMenu, setOpenMenu] = useState(false)
-  const [selected, setSelected] = useState<any>(value)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const toggleMenu = () => {
     setOpenMenu(!openMenu)
   }
 
   const handleSelect = (val: any) => {
-    setSelected(val)
     onChange(val)
     toggleMenu()
   }
@@ -49,7 +47,7 @@ export default function Select({
       )}
     >
       <input
-        value={!loading ? display(selected) : ''}
+        value={!loading ? display(value) : ''}
         type="text"
         className={clsx(
           'max-h-full w-full border border-gray-200 rounded-md cursor-pointer p-2',

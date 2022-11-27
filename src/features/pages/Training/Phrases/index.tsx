@@ -3,7 +3,7 @@ import React, { useState, useEffect, PropsWithChildren, useReducer, useRef } fro
 import { Hand, Song, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings } from '@/features/SongVisualization'
 import Player from '@/features/player'
-import { useOnUnmount, useRAFLoop, useWakeLock } from '@/hooks'
+import { useOnUnmount, useQueryString, useRAFLoop, useWakeLock } from '@/hooks'
 import clsx from 'clsx'
 import Head from 'next/head'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils'
@@ -40,16 +40,21 @@ function useGeneratedSong(
   return [song, forceNewSong]
 }
 
+type QueryState = { level: string; clef: string; generator: Generator }
 type PhraseClefType = 'treble' | 'bass' | 'grand'
 export function Phrases() {
   const [songConfig, setSongConfig] = useState(getDefaultSongSettings())
   const player = Player.player()
   const [showNoteLetters, setShowNoteLetters] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
-  const [generatorType, setGeneratorType] = useState<Generator>('dMajor')
-  const [clefType, setClefType] = useState<PhraseClefType>('treble')
-  const [level, setLevel] = useState<Level>(0)
-  const [song, forceNewSong] = useGeneratedSong(generatorType, level, clefType)
+  const [queryState, setQueryState] = useQueryString<QueryState>({
+    level: '0',
+    clef: 'treble',
+    generator: 'eMinor',
+  })
+  const clefType = queryState.clef as PhraseClefType
+  const generatorType = queryState.generator as Generator
+  const [song, forceNewSong] = useGeneratedSong(generatorType, +queryState.level as Level, clefType)
 
   const handMap = { bass: 'left', grand: 'both', treble: 'right' }
   const hand = handMap[clefType]
@@ -130,7 +135,7 @@ export function Phrases() {
             className="max-w-fit"
             options={['random', 'eMinor', 'dMajor']}
             value={generatorType}
-            onChange={(val) => setGeneratorType(val)}
+            onChange={(generator) => setQueryState({ ...queryState, generator })}
             display={(v) =>
               ({
                 random: 'Random',
@@ -148,16 +153,16 @@ export function Phrases() {
           />
           <Select
             className="max-w-fit"
-            options={[0, 1, 2, 3]}
-            value={level}
-            onChange={(val) => setLevel(val)}
+            options={['0', '1', '2', '3']}
+            value={queryState.level}
+            onChange={(level) => setQueryState({ ...queryState, level })}
             display={(lvl) => `Level: ${lvl}`}
           />
           <Select
             className="max-w-fit"
             options={['treble', 'bass', 'grand']}
             value={clefType}
-            onChange={(val) => setClefType(val)}
+            onChange={(clef) => setQueryState({ ...queryState, clef })}
             display={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' }[v])}
             format={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' }[v])}
           />
