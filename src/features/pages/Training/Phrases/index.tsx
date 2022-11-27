@@ -22,14 +22,20 @@ type Generator = 'eMinor' | 'dMajor' | 'random'
 type Level = 1 | 2 | 3
 export type GeneratedSongSettings = SongConfig & { generator: Generator }
 
-function useGeneratedSong(type: Generator, level: Level): [Song | undefined, () => void] {
+function useGeneratedSong(
+  type: Generator,
+  level: Level,
+  clef: PhraseClefType,
+): [Song | undefined, () => void] {
   const [song, setSong] = useState<Song>()
   const [counter, forceNewSong] = useReducer((x) => x + 1, 0)
+  const hasBass = clef === 'grand' || clef === 'bass'
+  const hasTreble = clef === 'grand' || clef === 'treble'
   useEffect(() => {
-    getGeneratedSong(type, level as any)
+    getGeneratedSong(type, level as any, { bass: hasBass, treble: hasTreble })
       .then((s) => setSong(s))
       .catch((e) => console.error(e))
-  }, [type, level, counter])
+  }, [type, level, counter, clef])
 
   return [song, forceNewSong]
 }
@@ -43,7 +49,7 @@ export function Phrases() {
   const [generatorType, setGeneratorType] = useState<Generator>('dMajor')
   const [clefType, setClefType] = useState<PhraseClefType>('treble')
   const [level, setLevel] = useState<Level>(1)
-  const [song, forceNewSong] = useGeneratedSong(generatorType, level)
+  const [song, forceNewSong] = useGeneratedSong(generatorType, level, clefType)
 
   const handMap = { bass: 'left', grand: 'both', treble: 'right' }
   const hand = handMap[clefType]
@@ -164,7 +170,7 @@ export function Phrases() {
           <StatDisplay label="Streak">{streak}</StatDisplay>
         </div>
         <Sizer height={32} />
-        <div className={'relative w-[calc(100%-100px)] bg-white justify-center h-[325px] mx-auto'}>
+        <div className={'relative w-[calc(100%-100px)] bg-white justify-center h-[400px] mx-auto'}>
           <SongVisualizer
             song={song}
             config={songConfig}

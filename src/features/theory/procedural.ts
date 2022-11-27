@@ -1,7 +1,7 @@
 import { Song, SongMeasure, SongNote } from '@/types'
-import { Deferred, isBrowser } from '@/utils'
+import { Deferred } from '@/utils'
 import { parseMidi } from '../parsers'
-import { getNote, getRandomNote, KEY_SIGNATURE } from './keySignature'
+import { getRandomNote } from './keySignature'
 
 const dMajorChordProgression: Chord[] = [
   // First act
@@ -198,13 +198,18 @@ async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement
   return deferred.promise
 }
 
-export async function getGeneratedSong(type: ChordProgression, level?: Level): Promise<Song> {
+type StaffOptions = { bass: boolean; treble: boolean }
+export async function getGeneratedSong(
+  type: ChordProgression,
+  level: Level = 3,
+  staffs: StaffOptions,
+): Promise<Song> {
   if (type === 'random') {
-    return getRandomSong(level ?? 3)
+    return getRandomSong(level, staffs)
   }
 
   const [chordMap, backing] = await Promise.all([
-    getMeasuresPerChord('irish', level ?? 3),
+    getMeasuresPerChord('irish', level),
     getBackingTrack(type),
   ])
   const progression = type === 'eMinor' ? dMajorChordProgression : dMinorChordProgression
@@ -225,7 +230,7 @@ export async function getGeneratedSong(type: ChordProgression, level?: Level): P
   }
 }
 
-function getRandomSong(level: number): Song {
+function getRandomSong(level: number, options: { bass: boolean; treble: boolean }): Song {
   const octaves = {
     bass: { min: 2, max: 3 },
     treble: { min: 4, max: 5 },
@@ -244,18 +249,15 @@ function getRandomSong(level: number): Song {
       duration: noteDuration - 0.05, // Leave a tiny amount of breathing room
       measure: Math.floor(time / 4),
     }
-    const bass: SongNote = {
-      ...sharedNotes,
-      track: 0,
-      midiNote: getRandomNote(octaves.bass.max, octaves.bass.max, 'C'),
+    if (options.bass) {
+      console.log('making bass')
+      const { min, max } = octaves.bass
+      notes.push({ ...sharedNotes, track: 1, midiNote: getRandomNote(min, max, 'C') })
     }
-    const treble: SongNote = {
-      ...sharedNotes,
-      track: 1,
-      midiNote: getRandomNote(octaves.treble.max, octaves.treble.max, 'C'),
+    if (options.treble) {
+      const { min, max } = octaves.treble
+      notes.push({ ...sharedNotes, track: 0, midiNote: getRandomNote(min, max, 'C') })
     }
-    notes.push(bass)
-    notes.push(treble)
     time += noteDuration
   }
 
