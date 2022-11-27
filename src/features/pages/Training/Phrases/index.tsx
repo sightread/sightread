@@ -19,7 +19,7 @@ import { useSignalEffect } from '@preact/signals-react'
 import { playFailSound } from '../sound-effects'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
-type Level = 1 | 2 | 3
+type Level = 0 | 1 | 2 | 3
 export type GeneratedSongSettings = SongConfig & { generator: Generator }
 
 function useGeneratedSong(
@@ -48,7 +48,7 @@ export function Phrases() {
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const [generatorType, setGeneratorType] = useState<Generator>('dMajor')
   const [clefType, setClefType] = useState<PhraseClefType>('treble')
-  const [level, setLevel] = useState<Level>(1)
+  const [level, setLevel] = useState<Level>(0)
   const [song, forceNewSong] = useGeneratedSong(generatorType, level, clefType)
 
   const handMap = { bass: 'left', grand: 'both', treble: 'right' }
@@ -148,7 +148,7 @@ export function Phrases() {
           />
           <Select
             className="max-w-fit"
-            options={[1, 2, 3]}
+            options={[0, 1, 2, 3]}
             value={level}
             onChange={(val) => setLevel(val)}
             display={(lvl) => `Level: ${lvl}`}

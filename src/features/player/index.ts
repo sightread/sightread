@@ -211,7 +211,7 @@ class Player {
       this.synths = s
       this.state.value = 'Paused'
     })
-    this.skipMissedNotes = songConfig.skipMissedNotes
+    // this.skipMissedNotes = songConfig.skipMissedNotes
     this.wait = songConfig.waiting
   }
 

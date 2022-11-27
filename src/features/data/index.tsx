@@ -5,7 +5,6 @@ import * as library from './library'
 import { useCallback, useMemo, useState } from 'react'
 import { useFetch } from '@/hooks'
 import { FetchState } from '@/hooks/useFetch'
-import useDebugTraceUpdate from '@/hooks/useDebugTraceUpdate'
 
 function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)

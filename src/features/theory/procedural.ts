@@ -1,5 +1,5 @@
-import { Song, SongMeasure, SongNote } from '@/types'
-import { Deferred } from '@/utils'
+import { Clef, Song, SongMeasure, SongNote } from '@/types'
+import { batchedFetch, Deferred, ResponseHandler } from '@/utils'
 import { parseMidi } from '../parsers'
 import { getRandomNote } from './keySignature'
 
@@ -108,7 +108,31 @@ function splitMeasures(song: Song): Measure[] {
   return measures
 }
 
-// TODO: create symmetry with splitMeasure
+// Merges two measures together. The measures must have the same duration.
+// They become tracks based on array order.
+function mergeMeasures(measures: Measure[]): Measure {
+  if (!measures) {
+    return { duration: 0, notes: [], number: 0 }
+  }
+
+  // Verify duration.
+  const duration = measures[0].duration
+  for (let i = 1; i < measures.length; i++) {
+    if (measures[i].duration !== duration) {
+      throw new Error(`Not all measures have the same duration`)
+    }
+  }
+
+  // Pick random number
+  const number = measures[0].number
+  const notes = sort(
+    structuredClone(measures.flatMap((m, i) => m.notes.map((n) => ({ ...n, track: i })))),
+  )
+
+  return { duration, notes, number }
+}
+
+// Sequentially concatenates measures together
 function joinMeasures(measures: Measure[]): { notes: SongNote[]; measures: SongMeasure[] } {
   const songNotes: SongNote[] = []
   const songMeasures: SongMeasure[] = []
@@ -131,7 +155,7 @@ function joinMeasures(measures: Measure[]): { notes: SongNote[]; measures: SongM
   return { notes: songNotes, measures: songMeasures }
 }
 
-export type Level = 1 | 2 | 3
+export type Level = 0 | 1 | 2 | 3
 type Chord =
   | 'aHigh'
   // | 'amHigh'
@@ -159,37 +183,53 @@ const irishMidiFiles: { [chord in Chord]: string } = {
   gLow: 'G_Low',
 }
 
-let cachedMeasuresPerChord: Map<string, Map<Chord, Measure[]>> = new Map()
-async function getMeasuresPerChord(type: 'irish', level: number) {
-  const cacheKey = `${type}-${level}`
-  if (cachedMeasuresPerChord.has(cacheKey)) {
-    cachedMeasuresPerChord.get(cacheKey)
+async function getMeasuresForChord(
+  type: 'irish',
+  chord: Chord,
+  level: Level,
+  clef: Clef,
+): Promise<Measure[]> {
+  const chordAndHighOrLow = irishMidiFiles[chord]
+  let filename = `/music/irish/Right Hand/${chordAndHighOrLow}_Lvl_${level}.mid`
+  if (clef === 'bass') {
+    const chord = chordAndHighOrLow.slice(0, chordAndHighOrLow.indexOf('_'))
+    const bassLevel = Math.min(2, level)
+    filename = `/music/irish/Left Hand/${chord.toString()}_Lvl_${bassLevel}_LH.mid`
   }
-  const measurePerChord: Map<Chord, Measure[]> = new Map()
 
-  await Promise.all(
-    Object.entries(irishMidiFiles).map(([chord, prefix]: any) => {
-      const filename = `${prefix}_Lvl_${level}.mid`
-      return fetch(`/music/irish/${filename}`)
-        .then((response) => response.arrayBuffer())
-        .then(parseMidi)
-        .then((song) => {
-          measurePerChord.set(chord, splitMeasures(song))
-        })
-        .catch((err) => console.error(err))
-    }),
-  )
-  cachedMeasuresPerChord.set(cacheKey, measurePerChord)
-  return measurePerChord
+  const handler: ResponseHandler<Measure[]> = (res) =>
+    res
+      .arrayBuffer()
+      .then((buffer) => parseMidi(buffer))
+      .then(splitMeasures)
+      .catch((e) => {
+        console.error(e)
+        return []
+      })
+  return batchedFetch(filename, handler)
 }
 
-const dMajorBacking = 'DM (Full BPM 120) v1.0 DB.mp3'
-const eMinorBacking = 'EM (Full BPM 120) v1.0 DB.mp3'
+const dMajorBackingTracks = [
+  'DM (Full BPM 120 -2-2) v1.1 DB.mp3',
+  'DM (Full BPM 120) v1.1 DB.mp3',
+  'DM (Light Version BPM 120) v1.1 DB.mp3',
+  'DM (Piano Only BPM 120) v1.1 DB.mp3',
+  'DM (Strings Only BPM 120) v1.1 DB.mp3',
+]
+const eMinorBackingTracks = [
+  'EM (Full BPM 120) v1.0 DB.mp3',
+  'EM (Full Version BPM 120) v1.1 DB.mp3',
+  'EM (Percussion Only BPM 120) v1.1 DB.mp3',
+  'EM (Strings and Plucked BPM 120) v1.1 DB.mp3',
+  'EM (Strings Perc Choir BPM 120) v1.1 DB.mp3',
+  'EM (Strings Piano Plucked BPM 120) v1.1 DB.mp3',
+]
 
 type ChordProgression = 'eMinor' | 'dMajor' | 'random'
 
 async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement> {
-  const url = `/music/irish/backing/${type === 'eMinor' ? eMinorBacking : dMajorBacking}`
+  const filename = randomChoice(type === 'eMinor' ? eMinorBackingTracks : dMajorBackingTracks)!
+  const url = `/music/irish/Backing Tracks/${filename}`
   const track = new Audio(url)
   const deferred: Deferred<HTMLAudioElement> = new Deferred()
   track.addEventListener('canplaythrough', () => deferred.resolve(track))
@@ -208,13 +248,19 @@ export async function getGeneratedSong(
     return getRandomSong(level, staffs)
   }
 
-  const [chordMap, backing] = await Promise.all([
-    getMeasuresPerChord('irish', level),
-    getBackingTrack(type),
-  ])
+  const backingTrackPromise = getBackingTrack(type)
   const progression = type === 'eMinor' ? dMajorChordProgression : dMinorChordProgression
+  const progressionMeasures = await Promise.all(
+    progression.map(async (chord) => {
+      const [bassMeasures, trebleMeasures] = await Promise.all([
+        getMeasuresForChord('irish', chord, level, 'bass'),
+        getMeasuresForChord('irish', chord, level, 'treble'),
+      ])
+      return mergeMeasures([randomChoice(bassMeasures)!, randomChoice(trebleMeasures)!])
+    }),
+  )
 
-  const { notes, measures } = joinMeasures(progression.map((c) => randomChoice(chordMap.get(c)!)!))
+  const { notes, measures } = joinMeasures(progressionMeasures)
   const duration = measures.reduce((sum, m) => sum + m.duration, 0)
 
   return {
@@ -226,7 +272,7 @@ export async function getGeneratedSong(
     timeSignature: { numerator: 6, denominator: 8 },
     keySignature: 'C',
     items: sort([...measures, ...notes]),
-    backing,
+    backing: await backingTrackPromise,
   }
 }
 
