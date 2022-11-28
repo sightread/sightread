@@ -11,7 +11,7 @@ export type DifficultyLabel =
   // "-" stands for Unknown
   | '-'
 
-export type SongSource = 'midishare' | 'upload' | 'builtin'
+export type SongSource = 'midishare' | 'upload' | 'builtin' | 'generated'
 export type SongMetadata = {
   id: string
   file: string
@@ -39,8 +39,8 @@ export interface SongNote {
   track: number
   time: number
   duration: number
-  pitch: Pitch
   velocity?: number
+  measure: number
 }
 
 export interface Bpm {
@@ -61,6 +61,7 @@ export interface Track {
 export type SongMeasure = {
   type: 'measure'
   time: number
+  duration: number
   number: number
 }
 
@@ -73,6 +74,7 @@ export type Song = {
   timeSignature?: { numerator: number; denominator: number }
   keySignature: KEY_SIGNATURE
   items: Array<SongNote | SongMeasure>
+  backing?: HTMLAudioElement
 }
 
 export type Clef = 'bass' | 'treble'
@@ -84,6 +86,7 @@ export type SongConfig = {
   waiting: boolean
   visualization: VisualizationMode
   noteLetter: boolean
+  skipMissedNotes: boolean
   keySignature?: KEY_SIGNATURE
   tracks: {
     [trackId: number]: TrackSetting

@@ -7,11 +7,11 @@ import { getSynthStub, Synth } from '@/features/synth'
 import midiState from '@/features/midi'
 import { SettingsSidebar } from './components'
 import { usePersistedState } from '@/features/persist'
-import Canvas from './components/Canvas'
 import { render } from './canvas'
-import { Sizer } from '@/components'
+import { Canvas, Sizer } from '@/components'
 import { getRandomNote, KEY_SIGNATURE } from '@/features/theory'
-import { isBrowser } from '@/utils'
+import { isBrowser, round } from '@/utils'
+import { playFailSound } from '../sound-effects'
 
 export type Props = {}
 
@@ -30,22 +30,6 @@ export interface SpeedState {
   correct: number
   startTime: Date
   lastNoteHitTime: Date
-}
-
-function useTraceUpdate(props: any) {
-  const prev = useRef(props)
-  useEffect(() => {
-    const changedProps = Object.entries(props).reduce((ps: any, [k, v]) => {
-      if (prev.current[k] !== v) {
-        ps[k] = [prev.current[k], v]
-      }
-      return ps
-    }, {})
-    if (Object.keys(changedProps).length > 0) {
-      console.log('Changed props:', changedProps)
-    }
-    prev.current = props
-  })
 }
 
 export default function SpeedTraining({}: Props) {
@@ -80,10 +64,6 @@ export default function SpeedTraining({}: Props) {
       midiState.unsubscribe(handleMidiEvent)
     }
   }, [synth, soundOff, setSpeedState, speedState])
-
-  const handleToggleSound = () => {
-    setSoundOff(!soundOff)
-  }
 
   return (
     <div>
@@ -181,12 +161,11 @@ export default function SpeedTraining({}: Props) {
 
 function ScoreInfo({ speedState }: { speedState: SpeedState }) {
   const { correct, notes, currentNoteIndex, lastNoteHitTime, startTime } = speedState
-  const accuracy = (100 * (correct / currentNoteIndex)).toFixed(2)
-  const npm = (
-    (currentNoteIndex / (lastNoteHitTime.getTime() - startTime.getTime())) *
-    1000 *
-    60
-  ).toFixed(2)
+  const accuracy = round(100 * (correct / currentNoteIndex), 2)
+  const npm = round(
+    (currentNoteIndex / (lastNoteHitTime.getTime() - startTime.getTime())) * 1000 * 60,
+    2,
+  )
   return (
     <div
       style={{
@@ -240,9 +219,7 @@ function advanceGame(
       complete,
     })
   } else {
-    if (failSound) {
-      failSound.play()
-    }
+    playFailSound()
     setSpeedState({
       ...speedState,
       currentNoteIndex: speedState.currentNoteIndex + 1,
@@ -250,13 +227,6 @@ function advanceGame(
       complete,
     })
   }
-}
-
-let failSound: HTMLAudioElement | null = null
-if (isBrowser()) {
-  failSound = new Audio('/effects/wrong-sound-effect.mp3')
-  failSound.playbackRate = 6
-  failSound.volume = 0.25
 }
 
 function generateRandomNotes(clef: Clef, keySignature: KEY_SIGNATURE) {

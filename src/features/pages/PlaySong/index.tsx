@@ -5,11 +5,17 @@ import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/SongInputControls'
 import Player from '@/features/player'
-import { useEventListener, usePlayerState, useSingleton, useSongSettings } from '@/hooks'
+import {
+  useEventListener,
+  useOnUnmount,
+  usePlayerState,
+  useSingleton,
+  useSongSettings,
+  useWakeLock,
+} from '@/hooks'
 import { useSong, useSongMetadata } from '@/features/data'
 import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
-import * as wakelock from '@/features/wakelock'
 import { TopBar, SettingsPanel } from './components'
 import clsx from 'clsx'
 import Head from 'next/head'
@@ -26,11 +32,12 @@ export function PlaySong() {
   const [soundOff, setSoundOff] = useState(false)
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
-  const { song, error } = useSong(id, source)
+  let { data: song, error } = useSong(id, source)
   const [songConfig, setSongConfig] = useSongSettings(id)
   const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
   const isRecording = !!recording
   const songMeta = useSongMetadata(id, source)
+  useWakeLock()
 
   const hand =
     songConfig.left && songConfig.right
@@ -40,12 +47,6 @@ export function PlaySong() {
       : songConfig.right
       ? 'right'
       : 'none'
-
-  // Stops screen from dimming during a song.
-  useEffect(() => {
-    wakelock.lock()
-    return () => wakelock.unlock()
-  }, [])
 
   // Hack for updating player when config changes.
   // Maybe move to the onChange? Or is this chill.
@@ -59,12 +60,7 @@ export function PlaySong() {
     }
   }, [player, waiting, left, right])
 
-  // Register ummount fns
-  useEffect(() => {
-    return () => {
-      player.stop()
-    }
-  }, [player])
+  useOnUnmount(() => player.stop())
 
   useEffect(() => {
     if (!song) return
@@ -116,10 +112,11 @@ export function PlaySong() {
   const handleToggleSound = () => {
     if (!soundOff) {
       player.setVolume(0)
-      return setSoundOff(true)
+      setSoundOff(true)
+    } else {
+      player.setVolume(1)
+      setSoundOff(false)
     }
-    player.setVolume(1)
-    setSoundOff(false)
   }
 
   const handleLoopingToggle = (b: boolean) => {
@@ -159,10 +156,10 @@ export function PlaySong() {
               isPlaying={playerState.playing}
               isSoundOff={soundOff}
               onTogglePlaying={playerActions.toggle}
-              onClickRestart={playerActions.restart}
+              onClickRestart={playerActions.stop}
               onClickBack={() => {
-                playerActions.reset()
-                router.back()
+                playerActions.stop()
+                router.push('/')
               }}
               onClickMidi={(e) => {
                 e.stopPropagation()

@@ -1,33 +1,166 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { SongNote, Song, SongConfig, SongMeasure } from '@/types'
+import { computed, ReadonlySignal, signal, Signal } from '@preact/signals-react'
+import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
 import { InstrumentName } from '@/features/synth'
-import { getHands } from '@/utils'
+import { getHands, isBrowser, round } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
+import { getAudioContext } from '../synth/utils'
 
 let player: Player
 
+const GOOD_RANGE = 300
+const PERFECT_RANGE = 150
+
+interface Score {
+  perfect: Signal<number>
+  good: Signal<number>
+  miss: Signal<number>
+  durationHeld: Signal<number>
+  pointless: Signal<number>
+  combined: Signal<number>
+  accuracy: Signal<number>
+  streak: Signal<number>
+}
+
+function getInitialScore(): Score {
+  const perfect = signal(0)
+  const good = signal(0)
+  const miss = signal(0)
+  const pointless = signal(0)
+  const durationHeld = signal(0)
+  const streak = signal(0)
+  const combined = computed(
+    () => perfect.value * 100 + good.value * 50 - pointless.value * 25 + durationHeld.value,
+  )
+
+  const accuracy = computed(() => {
+    if (perfect.value + good.value + miss.value === 0) {
+      return 100
+    }
+    return round((100 * (perfect.value + good.value)) / (perfect.value + good.value + miss.value))
+  })
+
+  return { perfect, good, miss, pointless, durationHeld, combined, accuracy, streak }
+}
+
 export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
 class Player {
-  state: PlayerState = 'CannotPlay'
-  song!: Song
+  state: Signal<PlayerState> = signal('CannotPlay')
+  score: Score = getInitialScore()
+  song: Signal<Song | null> = signal(null)
   playInterval: any = null
   currentSongTime = 0
-  // right now assuming bpm means quarter notes per minute
-  currentBpm = 0
+
+  // TODO: Determine if MIDI always assumes BPM means quarter notes per minute.
+  // Add link to documentation if so.
+  bpmModifier = signal(1)
+  currentBpmIndex = signal(0)
+  currentBpm: ReadonlySignal<number> = computed(() => {
+    const currSongBpm = this.song.value?.bpms[this.currentBpmIndex.value]?.bpm ?? 120
+    return currSongBpm * this.bpmModifier.value
+  })
+
   currentIndex = 0
   lastIntervalFiredTime = 0
   playing: Array<SongNote> = []
   synths: Array<Synth> = []
   volume = 1
   handlers: any = {}
-  bpmModifier = 1
   range: null | [number, number] = null
   hand = 'both'
-  listeners: Array<Function> = []
   wait = false
-  lastPressedKeys = new Map<number, number>()
   songHands: { left?: number; right?: number } = {}
+
+  hitNotes: Set<SongNote> = new Set()
+  missedNotes: Set<SongNote> = new Set()
+  midiPressedNotes: Set<number> = new Set()
+  lateNotes: Map<number, SongNote> = new Map()
+  skipMissedNotes = false
+
+  constructor() {
+    midi.subscribe((midiEvent) => this.processMidiEvent(midiEvent))
+  }
+
+  getSong() {
+    return this.song.value
+  }
+
+  clearMissedNotes_() {
+    let missedNotes = 0
+    for (const [midiNote, missedNote] of this.lateNotes.entries()) {
+      const diff = ((this.currentSongTime - missedNote.time) * 1000) / this.bpmModifier.value
+      if (diff > GOOD_RANGE) {
+        this.lateNotes.delete(midiNote)
+        missedNotes++
+        this.missedNotes.add(missedNote)
+      }
+    }
+    if (missedNotes > 0) {
+      this.score.streak.value = 0
+    }
+    this.score.miss.value += missedNotes
+  }
+
+  processMidiEvent(midiEvent: MidiStateEvent) {
+    const song = this.getSong()
+    if (!song) {
+      return
+    }
+
+    const midiNote = midiEvent.note
+    if (midiEvent.type === 'up') {
+      this.midiPressedNotes.delete(midiNote)
+      return
+    } else {
+      this.midiPressedNotes.add(midiNote)
+    }
+
+    // First check if the note already passed.
+    this.clearMissedNotes_()
+    const lateNote = this.lateNotes.get(midiNote)
+    if (lateNote) {
+      const currentTime = this.currentSongTime
+      this.lateNotes.delete(midiNote)
+      const diff = (1000 * (currentTime - lateNote.time)) / this.bpmModifier.value
+      const isHit = diff < GOOD_RANGE
+      if (diff < PERFECT_RANGE) {
+        this.score.perfect.value++
+      } else if (diff < GOOD_RANGE) {
+        this.score.good.value++
+      }
+      if (isHit) {
+        this.score.streak.value++
+        this.hitNotes.add(lateNote)
+        if (this.skipMissedNotes) {
+          this.playNote(lateNote)
+        }
+        return
+      }
+    }
+
+    // Now handle if the note is upcoming, aka it was hit early
+    const nextNote = song.notes[this.currentIndex]
+    const diff = ((nextNote.time - this.currentSongTime) * 1000) / this.bpmModifier.value
+    const isHit = diff < GOOD_RANGE
+    const noteAlreadyHit = isHitNote(nextNote)
+    if (nextNote.midiNote === midiNote && isHit && !noteAlreadyHit) {
+      if (diff < PERFECT_RANGE) {
+        this.score.perfect.value++
+      } else if (diff < GOOD_RANGE) {
+        this.score.good.value++
+      }
+      if (isHit) {
+        this.score.streak.value++
+        this.hitNotes.add(nextNote)
+        return
+      }
+    }
+
+    this.score.pointless.value++
+    this.score.streak.value = 0
+    console.log('Pointless hit!')
+  }
 
   static player(): Player {
     if (!player) {
@@ -41,24 +174,14 @@ class Player {
   }
 
   isPlaying() {
-    return this.state === 'Playing'
-  }
-
-  init(): void {
-    this.currentBpm = 0
-    this.bpmModifier = 1
-    this.currentSongTime = 0
-    this.currentIndex = 0
-    this.currentSongTime = 0
-    this.playing = []
+    return this.state.value === 'Playing'
   }
 
   async setSong(song: Song, songConfig: SongConfig) {
-    this.song = song
+    this.stop()
+    this.song.value = song
     this.songHands = getHands(songConfig)
-    this.reset_()
-    this.state = 'CannotPlay'
-    this.notify()
+    this.state.value = 'CannotPlay'
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
@@ -70,20 +193,27 @@ class Player {
     })
     await Promise.all(synths).then((s) => {
       this.synths = s
-      this.state = 'Paused'
-      this.notify()
+      this.state.value = 'Paused'
     })
+    // this.skipMissedNotes = songConfig.skipMissedNotes
+    this.wait = songConfig.waiting
   }
 
   setVolume(vol: number) {
     this.synths?.forEach((synth) => {
       synth?.setMasterVolume(vol)
     })
+
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      backingTrack.volume = 0.15 * vol
+    }
   }
 
   setTrackVolume(track: number | string, vol: number) {
     this.synths?.[+track]?.setMasterVolume(vol)
   }
+
   async setTrackInstrument(track: number | string, instrument: InstrumentName) {
     const synth = await getSynth(instrument)
     this.synths[+track] = synth
@@ -104,45 +234,50 @@ class Player {
     )
   }
 
-  isActiveTrack(note: SongNote) {
-    return this.songHands.left === note.track || this.songHands.right === note.track
-  }
-
   getTime() {
-    if (!this.isPlaying()) {
-      return this.currentSongTime
+    const offset = 0 // getAudioContext().outputLatency
+    const song = this.getSong()
+    if (!song) {
+      return 0
     }
-    const nextNote = this.song?.notes[this.currentIndex]
-    if (this.wait && nextNote && this.isActiveHand(nextNote)) {
-      const isntPressed =
-        !midi.getPressedNotes().has(nextNote.midiNote) ||
-        midi.getPressedNotes().get(nextNote.midiNote) ===
-          this.lastPressedKeys.get(nextNote.midiNote)
-      if (isntPressed) {
-        return this.currentSongTime
-      }
+
+    if (song?.backing) {
+      return song.backing.currentTime
+    }
+
+    if (!this.isPlaying()) {
+      return Math.max(0, this.currentSongTime - offset)
+    }
+
+    if (this.wait && !isHitNote(song.notes[this.currentIndex])) {
+      return this.currentSongTime - offset
     }
 
     const now = performance.now()
     const dt = now - this.lastIntervalFiredTime
-    return this.currentSongTime + dt / 1000
+    return Math.max(0, this.currentSongTime + dt / 1000 - offset)
   }
-  // ms * |___1s___|
-  //      | 1000ms |
 
   getBpm() {
-    const currBpm = this.song?.bpms[this.currentBpm]?.bpm ?? 120
-    return currBpm * this.bpmModifier
+    return this.currentBpm
   }
 
   increaseBpm() {
     const delta = 0.05
-    this.bpmModifier = parseFloat((this.bpmModifier + delta).toFixed(2))
+    this.bpmModifier.value = round(this.bpmModifier.value + delta, 2)
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      backingTrack.playbackRate = this.bpmModifier.value
+    }
   }
 
   decreaseBpm() {
     const delta = 0.05
-    this.bpmModifier = parseFloat((this.bpmModifier - delta).toFixed(2))
+    this.bpmModifier.value = round(this.bpmModifier.value - delta, 2)
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      backingTrack.playbackRate = this.bpmModifier.value
+    }
   }
 
   getBpmModifier() {
@@ -154,27 +289,42 @@ class Player {
   }
 
   getBpmIndexForTime(time: number) {
-    const index = this.song.bpms.findIndex((m) => m.time > time) - 1
+    const song = this.getSong()
+    if (!song) {
+      return 0
+    }
+
+    const index = song.bpms.findIndex((m) => m.time > time) - 1
     if (index < 0) {
-      return this.song.bpms.length - 1
+      return song.bpms.length - 1
     }
     return index
   }
 
   getMeasureForTime(time: number): SongMeasure {
-    let index = this.song.measures.findIndex((m) => m.time > time) - 1
-    if (index < 0) {
-      index = this.song.measures.length - 1
+    const song = this.getSong()
+    if (!song) {
+      return { type: 'measure', number: 0, duration: 0, time: 0 }
     }
-    return this.song.measures[index]
+
+    let index = song.measures.findIndex((m) => m.time > time) - 1
+    if (index < 0) {
+      index = song.measures.length - 1
+    }
+    return song.measures[index]
   }
 
   play() {
-    if (this.isPlaying()) {
+    if (this.isPlaying() || this.state.value === 'CannotPlay') {
       return
     }
-    this.state = 'Playing'
-    this.notify()
+
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      backingTrack.volume = 0.15
+      backingTrack.play()
+    }
+    this.state.value = 'Playing'
 
     this.lastIntervalFiredTime = performance.now()
     this.playInterval = setInterval(() => this.playLoop_(), 1)
@@ -196,10 +346,16 @@ class Player {
   }
 
   updateTime_() {
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      const newTime = backingTrack.currentTime + getAudioContext().outputLatency
+      this.currentSongTime = newTime
+    }
+
     let dt = 0
     if (this.isPlaying()) {
       const now = performance.now()
-      dt = (now - this.lastIntervalFiredTime) * this.bpmModifier
+      dt = (now - this.lastIntervalFiredTime) * this.bpmModifier.value
       this.lastIntervalFiredTime = now
       this.currentSongTime += dt / 1000
     }
@@ -208,8 +364,13 @@ class Player {
   }
 
   playLoop_() {
+    const song = this.getSong()
+    if (!song) {
+      return
+    }
+
     const prevTime = this.currentSongTime
-    const time = this.updateTime_()
+    let time = this.updateTime_()
 
     // If at the end of the song, stop playing.
     if (this.currentSongTime >= this.getDuration()) {
@@ -225,39 +386,44 @@ class Player {
       }
     }
 
-    if (this.song.bpms[this.currentBpm + 1]?.time < time) {
-      this.currentBpm++
+    if (song.bpms[this.currentBpmIndex.value + 1]?.time < time) {
+      this.currentBpmIndex.value++
     }
     const stillPlaying = (n: SongNote) => n.time + n.duration > time
     this.stopNotes(this.playing.filter((n) => !stillPlaying(n)))
     this.playing = this.playing.filter(stillPlaying)
 
-    while (this.song.notes[this.currentIndex]?.time < time) {
-      const note = this.song.notes[this.currentIndex]
+    // Update scoring details
+    this.clearMissedNotes_()
+    const heldNotes = this.playing.filter(
+      (n) => this.midiPressedNotes.has(n.midiNote) && this.hitNotes.has(n),
+    ).length
+    if (heldNotes > 0) {
+      this.score.durationHeld.value += heldNotes
+    }
 
-      if (this.wait && this.isActiveHand(note)) {
-        const lastPressedTime = this.lastPressedKeys.get(note.midiNote)
-        const currPressedTime = midi.getPressedNotes().get(note.midiNote)?.time
-        if (currPressedTime && currPressedTime !== lastPressedTime) {
-          this.lastPressedKeys.set(note.midiNote, currPressedTime)
-        }
+    while (song.notes[this.currentIndex]?.time < time) {
+      const note = song.notes[this.currentIndex]
 
-        const withinMsLimit =
-          currPressedTime && Date.now() - currPressedTime < 100 * (1 / this.bpmModifier)
-
-        if (!currPressedTime || !withinMsLimit || currPressedTime === lastPressedTime) {
+      if (this.isActiveHand(note)) {
+        if (this.wait && !this.hitNotes.has(note)) {
           this.currentSongTime = note.time
           return
+        } else if (prevTime < note.time) {
+          // Only mark as late during the tick in which it is first played.
+          this.lateNotes.set(note.midiNote, note)
         }
       }
       this.playing.push(note)
-      this.playNote(note)
+      if (!this.skipMissedNotes || !this.isActiveHand(note) || isHitNote(note)) {
+        this.playNote(note)
+      }
       this.currentIndex++
     }
   }
 
   toggle() {
-    if (this.state === 'Playing') {
+    if (this.isPlaying()) {
       this.pause()
       return
     }
@@ -269,14 +435,14 @@ class Player {
   }
 
   pause() {
-    if (this.state !== 'Playing') {
+    if (!this.isPlaying()) {
       return
     }
+    this.state.value = 'Paused'
     clearInterval(this.playInterval)
+    this.song.value?.backing?.pause()
     this.playInterval = null
     this.stopAllSounds()
-    this.state = 'Paused'
-    this.notify()
   }
 
   stop() {
@@ -289,16 +455,41 @@ class Player {
     this.currentIndex = 0
     this.playing = []
     this.range = null
+    this.lateNotes.clear()
+    if (this.song.value?.backing) {
+      this.song.value.backing.currentTime = 0
+    }
+
+    this.hitNotes.clear()
+    this.missedNotes.clear()
+    this.score.good.value = 0
+    this.score.miss.value = 0
+    this.score.perfect.value = 0
+    this.score.pointless.value = 0
+    this.score.durationHeld.value = 0
+    this.score.streak.value = 0
   }
 
   seek(time: number) {
+    const song = this.getSong()
+    if (!song) {
+      return
+    }
+
     this.stopAllSounds()
     this.currentSongTime = time
-    this.playing = this.song.notes.filter((note) => {
+    if (song.backing) {
+      song.backing.currentTime = time
+    }
+    this.playing = song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
     })
-    this.currentIndex = this.song.notes.findIndex((note) => note.time >= this.currentSongTime)
-    this.currentBpm = this.getBpmIndexForTime(time)
+    this.currentIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
+    this.currentBpmIndex.value = this.getBpmIndexForTime(time)
+
+    this.missedNotes.clear()
+    this.hitNotes.clear()
+    this.lateNotes.clear()
   }
 
   /* Convert between songtime and real human time. Includes bpm calculations*/
@@ -306,13 +497,8 @@ class Player {
     return endtime - starttime
   }
 
-  getPressedKeys() {
-    const activeNotes = this.playing.filter((n) => this.isActiveHand(n))
-    return Object.fromEntries(activeNotes.map((n) => [n.midiNote, n]))
-  }
-
   getDuration() {
-    return this.song?.duration ?? 0
+    return this.song.value?.duration ?? 0
   }
 
   setRange(range?: { start: number; end: number }) {
@@ -324,19 +510,20 @@ class Player {
     const { start, end } = range
     this.range = [Math.min(start, end), Math.max(start, end)]
   }
+}
 
-  subscribe(fn: (state: PlayerState) => void) {
-    this.listeners.push(fn)
-  }
+export function isHitNote(note?: SongNote) {
+  if (!note) return false
+  return Player.player().hitNotes.has(note)
+}
 
-  unsubscribe(fn: (state: PlayerState) => void) {
-    let i = this.listeners.indexOf(fn)
-    this.listeners.splice(i, 1)
-  }
+export function isMissedNote(note?: SongNote) {
+  if (!note) return false
+  return Player.player().missedNotes.has(note)
+}
 
-  notify() {
-    this.listeners.forEach((fn) => fn(this.state))
-  }
+if (isBrowser()) {
+  ;(window as any).SR = Player.player()
 }
 
 export default Player

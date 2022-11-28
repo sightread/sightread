@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@next/font": "13.0.4",
+    "@preact/signals-react": "1.2.1",
     "@radix-ui/react-tooltip": "1.0.2",
     "@sightread/jasmid.ts": "2.1.5",
     "clsx": "1.2.1",

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState, useRef } from 'react'
-import { ArrowDown, Loader } from '@/icons'
+import { ChevronDown, Loader } from '@/icons'
 import clsx from 'clsx'
 import { useWhenClickedOutside } from '@/hooks'
 
@@ -8,8 +8,8 @@ type SelectProps = {
   value: any
   options: any[]
   onChange: (value: any) => void
-  format?: (value: any) => any
-  display?: (value: any) => string | number
+  format?: (value: string) => string | undefined
+  display?: (value: string) => string | number | undefined
   loading?: boolean
   error?: boolean
   className?: string
@@ -26,14 +26,12 @@ export default function Select({
   display = (value) => value,
 }: SelectProps) {
   const [openMenu, setOpenMenu] = useState(false)
-  const [selected, setSelected] = useState<any>(value)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const toggleMenu = () => {
     setOpenMenu(!openMenu)
   }
 
   const handleSelect = (val: any) => {
-    setSelected(val)
     onChange(val)
     toggleMenu()
   }
@@ -42,10 +40,14 @@ export default function Select({
 
   return (
     <div
-      className={clsx(className, 'relative inline-block w-full', error && 'border border-red-600')}
+      className={clsx(
+        className,
+        'relative inline-block w-full text-black',
+        error && 'border border-red-600',
+      )}
     >
       <input
-        value={!loading ? display(selected) : ''}
+        value={!loading ? display(value) : ''}
         type="text"
         className={clsx(
           'max-h-full w-full border border-gray-200 rounded-md cursor-pointer p-2',
@@ -57,14 +59,13 @@ export default function Select({
         }}
         readOnly
       />
-      <ArrowDown
+      <ChevronDown
         width={15}
         height={15}
         className={clsx(
           'cursor-pointer absolute right-1 top-1/2 -translate-y-1/2 transition',
           openMenu && 'rotate-180',
         )}
-        style={{ transform: 'translateY(-50%)' }}
         onClick={(e) => {
           e.stopPropagation()
           toggleMenu()
