@@ -76,7 +76,6 @@ class Player {
   missedNotes: Set<SongNote> = new Set()
   midiPressedNotes: Set<number> = new Set()
   lateNotes: Map<number, SongNote> = new Map()
-  earlyNotes: Map<number, SongNote> = new Map()
   skipMissedNotes = false
 
   constructor() {
@@ -126,10 +125,8 @@ class Player {
       const diff = (1000 * (currentTime - lateNote.time)) / this.bpmModifier.value
       const isHit = diff < GOOD_RANGE
       if (diff < PERFECT_RANGE) {
-        console.log('Perfect (late)', diff)
         this.score.perfect.value++
       } else if (diff < GOOD_RANGE) {
-        console.log('Good (late)', diff)
         this.score.good.value++
       }
       if (isHit) {
@@ -146,17 +143,15 @@ class Player {
     const nextNote = song.notes[this.currentIndex]
     const diff = ((nextNote.time - this.currentSongTime) * 1000) / this.bpmModifier.value
     const isHit = diff < GOOD_RANGE
-    if (nextNote.midiNote === midiNote && isHit && !this.earlyNotes.has(midiNote)) {
+    const noteAlreadyHit = isHitNote(nextNote)
+    if (nextNote.midiNote === midiNote && isHit && !noteAlreadyHit) {
       if (diff < PERFECT_RANGE) {
-        console.log('Perfect (early)', diff)
         this.score.perfect.value++
       } else if (diff < GOOD_RANGE) {
-        console.log('Good (early)', diff)
         this.score.good.value++
       }
       if (isHit) {
         this.score.streak.value++
-        this.earlyNotes.set(midiNote, nextNote)
         this.hitNotes.add(nextNote)
         return
       }
@@ -414,8 +409,6 @@ class Player {
         if (this.wait && !this.hitNotes.has(note)) {
           this.currentSongTime = note.time
           return
-        } else if (this.earlyNotes.has(note.midiNote)) {
-          this.earlyNotes.delete(note.midiNote)
         } else if (prevTime < note.time) {
           // Only mark as late during the tick in which it is first played.
           this.lateNotes.set(note.midiNote, note)
@@ -462,7 +455,6 @@ class Player {
     this.currentIndex = 0
     this.playing = []
     this.range = null
-    this.earlyNotes.clear()
     this.lateNotes.clear()
     if (this.song.value?.backing) {
       this.song.value.backing.currentTime = 0
@@ -498,7 +490,6 @@ class Player {
     this.missedNotes.clear()
     this.hitNotes.clear()
     this.lateNotes.clear()
-    this.earlyNotes.clear()
   }
 
   /* Convert between songtime and real human time. Includes bpm calculations*/
