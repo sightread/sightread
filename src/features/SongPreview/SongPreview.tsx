@@ -14,7 +14,7 @@ interface SongPreviewProps {
 
 function SongPreview({ songId, source, className }: SongPreviewProps) {
   const player = Player.player()
-  const { song, error } = useSong(songId, source)
+  const { data: song, error } = useSong(songId, source)
 
   useEffect(() => {
     if (!song) {

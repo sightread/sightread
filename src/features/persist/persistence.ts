@@ -1,7 +1,7 @@
 import type { Song, SongConfig, SongMetadata } from '@/types'
 import { fileToUint8 } from '@/utils'
 import { parseMidi } from '../parsers'
-import { LOCAL_STORAGE_SONG_LIST_KEY, LOCAL_STORAGE_SONG_SUFFIX } from './constants'
+import { LOCAL_STORAGE_SONG_LIST_KEY } from './constants'
 import Storage from './storage'
 
 export function hasUploadedSong(id: string): Song | null {

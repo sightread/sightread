@@ -1,28 +1,18 @@
-import { useRef } from 'react'
 import Player from '@/features/player'
-import { useRAFLoop } from '@/hooks'
 import { ChevronUp, ChevronDown } from '@/icons'
+import { round } from '@/utils'
 
 export default function BpmDisplay() {
-  const bpmRef = useRef<HTMLSpanElement>(null)
-  const percentRef = useRef<HTMLSpanElement>(null)
   const player = Player.player()
+  const bpmText = round(player.getBpm().value) + ' BPM'
+  const percentText = round(player.bpmModifier.value * 100) + '%'
 
-  useRAFLoop(() => {
-    if (bpmRef.current) {
-      bpmRef.current.textContent = Math.floor(player.getBpm()) + ' BPM'
-    }
-    if (percentRef.current) {
-      percentRef.current.textContent = Math.floor(player.getBpmModifier() * 100) + '%'
-    }
-  })
   const iconSize = 24
-
   return (
     <div className="flex mx-auto gap-2">
       <div className="flex flex-col">
-        <span className="text-xl text-center self-center" ref={percentRef} />
-        <span className="text-sm text-center" ref={bpmRef} />
+        <span className="text-xl text-center self-center">{percentText}</span>
+        <span className="text-sm text-center">{bpmText}</span>
       </div>
       <div className="flex flex-col justify-between">
         <ChevronUp

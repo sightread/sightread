@@ -67,10 +67,10 @@ export default class FreePlayer {
       midiNote,
       velocity,
       type: 'note',
-      pitch: getPitch(midiNote),
       track: 1,
       time,
       duration: 0,
+      measure: 0,
     }
     this.song.notes.unshift(note)
     this.active.set(midiNote, time)

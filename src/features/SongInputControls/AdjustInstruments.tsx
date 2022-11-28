@@ -116,8 +116,8 @@ function InstrumentSelect({
       value={value}
       onChange={onSelect}
       options={gmInstruments as any}
-      format={formatInstrumentName}
-      display={formatInstrumentName}
+      format={formatInstrumentName as any}
+      display={formatInstrumentName as any}
     />
   )
 }

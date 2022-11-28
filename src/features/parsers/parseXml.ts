@@ -90,11 +90,11 @@ export default function parseMusicXml(txt: string): Song {
       const midiNote = getNote(step + octave) + accidental
       let note: SongNote = {
         type: 'note',
-        pitch: { step, octave, alter: accidental },
         duration: calcWallDuration(duration, time),
         time,
         midiNote,
         track,
+        measure: measures.length,
       }
       if (tie) {
         let type = tie.getAttribute('type')
@@ -138,7 +138,7 @@ export default function parseMusicXml(txt: string): Song {
       const number = Number(curr.getAttribute('number'))
       // Don't add the same measure multiple times for multi-part xml files.
       if (!measures.find((m) => m.number === number)) {
-        measures.push({ time: currTime, number, type: 'measure' })
+        measures.push({ time: currTime, number, type: 'measure', duration: 0 })
       } else {
         const m = measures.find((m) => m.number === number)
         // TODO: wtffff why are the left and right hand times off.

@@ -22,12 +22,12 @@ import {
 } from '../drawing/sheet'
 import { getKey, getKeyDetails, getNote, glyphs } from '../theory'
 import midiState from '../midi'
+import { isHitNote, isMissedNote } from '../player'
 
 const TEXT_FONT = 'Arial'
 const STAFF_START_X = 100
 const STAFF_FIVE_LINES_HEIGHT = 80
-const PLAY_NOTES_LINE_OFFSET = STAFF_SPACE * 4 // offset above and below the staff lines
-const NOTE_ALPHA = 'A2'
+const PLAY_NOTES_LINE_OFFSET = STAFF_SPACE // offset above and below the staff lines
 
 function getViewport(state: Readonly<GivenState>): Viewport {
   return {
@@ -50,7 +50,7 @@ function deriveState(state: GivenState) {
 export function renderSheetVis(givenState: GivenState): void {
   const state = deriveState(givenState)
   state.ctx.clearRect(0, 0, state.windowWidth, state.height)
-  drawStatics(state)
+  drawStaticsUnderlay(state)
   const items = getSheetItemsInView(state)
   for (const item of items) {
     if (item.type === 'measure') {
@@ -58,6 +58,7 @@ export function renderSheetVis(givenState: GivenState): void {
     }
     renderSheetNote(state, item)
   }
+  drawStaticsOverlay(state)
   renderMidiPressedKeys(state, items)
 }
 
@@ -67,8 +68,10 @@ function getSheetItemsInView(state: State): CanvasItem[] {
   return getItemsInView(state, startPred, endPred)
 }
 
-function drawStatics(state: State) {
+function drawStaticsOverlay(state: State) {
   const { ctx, keySignature } = state
+  const overlayEnd = getPlayNotesLineX(state) - STAFF_SPACE * 2
+  ctx.clearRect(0, 0, overlayEnd, state.height)
   ctx.fillStyle = 'black'
   ctx.strokeStyle = 'black'
 
@@ -79,13 +82,13 @@ function drawStatics(state: State) {
   const staffHeight = STAFF_FIVE_LINES_HEIGHT
   const trebleTopY = getTrebleStaffTopY(state)
   const bassTopY = getBassStaffTopY(state)
-  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, state.windowWidth)
-  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, state.windowWidth)
+  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, overlayEnd)
+  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, overlayEnd)
   drawStaffConnectingLine(state.ctx, STAFF_START_X, trebleTopY - 1, bassTopY + staffHeight + 1)
 
   const playLineTop = trebleTopY - PLAY_NOTES_LINE_OFFSET
   const playLineBottom = bassTopY + staffHeight + PLAY_NOTES_LINE_OFFSET
-  drawPlayNotesLine(ctx, getPlayNotesLineX(state), playLineTop, playLineBottom)
+  drawPlayNotesLine(ctx, getPlayNotesLineX(state) - 2, playLineTop, playLineBottom)
 
   drawGClef(ctx, getClefX(), trebleTopY)
   drawFClef(ctx, getClefX(), bassTopY)
@@ -97,6 +100,17 @@ function drawStatics(state: State) {
     drawTimeSignature(ctx, x, trebleTopY, state.timeSignature)
     drawTimeSignature(ctx, x, bassTopY, state.timeSignature)
   }
+}
+
+function drawStaticsUnderlay(state: State) {
+  const { ctx } = state
+  ctx.fillStyle = 'black'
+  ctx.strokeStyle = 'black'
+
+  const trebleTopY = getTrebleStaffTopY(state)
+  const bassTopY = getBassStaffTopY(state)
+  drawStaffLines(state.ctx, STAFF_START_X, trebleTopY, state.windowWidth)
+  drawStaffLines(state.ctx, STAFF_START_X, bassTopY, state.windowWidth)
 }
 
 function getTrebleStaffTopY(state: State) {
@@ -125,6 +139,37 @@ function getPlayNotesLineX(state: State) {
   return getTimeSignatureX(state) + STAFF_SPACE * 4
 }
 
+const colorMap = {
+  primary: '121,74,227',
+  hover: '185,154,244',
+  disabled: '100,100,100',
+  black: '0,0,0',
+}
+
+function getGameColorPrefix(state: State, note: SongNote, canvasX: number) {
+  const playNotesLineX = getPlayNotesLineX(state)
+  const isPlayingNote = canvasX <= playNotesLineX
+
+  if (isHitNote(note) && midiState.getPressedNotes().has(note.midiNote)) {
+    return colorMap.hover
+  } else if (isMissedNote(note)) {
+    return colorMap.disabled
+  } else if (isPlayingNote) {
+    return colorMap.primary
+  }
+  return colorMap.black
+}
+
+function getLearnSongColorPrefix(state: State, note: SongNote, canvasX: number) {
+  const playNotesLineX = getPlayNotesLineX(state)
+  const isPlayingNote = canvasX <= playNotesLineX
+
+  if (isPlayingNote) {
+    return colorMap.primary
+  }
+  return colorMap.black
+}
+
 function renderSheetNote(state: State, note: SongNote): void {
   const { ctx, pps, keySignature } = state
   ctx.save()
@@ -136,30 +181,47 @@ function renderSheetNote(state: State, note: SongNote): void {
   const playNotesLineX = getPlayNotesLineX(state)
   let canvasX = posX + playNotesLineX + PLAY_NOTES_WIDTH / 2
   let canvasY = getNoteY(note.midiNote, staff, staffTopY, keySignature)
-  ctx.fillStyle = color + NOTE_ALPHA
-  const trailLength = length - 15 - (canvasX > playNotesLineX ? 0 : playNotesLineX - canvasX)
+
+  const prefix = state.game
+    ? getGameColorPrefix(state, note, canvasX)
+    : getLearnSongColorPrefix(state, note, canvasX)
+  const gradient = ctx.createLinearGradient(playNotesLineX - STAFF_SPACE * 2, 0, playNotesLineX, 0)
+  gradient.addColorStop(0, `rgba(${prefix},0)`)
+  gradient.addColorStop(0.5, `rgba(${prefix},0.1)`)
+  gradient.addColorStop(0.8, `rgba(${prefix},0.3`)
+  gradient.addColorStop(1, `rgba(${prefix},1)`)
+
+  ctx.fillStyle = gradient
+  ctx.strokeStyle = gradient
+  const trailLength = length - STAFF_SPACE
   const trailHeight = 10
-  ctx.fillRect(
-    Math.max(canvasX, playNotesLineX + 1.5),
-    canvasY - trailHeight / 2,
-    trailLength,
-    trailHeight,
-  )
+  ctx.fillRect(canvasX + STAFF_SPACE / 2, canvasY - trailHeight / 2, trailLength, trailHeight)
+  ctx.globalCompositeOperation = 'source-over'
+
   // Return after drawing the tail for the notes that have already crossed.
-  if (canvasX < playNotesLineX - 10) {
+  if (canvasX < playNotesLineX - STAFF_SPACE * 2) {
     ctx.restore()
     return
   }
 
-  drawLedgerLines(ctx, canvasX - 13, 33, staffTopY, note.midiNote, staff, state.keySignature)
-  drawMusicNote(ctx, canvasX, canvasY, color)
+  drawLedgerLines(
+    ctx,
+    canvasX - STAFF_SPACE,
+    STAFF_SPACE * 2,
+    staffTopY,
+    note.midiNote,
+    staff,
+    state.keySignature,
+  )
+  drawMusicNote(ctx, canvasX, canvasY, gradient)
 
   const key = getKey(note.midiNote, state.keySignature)
   const accidental = key.length == 2 && key[1]
   if (accidental) {
-    ctx.font = `bold 16px ${TEXT_FONT}`
-    ctx.fillStyle = 'black'
-    ctx.fillText(accidental, canvasX - 20, canvasY + 6)
+    const symbol = accidental === '#' ? glyphs.accidentalSharp : glyphs.accidentalFlat
+    const symbolX = canvasX - (STAFF_SPACE + 8)
+    ctx.fillStyle = gradient
+    drawSymbol(ctx, symbol, symbolX, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.8)
   }
   if (state.drawNotes) {
     ctx.font = `9px ${TEXT_FONT}`
@@ -186,9 +248,6 @@ function sheetNoteColor(x: number, length: number): string {
   return pickHex('#8147EB', black, ratio)
 }
 
-// TODO pick side based not just on side of C4 but also
-// the current song, i.e. if there are notes that should be played by left or right hand
-// then show it on that hand.
 function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]): void {
   const { ctx } = state
   const pressed = midiState.getPressedNotes()
@@ -201,6 +260,10 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
       staff = state.hands?.[inRangeNote.track].hand === 'right' ? 'treble' : 'bass'
     }
 
+    if (state.game && isHitNote(inRangeNote)) {
+      return
+    }
+
     const staffTopY = staff === 'bass' ? getBassStaffTopY(state) : getTrebleStaffTopY(state)
     const canvasY = getNoteY(note, staff, staffTopY)
     let canvasX = getPlayNotesLineX(state) - 2
@@ -210,7 +273,7 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
     // is sharp
     if (key.length === 2) {
       ctx.fillStyle = 'black'
-      drawSymbol(ctx, glyphs.accidentalSharp, canvasX - 17, canvasY, STAFF_SPACE)
+      drawSymbol(ctx, glyphs.accidentalSharp, canvasX - 24, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.6)
     }
     if (state.drawNotes) {
       ctx.font = `9px ${TEXT_FONT}`

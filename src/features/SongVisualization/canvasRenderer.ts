@@ -21,6 +21,7 @@ export type GivenState = {
   canvasRect: DOMRect
   // TODO: snap to measures
   selectedRange?: { start: number; end: number }
+  game: boolean
 }
 
 export function render(state: Readonly<GivenState>) {
