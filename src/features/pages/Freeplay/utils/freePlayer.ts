@@ -1,6 +1,5 @@
 import { Song } from '@/types'
 import { isBrowser } from '@/utils'
-import { getPitch } from '@/features/parsers'
 import { SongNote } from '@/types'
 
 export default class FreePlayer {

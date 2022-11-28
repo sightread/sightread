@@ -4,6 +4,7 @@ import type { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/type
 import type { NoteKey } from './types'
 import { getKeySignatureFromMidi, KEY_SIGNATURE } from '../theory'
 import { gmInstruments } from '../synth'
+import { strip } from '@/utils'
 
 export default function parseMidi(midiData: ArrayBuffer): Song {
   const parsed = parseMidiFile(midiData)
@@ -44,8 +45,13 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
       lastMeasureTickedAt = currTick
       measures.push({
         type: 'measure',
+<<<<<<< HEAD
         time: currTime,
         number: measures.length,
+=======
+        time: strip(currTime),
+        number: measures.length + 1,
+>>>>>>> 4c797d1 (Difficulty scaling via Note Resolution.)
         duration: calcWallDuration(ticksPerMeasure()),
       })
     }
@@ -78,7 +84,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
 
       const note: SongNote = {
         type: 'note',
-        time: currTime,
+        time: strip(currTime),
         duration: 0,
         midiNote,
         track,
@@ -96,7 +102,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
       }
     } else if (midiEvent.subType === 'setTempo') {
       const bpm = Math.round(60000000 / midiEvent.microsecondsPerBeat)
-      bpms.push({ time: currTime, bpm })
+      bpms.push({ time: strip(currTime), bpm })
     } else if (midiEvent.subType === 'timeSignature') {
       timeSignature = midiEvent
     } else if (midiEvent.subType === 'keySignature') {

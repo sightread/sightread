@@ -24,7 +24,7 @@ type CanvasRendererProps = {
   game?: boolean
 }
 
-function CanvasRenderer({
+function SongVisualizer({
   song,
   config,
   hand,
@@ -82,4 +82,4 @@ function CanvasRenderer({
   )
 }
 
-export default CanvasRenderer
+export default SongVisualizer

@@ -63,6 +63,7 @@ export type SongMeasure = {
   time: number
   duration: number
   number: number
+  duration: number
 }
 
 export type Song = {
@@ -88,6 +89,7 @@ export type SongConfig = {
   noteLetter: boolean
   skipMissedNotes: boolean
   keySignature?: KEY_SIGNATURE
+  difficultyResolution: number
   tracks: {
     [trackId: number]: TrackSetting
   }

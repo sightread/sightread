@@ -1,3 +1,4 @@
+export * from './difficulty'
 export * from './keySignature'
 export { default as glyphs } from './glyphs'
 

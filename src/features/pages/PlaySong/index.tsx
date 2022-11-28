@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
-
 import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/SongInputControls'
@@ -20,6 +19,7 @@ import { TopBar, SettingsPanel } from './components'
 import clsx from 'clsx'
 import Head from 'next/head'
 import { MidiModal } from './components/MidiModal'
+import { scaleResolution } from '@/features/theory'
 
 export function PlaySong() {
   const router = useRouter()
@@ -30,7 +30,6 @@ export function PlaySong() {
   const [playerState, playerActions] = usePlayerState()
   const [isLooping, setIsLooping] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
-  const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error } = useSong(id, source)
   const [songConfig, setSongConfig] = useSongSettings(id)
@@ -38,6 +37,13 @@ export function PlaySong() {
   const isRecording = !!recording
   const songMeta = useSongMetadata(id, source)
   useWakeLock()
+
+  const scaledSong = useMemo(
+    () => scaleResolution(song, songConfig.difficultyResolution),
+    [song, songConfig.difficultyResolution],
+  )
+
+  const player = Player.player()
 
   const hand =
     songConfig.left && songConfig.right
@@ -48,9 +54,12 @@ export function PlaySong() {
       ? 'right'
       : 'none'
 
+  // Stops screen from dimming during a song.
+  useWakeLock()
+
   // Hack for updating player when config changes.
   // Maybe move to the onChange? Or is this chill.
-  const { waiting, left, right } = songConfig
+  const { waiting, left, right, difficultyResolution } = songConfig
   useEffect(() => {
     player.setWait(waiting)
     if (left && right) {
@@ -59,6 +68,9 @@ export function PlaySong() {
       player.setHand(left ? 'left' : 'right')
     }
   }, [player, waiting, left, right])
+  useEffect(() => {
+    player.setScaled(scaledSong)
+  }, [scaledSong, player])
 
   useOnUnmount(() => player.stop())
 
@@ -195,15 +207,17 @@ export function PlaySong() {
             songConfig.visualization === 'sheet' ? 'bg-white' : 'bg-[#2e2e2e]',
           )}
         >
-          <SongVisualizer
-            song={song}
-            config={songConfig}
-            hand={hand}
-            handSettings={getHandSettings(songConfig)}
-            selectedRange={range}
-            getTime={() => Player.player().getTime()}
-            enableTouchscroll={songConfig.visualization === 'falling-notes'}
-          />
+          {song && (
+            <SongVisualizer
+              song={scaledSong}
+              config={songConfig}
+              hand={hand}
+              handSettings={getHandSettings(songConfig)}
+              selectedRange={range}
+              getTime={() => Player.player().getTime()}
+              enableTouchscroll={songConfig.visualization === 'falling-notes'}
+            />
+          )}
         </div>
       </div>
     </>

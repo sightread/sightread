@@ -63,6 +63,14 @@ export default function SettingsPanel(props: SidebarProps) {
         <Section title="Speed" className="flex flex-grow">
           <BpmDisplay />
         </Section>
+        <Section title="Difficulty resolution" className="flex flex-grow">
+          <input
+            type="number"
+            onChange={(e) =>
+              props.onChange({ ...props.config, difficultyResolution: e.target.valueAsNumber })
+            }
+          />
+        </Section>
         <Section title="Hands" className="flex flex-col flex-grow">
           <div className="flex gap-2 justify-center">
             <span className="w-10">Left</span>
