@@ -143,21 +143,10 @@ class Player {
     }
 
     // Now handle if the note is upcoming, aka it was hit early
-    let upcomingNote
-    for (
-      let i = this.currentIndex;
-      i < song.notes.length && (song.notes[i].time - this.currentSongTime) * 1000 < GOOD_RANGE;
-      i++
-    ) {
-      const note = song.notes[i]
-      if (note.midiNote === midiNote) {
-        upcomingNote = note
-        break
-      }
-    }
-    if (upcomingNote && !this.earlyNotes.has(midiNote)) {
-      const diff = ((upcomingNote.time - this.currentSongTime) * 1000) / this.bpmModifier.value
-      const isHit = diff < GOOD_RANGE
+    const nextNote = song.notes[this.currentIndex]
+    const diff = ((nextNote.time - this.currentSongTime) * 1000) / this.bpmModifier.value
+    const isHit = diff < GOOD_RANGE
+    if (nextNote.midiNote === midiNote && isHit && !this.earlyNotes.has(midiNote)) {
       if (diff < PERFECT_RANGE) {
         console.log('Perfect (early)', diff)
         this.score.perfect.value++
@@ -167,8 +156,8 @@ class Player {
       }
       if (isHit) {
         this.score.streak.value++
-        this.earlyNotes.set(midiNote, upcomingNote)
-        this.hitNotes.add(upcomingNote)
+        this.earlyNotes.set(midiNote, nextNote)
+        this.hitNotes.add(nextNote)
         return
       }
     }
@@ -252,8 +241,11 @@ class Player {
 
   getTime() {
     const offset = 0 // getAudioContext().outputLatency
-
     const song = this.getSong()
+    if (!song) {
+      return 0
+    }
+
     if (song?.backing) {
       return song.backing.currentTime
     }
@@ -262,7 +254,7 @@ class Player {
       return Math.max(0, this.currentSongTime - offset)
     }
 
-    if (this.wait && this.lateNotes.size !== 0) {
+    if (this.wait && !isHitNote(song.notes[this.currentIndex])) {
       return this.currentSongTime - offset
     }
 
@@ -502,6 +494,11 @@ class Player {
     })
     this.currentIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
     this.currentBpmIndex.value = this.getBpmIndexForTime(time)
+
+    this.missedNotes.clear()
+    this.hitNotes.clear()
+    this.lateNotes.clear()
+    this.earlyNotes.clear()
   }
 
   /* Convert between songtime and real human time. Includes bpm calculations*/

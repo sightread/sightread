@@ -3,7 +3,6 @@ import { parseMidiFile, MidiEvent } from '@sightread/jasmid.ts'
 import type { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
 import type { NoteKey } from './types'
 import { getKeySignatureFromMidi, KEY_SIGNATURE } from '../theory'
-import { getPitch } from './utils'
 import { gmInstruments } from '../synth'
 
 export default function parseMidi(midiData: ArrayBuffer): Song {
