@@ -10,7 +10,8 @@ type NavItem = { route: string; label: string }
 const navItems: NavItem[] = [
   { route: '/songs', label: 'Learn a song' },
   { route: '/freeplay', label: 'Free play' },
-  { route: '/training/phrases', label: 'Training' },
+  // TODO: launch phrases.
+  // { route: '/training/phrases', label: 'Training' },
   { route: '/about', label: 'About' },
 ]
 
