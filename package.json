@@ -11,7 +11,7 @@
     "@types/webmidi": "2.0.6",
     "autoprefixer": "10.4.13",
     "eslint": "8.28.0",
-    "eslint-config-next": "13.0.4",
+    "eslint-config-next": "13.0.5",
     "fluent-ffmpeg": "2.1.2",
     "jsdom": "20.0.3",
     "postcss": "8.4.19",
@@ -22,12 +22,12 @@
     "tsconfig-paths": "4.1.0"
   },
   "dependencies": {
-    "@next/font": "13.0.4",
+    "@next/font": "13.0.5",
     "@preact/signals-react": "1.2.1",
     "@radix-ui/react-tooltip": "1.0.2",
     "@sightread/jasmid.ts": "2.1.5",
     "clsx": "1.2.1",
-    "next": "13.0.4",
+    "next": "13.0.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-feather": "2.0.10",
