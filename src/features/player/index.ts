@@ -61,7 +61,9 @@ class Player {
     return currSongBpm * this.bpmModifier.value
   })
 
-  currentIndex = 0
+  currentNotes: SongNote[] = []
+  nextFirstIndex: number = 0
+
   lastIntervalFiredTime = 0
   playing: Array<SongNote> = []
   synths: Array<Synth> = []
@@ -89,7 +91,7 @@ class Player {
   clearMissedNotes_() {
     let missedNotes = 0
     for (const [midiNote, missedNote] of this.lateNotes.entries()) {
-      const diff = ((this.currentSongTime - missedNote.time) * 1000) / this.bpmModifier.value
+      const diff = this.calcDiff(this.currentSongTime, missedNote.time)
       if (diff > GOOD_RANGE) {
         this.lateNotes.delete(midiNote)
         missedNotes++
@@ -122,7 +124,7 @@ class Player {
     if (lateNote) {
       const currentTime = this.currentSongTime
       this.lateNotes.delete(midiNote)
-      const diff = (1000 * (currentTime - lateNote.time)) / this.bpmModifier.value
+      const diff = this.calcDiff(currentTime, lateNote.time)
       const isHit = diff < GOOD_RANGE
       if (diff < PERFECT_RANGE) {
         this.score.perfect.value++
@@ -139,27 +141,47 @@ class Player {
       }
     }
 
-    // Now handle if the note is upcoming, aka it was hit early
-    const nextNote = song.notes[this.currentIndex]
-    const diff = ((nextNote.time - this.currentSongTime) * 1000) / this.bpmModifier.value
-    const isHit = diff < GOOD_RANGE
-    const noteAlreadyHit = isHitNote(nextNote)
-    if (nextNote.midiNote === midiNote && isHit && !noteAlreadyHit) {
-      if (diff < PERFECT_RANGE) {
-        this.score.perfect.value++
-      } else if (diff < GOOD_RANGE) {
-        this.score.good.value++
-      }
-      if (isHit) {
-        this.score.streak.value++
-        this.hitNotes.add(nextNote)
-        return
+    const [goodNote] = this.currentNotes.filter((note) => note.midiNote === midiNote)
+
+    if (goodNote) {
+      const diff = this.calcDiff(goodNote.time, this.currentSongTime)
+      const isHit = diff < GOOD_RANGE
+      const noteAlreadyHit = isHitNote(goodNote)
+      if (isHit && !noteAlreadyHit) {
+        if (diff < PERFECT_RANGE) {
+          this.score.perfect.value++
+        } else if (diff < GOOD_RANGE) {
+          this.score.good.value++
+        }
+        if (isHit) {
+          this.score.streak.value++
+          this.hitNotes.add(goodNote)
+          return
+        }
       }
     }
 
     this.score.pointless.value++
     this.score.streak.value = 0
     console.log('Pointless hit!')
+  }
+
+  private calcDiff(to: number, from: number) {
+    return ((to - from) * 1000) / this.bpmModifier.value
+  }
+
+  private incrementNoteIndexes(song: Song) {
+    this.currentNotes = []
+    if (song.notes[this.nextFirstIndex]) {
+      const noteTime = song.notes[this.nextFirstIndex].time
+      do {
+        this.currentNotes.push(song.notes[this.nextFirstIndex])
+        this.nextFirstIndex++
+      } while (
+        song.notes[this.nextFirstIndex] &&
+        Math.abs(noteTime - song.notes[this.nextFirstIndex].time) < 0.0001 // how many round?
+      )
+    }
   }
 
   static player(): Player {
@@ -249,7 +271,7 @@ class Player {
       return Math.max(0, this.currentSongTime - offset)
     }
 
-    if (this.wait && !isHitNote(song.notes[this.currentIndex])) {
+    if (this.wait && this.currentNotes.some((note) => !isHitNote(note))) {
       return this.currentSongTime - offset
     }
 
@@ -319,12 +341,15 @@ class Player {
       return
     }
 
-    const backingTrack = this.getSong()?.backing
+    const song = this.getSong()
+
+    const backingTrack = song?.backing
     if (backingTrack) {
       backingTrack.volume = 0.15
       backingTrack.play()
     }
     this.state.value = 'Playing'
+    song && this.incrementNoteIndexes(song)
 
     this.lastIntervalFiredTime = performance.now()
     this.playInterval = setInterval(() => this.playLoop_(), 1)
@@ -402,23 +427,29 @@ class Player {
       this.score.durationHeld.value += heldNotes
     }
 
-    while (song.notes[this.currentIndex]?.time < time) {
-      const note = song.notes[this.currentIndex]
-
-      if (this.isActiveHand(note)) {
-        if (this.wait && !this.hitNotes.has(note)) {
-          this.currentSongTime = note.time
+    while (this.currentNotes.length > 0 && this.currentNotes[0].time < time) {
+      let currentNotesStartTime = this.currentNotes[0]?.time
+      const activeNotes = this.currentNotes.filter((note) => this.isActiveHand(note))
+      
+      if (activeNotes.length > 0) {
+        if (this.wait && activeNotes.some((note) => !this.hitNotes.has(note))) {
+          this.currentSongTime = currentNotesStartTime
           return
-        } else if (prevTime < note.time) {
+        } else if (prevTime < currentNotesStartTime) {
           // Only mark as late during the tick in which it is first played.
-          this.lateNotes.set(note.midiNote, note)
+          activeNotes.forEach((note) => this.lateNotes.set(note.midiNote, note))
         }
       }
-      this.playing.push(note)
-      if (!this.skipMissedNotes || !this.isActiveHand(note) || isHitNote(note)) {
-        this.playNote(note)
+      if (!this.wait || !activeNotes.some((note) => !this.hitNotes.has(note))) {
+        this.currentNotes.forEach((note) => {
+          this.playing.push(note)
+          if (!this.skipMissedNotes || !this.isActiveHand(note) || isHitNote(note)) {
+            this.playNote(note)
+          }
+        })
       }
-      this.currentIndex++
+
+      this.incrementNoteIndexes(song)
     }
   }
 
@@ -452,7 +483,8 @@ class Player {
 
   reset_() {
     this.currentSongTime = 0
-    this.currentIndex = 0
+    this.currentNotes = []
+    this.nextFirstIndex = 0
     this.playing = []
     this.range = null
     this.lateNotes.clear()
@@ -484,7 +516,8 @@ class Player {
     this.playing = song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
     })
-    this.currentIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
+    this.nextFirstIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
+    this.incrementNoteIndexes(song)
     this.currentBpmIndex.value = this.getBpmIndexForTime(time)
 
     this.missedNotes.clear()
