@@ -17,7 +17,7 @@ type TopBarProps = {
 export default function TopBar({ isError, isLoading, value, onChange, onClickMidi }: TopBarProps) {
   return (
     <div className="px-4 text-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center gap-4">
-      <ButtonWithTooltip tooltip="Choose a MIDI device">
+      <ButtonWithTooltip tooltip="Back">
         <Link href="/">
           <ArrowLeft size={24} />
         </Link>
