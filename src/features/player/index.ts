@@ -140,17 +140,17 @@ class Player {
     }
 
     // Now handle if the note is upcoming, aka it was hit early
-    const nextNote = song.notes[this.currentIndex]
-    const diff = ((nextNote.time - this.currentSongTime) * 1000) / this.bpmModifier.value
-    const isHit = diff < GOOD_RANGE
-    const noteAlreadyHit = isHitNote(nextNote)
-    if (nextNote.midiNote === midiNote && isHit && !noteAlreadyHit) {
-      if (diff < PERFECT_RANGE) {
-        this.score.perfect.value++
-      } else if (diff < GOOD_RANGE) {
-        this.score.good.value++
-      }
-      if (isHit) {
+    for (const nextNote of song.notes) {
+      const diff = ((nextNote.time - this.currentSongTime) * 1000) / this.bpmModifier.value
+      const isHit = diff < GOOD_RANGE
+      if (!isHit) {break}
+      const noteAlreadyHit = isHitNote(nextNote)
+      if (nextNote.midiNote === midiNote && isHit && !noteAlreadyHit) {
+        if (diff < PERFECT_RANGE) {
+          this.score.perfect.value++
+        } else if (diff < GOOD_RANGE) {
+          this.score.good.value++
+        }
         this.score.streak.value++
         this.hitNotes.add(nextNote)
         return
