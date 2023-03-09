@@ -199,6 +199,7 @@ function renderLedgerLines(state: State, note: SongNote): void {
   fadeColorToWhite("0,0,0", ledgerGradient)
 
   ctx.fillStyle = ledgerGradient
+  ctx.strokeStyle = ledgerGradient
 
   drawLedgerLines(
     ctx,
