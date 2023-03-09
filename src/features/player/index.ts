@@ -159,7 +159,6 @@ class Player {
 
     this.score.pointless.value++
     this.score.streak.value = 0
-    console.log('Pointless hit!')
   }
 
   static player(): Player {

@@ -7,6 +7,7 @@ import { renderSheetVis } from './sheet'
 export type GivenState = {
   time: number
   drawNotes: boolean
+  coloredNotes: boolean
   visualization: 'falling-notes' | 'sheet'
   windowWidth: number
   height: number
