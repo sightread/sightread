@@ -1,6 +1,6 @@
 import { useWhenClickedOutside, useEventListener } from '@/hooks'
 import clsx from 'clsx'
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useCallback } from 'react'
 
 export function Dropdown({
   children,
@@ -11,9 +11,9 @@ export function Dropdown({
   const menuRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const toggleOpen = () => {
+  const toggleOpen = useCallback(() => {
     setOpen(!open)
-  }
+  }, [open, setOpen])
 
   useWhenClickedOutside(() => setOpen(false), dropdownRef)
   useEventListener<KeyboardEvent>('keydown', (event) => {
@@ -23,23 +23,23 @@ export function Dropdown({
   })
   let wrapperEvents = useMemo(
     () => (openOn === 'hover' ? { onMouseEnter: toggleOpen, onMouseLeave: toggleOpen } : {}),
-    [openOn, open],
+    [openOn, toggleOpen],
   )
   let targetEvents = useMemo(
     () => (openOn === 'click' ? { onClick: toggleOpen } : {}),
-    [openOn, open],
+    [openOn, toggleOpen],
   )
 
   return (
-    <div ref={dropdownRef} {...wrapperEvents}>
+    <div ref={dropdownRef} {...wrapperEvents} className="w-full">
       <div className="cursor-pointer w-min" {...targetEvents}>
         {target}
       </div>
-      <div className="relative">
+      <div className="relative w-full">
         <div
           ref={menuRef}
           className={clsx(
-            'absolute flex justify-center items-center top-1 rounded-lg overflow-hidden transition shadow-xl',
+            'absolute flex justify-center items-center transition shadow-xl w-full',
             !open && 'hidden',
           )}
         >

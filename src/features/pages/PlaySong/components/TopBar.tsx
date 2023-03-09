@@ -64,11 +64,10 @@ export default function TopBar({
         </ButtonWithTooltip>
         <Dropdown
           target={
-            <ButtonWithTooltip tooltip="Volume" onClick={toggleVolume}>
+            <ButtonWithTooltip tooltip="Volume" className='relative'>
               {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
             </ButtonWithTooltip>
           }
-          openOn="hover"
         >
           <VerticalSliderVolume
             onChangeVolume={(volume) => player.setVolume(volume)}
@@ -117,7 +116,7 @@ type SliderProps = {
 }
 function VerticalSliderVolume({ onChangeVolume, volume }: SliderProps) {
   return (
-    <div className="flex flex-col items-center h-44 w-6 p-1 bg-white">
+    <div className="relative flex flex-col items-center h-44 w-10 min-w-[2.5rem] p-1 bg-white rounded-md overflow-hidden">
       <Slider
         orientation="vertical"
         min={0}
@@ -126,6 +125,9 @@ function VerticalSliderVolume({ onChangeVolume, volume }: SliderProps) {
         value={[volume]}
         onValueChange={(val) => onChangeVolume(val[0])}
       />
+      <div className="w-full text-sm text-center">
+        {Math.round(Player.player().volume.value * 100)}
+      </div>
     </div>
   )
 }

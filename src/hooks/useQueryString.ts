@@ -19,7 +19,7 @@ export function useQueryString<T extends QueryStringObject>(initialState: T): [T
       return
     }
     router.replace(location.pathname + '?' + createUrlSearchParam(queryObject))
-  }, [queryObject])
+  }, [queryObject, router])
 
   return [queryObject, setQueryObject]
 }

@@ -65,13 +65,12 @@ export default function AppBar() {
 function SmallWindowNav() {
   return (
     <Dropdown target={<Menu height={24} width={24} className="block text-white" />}>
-      <div className='flex flex-col bg-white'>
+      <div className="relative top-2 flex flex-col bg-white w-full rounded-lg overflow-hidden">
         {navItems.map((nav, i) => {
           return (
-            <div className="flex flex-col py-3 gap-4 items-enter px-3">
+            <div className="flex flex-col py-3 gap-4 items-center px-3" key={i}>
               <NavLink
                 href={nav.route}
-                key={i}
                 className={clsx(
                   'text-purple-dark text-2xl px-6 transition hover:text-purple-hover inline-block cursor-pointer w-fit',
                 )}
