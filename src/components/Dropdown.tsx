@@ -1,12 +1,11 @@
 import { useWhenClickedOutside, useEventListener } from '@/hooks'
 import clsx from 'clsx'
-import { useState, useRef, useMemo, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
 
 export function Dropdown({
   children,
   target,
-  openOn = 'click',
-}: React.PropsWithChildren<{ target: React.ReactElement; openOn?: 'hover' | 'click' }>) {
+}: React.PropsWithChildren<{ target: React.ReactElement }>) {
   const [open, setOpen] = useState<boolean>(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -21,20 +20,10 @@ export function Dropdown({
       setOpen(false)
     }
   })
-  let wrapperEvents = useMemo(
-    () => (openOn === 'hover' ? { onMouseEnter: toggleOpen, onMouseLeave: toggleOpen } : {}),
-    [openOn, toggleOpen],
-  )
-  let targetEvents = useMemo(
-    () => (openOn === 'click' ? { onClick: toggleOpen } : {}),
-    [openOn, toggleOpen],
-  )
 
   return (
-    <div ref={dropdownRef} {...wrapperEvents} className="w-full">
-      <div className="cursor-pointer w-min" {...targetEvents}>
-        {target}
-      </div>
+    <div ref={dropdownRef} onClick={toggleOpen} className="w-full">
+      <div className="cursor-pointer w-min">{target}</div>
       <div className="relative w-full">
         <div
           ref={menuRef}

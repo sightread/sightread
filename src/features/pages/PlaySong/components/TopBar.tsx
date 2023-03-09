@@ -32,7 +32,6 @@ export default function TopBar({
 }: TopBarProps) {
   const player = Player.player()
   const isSoundOff = player.volume.value === 0
-  const toggleVolume = () => (isSoundOff ? player.setVolume(1) : player.setVolume(0))
 
   return (
     <div className="h-[50px] min-h-[50px] w-screen bg-[#292929] flex px-1 relative justify-center align-center gap-8 z-10">
@@ -64,7 +63,7 @@ export default function TopBar({
         </ButtonWithTooltip>
         <Dropdown
           target={
-            <ButtonWithTooltip tooltip="Volume" className='relative'>
+            <ButtonWithTooltip tooltip="Volume" className="relative">
               {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
             </ButtonWithTooltip>
           }
