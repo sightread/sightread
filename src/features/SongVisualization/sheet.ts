@@ -56,7 +56,7 @@ export function renderSheetVis(givenState: GivenState): void {
     if (item.type === 'measure') {
       continue
     }
-    renderLedgerLine(state, item)
+    renderLedgerLines(state, item)
   }
   for (const item of items) {
     if (item.type === 'measure') {
@@ -184,10 +184,10 @@ function getLearnSongColorPrefix(state: State, note: SongNote, canvasX: number, 
     return colorMap.primary
   }
 
-  return coloredNotes ? coloredNotesMap[step] : colorMap.black
+  return getNoteColor(coloredNotes, step)
 }
 
-function renderLedgerLine(state: State, note: SongNote): void {
+function renderLedgerLines(state: State, note: SongNote): void {
   const { ctx, pps, keySignature } = state
   const posX = getItemStartEnd(state, note).start
   const staff = state.hands?.[note.track].hand === 'right' ? 'treble' : 'bass'
@@ -196,11 +196,9 @@ function renderLedgerLine(state: State, note: SongNote): void {
   let canvasX = posX + playNotesLineX + PLAY_NOTES_WIDTH / 2
 
   const ledgerGradient = ctx.createLinearGradient(playNotesLineX - STAFF_SPACE * 2, 0, playNotesLineX, 0)
-  addColorStopsToGradient("0,0,0", ledgerGradient)
+  fadeColorToWhite("0,0,0", ledgerGradient)
 
   ctx.fillStyle = ledgerGradient
-  ctx.strokeStyle = ledgerGradient
-  ctx.globalCompositeOperation = 'source-over'
 
   drawLedgerLines(
     ctx,
@@ -233,7 +231,7 @@ function renderSheetNote(state: State, note: SongNote): void {
   const trailLength = length - STAFF_SPACE
   const trailHeight = 10
   const noteGradient = ctx.createLinearGradient(playNotesLineX - STAFF_SPACE * 2, 0, playNotesLineX, 0)
-  addColorStopsToGradient(prefix, noteGradient)
+  fadeColorToWhite(prefix, noteGradient)
 
   ctx.fillStyle = noteGradient
   ctx.strokeStyle = noteGradient
@@ -298,11 +296,11 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
     const canvasY = getNoteY(note, staff, staffTopY)
     let canvasX = getPlayNotesLineX(state) - 2
     const key = getKey(note)
-    drawMusicNote(ctx, canvasX, canvasY, state.coloredNotes ? `rgba(${coloredNotesMap[key[0]]},1)` : 'red')
+    drawMusicNote(ctx, canvasX, canvasY, state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'red')
 
     // is sharp
     if (key.length === 2) {
-      const symbolColor =  state.coloredNotes ? `rgba(${coloredNotesMap[key[0]]},1)` : 'black';
+      const symbolColor =  state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'black';
       drawSymbol(ctx, glyphs.accidentalSharp, canvasX - 24, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.6, symbolColor)
     }
     if (state.drawNotes) {
@@ -313,9 +311,13 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
   }
 }
 
-function addColorStopsToGradient(color: string, gradient: any) {
+function fadeColorToWhite(color: string, gradient: any) {
   gradient.addColorStop(0, `rgba(${color},0)`)
   gradient.addColorStop(0.5, `rgba(${color},0.1)`)
   gradient.addColorStop(0.8, `rgba(${color},0.3`)
   gradient.addColorStop(1, `rgba(${color},1)`)
+}
+
+function getNoteColor(coloredNotes: boolean, step: string): string {
+  return coloredNotes ? coloredNotesMap[step] : colorMap.black
 }
