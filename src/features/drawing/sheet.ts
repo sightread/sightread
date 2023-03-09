@@ -168,8 +168,7 @@ export function drawMusicNote(
 ) {
   ctx.save()
   ctx.font = `${STAFF_FIVE_LINES_HEIGHT}px ${MUSIC_FONT}`
-  ctx.fillStyle = color
-  drawSymbol(ctx, glyphs.noteheadBlack, x - STAFF_SPACE / 2, y, STAFF_FIVE_LINES_HEIGHT)
+  drawSymbol(ctx, glyphs.noteheadBlack, x - STAFF_SPACE / 2, y, STAFF_FIVE_LINES_HEIGHT, color)
   ctx.restore()
 }
 
@@ -179,6 +178,7 @@ export function drawSymbol(
   x: number,
   y: number,
   size?: number,
+  color: string | CanvasGradient = 'black',
 ) {
   ctx.save()
   if (size) {
@@ -186,6 +186,8 @@ export function drawSymbol(
   } else {
     ctx.font = MUSIC_FONT
   }
+  ctx.fillStyle = color 
+  ctx.strokeStyle = color 
   ctx.fillText(symbol, x, y)
   ctx.restore()
 }

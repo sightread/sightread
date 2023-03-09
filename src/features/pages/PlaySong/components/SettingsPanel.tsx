@@ -17,7 +17,7 @@ type SidebarProps = {
 }
 
 export default function SettingsPanel(props: SidebarProps) {
-  const { left, right, visualization, waiting, noteLetter, keySignature } = props.config
+  const { left, right, visualization, waiting, noteLetter, coloredNotes, keySignature } = props.config
   const { onClose, onLoopToggled, isLooping } = props
   const [showTrackConfig, setShowTrackConfig] = useState(false)
 
@@ -48,6 +48,9 @@ export default function SettingsPanel(props: SidebarProps) {
   }
   function handleNotes() {
     props.onChange({ ...props.config, noteLetter: !noteLetter })
+  }
+  function handleColoredNotes() {
+    props.onChange({ ...props.config, coloredNotes: !coloredNotes })
   }
   function handleKeySignature(keySignature: KEY_SIGNATURE) {
     props.onChange({ ...props.config, keySignature })
@@ -91,18 +94,22 @@ export default function SettingsPanel(props: SidebarProps) {
             onClick={() => handleVisualization('sheet')}
           >
             <input className="w-5" type="radio" checked={visualization === 'sheet'} readOnly />
-            <span className="block w-[120px] text-left"> Sheet hero (Beta)</span>
+            <span className="block w-[120px] text-left"> Sheet hero (beta)</span>
           </button>
         </Section>
         <div className="flex gap-4 flex-grow flex-col sm:flex-row">
           <Section title="Additional settings" className="flex-grow justify-center">
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Wait Mode</span>
+              <span className="min-w-[15ch]">Wait mode</span>
               <Toggle className="" checked={waiting} onChange={handleWaiting} />
             </div>
             <div className="flex justify-center">
               <span className="min-w-[15ch]">Display note letter</span>
               <Toggle checked={noteLetter} onChange={handleNotes} />
+            </div>
+            <div className="flex justify-center">
+              <span className="min-w-[15ch]">Colored notes</span>
+              <Toggle checked={coloredNotes} onChange={handleColoredNotes} />
             </div>
             <div className="flex justify-center">
               <span className="min-w-[15ch]">Key signature</span>
@@ -119,7 +126,7 @@ export default function SettingsPanel(props: SidebarProps) {
             </div>
           </Section>
           <div className="flex flex-col gap-4 justify-between flex-grow">
-            <Section title="Practice Loop">
+            <Section title="Practice loop">
               <div className="flex justify-center">
                 <Toggle checked={isLooping} onChange={onLoopToggled} />
               </div>
