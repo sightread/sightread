@@ -1,38 +1,39 @@
-import React, { InputHTMLAttributes, PropsWithChildren, useState } from 'react'
+import React, { PropsWithChildren, useState } from 'react'
 import { ArrowLeft, SkipBack, Settings, VolumeX, Volume2, Midi } from '@/icons'
 import { MouseEvent } from 'react'
 import StatusIcon from './StatusIcon'
 import clsx from 'clsx'
-import { Tooltip } from '@/components'
-import { Dropdown } from '@/components/AppBar'
+import { Slider, Tooltip } from '@/components'
+import { Dropdown } from '@/components'
+import Player from '@/features/player'
 
 type TopBarProps = {
   isLoading: boolean
   isPlaying: boolean
-  isSoundOff: boolean
   title?: string
   onTogglePlaying: () => void
   onClickSettings: (e: MouseEvent<any>) => void
   onClickBack: () => void
   onClickRestart: () => void
   onClickMidi: (e: MouseEvent<any>) => void
-  onChangeVolume: (volume: number) => void
   settingsOpen: boolean
 }
 
 export default function TopBar({
   isPlaying,
   isLoading,
-  isSoundOff,
   onTogglePlaying,
   onClickSettings,
   onClickBack,
   onClickRestart,
-  onChangeVolume,
   settingsOpen,
   title,
   onClickMidi,
 }: TopBarProps) {
+  const player = Player.player()
+  const isSoundOff = player.volume.value === 0
+  const toggleVolume = () => (isSoundOff ? player.setVolume(1) : player.setVolume(0))
+
   return (
     <div className="h-[50px] min-h-[50px] w-screen bg-[#292929] flex px-1 relative justify-center align-center gap-8 z-10">
       <ButtonWithTooltip
@@ -63,12 +64,16 @@ export default function TopBar({
         </ButtonWithTooltip>
         <Dropdown
           target={
-            <ButtonWithTooltip tooltip="Volume">
+            <ButtonWithTooltip tooltip="Volume" onClick={toggleVolume}>
               {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
             </ButtonWithTooltip>
           }
+          openOn="hover"
         >
-          <VerticalSliderVolume onChangeVolume={onChangeVolume} />
+          <VerticalSliderVolume
+            onChangeVolume={(volume) => player.setVolume(volume)}
+            volume={player.volume.value}
+          />
         </Dropdown>
       </div>
     </div>
@@ -106,24 +111,21 @@ export function ButtonWithTooltip({
   )
 }
 
-type ButtonProps22 = React.InputHTMLAttributes<HTMLInputElement> & {
+type SliderProps = {
   onChangeVolume: (volume: number) => void
+  volume: number
 }
-
-export function VerticalSliderVolume({ onChangeVolume, ...rest }: ButtonProps22) {
+function VerticalSliderVolume({ onChangeVolume, volume }: SliderProps) {
   return (
-    <input
-      {...rest}
-      id="default-range"
-      type="range"
-      style={{ WebkitAppearance: 'slider-vertical' }}
-      step={0.05}
-      min={0}
-      max={1}
-      onChange={(e) => {
-        onChangeVolume(Number(e.target.value))
-      }}
-      className="h-48 w-8 bg-blue-100 appearance-none"
-    />
+    <div className="flex flex-col items-center h-44 w-6 p-1 bg-white">
+      <Slider
+        orientation="vertical"
+        min={0}
+        max={1}
+        step={0.01}
+        value={[volume]}
+        onValueChange={(val) => onChangeVolume(val[0])}
+      />
+    </div>
   )
 }

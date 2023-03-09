@@ -109,19 +109,6 @@ export function PlaySong() {
     router.replace('/')
   }
 
-  const handleToggleSound = () => {
-    if (!soundOff) {
-      player.setVolume(0)
-      return setSoundOff(true)
-    }
-    player.setVolume(1)
-    setSoundOff(false)
-  }
-  const handleChangeVolume = (vol: number) => {
-    player.setVolume(vol)
-    setSoundOff(vol === 0)
-  }
-
   const handleLoopingToggle = (b: boolean) => {
     if (!b) {
       handleSetRange(undefined)
@@ -157,7 +144,6 @@ export function PlaySong() {
               title={songMeta?.title}
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
-              isSoundOff={soundOff}
               onTogglePlaying={playerActions.toggle}
               onClickRestart={playerActions.stop}
               onClickBack={() => {
@@ -172,7 +158,6 @@ export function PlaySong() {
                 e.stopPropagation()
                 setSettingsPanel(!settingsOpen)
               }}
-              onChangeVolume={handleChangeVolume}
               settingsOpen={settingsOpen}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />

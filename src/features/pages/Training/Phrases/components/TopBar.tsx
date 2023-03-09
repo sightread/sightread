@@ -12,15 +12,13 @@ type TopBarProps = {
 export default function TopBar({ onClickMidi }: TopBarProps) {
   const router = useRouter()
   const player = Player.player()
-  const [isSoundOff, setSoundOff] = useState(false)
 
+  const isSoundOff = player.volume.value === 0
   const handleToggleSound = () => {
     if (!isSoundOff) {
       player.setVolume(0)
-      setSoundOff(true)
     } else {
       player.setVolume(1)
-      setSoundOff(false)
     }
   }
 
