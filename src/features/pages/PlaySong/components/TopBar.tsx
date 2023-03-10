@@ -6,6 +6,7 @@ import clsx from 'clsx'
 import { Slider, Tooltip } from '@/components'
 import { Dropdown } from '@/components'
 import Player from '@/features/player'
+import { isMobile } from '@/utils'
 
 type TopBarProps = {
   isLoading: boolean
@@ -32,6 +33,7 @@ export default function TopBar({
 }: TopBarProps) {
   const player = Player.player()
   const isSoundOff = player.volume.value === 0
+  const toggleVolume = () => (isSoundOff ? player.setVolume(1) : player.setVolume(0))
 
   return (
     <div className="h-[50px] min-h-[50px] w-screen bg-[#292929] flex px-1 relative justify-center align-center gap-8 z-10">
@@ -61,18 +63,21 @@ export default function TopBar({
         <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
           <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
-        <Dropdown
-          target={
-            <ButtonWithTooltip tooltip="Volume" className="relative">
-              {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
-            </ButtonWithTooltip>
-          }
-        >
-          <VerticalSliderVolume
-            onChangeVolume={(volume) => player.setVolume(volume)}
-            volume={player.volume.value}
-          />
-        </Dropdown>
+        {!isMobile() && (
+          <Dropdown
+            target={
+              <div className="text-white" onClick={toggleVolume}>
+                {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
+              </div>
+            }
+            openOn="hover"
+          >
+            <VerticalSliderVolume
+              onChangeVolume={(volume) => player.setVolume(volume)}
+              volume={player.volume.value}
+            />
+          </Dropdown>
+        )}
       </div>
     </div>
   )
@@ -115,7 +120,7 @@ type SliderProps = {
 }
 function VerticalSliderVolume({ onChangeVolume, volume }: SliderProps) {
   return (
-    <div className="relative flex flex-col items-center h-44 w-10 min-w-[2.5rem] p-1 bg-white rounded-md overflow-hidden">
+    <div className="flex flex-col items-center h-44 w-8 p-2 bg-white">
       <Slider
         orientation="vertical"
         min={0}
@@ -124,9 +129,9 @@ function VerticalSliderVolume({ onChangeVolume, volume }: SliderProps) {
         value={[volume]}
         onValueChange={(val) => onChangeVolume(val[0])}
       />
-      <div className="w-full text-sm text-center">
+      <span className="text-black text-sm text-center">
         {Math.round(Player.player().volume.value * 100)}
-      </div>
+      </span>
     </div>
   )
 }
