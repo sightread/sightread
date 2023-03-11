@@ -161,7 +161,7 @@ export function PlaySong() {
               settingsOpen={settingsOpen}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
-            <div className={clsx('w-full z-10', !settingsOpen && 'hidden')}>
+            <div className={clsx(!settingsOpen && 'hidden')}>
               <SettingsPanel
                 onClose={() => setSettingsPanel(false)}
                 onChange={setSongConfig}

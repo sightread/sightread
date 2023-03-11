@@ -2,28 +2,6 @@ import { Dropdown, Slider } from '@/components'
 import { Volume2, VolumeX } from '@/icons'
 import Player from '../player'
 
-type SliderProps = {
-  onChangeVolume: (volume: number) => void
-  volume: number
-}
-function VerticalSliderVolume({ onChangeVolume, volume }: SliderProps) {
-  return (
-    <div className="flex flex-col items-center h-44 w-8 p-2 bg-white">
-      <Slider
-        orientation="vertical"
-        min={0}
-        max={1}
-        step={0.01}
-        value={[volume]}
-        onValueChange={(val) => onChangeVolume(val[0])}
-      />
-      <span className="text-black text-sm text-center">
-        {Math.round(Player.player().volume.value * 100)}
-      </span>
-    </div>
-  )
-}
-
 export function VolumeSliderButton() {
   const player = Player.player()
   const isSoundOff = player.volume.value === 0
@@ -38,10 +16,21 @@ export function VolumeSliderButton() {
       }
       openOn="hover"
     >
-      <VerticalSliderVolume
-        onChangeVolume={(volume) => player.setVolume(volume)}
-        volume={player.volume.value}
-      />
+      <div className="relative flex flex-col items-center h-44 w-8 p-2 bg-white z-20">
+        <Slider
+          orientation="vertical"
+          min={0}
+          max={1}
+          step={0.01}
+          value={[player.volume.value]}
+          onValueChange={(val) => player.setVolume(val[0])}
+          // Clicks to the volume slider shouldn't close other modal-like windows (e.g. SettingsPanel)
+          onClick={(e) => e.stopPropagation()}
+        />
+        <span className="text-black text-sm text-center">
+          {Math.round(Player.player().volume.value * 100)}
+        </span>
+      </div>
     </Dropdown>
   )
 }
