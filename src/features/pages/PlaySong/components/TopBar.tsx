@@ -1,5 +1,5 @@
-import React, { PropsWithChildren, useState } from 'react'
-import { ArrowLeft, SkipBack, Settings, VolumeX, Volume2, Midi } from '@/icons'
+import React, { PropsWithChildren } from 'react'
+import { ArrowLeft, SkipBack, Settings, Midi } from '@/icons'
 import { MouseEvent } from 'react'
 import StatusIcon from './StatusIcon'
 import clsx from 'clsx'
@@ -7,6 +7,7 @@ import { Slider, Tooltip } from '@/components'
 import { Dropdown } from '@/components'
 import Player from '@/features/player'
 import { isMobile } from '@/utils'
+import { VolumeSliderButton } from '@/features/controls'
 
 type TopBarProps = {
   isLoading: boolean
@@ -31,10 +32,6 @@ export default function TopBar({
   title,
   onClickMidi,
 }: TopBarProps) {
-  const player = Player.player()
-  const isSoundOff = player.volume.value === 0
-  const toggleVolume = () => (isSoundOff ? player.setVolume(1) : player.setVolume(0))
-
   return (
     <div className="h-[50px] min-h-[50px] w-screen bg-[#292929] flex px-1 relative justify-center align-center gap-8 z-10">
       <ButtonWithTooltip
@@ -63,21 +60,7 @@ export default function TopBar({
         <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
           <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
-        {!isMobile() && (
-          <Dropdown
-            target={
-              <div className="text-white" onClick={toggleVolume}>
-                {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
-              </div>
-            }
-            openOn="hover"
-          >
-            <VerticalSliderVolume
-              onChangeVolume={(volume) => player.setVolume(volume)}
-              volume={player.volume.value}
-            />
-          </Dropdown>
-        )}
+        {!isMobile() && <VolumeSliderButton />}
       </div>
     </div>
   )
@@ -111,27 +94,5 @@ export function ButtonWithTooltip({
         {children}
       </button>
     </Tooltip>
-  )
-}
-
-type SliderProps = {
-  onChangeVolume: (volume: number) => void
-  volume: number
-}
-function VerticalSliderVolume({ onChangeVolume, volume }: SliderProps) {
-  return (
-    <div className="flex flex-col items-center h-44 w-8 p-2 bg-white">
-      <Slider
-        orientation="vertical"
-        min={0}
-        max={1}
-        step={0.01}
-        value={[volume]}
-        onValueChange={(val) => onChangeVolume(val[0])}
-      />
-      <span className="text-black text-sm text-center">
-        {Math.round(Player.player().volume.value * 100)}
-      </span>
-    </div>
   )
 }

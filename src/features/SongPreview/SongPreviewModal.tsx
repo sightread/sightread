@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { SongScrubBar } from '../SongInputControls'
+import { SongScrubBar } from '../controls'
 import { useRouter } from 'next/router'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { Modal, Sizer } from '@/components'

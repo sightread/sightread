@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 
 import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
-import { SongScrubBar } from '@/features/SongInputControls'
+import { SongScrubBar } from '@/features/controls'
 import Player from '@/features/player'
 import {
   useEventListener,
