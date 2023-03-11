@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useCallback, useRef, useState } from 'react'
 import { Toggle } from '@/components'
 import { Song, SongConfig, VisualizationMode } from '@/types'
-import { AdjustInstruments } from '@/features/SongInputControls'
+import { AdjustInstruments } from '@/features/controls'
 import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import clsx from 'clsx'

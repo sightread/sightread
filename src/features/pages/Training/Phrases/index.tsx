@@ -35,7 +35,7 @@ function useGeneratedSong(
     getGeneratedSong(type, level as any, { bass: hasBass, treble: hasTreble })
       .then((s) => setSong(s))
       .catch((e) => console.error(e))
-  }, [type, level, counter, clef])
+  }, [type, level, counter, clef, hasBass, hasTreble])
 
   return [song, forceNewSong]
 }

@@ -7,6 +7,13 @@ export function peek(o: any) {
   return o
 }
 
+export function isMobile() {
+  if (!isBrowser()) {
+    return false
+  }
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+}
+
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

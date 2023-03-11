@@ -51,6 +51,7 @@ class Player {
   song: Signal<Song | null> = signal(null)
   playInterval: any = null
   currentSongTime = 0
+  volume = signal(1)
 
   // TODO: Determine if MIDI always assumes BPM means quarter notes per minute.
   // Add link to documentation if so.
@@ -65,7 +66,6 @@ class Player {
   lastIntervalFiredTime = 0
   playing: Array<SongNote> = []
   synths: Array<Synth> = []
-  volume = 1
   handlers: any = {}
   range: null | [number, number] = null
   hand = 'both'
@@ -199,6 +199,7 @@ class Player {
   }
 
   setVolume(vol: number) {
+    this.volume.value = vol
     this.synths?.forEach((synth) => {
       synth?.setMasterVolume(vol)
     })

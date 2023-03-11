@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 
 import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
-import { SongScrubBar } from '@/features/SongInputControls'
+import { SongScrubBar } from '@/features/controls'
 import Player from '@/features/player'
 import {
   useEventListener,
@@ -109,16 +109,6 @@ export function PlaySong() {
     router.replace('/')
   }
 
-  const handleToggleSound = () => {
-    if (!soundOff) {
-      player.setVolume(0)
-      setSoundOff(true)
-    } else {
-      player.setVolume(1)
-      setSoundOff(false)
-    }
-  }
-
   const handleLoopingToggle = (b: boolean) => {
     if (!b) {
       handleSetRange(undefined)
@@ -154,7 +144,6 @@ export function PlaySong() {
               title={songMeta?.title}
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
-              isSoundOff={soundOff}
               onTogglePlaying={playerActions.toggle}
               onClickRestart={playerActions.stop}
               onClickBack={() => {
@@ -169,11 +158,10 @@ export function PlaySong() {
                 e.stopPropagation()
                 setSettingsPanel(!settingsOpen)
               }}
-              onClickSound={handleToggleSound}
               settingsOpen={settingsOpen}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
-            <div className={clsx('w-full z-10', !settingsOpen && 'hidden')}>
+            <div className={clsx(!settingsOpen && 'hidden')}>
               <SettingsPanel
                 onClose={() => setSettingsPanel(false)}
                 onChange={setSongConfig}
