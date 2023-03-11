@@ -1,20 +1,22 @@
 import React, { PropsWithChildren } from 'react'
-import { ArrowLeft, SkipBack, Settings, VolumeX, Volume2, Midi } from '@/icons'
+import { ArrowLeft, SkipBack, Settings, Midi } from '@/icons'
 import { MouseEvent } from 'react'
 import StatusIcon from './StatusIcon'
 import clsx from 'clsx'
-import { Tooltip } from '@/components'
+import { Slider, Tooltip } from '@/components'
+import { Dropdown } from '@/components'
+import Player from '@/features/player'
+import { isMobile } from '@/utils'
+import { VolumeSliderButton } from '@/features/controls'
 
 type TopBarProps = {
   isLoading: boolean
   isPlaying: boolean
-  isSoundOff: boolean
   title?: string
   onTogglePlaying: () => void
   onClickSettings: (e: MouseEvent<any>) => void
   onClickBack: () => void
   onClickRestart: () => void
-  onClickSound: () => void
   onClickMidi: (e: MouseEvent<any>) => void
   settingsOpen: boolean
 }
@@ -22,12 +24,10 @@ type TopBarProps = {
 export default function TopBar({
   isPlaying,
   isLoading,
-  isSoundOff,
   onTogglePlaying,
   onClickSettings,
   onClickBack,
   onClickRestart,
-  onClickSound,
   settingsOpen,
   title,
   onClickMidi,
@@ -60,9 +60,7 @@ export default function TopBar({
         <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
           <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
-        <ButtonWithTooltip tooltip="Toggle volume" onClick={onClickSound}>
-          {isSoundOff ? <VolumeX size={24} /> : <Volume2 size={24} />}
-        </ButtonWithTooltip>
+        {!isMobile() && <VolumeSliderButton />}
       </div>
     </div>
   )
