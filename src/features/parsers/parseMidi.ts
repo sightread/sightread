@@ -1,4 +1,4 @@
-import { parseMidiFile, MidiEvent } from '@sightread/jasmid.ts'
+import * as jasmid from '@sightread/jasmid.ts'
 // Since this is called from Deno as well, we need to use relative paths.
 import type { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
 import type { NoteKey } from './types'
@@ -6,7 +6,7 @@ import { getKeySignatureFromMidi, KEY_SIGNATURE } from '../theory'
 import { gmInstruments } from '../synth'
 
 export default function parseMidi(midiData: ArrayBuffer): Song {
-  const parsed = parseMidiFile(midiData)
+  const parsed = jasmid.parseMidiFile(midiData)
 
   const bpms: Array<Bpm> = []
   var ticksPerBeat = parsed.header.ticksPerBeat
@@ -30,7 +30,7 @@ export default function parseMidi(midiData: ArrayBuffer): Song {
 
   let orderedEvents = getOrderedMidiEvents(parsed)
   for (let orderedEvent of orderedEvents) {
-    const midiEvent: MidiEvent = orderedEvent.event
+    const midiEvent: jasmid.MidiEvent = orderedEvent.event
     const track: number = orderedEvent.track
     const noteKey = (num: number): NoteKey => `${track}-${num}` as unknown as NoteKey
 
