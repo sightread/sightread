@@ -52,6 +52,7 @@ function CanvasRenderer({
       time: getTime(),
       visualization: config.visualization,
       drawNotes: config.noteLetter,
+      coloredNotes: config.coloredNotes,
       windowWidth: width,
       height,
       pps,

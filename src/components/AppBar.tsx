@@ -1,10 +1,10 @@
-import { useState, useRef, PropsWithChildren } from 'react'
+import { PropsWithChildren } from 'react'
 import { Sizer } from '@/components'
 import { Logo, GitHub, Menu } from '@/icons'
 import Link from 'next/link'
 import clsx from 'clsx'
-import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { useRouter } from 'next/router'
+import { Dropdown } from './Dropdown'
 
 type NavItem = { route: string; label: string }
 const navItems: NavItem[] = [
@@ -65,56 +65,22 @@ export default function AppBar() {
 function SmallWindowNav() {
   return (
     <Dropdown target={<Menu height={24} width={24} className="block text-white" />}>
-      {navItems.map((nav, i) => {
-        return (
-          <NavLink
-            href={nav.route}
-            key={i}
-            className={clsx(
-              'text-purple-dark text-2xl px-6 transition hover:text-purple-hover inline-block cursor-pointer w-fit',
-            )}
-            label={nav.label}
-          />
-        )
-      })}
+      <div className="flex flex-col bg-white">
+        {navItems.map((nav, i) => {
+          return (
+            <div className="flex flex-col py-3 gap-4 items-enter px-3" key={i}>
+              <NavLink
+                href={nav.route}
+                className={clsx(
+                  'text-purple-dark text-2xl px-6 transition hover:text-purple-hover inline-block cursor-pointer w-fit',
+                )}
+                label={nav.label}
+              />
+            </div>
+          )
+        })}
+      </div>
     </Dropdown>
-  )
-}
-
-function Dropdown({ children, target }: React.PropsWithChildren<{ target: React.ReactElement }>) {
-  const [open, setOpen] = useState<boolean>(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  const toggleOpen = () => {
-    setOpen(!open)
-  }
-
-  useWhenClickedOutside(() => setOpen(false), dropdownRef)
-  useEventListener<KeyboardEvent>('keydown', (event) => {
-    if (open && event.key === 'Escape') {
-      setOpen(false)
-    }
-  })
-
-  return (
-    <div ref={dropdownRef}>
-      <div className="cursor-pointer w-min" onClick={toggleOpen}>
-        {target}
-      </div>
-      <div className="relative">
-        <div
-          ref={menuRef}
-          className={clsx(
-            'absolute top-1 bg-white rounded-lg overflow-hidden transition shadow-xl w-full px-8',
-            'flex flex-col py-3 gap-4 items-center',
-            !open && 'hidden',
-          )}
-        >
-          {children}
-        </div>
-      </div>
-    </div>
   )
 }
 

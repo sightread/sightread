@@ -1,7 +1,7 @@
 import React from 'react'
 import { Toggle, Sizer } from '@/components'
 import { palette as colors } from '@/styles/common'
-import { AdjustInstruments } from '@/features/SongInputControls'
+import { AdjustInstruments } from '@/features/controls'
 import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
 import { SpeedTrainingConfig } from '..'
 import { Clef } from '@/types'
