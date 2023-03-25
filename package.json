@@ -22,7 +22,6 @@
     "tsconfig-paths": "4.1.2"
   },
   "dependencies": {
-    "@next/font": "13.2.4",
     "@preact/signals-react": "1.2.2",
     "@radix-ui/react-slider": "1.1.1",
     "@radix-ui/react-tooltip": "1.0.5",
