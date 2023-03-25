@@ -62,9 +62,7 @@ class Player {
     return currSongBpm * this.bpmModifier.value
   })
 
-  currentNotes: SongNote[] = []
-  nextFirstIndex: number = 0
-
+  currentIndex: number = 0
   lastIntervalFiredTime = 0
   playing: Array<SongNote> = []
   synths: Array<Synth> = []
@@ -141,46 +139,44 @@ class Player {
       }
     }
 
-    const [goodNote] = this.currentNotes.filter((note) => note.midiNote === midiNote)
-
-    if (goodNote) {
-      const diff = this.calcDiff(goodNote.time, this.currentSongTime)
-      const isHit = diff < GOOD_RANGE
-      const noteAlreadyHit = isHitNote(goodNote)
-      if (isHit && !noteAlreadyHit) {
-        if (diff < PERFECT_RANGE) {
-          this.score.perfect.value++
-        } else if (diff < GOOD_RANGE) {
-          this.score.good.value++
-        }
-        if (isHit) {
-          this.score.streak.value++
-          this.hitNotes.add(goodNote)
-          return
-        }
+    // Now handle if the note is upcoming, aka it was hit early
+    const nextNote = this.getNextNotes()?.find((note) => note.midiNote === midiNote)
+    if (nextNote && !isHitNote(nextNote)) {
+      const diff = this.calcDiff(nextNote.time, this.currentSongTime)
+      if (diff < PERFECT_RANGE) {
+        this.score.perfect.value++
+      } else if (diff < GOOD_RANGE) {
+        this.score.good.value++
       }
+      this.score.streak.value++
+      this.hitNotes.add(nextNote)
+      return
     }
 
     this.score.pointless.value++
     this.score.streak.value = 0
   }
 
-  private calcDiff(to: number, from: number) {
+  // Given two song timestamps, return their difference in milliseconds after adjusting for the bpm modifier
+  calcDiff(to: number, from: number) {
     return ((to - from) * 1000) / this.bpmModifier.value
   }
 
-  private incrementNoteIndexes(song: Song) {
-    this.currentNotes = []
-    if (song.notes[this.nextFirstIndex]) {
-      const noteTime = song.notes[this.nextFirstIndex].time
-      do {
-        this.currentNotes.push(song.notes[this.nextFirstIndex])
-        this.nextFirstIndex++
-      } while (
-        song.notes[this.nextFirstIndex] &&
-        Math.abs(noteTime - song.notes[this.nextFirstIndex].time) < 0.0001 // how many round?
-      )
+  /* Return all notes that are valid to hit */
+  getNextNotes() {
+    const song = this.song?.value
+    const nextNote = song?.notes[this.currentIndex]
+    if (!nextNote) {
+      return
     }
+
+    let i = this.currentIndex + 1
+    let notes = [nextNote]
+    while (this.calcDiff(song.notes[i].time, nextNote.time) <= GOOD_RANGE) {
+      notes.push(song.notes[i])
+      i++
+    }
+    return notes
   }
 
   static player(): Player {
@@ -271,7 +267,7 @@ class Player {
       return Math.max(0, this.currentSongTime - offset)
     }
 
-    if (this.wait && this.currentNotes.some((note) => !isHitNote(note))) {
+    if (this.wait && !isHitNote(song.notes[this.currentIndex])) {
       return this.currentSongTime - offset
     }
 
@@ -341,15 +337,12 @@ class Player {
       return
     }
 
-    const song = this.getSong()
-
-    const backingTrack = song?.backing
+    const backingTrack = this.getSong()?.backing
     if (backingTrack) {
       backingTrack.volume = 0.15
       backingTrack.play()
     }
     this.state.value = 'Playing'
-    song && this.incrementNoteIndexes(song)
 
     this.lastIntervalFiredTime = performance.now()
     this.playInterval = setInterval(() => this.playLoop_(), 1)
@@ -427,29 +420,23 @@ class Player {
       this.score.durationHeld.value += heldNotes
     }
 
-    while (this.currentNotes.length > 0 && this.currentNotes[0].time < time) {
-      let currentNotesStartTime = this.currentNotes[0]?.time
-      const activeNotes = this.currentNotes.filter((note) => this.isActiveHand(note))
-      
-      if (activeNotes.length > 0) {
-        if (this.wait && activeNotes.some((note) => !this.hitNotes.has(note))) {
-          this.currentSongTime = currentNotesStartTime
+    while (song.notes[this.currentIndex]?.time < time) {
+      const note = song.notes[this.currentIndex]
+
+      if (this.isActiveHand(note)) {
+        if (this.wait && !this.hitNotes.has(note)) {
+          this.currentSongTime = note.time
           return
-        } else if (prevTime < currentNotesStartTime) {
+        } else if (!this.hitNotes.has(note) && prevTime < note.time) {
           // Only mark as late during the tick in which it is first played.
-          activeNotes.forEach((note) => this.lateNotes.set(note.midiNote, note))
+          this.lateNotes.set(note.midiNote, note)
         }
       }
-      if (!this.wait || !activeNotes.some((note) => !this.hitNotes.has(note))) {
-        this.currentNotes.forEach((note) => {
-          this.playing.push(note)
-          if (!this.skipMissedNotes || !this.isActiveHand(note) || isHitNote(note)) {
-            this.playNote(note)
-          }
-        })
+      this.playing.push(note)
+      if (!this.skipMissedNotes || !this.isActiveHand(note) || isHitNote(note)) {
+        this.playNote(note)
       }
-
-      this.incrementNoteIndexes(song)
+      this.currentIndex++
     }
   }
 
@@ -483,8 +470,7 @@ class Player {
 
   reset_() {
     this.currentSongTime = 0
-    this.currentNotes = []
-    this.nextFirstIndex = 0
+    this.currentIndex = 0
     this.playing = []
     this.range = null
     this.lateNotes.clear()
@@ -516,8 +502,8 @@ class Player {
     this.playing = song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
     })
-    this.nextFirstIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
-    this.incrementNoteIndexes(song)
+    song.notes.findIndex((note) => note.time >= this.currentSongTime)
+    this.currentIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
     this.currentBpmIndex.value = this.getBpmIndexForTime(time)
 
     this.missedNotes.clear()
