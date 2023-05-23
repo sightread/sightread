@@ -171,7 +171,7 @@ class Player {
     }
 
     let notes = []
-    const isWithinRange = (note: SongNote) => this.calcDiff(note.time, nextNote.time) <= GOOD_RANGE
+    const isWithinRange = (note: SongNote) => note && this.calcDiff(note.time, nextNote.time) <= GOOD_RANGE
     for (let i = this.currentIndex; isWithinRange(song.notes[i]); i++) {
       notes.push(song.notes[i])
     }
