@@ -5,7 +5,7 @@
     "artist": "Bach",
     "source": "builtin",
     "id": "fa7a5d0bf5012a4cb4a19f1de2e58b10",
-    "duration": 119.14015151515304
+    "duration": 125.99999999999996
   },
   {
     "file": "music/songs/Ode to Joy.mid",
@@ -13,7 +13,7 @@
     "artist": "Friedrich Schiller",
     "source": "builtin",
     "id": "8d4441d47b332772da481c529bd38e24",
-    "duration": 33.850000000000016
+    "duration": 34
   },
   {
     "file": "music/songs/Canon in D.mid",
@@ -21,7 +21,7 @@
     "artist": "Pachelbel",
     "source": "builtin",
     "id": "7641a769d0e9ec9c95b2b967f2ad2cf3",
-    "duration": 127.08000000000034
+    "duration": 127.20000000000013
   },
   {
     "file": "music/songs/Twinkle Twinkle Little Star.mid",
@@ -29,14 +29,14 @@
     "artist": "Jane Taylor",
     "source": "builtin",
     "id": "b3fa743cca3ba0c6e0a9aa4f2a51092b",
-    "duration": 23.95
+    "duration": 24
   },
   {
     "file": "music/songs/Soon May The Wellerman Come.mid",
     "title": "Soon May The Wellerman Come",
     "source": "builtin",
     "id": "eb574301c4eb30ad4d6a4dd57d091509",
-    "duration": 119.9711538461538
+    "duration": 120.0000000000003
   },
   {
     "file": "music/songs/The Star Spangled Banner.mid",
@@ -44,7 +44,7 @@
     "artist": "John Smith",
     "source": "builtin",
     "id": "bb4edb91d3a12b8c745e59b8435f74c2",
-    "duration": 64.45735294117637
+    "duration": 62.39999999999996
   },
   {
     "file": "music/songs/Mexican Hat Dance.mid",
@@ -52,7 +52,7 @@
     "artist": "Jesus Rubio",
     "source": "builtin",
     "id": "b50ee876b785c66a70dba3159d21e81e",
-    "duration": 41.33263888888888
+    "duration": 40.666666666666664
   },
   {
     "file": "music/songs/Comin Round The Mountain.mid",
@@ -60,7 +60,7 @@
     "artist": "Sandberg and Wallace",
     "source": "builtin",
     "id": "4aaf49c8b4c28a7cea7433d54de2fcc9",
-    "duration": 34.88181818181824
+    "duration": 33.818181818181806
   },
   {
     "file": "music/songs/Blue Danube.mid",
@@ -68,13 +68,20 @@
     "artist": "Johan Strauss",
     "source": "builtin",
     "id": "9b78807499154198f17eb7c8bff91879",
-    "duration": 379.92857142857196
+    "duration": 374.2857142857146
   },
   {
     "file": "music/songs/La Cucaracha.mid",
     "title": "La Cucaracha",
     "source": "builtin",
     "id": "ba3bed184b79d04a48a19913ff29d6da",
-    "duration": 47
+    "duration": 46
+  },
+  {
+    "file": "music/songs/Mario.mid",
+    "title": "Mario",
+    "source": "builtin",
+    "id": "dda0e9765b645097d272fb2f8a619db6",
+    "duration": 91.20000000000005
   }
 ]

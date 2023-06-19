@@ -45,6 +45,7 @@ function getInitialScore(): Score {
 }
 
 export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
+
 class Player {
   state: Signal<PlayerState> = signal('CannotPlay')
   score: Score = getInitialScore()

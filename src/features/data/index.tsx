@@ -5,9 +5,26 @@ import * as library from './library'
 import { useCallback, useMemo, useState } from 'react'
 import { useFetch } from '@/hooks'
 import { FetchState } from '@/hooks/useFetch'
+import { Deferred } from '@/utils'
 
 function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)
+}
+
+function maybeAddBackingTrack(id?: string): (r: Response) => Promise<Song> {
+  return async (response: Response) => {
+    console.log('doanlodog', id)
+    const song = await handleSong(response)
+    if (id === 'dda0e9765b645097d272fb2f8a619db6') {
+      const url = `/music/songs/mario.mp3`
+      const track = new Audio(url)
+      const deferred: Deferred<HTMLAudioElement> = new Deferred()
+      track.addEventListener('canplaythrough', () => deferred.resolve(track))
+      track.addEventListener('error', (err) => deferred.reject(err as any))
+      song.backing = await deferred.promise
+    }
+    return song
+  }
 }
 
 export function getKey(id: string, source: SongSource) {
@@ -19,6 +36,7 @@ function getSongUrl(id: string, source: SongSource) {
 }
 
 export function useSong(id: string, source: SongSource): FetchState<Song> {
+  const handleSong = useCallback(maybeAddBackingTrack(id), [id, source]);
   const url =
     id && source && (source === 'midishare' || source === 'builtin')
       ? getSongUrl(id, source)
