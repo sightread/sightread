@@ -13,7 +13,6 @@ function handleSong(response: Response): Promise<Song> {
 
 function maybeAddBackingTrack(id?: string): (r: Response) => Promise<Song> {
   return async (response: Response) => {
-    console.log('doanlodog', id)
     const song = await handleSong(response)
     if (id === 'dda0e9765b645097d272fb2f8a619db6') {
       const url = `/music/songs/mario.mp3`
