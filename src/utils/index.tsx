@@ -218,3 +218,12 @@ export function getHands(songConfig: SongConfig) {
 export function isNumber(x: any): x is number {
   return Number.isFinite(x)
 }
+
+const cloneFn = globalThis.structuredClone ?? ((o: any) => JSON.parse(JSON.stringify(o)))
+export function clone<T extends Object>(obj: T): T {
+  return cloneFn(obj)
+}
+
+export function strip(n: number) {
+  return parseFloat(n.toFixed(6))
+}

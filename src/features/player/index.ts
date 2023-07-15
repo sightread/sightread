@@ -6,6 +6,7 @@ import { getHands, isBrowser, round } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
 import { getAudioContext } from '../synth/utils'
+import { scaleResolution } from '../theory'
 
 let player: Player
 
@@ -49,6 +50,7 @@ class Player {
   state: Signal<PlayerState> = signal('CannotPlay')
   score: Score = getInitialScore()
   song: Signal<Song | null> = signal(null)
+  difficultyScaledSong?: Song
   playInterval: any = null
   currentSongTime = 0
   volume = signal(1)
@@ -193,11 +195,16 @@ class Player {
     return this.state.value === 'Playing'
   }
 
+  setScaled(song: Song) {
+    this.difficultyScaledSong = song
+  }
+
   async setSong(song: Song, songConfig: SongConfig) {
     this.stop()
     this.song.value = song
     this.songHands = getHands(songConfig)
     this.state.value = 'CannotPlay'
+    this.difficultyScaledSong = song
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
