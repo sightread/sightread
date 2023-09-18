@@ -132,8 +132,4 @@ class InstrumentSynth implements Synth {
   getInstrument() {
     return this.instrument
   }
-
-  getRecordingDestinationNode() {
-    return this.getRecordingDestinationNode;
-  }
 }
