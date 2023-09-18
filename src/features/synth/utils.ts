@@ -36,6 +36,15 @@ function getAudioContext() {
   return AudioContext
 }
 
+// Node that listens all gainNotes for recording purposes
+let recordingDestinationNode: MediaStreamAudioDestinationNode
+function setRecordingDestinationNode(destinationNode: MediaStreamAudioDestinationNode) {
+  recordingDestinationNode = destinationNode
+}
+function getRecordingDestinationNode() {
+  return recordingDestinationNode
+}
+
 // The sound fonts need the key in C Major with only flat accidentals.
 // No sharps.
 function getKeyForSoundfont(note: number) {
@@ -75,4 +84,4 @@ function iOSAudioContextFix() {
   document.removeEventListener('touchend', iOSAudioContextFix)
 }
 
-export { getAudioContext, parseMidiJsSoundfont, getKeyForSoundfont }
+export { getAudioContext, parseMidiJsSoundfont, getKeyForSoundfont, getRecordingDestinationNode, setRecordingDestinationNode }

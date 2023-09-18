@@ -2,18 +2,21 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MidiStateEvent, SongConfig } from '@/types'
 import { SongVisualizer } from '@/features/SongVisualization'
 import { InstrumentName, useSynth } from '@/features/synth'
+import { startRecordingAudio, stopRecordingAudio } from '@/features/audioRecording'
 import midiState from '@/features/midi'
 import { useSingleton } from '@/hooks'
 import FreePlayer from './utils/freePlayer'
 import TopBar from './components/TopBar'
 import Head from 'next/head'
 import { MidiModal } from '../PlaySong/components/MidiModal'
+import { start } from 'repl'
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
   const synthState = useSynth(instrumentName)
   const freePlayer = useSingleton(() => new FreePlayer())
   const [isMidiModalOpen, setMidiModal] = useState(false)
+  const [isRecordingAudio, setRecordingAudio] = useState(false)
 
   const handleNoteDown = useCallback(
     (note: number, velocity: number = 80) => {
@@ -56,6 +59,16 @@ export default function FreePlay() {
             e.stopPropagation()
             setMidiModal(!isMidiModalOpen)
           }}
+          onClickRecord={(e) => {
+            e.stopPropagation()
+            if (!isRecordingAudio) {
+              setRecordingAudio(startRecordingAudio());
+            } else {
+              stopRecordingAudio();
+              setRecordingAudio(false);
+            }
+          }}
+          isRecordingAudio={isRecordingAudio}
           isLoading={synthState.loading}
           isError={synthState.error}
           value={instrumentName}
