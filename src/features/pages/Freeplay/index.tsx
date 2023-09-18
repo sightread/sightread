@@ -9,7 +9,6 @@ import FreePlayer from './utils/freePlayer'
 import TopBar from './components/TopBar'
 import Head from 'next/head'
 import { MidiModal } from '../PlaySong/components/MidiModal'
-import { start } from 'repl'
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
