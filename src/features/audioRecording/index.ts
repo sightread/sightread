@@ -23,7 +23,7 @@ export function startRecordingAudio(): boolean {
             if (audioChunks.length > 0) {
                 const mimeType = audioChunks[0].type;
                 const audioBlob = new Blob(audioChunks, {type: mimeType});
-                promptDownloadAudioFile(audioBlob, "Piano-Audio.wav", false);
+                promptDownloadAudioFile(audioBlob, "Piano-Audio.webm", false);
             }
         };
 
