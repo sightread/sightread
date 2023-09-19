@@ -5,6 +5,7 @@ import * as library from './library'
 import { useCallback, useMemo, useState } from 'react'
 import { useFetch } from '@/hooks'
 import { FetchState } from '@/hooks/useFetch'
+import { convertBase64MidiToSong } from '@/features/midi/utils'
 
 function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)
@@ -38,6 +39,10 @@ export function useSong(id: string, source: SongSource): FetchState<Song> {
   }, [id, source])
 
   return source === 'upload' ? uploadState : fetchState
+}
+
+export function useBase64Song(data: string): Song {
+  return convertBase64MidiToSong(data)
 }
 
 // TODO: replace with a signals-like library, so that setting from one component is reflected elsewhere.

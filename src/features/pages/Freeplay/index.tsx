@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MidiStateEvent, SongConfig } from '@/types'
 import { SongVisualizer } from '@/features/SongVisualization'
 import { InstrumentName, useSynth } from '@/features/synth'
-import { startRecordingAudio, stopRecordingAudio } from '@/features/audioRecording'
+import { startRecordingAudio, startRecordingMidi, stopRecordingAudio, stopRecordingMidi } from '@/features/SongRecording'
 import midiState from '@/features/midi'
 import { useSingleton } from '@/hooks'
 import FreePlayer from './utils/freePlayer'
@@ -61,10 +61,13 @@ export default function FreePlay() {
           onClickRecord={(e) => {
             e.stopPropagation()
             if (!isRecordingAudio) {
-              setRecordingAudio(startRecordingAudio());
+              //startRecordingAudio()
+              startRecordingMidi()
+              setRecordingAudio(true)
             } else {
-              stopRecordingAudio();
-              setRecordingAudio(false);
+              //stopRecordingAudio()
+              stopRecordingMidi()
+              setRecordingAudio(false)
             }
           }}
           isRecordingAudio={isRecordingAudio}

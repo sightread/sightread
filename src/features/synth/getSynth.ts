@@ -1,6 +1,7 @@
 import { isBrowser } from '@/utils'
 import gmInstruments from './instruments'
-import { getAudioContext, getKeyForSoundfont, getRecordingDestinationNode } from './utils'
+import { getAudioContext, getKeyForSoundfont } from './utils'
+import { getRecordingDestinationNode } from '@/features/SongRecording'
 import { SoundFont, Synth, InstrumentName } from './types'
 import { loadInstrument, soundfonts } from './loadInstrument'
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 
-import { MidiStateEvent, SongSource } from '@/types'
+import { MidiStateEvent, Song, SongMetadata, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/controls'
 import Player from '@/features/player'
@@ -13,7 +13,7 @@ import {
   useSongSettings,
   useWakeLock,
 } from '@/hooks'
-import { useSong, useSongMetadata } from '@/features/data'
+import { useSong, useSongMetadata, useBase64Song } from '@/features/data'
 import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
 import { TopBar, SettingsPanel } from './components'
@@ -25,6 +25,8 @@ export function PlaySong() {
   const router = useRouter()
   const { source, id, recording }: { source: SongSource; id: string; recording?: string } =
     router.query as any
+
+  console.log("hello")
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const [playerState, playerActions] = usePlayerState()
@@ -33,10 +35,17 @@ export function PlaySong() {
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error } = useSong(id, source)
+  let songMeta = useSongMetadata(id, source) 
+
+  if (source === 'base64') {
+    console.log("in")
+    song = useBase64Song(id)
+    console.log("out")
+  }
+
   const [songConfig, setSongConfig] = useSongSettings(id)
   const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
   const isRecording = !!recording
-  const songMeta = useSongMetadata(id, source)
   useWakeLock()
 
   const hand =

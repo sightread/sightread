@@ -1,6 +1,7 @@
 import { getNote } from '@/features/theory'
 import { MidiStateEvent } from '@/types'
 import { isBrowser } from '@/utils'
+import { getRecordedMidiEvents } from '@/features/SongRecording'
 
 export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {
@@ -43,10 +44,11 @@ async function setupMidiDeviceListeners() {
   }
 }
 
-type MidiEvent = {
+export type MidiEvent = {
   type: 'on' | 'off'
   velocity: number
   note: number
+  timeStamp: number
 }
 
 function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
@@ -61,6 +63,7 @@ function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
     type: command === 0x9 ? 'on' : 'off',
     note: data[1],
     velocity: data[2],
+    timeStamp: event.timeStamp
   }
 }
 
@@ -157,6 +160,9 @@ function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
   if (!msg) {
     return
   }
+
+  getRecordedMidiEvents()?.push(msg)
+
   const { note, velocity } = msg
   if (msg.type === 'on' && msg.velocity > 0) {
     midiState.press(note, velocity)
