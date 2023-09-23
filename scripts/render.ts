@@ -9,8 +9,8 @@ import { waitForImages, getImages } from '@/features/SongVisualization/images'
 import { parseMidi, parserInferHands } from '@/features/parsers'
 import { PIXELS_PER_SECOND as pps } from '@/features/SongVisualization/utils'
 
-const inputDir = '/Users/jakefried/Movies/sightread-recordings'
-const outputDir = '/Users/jakefried/Movies/sightread-recordings'
+const inputDir = '/Users/jake/Movies/sightread-recordings'
+const outputDir = '/Users/jake/Movies/sightread-recordings'
 const cpus = 2
 const fps = 60
 const viewport = { width: 1920, height: 1080 }
