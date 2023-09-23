@@ -51,6 +51,11 @@ const manifestJson = parsedMusic.map((parsed: SongMetadata) => {
   delete v.parsedSong
   return v
 })
-const manifestSrcPath = pathJoin(__dirname, '..', 'src', 'manifest.json')
-const json = prettier.format(JSON.stringify(manifestJson), { filepath: 'manifest.json' })
-fs.writeFileSync(manifestSrcPath, json)
+
+async function main() {
+  const manifestSrcPath = pathJoin(__dirname, '..', 'src', 'manifest.json')
+  const json = await prettier.format(JSON.stringify(manifestJson), { filepath: 'manifest.json' })
+  fs.writeFileSync(manifestSrcPath, json)
+}
+
+main()
