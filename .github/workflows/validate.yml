@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - curl -fsSL https://bun.sh/install | bash
+      - run: curl -fsSL https://bun.sh/install | bash
       - run: npm ci --include dev
       - run: npm run test
       - run: npm run build
