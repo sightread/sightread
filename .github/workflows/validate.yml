@@ -16,7 +16,6 @@ jobs:
       NEXT_PUBLIC_GA_ID: mock-ga-id
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
       - uses: oven-sh/setup-bun@v1
         with:
           node-version: 16
