@@ -5,7 +5,7 @@ import type { NoteKey } from './types'
 import { getKeySignatureFromMidi, KEY_SIGNATURE } from '../theory'
 import { gmInstruments } from '../synth'
 
-export default function parseMidi(midiData: ArrayBuffer): Song {
+export default function parseMidi(midiData: ArrayBufferLike): Song {
   const parsed = jasmid.parseMidiFile(midiData)
 
   const bpms: Array<Bpm> = []

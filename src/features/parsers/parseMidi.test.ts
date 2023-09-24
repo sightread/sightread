@@ -7,13 +7,11 @@ describe('testing utils', () => {
       makeHeader({ formatType: 0, trackCount: 2, ticksPerBeat: 4 }),
     )
     const parsed = jasmid.parseMidiFile(file.buffer)
-    expect(parsed.header).toMatchInlineSnapshot(`
-      {
-        "formatType": 0,
-        "ticksPerBeat": 4,
-        "trackCount": 2,
-      }
-    `)
+    expect(parsed.header).toEqual({
+      formatType: 0,
+      ticksPerBeat: 4,
+      trackCount: 2,
+    })
   })
 })
 
@@ -26,21 +24,19 @@ describe('parseMidi', () => {
     const file: Uint8Array = new Uint8Array(
       makeHeader({ formatType: 0, trackCount: 2, ticksPerBeat: 4 }),
     )
-    expect(parseMidi(file.buffer)).toMatchInlineSnapshot(`
-      {
-        "bpms": [],
-        "duration": 0,
-        "items": [],
-        "keySignature": "C",
-        "measures": [],
-        "notes": [],
-        "timeSignature": {
-          "denominator": 4,
-          "numerator": 4,
-        },
-        "tracks": {},
-      }
-    `)
+    expect(parseMidi(file.buffer)).toEqual({
+      bpms: [],
+      duration: 0,
+      items: [],
+      keySignature: 'C',
+      measures: [],
+      notes: [],
+      timeSignature: {
+        denominator: 4,
+        numerator: 4,
+      },
+      tracks: {},
+    })
   })
 })
 

@@ -79,7 +79,9 @@ export function formatInstrumentName(instrument: InstrumentName): string {
 
 export function convertHexColorToIntArr(hexString: string): number[] {
   if (hexString.length !== 7 || hexString[0] !== '#') {
-    console.error('invalid hex value.')
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('invalid hex value.')
+    }
     return []
   }
   const r = parseInt(hexString.slice(1, 3), 16)
