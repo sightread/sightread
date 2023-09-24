@@ -17,9 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
       - run: bun install
       - run: bun run test
       - run: bun run build
