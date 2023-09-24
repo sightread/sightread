@@ -12,3 +12,13 @@ To start the app
 npm install
 npm run dev
 ```
+
+## Testing
+
+We use bun for testing
+
+> To install, follow https://bun.sh/docs/installation
+
+```
+npm run test
+```

@@ -40,7 +40,9 @@
     "lint": "next lint",
     "format": "prettier --write src/**/*.ts*",
     "gen": "cd scripts && ts-node generate.ts && cd ..",
-    "render": "RENDER=1 ts-node --project scripts/tsconfig.json scripts/render.ts --huge-max-old-generation-size"
+    "render": "RENDER=1 ts-node --project scripts/tsconfig.json scripts/render.ts --huge-max-old-generation-size",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
   },
   "browserslist": {
     "production": [
