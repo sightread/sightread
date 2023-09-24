@@ -104,7 +104,7 @@ export default function SelectSongPage() {
               {
                 label: 'Length',
                 id: 'duration',
-                format: (n) => formatTime(n),
+                format: (n) => formatTime(Number(n)),
               },
               { label: 'Source', id: 'source' },
             ]}
