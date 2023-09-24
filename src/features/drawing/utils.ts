@@ -1,3 +1,6 @@
+/**
+ * Draws a line between (x1, y1)  and (x2, y2)
+ */
 export function line(
   ctx: CanvasRenderingContext2D,
   x1: number,
