@@ -127,6 +127,7 @@ const gmInstruments = [
   'helicopter',
   'applause',
   'gunshot',
+  'percussion',
 ] as const
 
 export default gmInstruments
