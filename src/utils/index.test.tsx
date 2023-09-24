@@ -15,6 +15,7 @@ describe('formatTime', () => {
   })
 
   it('should return a formatted time string if seconds is a number', () => {
+    expect(formatTime(0)).toBe('00:00')
     expect(formatTime(90)).toBe('01:30')
     expect(formatTime(600)).toBe('10:00')
   })
