@@ -32,9 +32,9 @@ export function isBrowser() {
   return typeof window === 'object'
 }
 
-export function formatTime(seconds: number | string | undefined) {
-  if (typeof seconds === 'string' || seconds === undefined) {
-    throw new Error('Should not call formatTime on a string')
+export function formatTime(seconds: number) {
+  if (!seconds) {
+    throw new Error('An argument for "seconds" was not provided for formatTime.')
   }
 
   let min = String(Math.floor(seconds / 60))

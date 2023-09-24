@@ -10,8 +10,8 @@ import {
 
 describe('formatTime', () => {
   it('should throw an error if seconds is a string or undefined', () => {
-    expect(() => formatTime('100')).toThrow('Should not call formatTime on a string')
-    expect(() => formatTime(undefined)).toThrow('Should not call formatTime on a string')
+    // @ts-expect-error An argument for "seconds" was not provided.
+    expect(() => formatTime()).toThrow('An argument for "seconds" was not provided for formatTime.')
   })
 
   it('should return a formatted time string if seconds is a number', () => {
