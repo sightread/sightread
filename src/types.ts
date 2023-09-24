@@ -49,7 +49,7 @@ export interface Bpm {
 }
 
 export interface Tracks {
-  [id: number | string]: Track
+  [id: string]: Track
 }
 
 export interface Track {

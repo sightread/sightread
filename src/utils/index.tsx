@@ -33,7 +33,7 @@ export function isBrowser() {
 }
 
 export function formatTime(seconds: number) {
-  if (!seconds) {
+  if (!isNumber(seconds)) {
     throw new Error('An argument for "seconds" was not provided for formatTime.')
   }
 
@@ -79,7 +79,9 @@ export function formatInstrumentName(instrument: InstrumentName): string {
 
 export function convertHexColorToIntArr(hexString: string): number[] {
   if (hexString.length !== 7 || hexString[0] !== '#') {
-    console.error('invalid hex value.')
+    if (isBrowser()) {
+      console.error('invalid hex value.')
+    }
     return []
   }
   const r = parseInt(hexString.slice(1, 3), 16)
