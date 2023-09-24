@@ -47,7 +47,6 @@ function verifyFiles(files: string[]) {
 
 async function main() {
   const files: string[] = [
-    'Elton-John_Your-Song'
     // Force multi-line
   ]
 
