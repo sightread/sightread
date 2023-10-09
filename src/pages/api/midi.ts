@@ -1,10 +1,11 @@
 import type { Stream } from 'stream'
-import type { IncomingMessage } from 'http'
+import { IncomingMessage } from 'http'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import fs from 'fs'
+import fs, { ReadStream } from 'fs'
 import { SongMetadata } from '@/types'
 import https from 'https'
+import { NextResponse } from 'next/server'
 
 const songManifest = require('@/manifest.json')
 const map: Map<string, SongMetadata> = new Map(songManifest.map((s: SongMetadata) => [s.id, s]))
@@ -39,7 +40,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       stream = await get(`https://${process.env.VERCEL_URL}/${path}`)
     }
   } else {
-    stream = await get(`https://midishare.dev/api/midi?id=${id}`)
+    // TODO(samouri): determine why the former URL is blocked by CF.
+    // stream = await get(`https://midishare.dev/api/midi?id=${id}`)
+    const response = await fetch(`https://midishare.dev/api/midi?id=${id}`)
+    // stream = dStream.fromWeb(response.body!)
+    stream = await get(`https://assets.midishare.dev/scores/${id}/${id}.mid`)
   }
   return proxy(stream, res)
 }
