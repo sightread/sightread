@@ -169,6 +169,28 @@ function BrowserCompatibilitySection() {
   )
 }
 
+function RemainingTasks() {
+  return (
+    <Article header="Pending Tasks">
+      <p>
+        Future work:
+      </p>
+      <ul className="px-12 list-disc">
+
+        <li>Api call to Python Onset and Velocity backend to take the audio without Midi plugin.</li>
+        <li>MusicXML file upload and full Sheet Music display.</li>
+        <li> Comparing PianoRolls ( Progress tracking and song scoring to see improvement over time)</li>
+        <li>
+          Autogenerating practice lessons based on musician's progress. 
+        </li>
+        <li>Displaying piano fingering.</li>
+        <li>Record a performance in free play and share it with a link.</li>
+        
+      </ul>
+    </Article>
+  )
+}
+
 function RoadmapSection() {
   return (
     <Article header="Roadmap">
