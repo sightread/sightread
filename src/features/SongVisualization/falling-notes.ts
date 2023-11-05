@@ -227,6 +227,10 @@ function renderOctaveRuler(state: State) {
 }
 
 export function renderFallingNote(note: SongNote, state: State): void {
+  if (!(note.midiNote in state.pianoMeasurements.lanes)) {
+    return
+  }
+
   const { ctx, pps, drawNotes } = state
   const lane = state.pianoMeasurements.lanes[note.midiNote]
   const posY = getItemStartEnd(note, state).end - (state.height - state.noteHitY)
