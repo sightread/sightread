@@ -337,6 +337,11 @@ class Player {
       return
     }
 
+    // If at the end of the song, restart it
+    if (this.currentSongTime >= this.getDuration()) {
+      this.seek(0)
+    }
+
     const backingTrack = this.getSong()?.backing
     if (backingTrack) {
       backingTrack.volume = 0.15
@@ -392,6 +397,7 @@ class Player {
 
     // If at the end of the song, stop playing.
     if (this.currentSongTime >= this.getDuration()) {
+      this.seek(this.getDuration())
       this.pause()
     }
 

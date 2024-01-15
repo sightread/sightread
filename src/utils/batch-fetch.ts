@@ -1,7 +1,6 @@
-export type ResponseHandler<T> = (response: Response) => Promise<T>
-
 let cache: Map<string, Promise<any>>
-export function batchedFetch<T>(url: string, handler: ResponseHandler<T>): Promise<T> {
+
+export function batchedFetch<T>(url: string): Promise<Response> {
   if (!cache) {
     cache = new Map()
   }
@@ -11,7 +10,7 @@ export function batchedFetch<T>(url: string, handler: ResponseHandler<T>): Promi
     return cachedPromise
   }
 
-  const fetchPromise = fetch(url).then(handler)
+  const fetchPromise = fetch(url)
   cache.set(url, fetchPromise)
   fetchPromise.catch((e) => {
     console.error(`Error while attempting to fetch: ${url}:\n`, e)

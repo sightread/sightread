@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
 
-import { MidiStateEvent, SongSource } from '@/types'
+import { MidiStateEvent, Song, SongMetadata, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/controls'
 import Player from '@/features/player'
@@ -20,11 +20,17 @@ import { TopBar, SettingsPanel } from './components'
 import clsx from 'clsx'
 import Head from 'next/head'
 import { MidiModal } from './components/MidiModal'
+import { isBrowser } from '@/utils'
 
 export function PlaySong() {
   const router = useRouter()
-  const { source, id, recording }: { source: SongSource; id: string; recording?: string } =
-    router.query as any
+
+  const { source, id, recording }: { source: SongSource; id: string; recording?: string } = (
+    isBrowser() && !router.query.id
+      ? Object.fromEntries(new URLSearchParams(window.location.search).entries())
+      : router.query
+  ) as any
+
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const [playerState, playerActions] = usePlayerState()
@@ -33,10 +39,11 @@ export function PlaySong() {
   const player = Player.player()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error } = useSong(id, source)
+  let songMeta = useSongMetadata(id, source)
+
   const [songConfig, setSongConfig] = useSongSettings(id)
   const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
   const isRecording = !!recording
-  const songMeta = useSongMetadata(id, source)
   useWakeLock()
 
   const hand =

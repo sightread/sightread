@@ -35,7 +35,7 @@ export default function parseMidi(midiData: ArrayBufferLike): Song {
       ]
     }),
   )
-  const timeSignature = parsed.header.timeSignatures[0]?.timeSignature
+  const timeSignature = parsed.header.timeSignatures[0]?.timeSignature ?? [4, 4]
   const keySignature = parsed.header.keySignatures[0]?.key as KEY_SIGNATURE
 
   let measureIndex = 1
