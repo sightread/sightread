@@ -98,7 +98,7 @@ export default function SongPreviewModal({
               }}
             >
               <Share />
-              Copy URL
+              Copy Share URL
             </button>
             <button
               className="w-full text-white h-10 border-none cursor-pointer rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover flex items-center gap-2 justify-center px-1"

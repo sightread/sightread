@@ -25,7 +25,7 @@ export default function TopBar({
   onClickMidi,
   onClickRecord,
 }: TopBarProps) {
-  const recordTooltip = isRecordingAudio ? 'Save record' : 'Start recording audio'
+  const recordTooltip = isRecordingAudio ? 'Stop recording' : 'Start recording audio'
 
   return (
     <div className="px-4 text-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center gap-4">
