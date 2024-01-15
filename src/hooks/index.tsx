@@ -1,5 +1,5 @@
 export { default as useEventListener } from './useEventListener'
-export { default as useFetch } from './useFetch'
+export { useFetch } from './useFetch'
 export { default as useMidiInputs } from './useMidiInputs'
 export { default as useOnUnmount } from './useOnUnmount'
 export { default as usePlayerState } from './usePlayerState'

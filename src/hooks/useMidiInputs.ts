@@ -15,7 +15,10 @@ export default function useMidiInputs(): MidiInputReturn {
     setMidiMap(null)
     getMidiInputs()
       .then(setMidiMap)
-      .catch(() => setMidiMap(new Map()))
+      .catch((error) => {
+        console.log('Encountered error retrieving list of connected MIDI instrumentd', error)
+        setMidiMap(new Map())
+      })
   }, [ignored])
 
   return useMemo(
