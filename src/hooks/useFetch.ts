@@ -1,5 +1,5 @@
-import { batchedFetch, ResponseHandler } from '@/utils'
-import { useEffect, useReducer } from 'react'
+import { batchedFetch } from '@/utils'
+import { useCallback, useEffect, useReducer } from 'react'
 
 type FetchStatus = 'idle' | 'pending' | 'success' | 'error'
 
@@ -26,30 +26,30 @@ function reducer<T>(state: FetchState<T>, action: FetchAction<T>): FetchState<T>
   return state
 }
 
-function defaultHandler<T>(response: Response): Promise<T> {
-  return response.json()
-}
-
-/**
- * A hook wrapper for fetch. Currently only supports basic GETs.
- * Automatically batches requests to the same URL.
- * Caches the result forever.
- */
-export default function useFetch<T>(
-  url?: string,
-  handler: ResponseHandler<T> = defaultHandler,
-): FetchState<T> {
+export function useRemoteResource<T>(getResource: () => Promise<T>): FetchState<T> {
   const [state, dispatch] = useReducer<typeof reducer<T>>(reducer, { status: 'idle' })
 
   useEffect(() => {
-    if (!url || !handler) {
+    if (typeof getResource === 'undefined') {
       return
     }
     dispatch({ type: 'pending' })
-    batchedFetch(url, handler)
+    getResource()
       .then((data: T) => dispatch({ type: 'success', data }))
       .catch((error: Error) => dispatch({ type: 'error', error }))
-  }, [url, handler])
+  }, [getResource])
 
   return state
+}
+
+/**
+ * A hook for wrapping batchedFetch/useEffect to make it easy to grab remote
+ * resources from URLs. Probably should have use useSWR or something similar
+ * instead of rolling my own.
+ *
+ * Caches the result forever.
+ */
+export function useFetch(url: string): FetchState<Response> {
+  const getResource = useCallback(() => batchedFetch(url), [url, batchedFetch])
+  return useRemoteResource(getResource)
 }

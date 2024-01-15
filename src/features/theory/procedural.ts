@@ -1,5 +1,5 @@
 import { Clef, Song, SongMeasure, SongNote } from '@/types'
-import { batchedFetch, Deferred, ResponseHandler } from '@/utils'
+import { batchedFetch, Deferred } from '@/utils'
 import { parseMidi } from '../parsers'
 import { getRandomNote } from './keySignature'
 
@@ -197,16 +197,14 @@ async function getMeasuresForChord(
     filename = `/music/irish/Left Hand/${chord.toString()}_Lvl_${bassLevel}_LH.mid`
   }
 
-  const handler: ResponseHandler<Measure[]> = (res) =>
-    res
-      .arrayBuffer()
-      .then((buffer) => parseMidi(buffer))
-      .then(splitMeasures)
-      .catch((e) => {
-        console.error(e)
-        return []
-      })
-  return batchedFetch(filename, handler)
+  return batchedFetch(filename)
+    .then((r) => r.arrayBuffer())
+    .then((buffer) => parseMidi(buffer))
+    .then(splitMeasures)
+    .catch((e) => {
+      console.error(e)
+      return []
+    })
 }
 
 const dMajorBackingTracks = [

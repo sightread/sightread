@@ -2,10 +2,10 @@ import { parseMidi } from '@/features/parsers'
 import { Song, SongMetadata, SongSource } from '@/types'
 import { getUploadedSong } from '@/features/persist'
 import * as library from './library'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { useFetch } from '@/hooks'
-import { FetchState } from '@/hooks/useFetch'
-import { convertBase64MidiToSong } from '@/features/midi/utils'
+import { FetchState, useRemoteResource } from '@/hooks/useFetch'
+import { batchedFetch } from '@/utils'
 
 function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)
@@ -19,30 +19,29 @@ function getSongUrl(id: string, source: SongSource) {
   return `/api/midi?id=${id}&source=${source}`
 }
 
-export function useSong(id: string, source: SongSource): FetchState<Song> {
-  const url =
-    id && source && (source === 'midishare' || source === 'builtin')
-      ? getSongUrl(id, source)
-      : undefined
-  const fetchState = useFetch(url, handleSong)
-  const uploadState: FetchState<Song> = useMemo(() => {
-    if (source !== 'upload') {
-      return { status: 'idle' }
-    }
-
-    const data = getUploadedSong(id)
-    if (data) {
-      return { status: 'success', data }
-    } else {
-      return { status: 'error', error: new Error(`Could not find uploaded song: ${id}`) }
-    }
-  }, [id, source])
-
-  return source === 'upload' ? uploadState : fetchState
+function getBase64Song(data: string): Song {
+  const binaryMidi = Buffer.from(decodeURIComponent(data), 'base64')
+  return parseMidi(binaryMidi.buffer)
 }
 
-export function useBase64Song(data: string): Song {
-  return convertBase64MidiToSong(data)
+function fetchSong(id: string, source: SongSource): Promise<Song> {
+  if (source === 'midishare' || source === 'builtin') {
+    const url = getSongUrl(id, source)
+    return batchedFetch(url).then(handleSong)
+  } else if (source === 'base64') {
+    return Promise.resolve(getBase64Song(id))
+  } else if (source === 'upload') {
+    return Promise.resolve(getUploadedSong(id)).then((res) =>
+      res === null ? Promise.reject(new Error('Could not find song')) : res,
+    )
+  }
+
+  return Promise.reject(new Error(`Could not get song for ${id}, ${source}`))
+}
+
+export function useSong(id: string, source: SongSource): FetchState<Song> {
+  const getResource = useCallback(() => fetchSong(id, source), [id, source])
+  return useRemoteResource(getResource)
 }
 
 // TODO: replace with a signals-like library, so that setting from one component is reflected elsewhere.

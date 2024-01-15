@@ -1,7 +1,6 @@
 import { isBrowser } from '@/utils'
 import gmInstruments from './instruments'
 import { getAudioContext, getKeyForSoundfont } from './utils'
-import { getRecordingDestinationNode } from '@/features/SongRecording'
 import { SoundFont, Synth, InstrumentName } from './types'
 import { loadInstrument, soundfonts } from './loadInstrument'
 
@@ -98,8 +97,6 @@ class InstrumentSynth implements Synth {
 
     sourceNode.connect(gainNode)
     gainNode.connect(this.audioContext.destination)
-    const recordingDestinationNode = getRecordingDestinationNode();
-    if (recordingDestinationNode) gainNode.connect(recordingDestinationNode)
     sourceNode.start()
 
     this.playing.set(note, { gainNode, velocity, sourceNode })

@@ -1,7 +1,9 @@
 import { getNote } from '@/features/theory'
+import { Midi } from '@tonejs/midi'
 import { MidiStateEvent } from '@/types'
 import { isBrowser } from '@/utils'
-import { getRecordedMidiEvents } from '@/features/SongRecording'
+import { useRef, useState } from 'react'
+import { parseMidi } from '../parsers'
 
 export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {
@@ -63,7 +65,7 @@ function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
     type: command === 0x9 ? 'on' : 'off',
     note: data[1],
     velocity: data[2],
-    timeStamp: event.timeStamp
+    timeStamp: event.timeStamp,
   }
 }
 
@@ -161,14 +163,87 @@ function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
     return
   }
 
-  getRecordedMidiEvents()?.push(msg)
-
   const { note, velocity } = msg
   if (msg.type === 'on' && msg.velocity > 0) {
     midiState.press(note, velocity)
   } else {
     midiState.release(note)
   }
+}
+
+// This function doesn't yet handle notes left open when record was clicked. It
+// should close those notes.
+function midiEventsToMidi(events: MidiEvent[]) {
+  const midi = new Midi()
+  const track = midi.addTrack()
+  const openNotes = new Map<number, MidiEvent>()
+  for (const event of events) {
+    if (event.type === 'on') {
+      openNotes.set(event.note, event)
+    } else {
+      const start = openNotes.get(event.note)
+      if (!start) {
+        continue
+      }
+      openNotes.delete(event.note)
+      const end = event
+      track.addNote({
+        midi: start.note,
+        time: start.timeStamp / 1000,
+        duration: (end.timeStamp - start.timeStamp) / 1000,
+        velocity: start.velocity,
+        noteOffVelocity: end.velocity,
+      })
+    }
+  }
+
+  return midi.toArray()
+}
+
+export function record(midiState: MidiState) {
+  const recording: MidiEvent[] = []
+  // Offset times so first note in the recording occurs at ts=0
+  let initialTime: number | null = null
+  function listener(midiStateEvent: MidiStateEvent) {
+    if (initialTime === null) {
+      initialTime = midiStateEvent.time
+    }
+    const midiEvent: MidiEvent = {
+      type: midiStateEvent.type === 'down' ? 'on' : 'off',
+      velocity: midiStateEvent.velocity ?? 127,
+      note: midiStateEvent.note,
+      timeStamp: midiStateEvent.time - initialTime,
+    }
+    recording.push(midiEvent)
+  }
+  midiState.subscribe(listener)
+  return () => {
+    midiState.unsubscribe(listener)
+    if (recording.length > 0) {
+      return midiEventsToMidi(recording)
+    }
+    return null
+  }
+}
+
+export function useRecordMidi(state = midiState) {
+  const [isRecording, setIsRecording] = useState(false)
+  const recordCb = useRef<(() => Uint8Array) | undefined>(undefined)
+  function startRecording() {
+    setIsRecording(true)
+    if (recordCb.current) {
+      recordCb.current?.()
+    }
+    recordCb.current = record(state)
+  }
+  function stopRecording() {
+    setIsRecording(false)
+    const midiBytes = recordCb.current?.() ?? new Uint8Array()
+    recordCb.current = undefined
+    return midiBytes
+  }
+
+  return { startRecording, stopRecording, isRecording }
 }
 
 export default midiState

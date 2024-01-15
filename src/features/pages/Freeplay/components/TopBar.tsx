@@ -16,9 +16,17 @@ type TopBarProps = {
   onClickRecord: (e: MouseEvent<any>) => void
 }
 
-export default function TopBar({ isError, isLoading, isRecordingAudio, value, onChange, onClickMidi, onClickRecord }: TopBarProps) {
-  const recordTooltip = isRecordingAudio? "Save record" : "Start recording audio";
-  
+export default function TopBar({
+  isError,
+  isLoading,
+  isRecordingAudio,
+  value,
+  onChange,
+  onClickMidi,
+  onClickRecord,
+}: TopBarProps) {
+  const recordTooltip = isRecordingAudio ? 'Save record' : 'Start recording audio'
+
   return (
     <div className="px-4 text-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center gap-4">
       <ButtonWithTooltip tooltip="Back">
@@ -27,7 +35,7 @@ export default function TopBar({ isError, isLoading, isRecordingAudio, value, on
         </Link>
       </ButtonWithTooltip>
       <ButtonWithTooltip tooltip={recordTooltip} className="ml-auto" onClick={onClickRecord}>
-        {isRecordingAudio? <StopRecord size={24} /> : <StartRecord size={24} />}
+        {isRecordingAudio ? <StopRecord size={24} /> : <StartRecord size={24} />}
       </ButtonWithTooltip>
       <ButtonWithTooltip tooltip="Choose a MIDI device" onClick={onClickMidi}>
         <Midi size={24} />

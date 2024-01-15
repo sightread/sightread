@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { MidiStateEvent, SongConfig } from '@/types'
 import { SongVisualizer } from '@/features/SongVisualization'
 import { InstrumentName, useSynth } from '@/features/synth'
-import { startRecordingAudio, startRecordingMidi, stopRecordingAudio, stopRecordingMidi } from '@/features/SongRecording'
-import midiState from '@/features/midi'
+import midiState, { useRecordMidi } from '@/features/midi'
 import { useSingleton } from '@/hooks'
 import FreePlayer from './utils/freePlayer'
 import TopBar from './components/TopBar'
+import RecordingModal from './components/RecordingModal'
 import Head from 'next/head'
 import { MidiModal } from '../PlaySong/components/MidiModal'
 
@@ -15,7 +15,8 @@ export default function FreePlay() {
   const synthState = useSynth(instrumentName)
   const freePlayer = useSingleton(() => new FreePlayer())
   const [isMidiModalOpen, setMidiModal] = useState(false)
-  const [isRecordingAudio, setRecordingAudio] = useState(false)
+  const { isRecording, startRecording, stopRecording } = useRecordMidi(midiState)
+  const [recordingPreview, setRecordingPreview] = useState('')
 
   const handleNoteDown = useCallback(
     (note: number, velocity: number = 80) => {
@@ -60,23 +61,28 @@ export default function FreePlay() {
           }}
           onClickRecord={(e) => {
             e.stopPropagation()
-            if (!isRecordingAudio) {
-              //startRecordingAudio()
-              startRecordingMidi()
-              setRecordingAudio(true)
+            if (!isRecording) {
+              startRecording()
             } else {
-              //stopRecordingAudio()
-              stopRecordingMidi()
-              setRecordingAudio(false)
+              const midiBytes = stopRecording()
+              if (midiBytes !== null) {
+                const base64MidiData = Buffer.from(midiBytes).toString('base64')
+                setRecordingPreview(base64MidiData)
+              }
             }
           }}
-          isRecordingAudio={isRecordingAudio}
+          isRecordingAudio={isRecording}
           isLoading={synthState.loading}
           isError={synthState.error}
           value={instrumentName}
           onChange={(name) => setInstrumentName(name)}
         />
         <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
+        <RecordingModal
+          show={recordingPreview.length > 0}
+          onClose={() => setRecordingPreview('')}
+          songMeta={{ source: 'base64', id: recordingPreview }}
+        />
         <div className="flex-grow relative">
           <SongVisualizer
             song={freePlayer.song}
