@@ -50,6 +50,6 @@ export function useRemoteResource<T>(getResource: () => Promise<T>): FetchState<
  * Caches the result forever.
  */
 export function useFetch(url: string): FetchState<Response> {
-  const getResource = useCallback(() => batchedFetch(url), [url, batchedFetch])
+  const getResource = useCallback(() => batchedFetch(url), [url])
   return useRemoteResource(getResource)
 }

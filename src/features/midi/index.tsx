@@ -212,7 +212,7 @@ export function record(midiState: MidiState) {
       type: midiStateEvent.type === 'down' ? 'on' : 'off',
       velocity: midiStateEvent.velocity ?? 127,
       note: midiStateEvent.note,
-      timeStamp: midiStateEvent.time - initialTime,
+      timeStamp: midiStateEvent.time - initialTime!,
     }
     recording.push(midiEvent)
   }
@@ -228,9 +228,10 @@ export function record(midiState: MidiState) {
 
 export function useRecordMidi(state = midiState) {
   const [isRecording, setIsRecording] = useState(false)
-  const recordCb = useRef<(() => Uint8Array) | undefined>(undefined)
+  const recordCb = useRef<(() => Uint8Array | null) | null>(null)
   function startRecording() {
     setIsRecording(true)
+    // Cleanup whatever recording was already happening
     if (recordCb.current) {
       recordCb.current?.()
     }
@@ -239,7 +240,7 @@ export function useRecordMidi(state = midiState) {
   function stopRecording() {
     setIsRecording(false)
     const midiBytes = recordCb.current?.() ?? new Uint8Array()
-    recordCb.current = undefined
+    recordCb.current = null
     return midiBytes
   }
 
