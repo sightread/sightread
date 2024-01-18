@@ -150,9 +150,8 @@ function MusicSelectionSection() {
       </p>
       <p>
         If you can’t find the music you’re looking for on midishare, a Google search is your best
-        bet. Or you can send me an{' '}
-        <AboutLink href="mailto:midishare.dev@gmail.com">email</AboutLink> and we’ll try to help
-        out.
+        bet. Or you can send me an <AboutLink href="mailto:sightreadllc@gmail.com">email</AboutLink>{' '}
+        and I’ll try to help out.
       </p>
     </Article>
   )
