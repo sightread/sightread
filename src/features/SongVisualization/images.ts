@@ -11,7 +11,8 @@ if (isBrowser()) {
     })
   }
 } else if (process.env.RENDER) {
-  loadImage = (src: string) => require('skia-canvas').loadImage(`${process.cwd()}/public${src}`)
+  // loadImage = (src: string) => require('skia-canvas').loadImage(`${process.cwd()}/public${src}`)
+  loadImage = () => Promise.resolve()
 } else {
   loadImage = () => Promise.resolve()
 }
