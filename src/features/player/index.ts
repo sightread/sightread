@@ -357,6 +357,7 @@ class Player {
 
   playNote(note: SongNote) {
     this.synths[note.track].playNote(note.midiNote, note.velocity)
+    midi.press_output(note.midiNote)
   }
 
   stopNotes(notes: Array<SongNote>) {
@@ -365,6 +366,7 @@ class Player {
     }
     for (let note of notes) {
       this.synths[note.track].stopNote(note.midiNote)
+      midi.release_output(note.midiNote)
     }
   }
 

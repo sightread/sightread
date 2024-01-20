@@ -3,6 +3,7 @@ import gmInstruments from './instruments'
 import { getAudioContext, getKeyForSoundfont } from './utils'
 import { SoundFont, Synth, InstrumentName } from './types'
 import { loadInstrument, soundfonts } from './loadInstrument'
+import midi from '../midi'
 
 function isValidInstrument(instrument: InstrumentName | undefined) {
   return instrument && gmInstruments.find((s) => s === instrument)
@@ -50,9 +51,11 @@ class SynthStub implements Synth {
   }
   playNote(note: number) {
     this.synth?.playNote(note)
+    midi.press_output(note)
   }
   stopNote(note: number) {
     this.synth?.stopNote(note)
+    midi.release_output(note)
   }
   setMasterVolume(vol: number) {
     this.masterVolume = vol

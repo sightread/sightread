@@ -19,7 +19,23 @@ export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
   }
 }
 
+export async function getMidiOutputs(): Promise<WebMidi.MIDIOutputMap> {
+  if (!isBrowser() || !window.navigator.requestMIDIAccess) {
+    return new Map()
+  }
+
+  try {
+    const midiAccess = await window.navigator.requestMIDIAccess()
+    return midiAccess.outputs
+  } catch (error) {
+    console.error('Error accessing MIDI devices: ' + error)
+    return new Map()
+  }
+}
+
 const enabledDevices: Map<string, WebMidi.MIDIInput> = new Map()
+const enabledDevicesOutput: Map<string, WebMidi.MIDIOutput> = new Map()
+
 export function isMidiDeviceEnabled(device: WebMidi.MIDIInput) {
   return enabledDevices.has(device.id)
 }
@@ -28,6 +44,11 @@ export function enableMidiDevice(device: WebMidi.MIDIInput) {
   device.addEventListener('midimessage', onMidiMessage)
   enabledDevices.set(device.id, device)
 }
+export function enableMidiDeviceOutput(device: WebMidi.MIDIOutput) {
+  device.open()
+  enabledDevicesOutput.set(device.id, device)
+}
+
 export function disableMidiDevice(deviceParam: WebMidi.MIDIInput) {
   const device = enabledDevices.get(deviceParam.id)
   if (!device) {
@@ -41,8 +62,13 @@ export function disableMidiDevice(deviceParam: WebMidi.MIDIInput) {
 setupMidiDeviceListeners()
 async function setupMidiDeviceListeners() {
   const inputs = await getMidiInputs()
+  const outputs = await getMidiOutputs()
   for (const device of inputs.values()) {
     enableMidiDevice(device)
+  }
+
+  for (const output of outputs.values()) {
+    enableMidiDeviceOutput(output)
   }
 }
 
@@ -135,10 +161,31 @@ class MidiState {
     this.pressedNotes.set(note, { time, vel: velocity })
     this.notify({ note, velocity, type: 'down', time })
   }
+  press_output(note: number) {
+    for (const output of enabledDevicesOutput) {
+      var data=[
+        0x90,
+        note,
+        0x7f
+      ]
+      output[1]?.send(data)
+    }
+  }
 
   release(note: number) {
     this.pressedNotes.delete(note)
     this.notify({ note, type: 'up', time: Date.now() })
+  }
+
+  release_output(note: number) {
+    for (const output of enabledDevicesOutput) {
+      var data=[
+        0x80,
+        note,
+        0x7f
+      ]
+      output[1]?.send(data)
+    }
   }
 
   notify(e: MidiStateEvent) {
