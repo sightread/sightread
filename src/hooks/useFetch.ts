@@ -1,4 +1,3 @@
-import { batchedFetch } from '@/utils'
 import { useCallback, useEffect, useReducer } from 'react'
 
 type FetchStatus = 'idle' | 'pending' | 'success' | 'error'
@@ -26,17 +25,24 @@ function reducer<T>(state: FetchState<T>, action: FetchAction<T>): FetchState<T>
   return state
 }
 
+// TODO: there's some major bug here!
 export function useRemoteResource<T>(getResource: () => Promise<T>): FetchState<T> {
   const [state, dispatch] = useReducer<typeof reducer<T>>(reducer, { status: 'idle' })
 
   useEffect(() => {
     if (typeof getResource === 'undefined') {
+      dispatch({ type: 'error', error: new Error('getResource is undefined') })
       return
     }
     dispatch({ type: 'pending' })
     getResource()
-      .then((data: T) => dispatch({ type: 'success', data }))
-      .catch((error: Error) => dispatch({ type: 'error', error }))
+      .then((data: T) => {
+        dispatch({ type: 'success', data })
+      })
+      .catch((error: Error) => {
+        console.error(`Error occured while fetching remote resource`, error)
+        dispatch({ type: 'error', error })
+      })
   }, [getResource])
 
   return state
@@ -50,6 +56,6 @@ export function useRemoteResource<T>(getResource: () => Promise<T>): FetchState<
  * Caches the result forever.
  */
 export function useFetch(url: string): FetchState<Response> {
-  const getResource = useCallback(() => batchedFetch(url), [url])
+  const getResource = useCallback(() => fetch(url), [url])
   return useRemoteResource(getResource)
 }

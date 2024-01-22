@@ -2,10 +2,8 @@ import { parseMidi } from '@/features/parsers'
 import { Song, SongMetadata, SongSource } from '@/types'
 import { getUploadedSong } from '@/features/persist'
 import * as library from './library'
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
-import { useFetch } from '@/hooks'
-import { FetchState, useRemoteResource } from '@/hooks/useFetch'
-import { batchedFetch } from '@/utils'
+import { useCallback, useMemo, useState } from 'react'
+import { FetchState, useRemoteResource } from '@/hooks'
 
 function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)
@@ -27,7 +25,7 @@ function getBase64Song(data: string): Song {
 function fetchSong(id: string, source: SongSource): Promise<Song> {
   if (source === 'midishare' || source === 'builtin') {
     const url = getSongUrl(id, source)
-    return batchedFetch(url).then(handleSong)
+    return fetch(url).then(handleSong)
   } else if (source === 'base64') {
     return Promise.resolve(getBase64Song(id))
   } else if (source === 'upload') {
@@ -40,8 +38,11 @@ function fetchSong(id: string, source: SongSource): Promise<Song> {
 }
 
 export function useSong(id: string, source: SongSource): FetchState<Song> {
-  const getResource = useCallback(() => fetchSong(id, source), [id, source])
-  return useRemoteResource(getResource)
+  const getResource = useCallback(() => {
+    return fetchSong(id, source)
+  }, [id, source])
+  const song = useRemoteResource(getResource)
+  return song
 }
 
 // TODO: replace with a signals-like library, so that setting from one component is reflected elsewhere.

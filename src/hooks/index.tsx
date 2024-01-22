@@ -1,5 +1,5 @@
 export { default as useEventListener } from './useEventListener'
-export { useFetch } from './useFetch'
+export { useFetch, useRemoteResource, type FetchState } from './useFetch'
 export { default as useMidiInputs } from './useMidiInputs'
 export { default as useMidiOutputs } from './useMidiOutputs'
 export { default as useOnUnmount } from './useOnUnmount'

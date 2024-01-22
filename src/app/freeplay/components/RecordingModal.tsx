@@ -1,24 +1,37 @@
-'use client'
 import * as React from 'react'
-import { SongScrubBar } from '../controls'
+import { SongScrubBar } from '@/features/controls'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { Modal, Sizer } from '@/components'
-import PreviewIcon from './PreviewIcon'
-import { SongMetadata } from '@/types'
-import { SongPreview } from './SongPreview'
-import Link from 'next/link'
+import { SongSource } from '@/types'
+import { SongPreview } from '@/features/SongPreview/SongPreview'
+import PreviewIcon from '@/features/SongPreview/PreviewIcon'
+import { Share, Download } from '@/icons'
+
+// A function to copy a string to the clipboard
+function copyToClipboard(text: string) {
+  navigator.clipboard?.writeText(text)
+}
+
+function downloadBase64Midi(midiBase64: string) {
+  const midiBytes = Buffer.from(midiBase64, 'base64')
+  const midiBlob = new Blob([midiBytes], { type: 'audio/midi' })
+  const downloadLink = document.createElement('a')
+  downloadLink.href = URL.createObjectURL(midiBlob)
+  downloadLink.download = 'recording.mid'
+  downloadLink.click()
+}
 
 type ModalProps = {
   show: boolean
   onClose: () => void
-  songMeta?: SongMetadata
+  songMeta?: { source: SongSource; id: string }
 }
 export default function SongPreviewModal({
   show = true,
   onClose = () => {},
   songMeta = undefined,
 }: ModalProps) {
-  const { title, artist, id, source } = songMeta ?? {}
+  const { id, source } = songMeta ?? {}
   const [playerState, playerActions] = usePlayerState()
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
@@ -43,8 +56,8 @@ export default function SongPreviewModal({
     <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
       <div className="flex flex-col gap-3 p-8">
         <div className="flex flex-col w-full whitespace-nowrap">
-          <span className="font-semibold text-2xl">{title}</span>
-          <span className="overflow-hidden text-base text-gray-500">{artist}</span>
+          <span className="font-semibold text-2xl">Preview your recording</span>
+          {/* <span className="overflow-hidden text-base text-gray-500"></span> */}
         </div>
         <div className="flex rounded-md flex-col flex-grow overflow-hidden">
           <div className="relative">
@@ -73,12 +86,26 @@ export default function SongPreviewModal({
             {id && source && <SongPreview songId={id} source={source} />}
           </div>
           <Sizer height={16} />
-          <Link
-            href={`/play?id=${id}&source=${source}`}
-            className="flex w-full text-white h-10 border-none rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover items-center justify-center"
-          >
-            Play Now
-          </Link>
+          <div className="flex w-full gap-4">
+            <button
+              className="w-full text-black h-10 cursor-pointer rounded-md text-xl transition border-purple-primary border bg-white hover:bg-purple-primary hover:text-white flex items-center gap-2 px-1 justify-center"
+              onClick={() => {
+                const origin = window.location.origin
+                const url = `${origin}/play/?source=base64&id=${id}`
+                copyToClipboard(url)
+              }}
+            >
+              <Share />
+              Copy Share URL
+            </button>
+            <button
+              className="w-full text-white h-10 border-none cursor-pointer rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover flex items-center gap-2 justify-center px-1"
+              onClick={() => downloadBase64Midi(id)}
+            >
+              <Download />
+              Download MIDI
+            </button>
+          </div>
         </div>
       </div>
     </Modal>

@@ -1,11 +1,16 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { computed, ReadonlySignal, signal, Signal } from '@preact/signals-react'
 import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
+import { atom, getDefaultStore, Atom, PrimitiveAtom } from 'jotai'
 import { InstrumentName } from '@/features/synth'
 import { getHands, isBrowser, round } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
 import { getAudioContext } from '../synth/utils'
+
+const store = getDefaultStore()
+function increment(x: number) {
+  return x + 1
+}
 
 let player: Player
 
@@ -13,32 +18,32 @@ const GOOD_RANGE = 300
 const PERFECT_RANGE = 150
 
 interface Score {
-  perfect: Signal<number>
-  good: Signal<number>
-  miss: Signal<number>
-  durationHeld: Signal<number>
-  pointless: Signal<number>
-  combined: Signal<number>
-  accuracy: Signal<number>
-  streak: Signal<number>
+  perfect: PrimitiveAtom<number>
+  good: PrimitiveAtom<number>
+  miss: PrimitiveAtom<number>
+  durationHeld: PrimitiveAtom<number>
+  pointless: PrimitiveAtom<number>
+  combined: Atom<number>
+  accuracy: Atom<number>
+  streak: PrimitiveAtom<number>
 }
 
 function getInitialScore(): Score {
-  const perfect = signal(0)
-  const good = signal(0)
-  const miss = signal(0)
-  const pointless = signal(0)
-  const durationHeld = signal(0)
-  const streak = signal(0)
-  const combined = computed(
-    () => perfect.value * 100 + good.value * 50 - pointless.value * 25 + durationHeld.value,
+  const perfect = atom(0)
+  const good = atom(0)
+  const miss = atom(0)
+  const pointless = atom(0)
+  const durationHeld = atom(0)
+  const streak = atom(0)
+  const combined = atom(
+    (get) => get(perfect) * 100 + get(good) * 50 - get(pointless) * 25 + get(durationHeld),
   )
 
-  const accuracy = computed(() => {
-    if (perfect.value + good.value + miss.value === 0) {
+  const accuracy = atom((get) => {
+    if (get(perfect) + get(good) + get(miss) === 0) {
       return 100
     }
-    return round((100 * (perfect.value + good.value)) / (perfect.value + good.value + miss.value))
+    return round((100 * (get(perfect) + get(good))) / (get(perfect) + get(good) + get(miss)))
   })
 
   return { perfect, good, miss, pointless, durationHeld, combined, accuracy, streak }
@@ -46,20 +51,20 @@ function getInitialScore(): Score {
 
 export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
 class Player {
-  state: Signal<PlayerState> = signal('CannotPlay')
+  state: PrimitiveAtom<PlayerState> = atom<PlayerState>('CannotPlay')
   score: Score = getInitialScore()
-  song: Signal<Song | null> = signal(null)
+  song: PrimitiveAtom<Song | null> = atom<Song | null>(null)
   playInterval: any = null
   currentSongTime = 0
-  volume = signal(1)
+  volume = atom(1)
 
   // TODO: Determine if MIDI always assumes BPM means quarter notes per minute.
   // Add link to documentation if so.
-  bpmModifier = signal(1)
-  currentBpmIndex = signal(0)
-  currentBpm: ReadonlySignal<number> = computed(() => {
-    const currSongBpm = this.song.value?.bpms[this.currentBpmIndex.value]?.bpm ?? 120
-    return currSongBpm * this.bpmModifier.value
+  bpmModifier = atom(1)
+  currentBpmIndex = atom(0)
+  currentBpm: Atom<number> = atom((get) => {
+    const currSongBpm = get(this.song)?.bpms[get(this.currentBpmIndex)]?.bpm ?? 120
+    return currSongBpm * get(this.bpmModifier)
   })
 
   currentIndex: number = 0
@@ -83,7 +88,7 @@ class Player {
   }
 
   getSong() {
-    return this.song.value
+    return store.get(this.song)
   }
 
   clearMissedNotes_() {
@@ -97,9 +102,9 @@ class Player {
       }
     }
     if (missedNotes > 0) {
-      this.score.streak.value = 0
+      store.set(this.score.streak, 0)
     }
-    this.score.miss.value += missedNotes
+    store.set(this.score.miss, (count) => count + missedNotes)
   }
 
   processMidiEvent(midiEvent: MidiStateEvent) {
@@ -125,12 +130,12 @@ class Player {
       const diff = this.calcDiff(currentTime, lateNote.time)
       const isHit = diff < GOOD_RANGE
       if (diff < PERFECT_RANGE) {
-        this.score.perfect.value++
+        store.set(this.score.perfect, increment)
       } else if (diff < GOOD_RANGE) {
-        this.score.good.value++
+        store.set(this.score.good, increment)
       }
       if (isHit) {
-        this.score.streak.value++
+        store.set(this.score.streak, increment)
         this.hitNotes.add(lateNote)
         if (this.skipMissedNotes) {
           this.playNote(lateNote)
@@ -144,27 +149,27 @@ class Player {
     if (nextNote && !isHitNote(nextNote)) {
       const diff = this.calcDiff(nextNote.time, this.currentSongTime)
       if (diff < PERFECT_RANGE) {
-        this.score.perfect.value++
+        store.set(this.score.perfect, increment)
       } else if (diff < GOOD_RANGE) {
-        this.score.good.value++
+        store.set(this.score.good, increment)
       }
-      this.score.streak.value++
+      store.set(this.score.streak, increment)
       this.hitNotes.add(nextNote)
       return
     }
 
-    this.score.pointless.value++
-    this.score.streak.value = 0
+    store.set(this.score.pointless, increment)
+    store.set(this.score.streak, 0)
   }
 
   // Given two song timestamps, return their difference in milliseconds after adjusting for the bpm modifier
   calcDiff(to: number, from: number) {
-    return ((to - from) * 1000) / this.bpmModifier.value
+    return ((to - from) * 1000) / store.get(this.bpmModifier)
   }
 
   /* Return all notes that are valid to hit */
   getNextNotes() {
-    const song = this.song?.value
+    const song = !!this.song ? store.get(this.song) : null
     const nextNote = song?.notes[this.currentIndex]
     if (!nextNote) {
       return
@@ -191,14 +196,14 @@ class Player {
   }
 
   isPlaying() {
-    return this.state.value === 'Playing'
+    return store.get(this.state) === 'Playing'
   }
 
   async setSong(song: Song, songConfig: SongConfig) {
     this.stop()
-    this.song.value = song
+    store.set(this.song, song)
     this.songHands = getHands(songConfig)
-    this.state.value = 'CannotPlay'
+    store.set(this.state, 'CannotPlay')
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
@@ -210,14 +215,14 @@ class Player {
     })
     await Promise.all(synths).then((s) => {
       this.synths = s
-      this.state.value = 'Paused'
+      store.set(this.state, 'Paused')
     })
     // this.skipMissedNotes = songConfig.skipMissedNotes
     this.wait = songConfig.waiting
   }
 
   setVolume(vol: number) {
-    this.volume.value = vol
+    store.set(this.volume, vol)
     this.synths?.forEach((synth) => {
       synth?.setMasterVolume(vol)
     })
@@ -282,19 +287,19 @@ class Player {
 
   increaseBpm() {
     const delta = 0.05
-    this.bpmModifier.value = round(this.bpmModifier.value + delta, 2)
+    store.set(this.bpmModifier, round(store.get(this.bpmModifier) + delta, 2))
     const backingTrack = this.getSong()?.backing
     if (backingTrack) {
-      backingTrack.playbackRate = this.bpmModifier.value
+      backingTrack.playbackRate = store.get(this.bpmModifier)
     }
   }
 
   decreaseBpm() {
     const delta = 0.05
-    this.bpmModifier.value = round(this.bpmModifier.value - delta, 2)
+    store.set(this.bpmModifier, round(store.get(this.bpmModifier) - delta, 2))
     const backingTrack = this.getSong()?.backing
     if (backingTrack) {
-      backingTrack.playbackRate = this.bpmModifier.value
+      backingTrack.playbackRate = store.get(this.bpmModifier)
     }
   }
 
@@ -333,7 +338,7 @@ class Player {
   }
 
   play() {
-    if (this.isPlaying() || this.state.value === 'CannotPlay') {
+    if (this.isPlaying() || store.get(this.state) === 'CannotPlay') {
       return
     }
 
@@ -347,7 +352,7 @@ class Player {
       backingTrack.volume = 0.15
       backingTrack.play()
     }
-    this.state.value = 'Playing'
+    store.set(this.state, 'Playing')
 
     this.lastIntervalFiredTime = performance.now()
     this.playInterval = setInterval(() => this.playLoop_(), 1)
@@ -378,7 +383,7 @@ class Player {
     let dt = 0
     if (this.isPlaying()) {
       const now = performance.now()
-      dt = (now - this.lastIntervalFiredTime) * this.bpmModifier.value
+      dt = (now - this.lastIntervalFiredTime) * store.get(this.bpmModifier)
       this.lastIntervalFiredTime = now
       this.currentSongTime += dt / 1000
     }
@@ -410,8 +415,8 @@ class Player {
       }
     }
 
-    if (song.bpms[this.currentBpmIndex.value + 1]?.time < time) {
-      this.currentBpmIndex.value++
+    if (song.bpms[store.get(this.currentBpmIndex) + 1]?.time < time) {
+      store.set(this.currentBpmIndex, increment)
     }
     const stillPlaying = (n: SongNote) => n.time + n.duration > time
     this.stopNotes(this.playing.filter((n) => !stillPlaying(n)))
@@ -423,7 +428,7 @@ class Player {
       (n) => this.midiPressedNotes.has(n.midiNote) && this.hitNotes.has(n),
     ).length
     if (heldNotes > 0) {
-      this.score.durationHeld.value += heldNotes
+      store.set(this.score.durationHeld, (duration) => duration + heldNotes)
     }
 
     while (song.notes[this.currentIndex]?.time < time) {
@@ -462,9 +467,9 @@ class Player {
     if (!this.isPlaying()) {
       return
     }
-    this.state.value = 'Paused'
+    store.set(this.state, 'Paused')
     clearInterval(this.playInterval)
-    this.song.value?.backing?.pause()
+    store.get(this.song)?.backing?.pause()
     this.playInterval = null
     this.stopAllSounds()
   }
@@ -480,18 +485,19 @@ class Player {
     this.playing = []
     this.range = null
     this.lateNotes.clear()
-    if (this.song.value?.backing) {
-      this.song.value.backing.currentTime = 0
+    const backingTrack = store.get(this.song)?.backing
+    if (backingTrack) {
+      backingTrack.currentTime = 0
     }
 
     this.hitNotes.clear()
     this.missedNotes.clear()
-    this.score.good.value = 0
-    this.score.miss.value = 0
-    this.score.perfect.value = 0
-    this.score.pointless.value = 0
-    this.score.durationHeld.value = 0
-    this.score.streak.value = 0
+    store.set(this.score.good, 0)
+    store.set(this.score.miss, 0)
+    store.set(this.score.perfect, 0)
+    store.set(this.score.pointless, 0)
+    store.set(this.score.durationHeld, 0)
+    store.set(this.score.streak, 0)
   }
 
   seek(time: number) {
@@ -510,7 +516,7 @@ class Player {
     })
     song.notes.findIndex((note) => note.time >= this.currentSongTime)
     this.currentIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
-    this.currentBpmIndex.value = this.getBpmIndexForTime(time)
+    store.set(this.currentBpmIndex, this.getBpmIndexForTime(time))
 
     this.missedNotes.clear()
     this.hitNotes.clear()
@@ -523,7 +529,7 @@ class Player {
   }
 
   getDuration() {
-    return this.song.value?.duration ?? 0
+    return store.get(this.song)?.duration ?? 0
   }
 
   setRange(range?: { start: number; end: number }) {

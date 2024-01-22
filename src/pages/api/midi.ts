@@ -5,7 +5,6 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import fs, { ReadStream } from 'fs'
 import { SongMetadata } from '@/types'
 import https from 'https'
-import { NextResponse } from 'next/server'
 
 const songManifest = require('@/manifest.json')
 const map: Map<string, SongMetadata> = new Map(songManifest.map((s: SongMetadata) => [s.id, s]))

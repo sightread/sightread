@@ -3,7 +3,11 @@ import { AppBar, Sizer } from '@/components'
 import Link from 'next/link'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
-import Head from 'next/head'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Sightread: About',
+}
 
 function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
   return (
@@ -16,9 +20,6 @@ function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
 export default function AboutPage() {
   return (
     <>
-      <Head>
-        <title>Sightread: About</title>
-      </Head>
       <div className="relative">
         <AppBar />
         <div className="md:bg-purple-lightest">

@@ -1,15 +1,16 @@
 import { AppBar, Sizer } from '@/components'
 import Link from 'next/link'
 import React from 'react'
-import Head from 'next/head'
+import { Metadata } from 'next'
 import { FeaturedSongsPreview } from './home/FeaturedSongsPreview'
+
+export const metadata: Metadata = {
+  title: 'Sightread',
+}
 
 export default function Home() {
   return (
     <>
-      <Head>
-        <title>Sightread</title>
-      </Head>
       <div className="relative flex flex-col w-full min-h-[800px,100vh] text-white">
         <AppBar />
         <div className="p-8 bg-purple-primary flex flex-col items-center text-center">

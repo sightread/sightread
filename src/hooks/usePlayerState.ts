@@ -1,5 +1,6 @@
 import Player from '@/features/player'
 import { useMemo } from 'react'
+import { useAtomValue } from 'jotai'
 
 type PlayerDispatcher = {
   play: () => void
@@ -15,7 +16,7 @@ type PlayerStateHookReturn = [
 
 export default function usePlayerState(): PlayerStateHookReturn {
   const player = Player.player()
-  const state = player.state.value
+  const state = useAtomValue(player.state)
 
   const dispatcher: PlayerDispatcher = useMemo(
     () => ({
