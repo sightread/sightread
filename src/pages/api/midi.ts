@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   } else {
     // TODO(samouri): determine why the former URL is blocked by CF.
     // stream = await get(`https://midishare.dev/api/midi?id=${id}`)
-    const response = await fetch(`https://midishare.dev/api/midi?id=${id}`)
+    // const response = await fetch(`https://midishare.dev/api/midi?id=${id}`)
     // stream = dStream.fromWeb(response.body!)
     stream = await get(`https://assets.midishare.dev/scores/${id}/${id}.mid`)
   }

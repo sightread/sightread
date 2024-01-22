@@ -3,7 +3,7 @@ import { Song, SongMetadata, SongSource } from '@/types'
 import { getUploadedSong } from '@/features/persist'
 import * as library from './library'
 import { useCallback, useMemo, useState } from 'react'
-import { FetchState, useRemoteResource } from '@/hooks'
+import useSWR, { type SWRResponse } from 'swr'
 
 function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)
@@ -37,12 +37,8 @@ function fetchSong(id: string, source: SongSource): Promise<Song> {
   return Promise.reject(new Error(`Could not get song for ${id}, ${source}`))
 }
 
-export function useSong(id: string, source: SongSource): FetchState<Song> {
-  const getResource = useCallback(() => {
-    return fetchSong(id, source)
-  }, [id, source])
-  const song = useRemoteResource(getResource)
-  return song
+export function useSong(id: string, source: SongSource): SWRResponse<Song, any, any> {
+  return useSWR([id, source], ([id, source]) => fetchSong(id, source))
 }
 
 // TODO: replace with a signals-like library, so that setting from one component is reflected elsewhere.

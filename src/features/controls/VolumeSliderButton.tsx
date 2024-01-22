@@ -1,10 +1,12 @@
 import { Dropdown, Slider } from '@/components'
 import { Volume2, VolumeX } from '@/icons'
+import { useAtomValue } from 'jotai'
 import Player from '../player'
 
 export function VolumeSliderButton() {
   const player = Player.player()
-  const isSoundOff = player.volume.value === 0
+  const volume = useAtomValue(player.volume)
+  const isSoundOff = volume === 0
   const toggleVolume = () => (isSoundOff ? player.setVolume(1) : player.setVolume(0))
 
   return (
@@ -22,14 +24,12 @@ export function VolumeSliderButton() {
           min={0}
           max={1}
           step={0.01}
-          value={[player.volume.value]}
+          value={[volume]}
           onValueChange={(val) => player.setVolume(val[0])}
           // Clicks to the volume slider shouldn't close other modal-like windows (e.g. SettingsPanel)
           onClick={(e) => e.stopPropagation()}
         />
-        <span className="text-black text-sm text-center">
-          {Math.round(Player.player().volume.value * 100)}
-        </span>
+        <span className="text-black text-sm text-center">{Math.round(volume * 100)}</span>
       </div>
     </Dropdown>
   )

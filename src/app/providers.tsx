@@ -1,9 +1,26 @@
 'use client'
-import { PropsWithChildren, ReactNode } from 'react'
+import { PropsWithChildren } from 'react'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
+import { Provider as JotaiProvider } from 'jotai'
+import { isBrowser } from '@/utils'
 
-// Why doesn't ReactNode work? Likely need to update radix
-// TODO: add Jotai here, so we don't have sec issues with SSR
-export function Providers({ children }: { children: any }) {
-  return <TooltipProvider>{children}</TooltipProvider>
+// By default, Jotai uses a single global store. This creates problems during
+// Next.js SSR where state could accidentally leak between requests for
+// different clients. Therefore, on server-only we render an extra Provider
+// which creates a store for just that request. See docs for details:
+// https://jotai.org/docs/guides/nextjs
+function MaybeJotaiProvider({ children }: PropsWithChildren<{}>) {
+  if (isBrowser()) {
+    return children
+  }
+  return <JotaiProvider>{children}</JotaiProvider>
+}
+
+export function Providers({ children }: PropsWithChildren<{}>) {
+  // TooltipProvider should accept ReactNode...strange that it doesn't.
+  return (
+    <MaybeJotaiProvider>
+      <TooltipProvider>{children as any}</TooltipProvider>
+    </MaybeJotaiProvider>
+  )
 }
