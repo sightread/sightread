@@ -1,8 +1,9 @@
+import '@/styles/global.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import '@/styles/global.css'
 import { Providers } from './providers'
 import { GA_TRACKING_ID } from '@/features/analytics'
+import { PropsWithChildren } from 'react'
 
 // TODO: maybe implement routeChangeComplete events in app router
 // React.useEffect(() => {
@@ -19,10 +20,10 @@ const fallingNotesScreenshot = {
   alt: 'Sightread demo displaying falling notes visualization',
 }
 export const metadata: Metadata = {
-  title: 'sightread',
+  title: 'Sightread',
   description: 'app for learning piano',
   openGraph: {
-    title: 'sightread',
+    title: 'Sightread',
     siteName: 'Sightread',
     description: 'app for learning piano',
     images: [fallingNotesScreenshot],
@@ -38,7 +39,7 @@ const inter = Inter({
   variable: '--primary-font-family',
 })
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: PropsWithChildren<{}>) {
   return (
     <html lang="en">
       <head>

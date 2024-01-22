@@ -1,12 +1,7 @@
 import { AppBar, Sizer } from '@/components'
 import Link from 'next/link'
 import React from 'react'
-import { Metadata } from 'next'
 import { FeaturedSongsPreview } from './home/FeaturedSongsPreview'
-
-export const metadata: Metadata = {
-  title: 'Sightread',
-}
 
 export default function Home() {
   return (
@@ -20,7 +15,7 @@ export default function Home() {
             Plug in your keyboard and learn, right in your browser
           </h3>
           <Sizer height={75 + 18} />
-        </div>{' '}
+        </div>
         <Sizer height={60} />
         <FeaturedSongsPreview />
         <div
@@ -36,7 +31,7 @@ export default function Home() {
             gap: 24,
           }}
         >
-          <h3 style={{ color: 'black', fontSize: 'clamp(1rem, 1rem + 1vw, 2rem)' }}>
+          <h3 className="text-black" style={{ fontSize: 'clamp(1rem, 1rem + 1vw, 2rem)' }}>
             Start learning
           </h3>
           <div
@@ -70,7 +65,7 @@ function Button({
   style,
   className,
 }: {
-  children?: React.ReactChild
+  children?: React.ReactNode
   style?: React.CSSProperties
   className?: string
 }) {
@@ -96,27 +91,4 @@ function Button({
 
 // TODO: Remove waterfall by sending needed MIDI data for the page via initial server render.
 //       Need to encode MIDI in a string. Base64 can help (1.37x space), unsure if there are more efficient ways.
-
-// import { MusicFile } from '@/types'
-// import { GetStaticProps } from 'next'
-// import fs from 'fs'
-
-// export const FEATURED_SONGS = {
-//   fur_elise: { source: 'builtin', id: 'b3decef157a073fbef49430250bb7015' },
-//   twinkle: { source: 'builtin', id: 'ec6acc14d631630c22ca796d0a5d5b0a' },
-//   moonlight: { source: 'builtin', id: '33e41ebf6367374ce7a5f033a5baa796' },
-// }
-
-// export const getStaticProps: GetStaticProps = async () => {
-//   const featuredSongIds = new Set(Object.values(FEATURED_SONGS).map((s) => s.id))
-//   const featuredSongBytes: ArrayBuffer[] = require('@/manifest.json')
-//     .filter((s: MusicFile) => featuredSongIds.has(s.id))
-//     .map((s: MusicFile) => {
-//       const path = `public/${s.file}`
-//       const buffer = new Uint8Array(fs.readFileSync(path)).buffer
-//       const base64String = btoa(String.fromCharCode(...new Uint8Array(buffer)))
-//       return base64String
-//     })
-
-//   return { props: { featuredSongBytes } }
-// }
+// Update: should be trivial now with RSC.

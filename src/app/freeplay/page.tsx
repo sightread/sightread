@@ -8,7 +8,6 @@ import { useSingleton } from '@/hooks'
 import FreePlayer from './utils/freePlayer'
 import TopBar from './components/TopBar'
 import RecordingModal from './components/RecordingModal'
-import Head from 'next/head'
 import { MidiModal } from '@/app/play/components/MidiModal'
 import { Metadata } from 'next'
 

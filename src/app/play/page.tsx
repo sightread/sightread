@@ -18,14 +18,8 @@ import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
 import { TopBar, SettingsPanel } from './components'
 import clsx from 'clsx'
-import Head from 'next/head'
 import { MidiModal } from './components/MidiModal'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Metadata } from 'next'
-
-// export const metadata: Metadata = {
-//   title: 'Sightread: Playing',
-// }
 
 export default function PlaySong() {
   const router = useRouter()
