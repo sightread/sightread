@@ -9,11 +9,6 @@ import FreePlayer from './utils/freePlayer'
 import TopBar from './components/TopBar'
 import RecordingModal from './components/RecordingModal'
 import { MidiModal } from '@/app/play/components/MidiModal'
-import { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: 'Sightread: Free Play',
-}
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')

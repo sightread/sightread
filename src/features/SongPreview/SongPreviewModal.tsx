@@ -7,6 +7,7 @@ import PreviewIcon from './PreviewIcon'
 import { SongMetadata } from '@/types'
 import { SongPreview } from './SongPreview'
 import Link from 'next/link'
+import { getPlayer } from '../player'
 
 type ModalProps = {
   show: boolean
@@ -19,19 +20,19 @@ export default function SongPreviewModal({
   songMeta = undefined,
 }: ModalProps) {
   const { title, artist, id, source } = songMeta ?? {}
-  const [playerState, playerActions] = usePlayerState()
+  const playerState = usePlayerState()
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (!show) return
 
     if (event.key === ' ') {
       event.preventDefault()
-      playerActions.toggle()
+      getPlayer().toggle()
     }
   })
 
   function handleClose() {
-    playerActions.stop()
+    getPlayer().stop()
     return onClose()
   }
 
@@ -60,14 +61,14 @@ export default function SongPreviewModal({
               width: '100%',
               overflow: 'hidden',
             }}
-            onClick={playerActions.toggle}
+            onClick={() => getPlayer().toggle()}
           >
             <PreviewIcon
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
               onPlay={(e) => {
                 e.stopPropagation()
-                playerActions.play()
+                getPlayer().play()
               }}
             />
             {id && source && <SongPreview songId={id} source={source} />}

@@ -1,10 +1,10 @@
 'use client'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 
 import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/controls'
-import Player from '@/features/player'
+import { getPlayer } from '@/features/player'
 import {
   useEventListener,
   useOnUnmount,
@@ -20,25 +20,29 @@ import { TopBar, SettingsPanel } from './components'
 import clsx from 'clsx'
 import { MidiModal } from './components/MidiModal'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useAtomValue } from 'jotai'
 
 export default function PlaySong() {
   const router = useRouter()
+  const player = getPlayer()
   const searchParams = useSearchParams()
   const { source, id, recording }: { source: SongSource; id: string; recording?: string } =
     Object.fromEntries(searchParams) as any
 
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
-  const [playerState, playerActions] = usePlayerState()
-  const [isLooping, setIsLooping] = useState(false)
-  const [soundOff, setSoundOff] = useState(false)
-  const player = Player.player()
+  const playerState = usePlayerState()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
-  let { data: song, error } = useSong(id, source)
+  let { data: song } = useSong(id, source)
   let songMeta = useSongMetadata(id, source)
+  const range = useAtomValue(player.getRange())
+  const selectedRange = useMemo(
+    () => (range ? { start: range[0], end: range[1] } : undefined),
+    [range],
+  )
+  const isLooping = !!range
 
   const [songConfig, setSongConfig] = useSongSettings(id)
-  const [range, setRange] = useState<{ start: number; end: number } | undefined>(undefined)
   const isRecording = !!recording
   useWakeLock()
 
@@ -61,22 +65,22 @@ export default function PlaySong() {
     } else {
       player.setHand(left ? 'left' : 'right')
     }
-  }, [player, waiting, left, right])
+  }, [waiting, left, right])
 
-  useOnUnmount(() => player.stop())
+  useOnUnmount(() => getPlayer().stop())
 
   useEffect(() => {
     if (!song) return
     // TODO: handle invalid song. Pipe up not-found midi for 400s etc.
     const config = getSongSettings(id, song)
     setSongConfig(config)
-    player.setSong(song, config)
-  }, [song, player, setSongConfig, playerActions, id])
+    getPlayer().setSong(song, config)
+  }, [song, setSongConfig, id])
 
   useEventListener<KeyboardEvent>('keydown', (evt: KeyboardEvent) => {
     if (evt.code === 'Space') {
       evt.preventDefault()
-      playerActions.toggle()
+      getPlayer().toggle()
     } else if (evt.code === 'Comma') {
       player.seek(player.currentSongTime - 16 / 1000)
     } else if (evt.code === 'Period') {
@@ -86,7 +90,7 @@ export default function PlaySong() {
 
   useEffect(() => {
     const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
-      if (type === 'down' && !soundOff) {
+      if (type === 'down') {
         synth.playNote(note)
       } else {
         synth.stopNote(note)
@@ -97,32 +101,21 @@ export default function PlaySong() {
     return function cleanup() {
       midiState.unsubscribe(handleMidiEvent)
     }
-  }, [player, synth, song, songConfig, soundOff])
-
-  const handleSetRange = useCallback(
-    (range?: { start: number; end: number }) => {
-      player.setRange(range)
-      setRange(range)
-    },
-    [setRange, player],
-  )
+  }, [synth, song, songConfig])
 
   // If source or id is messed up, redirect to the homepage
   if (!source || !id) {
     router.replace('/')
   }
 
-  const handleLoopingToggle = (b: boolean) => {
-    if (!b) {
-      handleSetRange(undefined)
-      setIsLooping(false)
-      player.setRange()
+  const handleLoopingToggle = (enable: boolean) => {
+    if (!enable) {
+      player.setRange(undefined)
       return
     } else {
-      const duration = Player.player().getDuration()
+      const duration = player.getDuration()
       const tenth = duration / 10
-      setIsLooping(true)
-      handleSetRange({
+      player.setRange({
         start: duration / 2 - tenth,
         end: duration / 2 + tenth,
       })
@@ -144,10 +137,10 @@ export default function PlaySong() {
               title={songMeta?.title}
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
-              onTogglePlaying={playerActions.toggle}
-              onClickRestart={playerActions.stop}
+              onTogglePlaying={() => getPlayer().toggle()}
+              onClickRestart={() => getPlayer().stop()}
               onClickBack={() => {
-                playerActions.stop()
+                getPlayer().stop()
                 router.push('/')
               }}
               onClickMidi={(e) => {
@@ -172,7 +165,11 @@ export default function PlaySong() {
               />
             </div>
             <div className="relative min-w-full">
-              <SongScrubBar rangeSelection={range} setRange={handleSetRange} height={40} />
+              <SongScrubBar
+                rangeSelection={selectedRange}
+                setRange={(range: any) => player.setRange(range)}
+                height={40}
+              />
             </div>
           </>
         )}
@@ -188,8 +185,8 @@ export default function PlaySong() {
             config={songConfig}
             hand={hand}
             handSettings={getHandSettings(songConfig)}
-            selectedRange={range}
-            getTime={() => Player.player().getTime()}
+            selectedRange={selectedRange}
+            getTime={() => getPlayer().getTime()}
             enableTouchscroll={songConfig.visualization === 'falling-notes'}
           />
         </div>

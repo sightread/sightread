@@ -6,6 +6,7 @@ import { Pause, Play } from '@/icons'
 import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
 import type { SongSource } from '@/types'
 import { SongPreview } from '@/features/SongPreview/SongPreview'
+import { getPlayer } from '@/features/player'
 
 const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
   prelude: { source: 'builtin', id: 'fa7a5d0bf5012a4cb4a19f1de2e58b10' },
@@ -14,7 +15,7 @@ const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
 }
 
 export function FeaturedSongsPreview() {
-  const [playerState, playerActions] = usePlayerState()
+  const playerState = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('ode')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
 
@@ -22,11 +23,12 @@ export function FeaturedSongsPreview() {
     const e = event as KeyboardEvent
     if (e.key === ' ') {
       e.preventDefault()
-      return playerActions.toggle()
+      getPlayer().toggle()
+      return
     }
   })
 
-  useOnUnmount(playerActions.pause)
+  useOnUnmount(() => getPlayer().pause())
 
   return (
     <div
@@ -45,7 +47,7 @@ export function FeaturedSongsPreview() {
             'flex absolute left-5 sm:static',
             playerState.canPlay ? 'text-white' : 'text-gray-300',
           )}
-          onClick={playerActions.toggle}
+          onClick={() => getPlayer().toggle()}
         >
           {playerState.playing ? (
             <>

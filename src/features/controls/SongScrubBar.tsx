@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { clamp, formatTime } from '@/utils'
 import { useEventListener, useRAFLoop, useSize } from '@/hooks'
 import { Song } from '@/types'
-import Player from '@/features/player'
+import { getPlayer } from '@/features/player'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
 
@@ -31,7 +31,7 @@ export default function SongScrubBar({
   const toolTipRef = useRef<HTMLDivElement>(null)
   const rangeRef = useRef<HTMLDivElement>(null)
   const progressBarLeftOffset = useRef<number>(0)
-  const player = Player.player()
+  const player = getPlayer()
   const isDraggingL = useRef(false)
   const isDraggingR = useRef(false)
   const song: Song | null = useAtomValue(player.song)

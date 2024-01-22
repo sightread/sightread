@@ -1,17 +1,18 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
-import { atom, getDefaultStore, Atom, PrimitiveAtom } from 'jotai'
+import { atom, getDefaultStore, Atom, PrimitiveAtom, createStore } from 'jotai'
 import { InstrumentName } from '@/features/synth'
 import { getHands, isBrowser, round } from '@/utils'
 import { getSynth, Synth } from '../synth'
 import midi from '../midi'
 import { getAudioContext } from '../synth/utils'
 
-const store = getDefaultStore()
 function increment(x: number) {
   return x + 1
 }
 
+type JotaiStore = ReturnType<typeof getDefaultStore>
+let store: JotaiStore = getDefaultStore()
 let player: Player
 
 const GOOD_RANGE = 300
@@ -50,6 +51,7 @@ function getInitialScore(): Score {
 }
 
 export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
+
 class Player {
   state: PrimitiveAtom<PlayerState> = atom<PlayerState>('CannotPlay')
   score: Score = getInitialScore()
@@ -72,7 +74,7 @@ class Player {
   playing: Array<SongNote> = []
   synths: Array<Synth> = []
   handlers: any = {}
-  range: null | [number, number] = null
+  range: PrimitiveAtom<null | [number, number]> = atom<null | [number, number]>(null)
   hand = 'both'
   wait = false
   songHands: { left?: number; right?: number } = {}
@@ -182,13 +184,6 @@ class Player {
       notes.push(song.notes[i])
     }
     return notes
-  }
-
-  static player(): Player {
-    if (!player) {
-      player = new Player()
-    }
-    return player
   }
 
   setWait(wait: boolean) {
@@ -407,8 +402,9 @@ class Player {
     }
 
     // If a range is selected and you just got past it then zoom back
-    if (this.range) {
-      let [start, stop] = this.range
+    const range = store.get(this.range)
+    if (range) {
+      let [start, stop] = range
       if (prevTime <= stop && stop <= time) {
         this.seek(start - 0.5)
         return
@@ -483,8 +479,8 @@ class Player {
     this.currentSongTime = 0
     this.currentIndex = 0
     this.playing = []
-    this.range = null
     this.lateNotes.clear()
+    store.set(this.range, null)
     const backingTrack = store.get(this.song)?.backing
     if (backingTrack) {
       backingTrack.currentTime = 0
@@ -534,27 +530,37 @@ class Player {
 
   setRange(range?: { start: number; end: number }) {
     if (!range) {
-      this.range = null
+      store.set(this.range, null)
       return
     }
 
     const { start, end } = range
-    this.range = [Math.min(start, end), Math.max(start, end)]
+    store.set(this.range, [Math.min(start, end), Math.max(start, end)])
+  }
+  getRange() {
+    return this.range
   }
 }
 
 export function isHitNote(note?: SongNote) {
   if (!note) return false
-  return Player.player().hitNotes.has(note)
+  return getPlayer().hitNotes.has(note)
 }
 
 export function isMissedNote(note?: SongNote) {
   if (!note) return false
-  return Player.player().missedNotes.has(note)
+  return getPlayer().missedNotes.has(note)
 }
 
 if (isBrowser()) {
-  ;(window as any).SR = Player.player()
+  ;(window as any).SR = getPlayer()
 }
 
-export default Player
+function getPlayer(): Player {
+  if (!player) {
+    player = new Player()
+  }
+  return player
+}
+
+export { getPlayer }

@@ -1,11 +1,11 @@
 import { Dropdown, Slider } from '@/components'
 import { Volume2, VolumeX } from '@/icons'
 import { useAtomValue } from 'jotai'
-import Player from '../player'
+import { getPlayer } from '../player'
 
 export function VolumeSliderButton() {
-  const player = Player.player()
-  const volume = useAtomValue(player.volume)
+  const player = getPlayer()
+  const volume = useAtomValue(getPlayer().volume)
   const isSoundOff = volume === 0
   const toggleVolume = () => (isSoundOff ? player.setVolume(1) : player.setVolume(0))
 

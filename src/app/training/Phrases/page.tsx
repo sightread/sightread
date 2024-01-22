@@ -1,10 +1,9 @@
 'use client'
 import React, { useState, useEffect, PropsWithChildren, useReducer, useRef } from 'react'
-import { Metadata } from 'next'
 
 import { Hand, Song, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings } from '@/features/SongVisualization'
-import Player from '@/features/player'
+import { getPlayer } from '@/features/player'
 import { useOnUnmount, useQueryString, useRAFLoop, useWakeLock } from '@/hooks'
 import clsx from 'clsx'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils'
@@ -23,10 +22,6 @@ import { playFailSound } from '../sound-effects'
 type Generator = 'eMinor' | 'dMajor' | 'random'
 type Level = 0 | 1 | 2 | 3
 export type GeneratedSongSettings = SongConfig & { generator: Generator }
-
-export const metadata: Metadata = {
-  title: 'Sightread: Phrases',
-}
 
 function useGeneratedSong(
   type: Generator,
@@ -50,7 +45,7 @@ type QueryState = { level: string; clef: string; generator: Generator }
 type PhraseClefType = 'treble' | 'bass' | 'grand'
 export function Phrases() {
   const [songConfig, setSongConfig] = useState(getDefaultSongSettings())
-  const player = Player.player()
+  const player = getPlayer()
   const [showNoteLetters, setShowNoteLetters] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const [queryState, setQueryState] = useQueryString<QueryState>({
@@ -65,7 +60,7 @@ export function Phrases() {
   const accuracy = useAtomValue(player.score.accuracy)
   const score = useAtomValue(player.score.combined)
   const streak = useAtomValue(player.score.streak)
-  const bpmModifier = useAtomValue(player.bpmModifier)
+  const bpmModifier = useAtomValue(player.getBpmModifier())
 
   const handMap = { bass: 'left', grand: 'both', treble: 'right' }
   const hand = handMap[clefType]
@@ -186,7 +181,7 @@ export function Phrases() {
             config={songConfig}
             hand={hand as Hand}
             handSettings={getHandSettings(songConfig)}
-            getTime={() => Player.player().getTime()}
+            getTime={() => getPlayer().getTime()}
             game={true}
           />
         </div>
@@ -212,7 +207,7 @@ function ProgressDisplay() {
     if (!progressRef.current) {
       return
     }
-    const player = Player.player()
+    const player = getPlayer()
     const progress = (player.getTime() / player.getDuration()) * 100
     progressRef.current.style.width = `${progress}%`
   })
