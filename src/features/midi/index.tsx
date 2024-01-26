@@ -33,30 +33,30 @@ export async function getMidiOutputs(): Promise<WebMidi.MIDIOutputMap> {
   }
 }
 
-const enabledDevices: Map<string, WebMidi.MIDIInput> = new Map()
-const enabledDevicesOutput: Map<string, WebMidi.MIDIOutput> = new Map()
+const enabledInputDevices: Map<string, WebMidi.MIDIInput> = new Map()
+const enabledOutputDevices: Map<string, WebMidi.MIDIOutput> = new Map()
 
 export function isMidiDeviceEnabled(device: WebMidi.MIDIInput) {
-  return enabledDevices.has(device.id)
+  return enabledInputDevices.has(device.id)
 }
 export function enableMidiDevice(device: WebMidi.MIDIInput) {
   device.open()
   device.addEventListener('midimessage', onMidiMessage)
-  enabledDevices.set(device.id, device)
+  enabledInputDevices.set(device.id, device)
 }
 export function enableMidiDeviceOutput(device: WebMidi.MIDIOutput) {
   device.open()
-  enabledDevicesOutput.set(device.id, device)
+  enabledOutputDevices.set(device.id, device)
 }
 
 export function disableMidiDevice(deviceParam: WebMidi.MIDIInput) {
-  const device = enabledDevices.get(deviceParam.id)
+  const device = enabledInputDevices.get(deviceParam.id)
   if (!device) {
     return
   }
   device.removeEventListener('midimessage', onMidiMessage as any)
   device.close()
-  enabledDevices.delete(device.id)
+  enabledInputDevices.delete(device.id)
 }
 
 setupMidiDeviceListeners()
@@ -161,8 +161,8 @@ class MidiState {
     this.pressedNotes.set(note, { time, vel: velocity })
     this.notify({ note, velocity, type: 'down', time })
   }
-  press_output(note: number) {
-    for (const output of enabledDevicesOutput) {
+  pressOutput(note: number) {
+    for (const output of enabledOutputDevices) {
       var data=[
         0x90,
         note,
@@ -177,8 +177,8 @@ class MidiState {
     this.notify({ note, type: 'up', time: Date.now() })
   }
 
-  release_output(note: number) {
-    for (const output of enabledDevicesOutput) {
+  releaseOutput(note: number) {
+    for (const output of enabledOutputDevices) {
       var data=[
         0x80,
         note,

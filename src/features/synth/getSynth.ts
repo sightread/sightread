@@ -51,11 +51,9 @@ class SynthStub implements Synth {
   }
   playNote(note: number) {
     this.synth?.playNote(note)
-    midi.press_output(note)
   }
   stopNote(note: number) {
     this.synth?.stopNote(note)
-    midi.release_output(note)
   }
   setMasterVolume(vol: number) {
     this.masterVolume = vol
@@ -103,6 +101,9 @@ class InstrumentSynth implements Synth {
     sourceNode.start()
 
     this.playing.set(note, { gainNode, velocity, sourceNode })
+    if(this.masterVolume != 0){
+      midi.pressOutput(note)
+    }
   }
 
   stopNote(note: number) {
@@ -121,6 +122,10 @@ class InstrumentSynth implements Synth {
     sourceNode.stop(currTime + 0.5)
 
     this.playing.delete(note)
+
+    if(this.masterVolume != 0){
+      midi.releaseOutput(note)
+    }
   }
 
   setMasterVolume(volume: number) {
