@@ -43,7 +43,7 @@ function useGeneratedSong(
 
 type QueryState = { level: string; clef: string; generator: Generator }
 type PhraseClefType = 'treble' | 'bass' | 'grand'
-export function Phrases() {
+export default function Phrases() {
   const [songConfig, setSongConfig] = useState(getDefaultSongSettings())
   const player = getPlayer()
   const [showNoteLetters, setShowNoteLetters] = useState(false)

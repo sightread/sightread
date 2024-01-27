@@ -1,6 +1,6 @@
 import { isBrowser } from '@/utils'
 
-let loadImage
+let loadImage: (src: string) => Promise<HTMLImageElement | void>
 if (isBrowser()) {
   loadImage = (src: string) => {
     const img = new Image()
@@ -11,22 +11,23 @@ if (isBrowser()) {
     })
   }
 } else if (process.env.RENDER) {
+  // TODO: fix this before merge.
   // loadImage = (src: string) => require('skia-canvas').loadImage(`${process.cwd()}/public${src}`)
   loadImage = () => Promise.resolve()
 } else {
   loadImage = () => Promise.resolve()
 }
 
-let blackKeyRaisedImg: HTMLImageElement
-let blackKeyPressedImg: HTMLImageElement
+let blackKeyRaisedImg: HTMLImageElement | null
+let blackKeyPressedImg: HTMLImageElement | null
 const blackKeyRaisedPromise = loadImage('/images/black-key-raised.png').then(
-  (img: HTMLImageElement) => {
-    blackKeyRaisedImg = img
+  (img: HTMLImageElement | void) => {
+    blackKeyRaisedImg = img as any
   },
 )
 const blackKeyPressedPromise = loadImage('/images/black-key-pressed.png').then(
-  (img: HTMLImageElement) => {
-    blackKeyPressedImg = img
+  (img: HTMLImageElement | void) => {
+    blackKeyPressedImg = img as any
   },
 )
 
@@ -39,7 +40,7 @@ export function getImages(): {
   blackKeyPressed: HTMLImageElement
 } {
   return {
-    blackKeyRaised: blackKeyRaisedImg,
-    blackKeyPressed: blackKeyPressedImg,
+    blackKeyRaised: blackKeyRaisedImg!,
+    blackKeyPressed: blackKeyPressedImg!,
   }
 }

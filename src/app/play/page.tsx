@@ -65,7 +65,7 @@ export default function PlaySong() {
     } else {
       player.setHand(left ? 'left' : 'right')
     }
-  }, [waiting, left, right])
+  }, [waiting, left, right, player])
 
   useOnUnmount(() => getPlayer().stop())
 

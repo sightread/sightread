@@ -1,6 +1,5 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
 
 import { Clef, MidiStateEvent } from '@/types'
 import { useSingleton } from '@/hooks'
@@ -37,7 +36,6 @@ export default function SpeedTraining({}: Props) {
   const [sidebar, setSidebar] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
-  const router = useRouter()
   const [speedConfig, setSpeedConfig] = usePersistedState<SpeedTrainingConfig>('speedConfig', {
     clef: 'treble',
     displayLetter: false,

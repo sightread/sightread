@@ -14,7 +14,7 @@ import {
 import midiState from '@/features/midi'
 import { getKey, glyphs } from '@/features/theory'
 import { Size } from '@/types'
-import { SpeedState, SpeedTrainingConfig as SpeedConfig } from '.'
+import { SpeedState, SpeedTrainingConfig as SpeedConfig } from './page'
 
 const TEXT_FONT = 'Arial'
 const STAFF_START_X = 100
