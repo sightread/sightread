@@ -1,11 +1,13 @@
+'use client'
 import * as React from 'react'
 import { SongScrubBar } from '../controls'
-import { useRouter } from 'next/router'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { Modal, Sizer } from '@/components'
 import PreviewIcon from './PreviewIcon'
 import { SongMetadata } from '@/types'
 import { SongPreview } from './SongPreview'
+import Link from 'next/link'
+import { getPlayer } from '../player'
 
 type ModalProps = {
   show: boolean
@@ -18,24 +20,19 @@ export default function SongPreviewModal({
   songMeta = undefined,
 }: ModalProps) {
   const { title, artist, id, source } = songMeta ?? {}
-  const router = useRouter()
-  const [playerState, playerActions] = usePlayerState()
+  const playerState = usePlayerState()
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (!show) return
 
     if (event.key === ' ') {
       event.preventDefault()
-      playerActions.toggle()
+      getPlayer().toggle()
     }
   })
 
-  function handlePlayNow() {
-    router.push(`/play?id=${id}&source=${source}`)
-  }
-
   function handleClose() {
-    playerActions.stop()
+    getPlayer().stop()
     return onClose()
   }
 
@@ -64,25 +61,25 @@ export default function SongPreviewModal({
               width: '100%',
               overflow: 'hidden',
             }}
-            onClick={playerActions.toggle}
+            onClick={() => getPlayer().toggle()}
           >
             <PreviewIcon
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
               onPlay={(e) => {
                 e.stopPropagation()
-                playerActions.play()
+                getPlayer().play()
               }}
             />
             {id && source && <SongPreview songId={id} source={source} />}
           </div>
           <Sizer height={16} />
-          <button
-            className="w-full text-white h-10 border-none cursor-pointer rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover"
-            onClick={handlePlayNow}
+          <Link
+            href={`/play?id=${id}&source=${source}`}
+            className="flex w-full text-white h-10 border-none rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover items-center justify-center"
           >
             Play Now
-          </button>
+          </Link>
         </div>
       </div>
     </Modal>

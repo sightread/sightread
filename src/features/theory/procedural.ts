@@ -1,5 +1,5 @@
 import { Clef, Song, SongMeasure, SongNote } from '@/types'
-import { batchedFetch, Deferred } from '@/utils'
+import { Deferred } from '@/utils'
 import { parseMidi } from '../parsers'
 import { getRandomNote } from './keySignature'
 
@@ -197,7 +197,7 @@ async function getMeasuresForChord(
     filename = `/music/irish/Left Hand/${chord.toString()}_Lvl_${bassLevel}_LH.mid`
   }
 
-  return batchedFetch(filename)
+  return fetch(filename)
     .then((r) => r.arrayBuffer())
     .then((buffer) => parseMidi(buffer))
     .then(splitMeasures)

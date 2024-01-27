@@ -1,3 +1,4 @@
+'use client'
 import { useWhenClickedOutside, useEventListener } from '@/hooks'
 import clsx from 'clsx'
 import { useState, useRef, useMemo, useCallback } from 'react'

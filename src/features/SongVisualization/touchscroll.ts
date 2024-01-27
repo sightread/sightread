@@ -1,10 +1,11 @@
-import Player from '@/features/player'
 import { clamp } from '@/utils'
 import { getPointerVelocity } from '../pointer'
 import { intersectsWithPiano } from './falling-notes'
 import { PIXELS_PER_SECOND as pps } from './utils'
+import { getPlayer } from '@/features/player'
+import { getDefaultStore } from 'jotai'
 
-const player = Player.player()
+const player = getPlayer()
 
 let isDragging_ = false
 export function isDragging(): boolean {
@@ -22,11 +23,12 @@ function seekSeconds(seconds: number) {
 const decayRate = 0.96
 let acceleration = 0
 function decay() {
+  const store = getDefaultStore()
   isDragging_ = false
   requestAnimationFrame(() => {
     const songSeconds = acceleration / pps
     // End touchscroll when the acceleration catches up to the natural song velocity.
-    const endSnap = (1 / 60) * player.bpmModifier.value // TODO: instead of 1/60 it should be 1 / frameRate.
+    const endSnap = (1 / 60) * store.get(player.getBpmModifier()) // TODO: instead of 1/60 it should be 1 / frameRate.
     if (Math.abs(songSeconds) > endSnap) {
       seekSeconds(songSeconds)
       acceleration *= decayRate
