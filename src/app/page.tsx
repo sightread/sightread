@@ -3,6 +3,9 @@ import Link from 'next/link'
 import React from 'react'
 import { FeaturedSongsPreview } from './home/FeaturedSongsPreview'
 
+// TODO: Remove waterfall by sending needed MIDI data for the page via initial server render.
+//       Need to encode MIDI in a string. Base64 can help (1.37x space), unsure if there are more efficient ways.
+// Update: should be trivial now with RSC.
 export default function Home() {
   return (
     <>
@@ -88,7 +91,3 @@ function Button({
     </button>
   )
 }
-
-// TODO: Remove waterfall by sending needed MIDI data for the page via initial server render.
-//       Need to encode MIDI in a string. Base64 can help (1.37x space), unsure if there are more efficient ways.
-// Update: should be trivial now with RSC.
