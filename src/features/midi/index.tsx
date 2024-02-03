@@ -36,20 +36,24 @@ export async function getMidiOutputs(): Promise<WebMidi.MIDIOutputMap> {
 const enabledInputDevices: Map<string, WebMidi.MIDIInput> = new Map()
 const enabledOutputDevices: Map<string, WebMidi.MIDIOutput> = new Map()
 
-export function isMidiDeviceEnabled(device: WebMidi.MIDIInput) {
+export function isInputMidiDeviceEnabled(device: WebMidi.MIDIInput) {
   return enabledInputDevices.has(device.id)
 }
-export function enableMidiDevice(device: WebMidi.MIDIInput) {
+export function isOutputMidiDeviceEnabled(device: WebMidi.MIDIOutput) {
+  return enabledOutputDevices.has(device.id)
+}
+
+export function enableInputMidiDevice(device: WebMidi.MIDIInput) {
   device.open()
   device.addEventListener('midimessage', onMidiMessage)
   enabledInputDevices.set(device.id, device)
 }
-export function enableMidiDeviceOutput(device: WebMidi.MIDIOutput) {
+export function enableOutputMidiDevice(device: WebMidi.MIDIOutput) {
   device.open()
   enabledOutputDevices.set(device.id, device)
 }
 
-export function disableMidiDevice(deviceParam: WebMidi.MIDIInput) {
+export function disableInputMidiDevice(deviceParam: WebMidi.MIDIInput) {
   const device = enabledInputDevices.get(deviceParam.id)
   if (!device) {
     return
@@ -59,16 +63,26 @@ export function disableMidiDevice(deviceParam: WebMidi.MIDIInput) {
   enabledInputDevices.delete(device.id)
 }
 
+export function disableOutputMidiDevice(deviceParam: WebMidi.MIDIOutput) {
+  const device = enabledOutputDevices.get(deviceParam.id)
+  if (!device) {
+    return
+  }
+  device.removeEventListener('midimessage', onMidiMessage as any)
+  device.close()
+  enabledOutputDevices.delete(device.id)
+}
+
 setupMidiDeviceListeners()
 async function setupMidiDeviceListeners() {
   const inputs = await getMidiInputs()
   const outputs = await getMidiOutputs()
   for (const device of inputs.values()) {
-    enableMidiDevice(device)
+    enableInputMidiDevice(device)
   }
 
-  for (const output of outputs.values()) {
-    enableMidiDeviceOutput(output)
+  for (const device of outputs.values()) {
+    enableOutputMidiDevice(device)
   }
 }
 

@@ -15,6 +15,7 @@ export async function getSynth(instrument: InstrumentName | number): Promise<Syn
       playNote() {},
       stopNote() {},
       setMasterVolume() {},
+      setEnabled () {},
       getInstrument() {
         return gmInstruments[0]
       },
@@ -41,8 +42,10 @@ export function getSynthStub(instrument: InstrumentName | number): Synth {
 class SynthStub implements Synth {
   synth: Synth | undefined
   masterVolume: number
+  enabled: boolean
 
   constructor(instrument: InstrumentName | number) {
+    this.enabled = true
     this.masterVolume = 1.0
     getSynth(instrument).then((s) => {
       this.synth = s
@@ -59,6 +62,11 @@ class SynthStub implements Synth {
     this.masterVolume = vol
     this.synth?.setMasterVolume(vol)
   }
+  setEnabled(enable: boolean) {
+    this.enabled = enable
+    this.synth?.setEnabled(enable)
+  }
+
   getInstrument(): InstrumentName {
     return this.synth?.getInstrument() ?? gmInstruments[0]
   }
@@ -70,6 +78,7 @@ class InstrumentSynth implements Synth {
   audioContext: AudioContext
   masterVolume: number
   instrument: InstrumentName
+  enabled: boolean
 
   /** Map from note to currently BufferSource */
   playing: Map<
@@ -86,6 +95,7 @@ class InstrumentSynth implements Synth {
     this.soundfont = soundfont
     this.masterVolume = 1
     this.audioContext = getAudioContext()
+    this.enabled = true
   }
 
   playNote(note: number, velocity = 127 / 2) {
@@ -132,6 +142,16 @@ class InstrumentSynth implements Synth {
     this.masterVolume = volume
     for (let { gainNode, velocity } of this.playing.values()) {
       gainNode.gain.value = (velocity / 127) * this.masterVolume
+    }
+  }
+
+  setEnabled(enable: boolean) {
+    this.enabled = enable
+    if(enable){
+      this.audioContext.resume()
+    }
+    else {
+      this.audioContext.suspend()
     }
   }
 

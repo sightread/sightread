@@ -8,4 +8,5 @@ export interface Synth {
   stopNote(note: number, velocity?: number): void
   setMasterVolume(vol: number): void
   getInstrument(): InstrumentName
+  setEnabled(enable: boolean): void
 }

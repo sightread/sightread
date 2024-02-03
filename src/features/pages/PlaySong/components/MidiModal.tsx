@@ -1,6 +1,7 @@
 import { Modal, Sizer } from '@/components'
-import { disableMidiDevice, enableMidiDevice, isMidiDeviceEnabled } from '@/features/midi'
-import { useMidiInputs } from '@/hooks'
+import { disableInputMidiDevice, enableInputMidiDevice, isInputMidiDeviceEnabled, disableOutputMidiDevice, enableOutputMidiDevice, isOutputMidiDeviceEnabled } from '@/features/midi'
+import Player from '@/features/player'
+import { useMidiInputs, useMidiOutputs } from '@/hooks'
 import { RefreshCw } from '@/icons'
 import clsx from 'clsx'
 import { useState } from 'react'
@@ -11,8 +12,10 @@ interface MidiModalProps {
 }
 
 export function MidiModal(props: MidiModalProps) {
+  const player = Player.player()
   const { isOpen, onClose } = props
-  const { inputs, refresh } = useMidiInputs()
+  const { inputs, refreshInput } = useMidiInputs()
+  const { outputs, refreshOutput } = useMidiOutputs()
   const [animating, setAnimating] = useState(false)
 
   return (
@@ -21,12 +24,13 @@ export function MidiModal(props: MidiModalProps) {
         <h1 className="text-3xl font-bold">Connect Your Piano</h1>
         <Sizer height={32} />
         <div className="flex gap-3">
-          <h1 className="text-lg font-medium">Available devices</h1>
+          <h1 className="text-lg font-medium">Available Input devices</h1>
           <button
             style={{ animationIterationCount: 0.5 }}
             className={clsx('hover:text-purple-hover', animating && 'animate-spin')}
             onClick={() => {
-              refresh()
+              refreshInput()
+              refreshOutput()
               setAnimating(true)
             }}
             onAnimationEnd={() => {
@@ -45,7 +49,7 @@ export function MidiModal(props: MidiModalProps) {
           )}
           {inputs &&
             Array.from(inputs.values()).map((device) => {
-              const enabled = isMidiDeviceEnabled(device)
+              const enabled = isInputMidiDeviceEnabled(device)
               return (
                 <div
                   className="odd:bg-gray-200 flex justify-between items-center h-12 p-4"
@@ -56,11 +60,81 @@ export function MidiModal(props: MidiModalProps) {
                     enabled={enabled}
                     onClick={async () => {
                       if (enabled) {
-                        disableMidiDevice(device)
+                        disableInputMidiDevice(device)
                       } else {
-                        enableMidiDevice(device)
+                        enableInputMidiDevice(device)
                       }
-                      refresh()
+                      refreshInput()
+                    }}
+                  />
+                </div>
+              )
+            })}
+        </div>
+
+        <div className="flex gap-3">
+          <h1 className="text-lg font-medium">Available Output devices</h1>
+          <button
+            style={{ animationIterationCount: 0.5 }}
+            className={clsx('hover:text-purple-hover', animating && 'animate-spin')}
+            onClick={() => {
+              refreshInput()
+              refreshOutput()
+              setAnimating(true)
+            }}
+            onAnimationEnd={() => {
+              setAnimating(false)
+            }}
+          >
+            <RefreshCw />
+          </button>
+        </div>
+        <Sizer height={8} />
+        <div className="flex flex-col gap-1 min-h-[200px] bg-gray-100 rounded-md">
+          {!outputs?.size && (
+            <span className="p-5 text-gray-900">
+              No devices found. Please connect a MIDI device and hit refresh.
+            </span>
+          )}
+          {outputs &&
+            <div
+              className="odd:bg-gray-200 flex justify-between items-center h-12 p-4"
+              key={"local"}
+            >
+              {"Computer"}
+              <DeviceBtn
+                enabled={player.enabled}
+                onClick={async () => {
+                  if (player.enabled) {
+                    player.setEnabled(false)
+                  } else {
+                    player.setEnabled(true)
+                  }
+                  refreshOutput()
+                }}
+              />
+            </div>
+          }
+
+          {outputs &&
+
+            Array.from(outputs.values()).map((device) => {
+              const enabled = isOutputMidiDeviceEnabled(device)
+              return (
+                <div
+                  className="odd:bg-gray-200 flex justify-between items-center h-12 p-4"
+                  key={device.id}
+                >
+                  {device.name}
+                  <DeviceBtn
+                    enabled={enabled}
+                    onClick={async () => {
+                      if (enabled) {
+                        disableOutputMidiDevice(device)
+                      } else {
+                        enableOutputMidiDevice(device)
+                      }
+                      refreshOutput()
                     }}
                   />
                 </div>
