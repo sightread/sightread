@@ -175,12 +175,12 @@ class MidiState {
     this.pressedNotes.set(note, { time, vel: velocity })
     this.notify({ note, velocity, type: 'down', time })
   }
-  pressOutput(note: number) {
+  pressOutput(note: number, volume: number) {
     for (const output of enabledOutputDevices) {
       var data=[
         0x90,
         note,
-        0x7f
+        volume*127
       ]
       output[1]?.send(data)
     }

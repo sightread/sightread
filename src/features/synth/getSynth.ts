@@ -112,7 +112,7 @@ class InstrumentSynth implements Synth {
 
     this.playing.set(note, { gainNode, velocity, sourceNode })
     if(this.masterVolume != 0){
-      midi.pressOutput(note)
+      midi.pressOutput(note, this.masterVolume)
     }
   }
 
