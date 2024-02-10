@@ -1,19 +1,19 @@
 import { useState, useEffect, useReducer, useMemo } from 'react'
-import { getMidiInputs } from '@/features/midi'
+import { getMidiOutputs } from '@/features/midi'
 
-interface MidiInputReturn {
-  inputs: WebMidi.MIDIInputMap | null
+interface MidiOutputReturn {
+  outputs: WebMidi.MIDIOutputMap | null
   loading: boolean
-  refreshInput: () => void
+  refreshOutput: () => void
 }
 
-export default function useMidiInputs(): MidiInputReturn {
-  const [midiMap, setMidiMap] = useState<WebMidi.MIDIInputMap | null>(null)
+export default function useMidiOutputs(): MidiOutputReturn {
+  const [midiMap, setMidiMap] = useState<WebMidi.MIDIOutputMap | null>(null)
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
   useEffect(() => {
     setMidiMap(null)
-    getMidiInputs()
+    getMidiOutputs()
       .then(setMidiMap)
       .catch((error) => {
         console.log('Encountered error retrieving list of connected MIDI instrumentd', error)
@@ -23,9 +23,9 @@ export default function useMidiInputs(): MidiInputReturn {
 
   return useMemo(
     () => ({
-      inputs: midiMap,
+      outputs: midiMap,
       loading: midiMap === null,
-      refreshInput: forceUpdate,
+      refreshOutput: forceUpdate,
     }),
     [midiMap],
   )
