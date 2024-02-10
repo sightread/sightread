@@ -52,7 +52,6 @@ class Player {
   playInterval: any = null
   currentSongTime = 0
   volume = signal(1)
-  enabled = true
 
   // TODO: Determine if MIDI always assumes BPM means quarter notes per minute.
   // Add link to documentation if so.
@@ -231,13 +230,6 @@ class Player {
 
   setTrackVolume(track: number | string, vol: number) {
     this.synths?.[+track]?.setMasterVolume(vol)
-  }
-
-  setEnabled(enable: boolean) {
-    this.enabled = enable
-    this.synths?.forEach((synth) => {
-      synth?.setEnabled(enable)
-    })
   }
 
   async setTrackInstrument(track: number | string, instrument: InstrumentName) {
