@@ -3,6 +3,7 @@ import gmInstruments from './instruments'
 import { getAudioContext, getKeyForSoundfont } from './utils'
 import { SoundFont, Synth, InstrumentName } from './types'
 import { loadInstrument, soundfonts } from './loadInstrument'
+import midi from '../midi'
 
 function isValidInstrument(instrument: InstrumentName | undefined) {
   return instrument && gmInstruments.find((s) => s === instrument)
@@ -14,6 +15,7 @@ export async function getSynth(instrument: InstrumentName | number): Promise<Syn
       playNote() {},
       stopNote() {},
       setMasterVolume() {},
+      setEnabled () {},
       getInstrument() {
         return gmInstruments[0]
       },
@@ -40,8 +42,10 @@ export function getSynthStub(instrument: InstrumentName | number): Synth {
 class SynthStub implements Synth {
   synth: Synth | undefined
   masterVolume: number
+  enabled: boolean
 
   constructor(instrument: InstrumentName | number) {
+    this.enabled = true
     this.masterVolume = 1.0
     getSynth(instrument).then((s) => {
       this.synth = s
@@ -58,6 +62,11 @@ class SynthStub implements Synth {
     this.masterVolume = vol
     this.synth?.setMasterVolume(vol)
   }
+  setEnabled(enable: boolean) {
+    this.enabled = enable
+    this.synth?.setEnabled(enable)
+  }
+
   getInstrument(): InstrumentName {
     return this.synth?.getInstrument() ?? gmInstruments[0]
   }
@@ -69,6 +78,7 @@ class InstrumentSynth implements Synth {
   audioContext: AudioContext
   masterVolume: number
   instrument: InstrumentName
+  enabled: boolean
 
   /** Map from note to currently BufferSource */
   playing: Map<
@@ -85,6 +95,7 @@ class InstrumentSynth implements Synth {
     this.soundfont = soundfont
     this.masterVolume = 1
     this.audioContext = getAudioContext()
+    this.enabled = true
   }
 
   playNote(note: number, velocity = 127 / 2) {
@@ -100,6 +111,9 @@ class InstrumentSynth implements Synth {
     sourceNode.start()
 
     this.playing.set(note, { gainNode, velocity, sourceNode })
+    if(this.masterVolume != 0){
+      midi.pressOutput(note, this.masterVolume)
+    }
   }
 
   stopNote(note: number) {
@@ -118,12 +132,26 @@ class InstrumentSynth implements Synth {
     sourceNode.stop(currTime + 0.5)
 
     this.playing.delete(note)
+
+    if(this.masterVolume != 0){
+      midi.releaseOutput(note)
+    }
   }
 
   setMasterVolume(volume: number) {
     this.masterVolume = volume
     for (let { gainNode, velocity } of this.playing.values()) {
       gainNode.gain.value = (velocity / 127) * this.masterVolume
+    }
+  }
+
+  setEnabled(enable: boolean) {
+    this.enabled = enable
+    if(enable){
+      this.audioContext.resume()
+    }
+    else {
+      this.audioContext.suspend()
     }
   }
 

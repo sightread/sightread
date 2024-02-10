@@ -19,30 +19,70 @@ export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
   }
 }
 
-const enabledDevices: Map<string, WebMidi.MIDIInput> = new Map()
-export function isMidiDeviceEnabled(device: WebMidi.MIDIInput) {
-  return enabledDevices.has(device.id)
+export async function getMidiOutputs(): Promise<WebMidi.MIDIOutputMap> {
+  if (!isBrowser() || !window.navigator.requestMIDIAccess) {
+    return new Map()
+  }
+
+  try {
+    const midiAccess = await window.navigator.requestMIDIAccess()
+    return midiAccess.outputs
+  } catch (error) {
+    console.error('Error accessing MIDI devices: ' + error)
+    return new Map()
+  }
 }
-export function enableMidiDevice(device: WebMidi.MIDIInput) {
+
+const enabledInputDevices: Map<string, WebMidi.MIDIInput> = new Map()
+const enabledOutputDevices: Map<string, WebMidi.MIDIOutput> = new Map()
+
+export function isInputMidiDeviceEnabled(device: WebMidi.MIDIInput) {
+  return enabledInputDevices.has(device.id)
+}
+export function isOutputMidiDeviceEnabled(device: WebMidi.MIDIOutput) {
+  return enabledOutputDevices.has(device.id)
+}
+
+export function enableInputMidiDevice(device: WebMidi.MIDIInput) {
   device.open()
   device.addEventListener('midimessage', onMidiMessage)
-  enabledDevices.set(device.id, device)
+  enabledInputDevices.set(device.id, device)
 }
-export function disableMidiDevice(deviceParam: WebMidi.MIDIInput) {
-  const device = enabledDevices.get(deviceParam.id)
+export function enableOutputMidiDevice(device: WebMidi.MIDIOutput) {
+  device.open()
+  enabledOutputDevices.set(device.id, device)
+}
+
+export function disableInputMidiDevice(deviceParam: WebMidi.MIDIInput) {
+  const device = enabledInputDevices.get(deviceParam.id)
   if (!device) {
     return
   }
   device.removeEventListener('midimessage', onMidiMessage as any)
   device.close()
-  enabledDevices.delete(device.id)
+  enabledInputDevices.delete(device.id)
+}
+
+export function disableOutputMidiDevice(deviceParam: WebMidi.MIDIOutput) {
+  const device = enabledOutputDevices.get(deviceParam.id)
+  if (!device) {
+    return
+  }
+  device.removeEventListener('midimessage', onMidiMessage as any)
+  device.close()
+  enabledOutputDevices.delete(device.id)
 }
 
 setupMidiDeviceListeners()
 async function setupMidiDeviceListeners() {
   const inputs = await getMidiInputs()
+  const outputs = await getMidiOutputs()
   for (const device of inputs.values()) {
-    enableMidiDevice(device)
+    enableInputMidiDevice(device)
+  }
+
+  for (const device of outputs.values()) {
+    enableOutputMidiDevice(device)
   }
 }
 
@@ -135,10 +175,31 @@ class MidiState {
     this.pressedNotes.set(note, { time, vel: velocity })
     this.notify({ note, velocity, type: 'down', time })
   }
+  pressOutput(note: number, volume: number) {
+    for (const output of enabledOutputDevices) {
+      var data=[
+        0x90,
+        note,
+        volume*127
+      ]
+      output[1]?.send(data)
+    }
+  }
 
   release(note: number) {
     this.pressedNotes.delete(note)
     this.notify({ note, type: 'up', time: Date.now() })
+  }
+
+  releaseOutput(note: number) {
+    for (const output of enabledOutputDevices) {
+      var data=[
+        0x80,
+        note,
+        0x7f
+      ]
+      output[1]?.send(data)
+    }
   }
 
   notify(e: MidiStateEvent) {
