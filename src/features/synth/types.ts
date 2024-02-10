@@ -1,7 +1,7 @@
 import gmInstruments from './instruments'
 
 export type SoundFont = { [key: string]: AudioBuffer }
-export type InstrumentName = typeof gmInstruments[number]
+export type InstrumentName = (typeof gmInstruments)[number]
 
 export interface Synth {
   playNote(note: number, velocity?: number): void

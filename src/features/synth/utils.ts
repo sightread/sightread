@@ -1,5 +1,6 @@
 import { isBrowser } from '@/utils'
 import { getOctave } from '../theory'
+import { signal } from '@preact/signals-react'
 
 // convert a MIDI.js javascript soundfont file to json
 async function parseMidiJsSoundfont(text: string): Promise<{ [key: string]: AudioBuffer }> {
@@ -27,13 +28,30 @@ function decodeAudio(arrayBuf: ArrayBufferLike) {
   })
 }
 
-let AudioContext: AudioContext
+let AudioContext: AudioContext | undefined
 function getAudioContext() {
   if (AudioContext === undefined) {
     const AC = window.AudioContext || (window as any).webkitAudioContext
     AudioContext = new AC()
   }
   return AudioContext
+}
+
+let audioContextEnabledPrivate = true
+export const audioContextEnabled = signal(true)
+export function disableAudioContext() {
+  audioContextEnabledPrivate = audioContextEnabled.value = false
+  resetAudioContext()
+}
+
+// When just suspending and resuming an AC, there's a stutter. By completely
+// closing and re-minting an AC, all of the audio buffer is reset.
+function resetAudioContext() {
+  getAudioContext().close()
+  AudioContext = undefined
+}
+export function enableAudioContext() {
+  audioContextEnabledPrivate = audioContextEnabled.value = true
 }
 
 // The sound fonts need the key in C Major with only flat accidentals.
