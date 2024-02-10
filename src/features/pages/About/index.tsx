@@ -46,6 +46,9 @@ export default function AboutPage() {
                   <li>
                     <SidebarLink>Feedback</SidebarLink>
                   </li>
+                  <li>
+                    <SidebarLink>Product recommendations</SidebarLink>
+                  </li>
                 </ul>
               </section>
             </div>
@@ -57,6 +60,7 @@ export default function AboutPage() {
                 <BrowserCompatibilitySection />
                 <RoadmapSection />
                 <FeedbackSection />
+                <ProductRecommendations />
               </div>
             </div>
           </div>
@@ -109,7 +113,7 @@ function GettingStarted() {
   return (
     <Article header="Getting started" first="Plug in a keyboard. Start slow. Gradually speed up.">
       <p>
-        When initially learning a song, I recommend learning left and right hands separately. You
+        When initially learning a song, we recommend learning left and right hands separately. You
         should also take advantage of the BPM modifier to slow down a song by at least 50%. It is
         significantly more helpful to hit the right notes with good form and slowly build up speed
         than to frantically practice at full speed and build bad habits. This is especially true
@@ -136,7 +140,7 @@ function MusicSelectionSection() {
       first="The Sightread catalog has three components: midishare, builtin, and local file uploads."
     >
       <p>
-        Sightread includes works from <AboutLink href="https://midishare.com">midishare</AboutLink>,
+        Sightread includes works from <AboutLink href="https://midishare.dev">midishare</AboutLink>,
         as well as builtin music from the public domain.
       </p>
       <p>
@@ -147,7 +151,8 @@ function MusicSelectionSection() {
       <p>
         If you can’t find the music you’re looking for on midishare, a Google search is your best
         bet. Or you can send me an{' '}
-        <AboutLink href="mailto:midishare.dev@gmail.com">email</AboutLink> and I’ll try to help out.
+        <AboutLink href="mailto:midishare.dev@gmail.com">email</AboutLink> and we’ll try to help
+        out.
       </p>
     </Article>
   )
@@ -173,8 +178,8 @@ function RoadmapSection() {
   return (
     <Article header="Roadmap">
       <p>
-        I have so many exciting ideas, but I have a full time job so progress is slow. Things I plan
-        to implement in future releases:
+        We have so many exciting ideas, but we have full time jobs so progress is slow. Things we
+        plan to implement in future releases:
       </p>
       <ul className="px-12 list-disc">
         <li>iOS App</li>
@@ -197,6 +202,42 @@ function FeedbackSection() {
         Found a bug or have a feature request? Please file an issue on{' '}
         <AboutLink href="https://github.com/sightread/sightread/issues">GitHub</AboutLink> or send
         an <AboutLink href="mailto:sightreadllc@gmail.com">email</AboutLink>.
+      </p>
+    </Article>
+  )
+}
+
+function ProductRecommendations() {
+  return (
+    <Article
+      header="Product recommendations"
+      first="Looking for a Sightread-compatible keyboard? We've got you covered."
+    >
+      <p>
+        Sightread needs a keyboard with MIDI-out, usually via USB or Bluetooth. We recommend opting
+        for USB connection because Sightread is latency-sensitive.
+      </p>
+
+      <ol className="list-disc ml-8">
+        <li>
+          <b>Beginner:</b> The{' '}
+          <AboutLink href="https://www.amazon.com/Casio-61-Key-Portable-Keyboard-LK-S250/dp/B07WK7F7BF?ref_=ast_sto_dp&amp;th=1&_encoding=UTF8&tag=sightread-20&linkCode=ur2&linkId=19d0e41a202a32254091e6bafcae1b13&camp=1789&creative=9325">
+            Casio Casiotone LK-S250
+          </AboutLink>{' '}
+          has 66 light-up keys which can aid learning.
+        </li>
+        <li>
+          <b>Intermediate:</b> The{' '}
+          <AboutLink href="https://www.amazon.com/Roland-keys-Digital-Piano-GO-88P/dp/B07M9WFSTK?th=1&_encoding=UTF8&tag=sightread-20&linkCode=ur2&linkId=1318072a32a3ea63d98c4567c2ed3098&camp=1789&creative=9325">
+            Roland GO:Piano
+          </AboutLink>{' '}
+          has a full range of 88 keys with both Bluetooth and USB connections. It has excellent
+          sound quality and is the keyboard we use ourselves.
+        </li>
+      </ol>
+
+      <p>
+        These are affiliate links, so we earn from purchases. This is our only form of monetization.
       </p>
     </Article>
   )
