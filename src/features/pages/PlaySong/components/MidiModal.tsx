@@ -31,6 +31,10 @@ export function MidiModal(props: MidiModalProps) {
   const { outputs, refreshOutput } = useMidiOutputs()
   const [animatingInputs, setAnimatingInputs] = useState(false)
   const [animatingOutputs, setAnimatingOutputs] = useState(false)
+  const refreshMidiDevices = () => {
+    refreshInput()
+    refreshOutput()
+  }
 
   return (
     <Modal show={isOpen} onClose={onClose}>
@@ -43,7 +47,7 @@ export function MidiModal(props: MidiModalProps) {
             style={{ animationIterationCount: 0.5 }}
             className={clsx('hover:text-purple-hover', animatingInputs && 'animate-spin')}
             onClick={() => {
-              refreshInput()
+              refreshMidiDevices()
               setAnimatingInputs(true)
             }}
             onAnimationEnd={() => {
@@ -77,7 +81,7 @@ export function MidiModal(props: MidiModalProps) {
                       } else {
                         enableInputMidiDevice(device)
                       }
-                      refreshInput()
+                      refreshMidiDevices()
                     }}
                   />
                 </div>
@@ -91,7 +95,7 @@ export function MidiModal(props: MidiModalProps) {
             style={{ animationIterationCount: 0.5 }}
             className={clsx('hover:text-purple-hover', animatingOutputs && 'animate-spin')}
             onClick={() => {
-              refreshOutput()
+              refreshMidiDevices()
               setAnimatingOutputs(true)
             }}
             onAnimationEnd={() => {
@@ -117,7 +121,7 @@ export function MidiModal(props: MidiModalProps) {
                   } else {
                     enableAudioContext()
                   }
-                  refreshOutput()
+                  refreshMidiDevices()
                 }}
               />
             </div>
@@ -140,7 +144,7 @@ export function MidiModal(props: MidiModalProps) {
                       } else {
                         enableOutputMidiDevice(device)
                       }
-                      refreshOutput()
+                      refreshMidiDevices()
                     }}
                   />
                 </div>
