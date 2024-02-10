@@ -177,11 +177,9 @@ class MidiState {
   }
   pressOutput(note: number, volume: number) {
     for (const output of enabledOutputDevices) {
-      var data=[
-        0x90,
-        note,
-        volume*127
-      ]
+      const midiNoteOnCh1 = 144
+      const velocity = volume * 127
+      var data = [midiNoteOnCh1, note, velocity]
       output[1]?.send(data)
     }
   }
@@ -192,12 +190,9 @@ class MidiState {
   }
 
   releaseOutput(note: number) {
+    const midiNoteOffCh1 = 128
     for (const output of enabledOutputDevices) {
-      var data=[
-        0x80,
-        note,
-        0x7f
-      ]
+      var data = [midiNoteOffCh1, note, 127]
       output[1]?.send(data)
     }
   }

@@ -1,6 +1,18 @@
 import { Modal, Sizer } from '@/components'
-import { disableInputMidiDevice, enableInputMidiDevice, isInputMidiDeviceEnabled, disableOutputMidiDevice, enableOutputMidiDevice, isOutputMidiDeviceEnabled } from '@/features/midi'
+import {
+  disableInputMidiDevice,
+  enableInputMidiDevice,
+  isInputMidiDeviceEnabled,
+  disableOutputMidiDevice,
+  enableOutputMidiDevice,
+  isOutputMidiDeviceEnabled,
+} from '@/features/midi'
 import Player from '@/features/player'
+import {
+  audioContextEnabled,
+  disableAudioContext,
+  enableAudioContext,
+} from '@/features/synth/utils'
 import { useMidiInputs, useMidiOutputs } from '@/hooks'
 import { RefreshCw } from '@/icons'
 import clsx from 'clsx'
@@ -11,12 +23,14 @@ interface MidiModalProps {
   onClose: () => void
 }
 
+// TODO: reduce duplication between the inputs and the outputs.
 export function MidiModal(props: MidiModalProps) {
   const player = Player.player()
   const { isOpen, onClose } = props
   const { inputs, refreshInput } = useMidiInputs()
   const { outputs, refreshOutput } = useMidiOutputs()
-  const [animating, setAnimating] = useState(false)
+  const [animatingInputs, setAnimatingInputs] = useState(false)
+  const [animatingOutputs, setAnimatingOutputs] = useState(false)
 
   return (
     <Modal show={isOpen} onClose={onClose}>
@@ -24,17 +38,16 @@ export function MidiModal(props: MidiModalProps) {
         <h1 className="text-3xl font-bold">Connect Your Piano</h1>
         <Sizer height={32} />
         <div className="flex gap-3">
-          <h1 className="text-lg font-medium">Available Input devices</h1>
+          <h1 className="text-lg font-medium">Input devices</h1>
           <button
             style={{ animationIterationCount: 0.5 }}
-            className={clsx('hover:text-purple-hover', animating && 'animate-spin')}
+            className={clsx('hover:text-purple-hover', animatingInputs && 'animate-spin')}
             onClick={() => {
               refreshInput()
-              refreshOutput()
-              setAnimating(true)
+              setAnimatingInputs(true)
             }}
             onAnimationEnd={() => {
-              setAnimating(false)
+              setAnimatingInputs(false)
             }}
           >
             <RefreshCw />
@@ -71,19 +84,18 @@ export function MidiModal(props: MidiModalProps) {
               )
             })}
         </div>
-
+        <Sizer height={32} />
         <div className="flex gap-3">
-          <h1 className="text-lg font-medium">Available Output devices</h1>
+          <h1 className="text-lg font-medium">Output devices</h1>
           <button
             style={{ animationIterationCount: 0.5 }}
-            className={clsx('hover:text-purple-hover', animating && 'animate-spin')}
+            className={clsx('hover:text-purple-hover', animatingOutputs && 'animate-spin')}
             onClick={() => {
-              refreshInput()
               refreshOutput()
-              setAnimating(true)
+              setAnimatingOutputs(true)
             }}
             onAnimationEnd={() => {
-              setAnimating(false)
+              setAnimatingOutputs(false)
             }}
           >
             <RefreshCw />
@@ -91,33 +103,27 @@ export function MidiModal(props: MidiModalProps) {
         </div>
         <Sizer height={8} />
         <div className="flex flex-col gap-1 min-h-[200px] bg-gray-100 rounded-md">
-          {!outputs?.size && (
-            <span className="p-5 text-gray-900">
-              No devices found. Please connect a MIDI device and hit refresh.
-            </span>
-          )}
-          {outputs &&
+          {outputs && (
             <div
               className="odd:bg-gray-200 flex justify-between items-center h-12 p-4"
-              key={"local"}
+              key={'local'}
             >
-              {"Computer"}
+              {'This Device'}
               <DeviceBtn
-                enabled={player.enabled}
+                enabled={audioContextEnabled.value}
                 onClick={async () => {
-                  if (player.enabled) {
-                    player.setEnabled(false)
+                  if (audioContextEnabled.value) {
+                    disableAudioContext()
                   } else {
-                    player.setEnabled(true)
+                    enableAudioContext()
                   }
                   refreshOutput()
                 }}
               />
             </div>
-          }
+          )}
 
           {outputs &&
-
             Array.from(outputs.values()).map((device) => {
               const enabled = isOutputMidiDeviceEnabled(device)
               return (
