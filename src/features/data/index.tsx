@@ -2,7 +2,7 @@ import { parseMidi } from '@/features/parsers'
 import { Song, SongMetadata, SongSource } from '@/types'
 import { getUploadedSong } from '@/features/persist'
 import * as library from './library'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import useSWR, { type SWRResponse } from 'swr'
 
 function handleSong(response: Response): Promise<Song> {
@@ -39,21 +39,4 @@ function fetchSong(id: string, source: SongSource): Promise<Song> {
 
 export function useSong(id: string, source: SongSource): SWRResponse<Song, any, any> {
   return useSWR([id, source], ([id, source]) => fetchSong(id, source))
-}
-
-// TODO: replace with a signals-like library, so that setting from one component is reflected elsewhere.
-type SongManifestHookReturn = [SongMetadata[], (metadata: SongMetadata[]) => void]
-export function useSongManifest(): SongManifestHookReturn {
-  const [songs, setSongs] = useState<SongMetadata[]>(library.getSongsMetadata())
-
-  const add = useCallback((metadataList: SongMetadata[]): void => {
-    library.addMetadata(metadataList)
-    setSongs(library.getSongsMetadata())
-  }, [])
-
-  return useMemo(() => [songs, add], [songs, add])
-}
-
-export function useSongMetadata(id: string, source: SongSource) {
-  return useMemo(() => library.getSongMetadata(id, source), [id, source])
 }

@@ -13,7 +13,7 @@ import {
   useSongSettings,
   useWakeLock,
 } from '@/hooks'
-import { useSong, useSongMetadata } from '@/features/data'
+import { useSong } from '@/features/data'
 import { getSynthStub } from '@/features/synth'
 import midiState from '@/features/midi'
 import { TopBar, SettingsPanel } from './components'
@@ -21,6 +21,7 @@ import clsx from 'clsx'
 import { MidiModal } from './components/MidiModal'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAtomValue } from 'jotai'
+import { useSongMetadata } from '@/features/data/library'
 
 export default function PlaySong() {
   const router = useRouter()

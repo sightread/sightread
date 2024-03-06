@@ -10,7 +10,9 @@ import { isBrowser } from '@/utils'
 // which creates a store for just that request. See docs for details:
 // https://jotai.org/docs/guides/nextjs
 function MaybeJotaiProvider({ children }: PropsWithChildren<{}>) {
-  if (isBrowser()) {
+  // if (isBrowser()) {
+  // TODO: maybe get rid of singletons so this actually makes sense?
+  if (true) {
     return children
   }
   return <JotaiProvider>{children}</JotaiProvider>

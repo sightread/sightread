@@ -7,15 +7,15 @@ import {
   enableOutputMidiDevice,
   isOutputMidiDeviceEnabled,
 } from '@/features/midi'
-import Player from '@/features/player'
 import {
-  audioContextEnabled,
+  audioContextEnabledAtom,
   disableAudioContext,
   enableAudioContext,
 } from '@/features/synth/utils'
 import { useMidiInputs, useMidiOutputs } from '@/hooks'
 import { RefreshCw } from '@/icons'
 import clsx from 'clsx'
+import { useAtomValue } from 'jotai'
 import { useState } from 'react'
 
 interface MidiModalProps {
@@ -25,7 +25,6 @@ interface MidiModalProps {
 
 // TODO: reduce duplication between the inputs and the outputs.
 export function MidiModal(props: MidiModalProps) {
-  const player = Player.player()
   const { isOpen, onClose } = props
   const { inputs, refreshInput } = useMidiInputs()
   const { outputs, refreshOutput } = useMidiOutputs()
@@ -35,6 +34,7 @@ export function MidiModal(props: MidiModalProps) {
     refreshInput()
     refreshOutput()
   }
+  const audioContextEnabled = useAtomValue(audioContextEnabledAtom)
 
   return (
     <Modal show={isOpen} onClose={onClose}>
@@ -114,9 +114,9 @@ export function MidiModal(props: MidiModalProps) {
             >
               {'This Device'}
               <DeviceBtn
-                enabled={audioContextEnabled.value}
+                enabled={audioContextEnabled}
                 onClick={async () => {
-                  if (audioContextEnabled.value) {
+                  if (audioContextEnabled) {
                     disableAudioContext()
                   } else {
                     enableAudioContext()

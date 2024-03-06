@@ -10,10 +10,7 @@ import { Plus } from '@/icons'
 import { SearchBox } from './components/Table/SearchBox'
 import clsx from 'clsx'
 import { UploadForm, Table } from './components'
-import Head from 'next/head'
-import { useSongManifest } from '@/features/data'
-import { getUploadedLibrary } from '@/features/persist'
-import { addMetadata } from '@/features/data/library'
+import { useSongManifest } from '@/features/data/library'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -39,19 +36,17 @@ function getDifficultyLabel(s: number): DifficultyLabel {
 }
 
 // TODO: after an upload, scroll to the newly uploaded song / make it focused.
-export default function SelectSongPage({ songMetadata }: any) {
+export default function SelectSongPage({ midishareMetadata }: any) {
   const [songs, addSongs] = useSongManifest()
   const [isUploadFormOpen, setUploadForm] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
-  const uploadedLibrary = getUploadedLibrary()
+
+  // TODO: useHydrateAtoms([[libraryAtom, midishareMetadata]])
   useEffect(() => {
-    addSongs(uploadedLibrary)
-  }, [uploadedLibrary, addSongs])
-  useEffect(() => {
-    addMetadata(songMetadata)
-  }, [songMetadata])
+    addSongs(midishareMetadata)
+  }, [midishareMetadata])
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (event.key === 'Escape') {

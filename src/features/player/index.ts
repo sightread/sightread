@@ -1,6 +1,6 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
-import { atom, getDefaultStore, Atom, PrimitiveAtom, createStore } from 'jotai'
+import { atom, getDefaultStore, Atom, PrimitiveAtom } from 'jotai'
 import { InstrumentName } from '@/features/synth'
 import { getHands, isBrowser, round } from '@/utils'
 import { getSynth, Synth } from '../synth'
@@ -563,4 +563,5 @@ function getPlayer(): Player {
   return player
 }
 
+export type { Player }
 export { getPlayer }

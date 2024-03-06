@@ -21,7 +21,7 @@ async function getMidishareManifest() {
     const revalidate = 60 * 60 // once an hour.
     return (await fetch('https://midishare.dev/api/midis', { next: { revalidate } })).json()
   } catch (err: any) {
-    console.error(`${new Date().toUTCString()}: Error reaching midishare.dev`)
+    console.error(`${new Date().toUTCString()}: Error reaching midishare.dev`, err)
     return {}
   }
 }
@@ -34,7 +34,7 @@ async function getStaticProps() {
 }
 
 export default async function SelectSong() {
-  const songMetadata = await getStaticProps()
-  const props = { songMetadata }
+  const midishareMetadata = await getStaticProps()
+  const props = { midishareMetadata }
   return <ClientPage {...props} />
 }
