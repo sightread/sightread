@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import clsx from 'clsx'
 import { Select } from '@/components'
 import { LeftHand, RightHand, Volume2, VolumeX } from '@/icons'
-import { getPlayer } from '@/features/player'
+import { usePlayer } from '@/features/player'
 import { InstrumentName, gmInstruments } from '@/features/synth'
 import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
@@ -48,7 +48,7 @@ type SynthState = { error: boolean; loading: boolean }
 
 function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
   const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
-  const player = getPlayer()
+  const player = usePlayer()
 
   const handleSelectInstrument = (instrument: InstrumentName) => {
     setSynthState({ error: false, loading: true })

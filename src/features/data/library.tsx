@@ -41,7 +41,6 @@ export function useSongManifest(): [Array<SongMetadata>, (list: Array<SongMetada
     },
     [songManifest, setSongManifest],
   )
-  // console.log({ songManifestAsList, songManifest })
   return [songManifestAsList, addSongs]
 }
 

@@ -1,5 +1,5 @@
 import { useSong } from '@/features/data'
-import { getPlayer } from '@/features/player'
+import { usePlayer } from '@/features/player'
 import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
 import { SongSource } from '@/types'
 import { useEffect } from 'react'
@@ -13,13 +13,12 @@ interface SongPreviewProps {
 
 function SongPreview({ songId, source }: SongPreviewProps) {
   const { data: song, error } = useSong(songId, source)
-  console.log({ song })
+  const player = usePlayer()
 
   useEffect(() => {
     if (!song) {
       return
     }
-    const player = getPlayer()
     player.setSong(song, getDefaultSongSettings(song))
   }, [song])
 
@@ -28,7 +27,7 @@ function SongPreview({ songId, source }: SongPreviewProps) {
     <SongVisualizer
       song={song}
       config={songConfig}
-      getTime={() => getPlayer().getTime()}
+      getTime={() => player.getTime()}
       hand="both"
       handSettings={getHandSettings(songConfig)}
     />

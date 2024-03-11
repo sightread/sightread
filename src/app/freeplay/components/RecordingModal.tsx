@@ -6,7 +6,7 @@ import { SongSource } from '@/types'
 import { SongPreview } from '@/features/SongPreview/SongPreview'
 import PreviewIcon from '@/features/SongPreview/PreviewIcon'
 import { Share, Download } from '@/icons'
-import { getPlayer } from '@/features/player'
+import { usePlayer } from '@/features/player'
 
 // A function to copy a string to the clipboard
 function copyToClipboard(text: string) {
@@ -33,6 +33,7 @@ export default function SongPreviewModal({
   songMeta = undefined,
 }: ModalProps) {
   const { id, source } = songMeta ?? {}
+  const player = usePlayer()
   const playerState = usePlayerState()
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
@@ -40,12 +41,11 @@ export default function SongPreviewModal({
 
     if (event.key === ' ') {
       event.preventDefault()
-      getPlayer().toggle()
     }
   })
 
   function handleClose() {
-    getPlayer().stop()
+    player.stop()
     return onClose()
   }
 
@@ -74,14 +74,14 @@ export default function SongPreviewModal({
               width: '100%',
               overflow: 'hidden',
             }}
-            onClick={() => getPlayer().toggle}
+            onClick={() => player.toggle}
           >
             <PreviewIcon
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
               onPlay={(e) => {
                 e.stopPropagation()
-                getPlayer().play()
+                player.play()
               }}
             />
             {id && source && <SongPreview songId={id} source={source} />}

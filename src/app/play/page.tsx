@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/controls'
-import { getPlayer } from '@/features/player'
+import { usePlayer } from '@/features/player'
 import {
   useEventListener,
   useOnUnmount,
@@ -25,7 +25,7 @@ import { useSongMetadata } from '@/features/data/library'
 
 export default function PlaySong() {
   const router = useRouter()
-  const player = getPlayer()
+  const player = usePlayer()
   const searchParams = useSearchParams()
   const { source, id, recording }: { source: SongSource; id: string; recording?: string } =
     Object.fromEntries(searchParams) as any
@@ -68,20 +68,20 @@ export default function PlaySong() {
     }
   }, [waiting, left, right, player])
 
-  useOnUnmount(() => getPlayer().stop())
+  useOnUnmount(() => player.stop())
 
   useEffect(() => {
     if (!song) return
     // TODO: handle invalid song. Pipe up not-found midi for 400s etc.
     const config = getSongSettings(id, song)
     setSongConfig(config)
-    getPlayer().setSong(song, config)
+    player.setSong(song, config)
   }, [song, setSongConfig, id])
 
   useEventListener<KeyboardEvent>('keydown', (evt: KeyboardEvent) => {
     if (evt.code === 'Space') {
       evt.preventDefault()
-      getPlayer().toggle()
+      player.toggle()
     } else if (evt.code === 'Comma') {
       player.seek(player.currentSongTime - 16 / 1000)
     } else if (evt.code === 'Period') {
@@ -138,10 +138,10 @@ export default function PlaySong() {
               title={songMeta?.title}
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
-              onTogglePlaying={() => getPlayer().toggle()}
-              onClickRestart={() => getPlayer().stop()}
+              onTogglePlaying={() => player.toggle()}
+              onClickRestart={() => player.stop()}
               onClickBack={() => {
-                getPlayer().stop()
+                player.stop()
                 router.push('/')
               }}
               onClickMidi={(e) => {
@@ -187,7 +187,7 @@ export default function PlaySong() {
             hand={hand}
             handSettings={getHandSettings(songConfig)}
             selectedRange={selectedRange}
-            getTime={() => getPlayer().getTime()}
+            getTime={() => player.getTime()}
             enableTouchscroll={songConfig.visualization === 'falling-notes'}
           />
         </div>

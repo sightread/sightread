@@ -3,7 +3,7 @@ import React, { useState, useEffect, PropsWithChildren, useReducer, useRef } fro
 
 import { Hand, Song, SongConfig } from '@/types'
 import { SongVisualizer, getHandSettings } from '@/features/SongVisualization'
-import { getPlayer } from '@/features/player'
+import { usePlayer } from '@/features/player'
 import { useOnUnmount, useQueryString, useRAFLoop, useWakeLock } from '@/hooks'
 import clsx from 'clsx'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils'
@@ -45,7 +45,7 @@ type QueryState = { level: string; clef: string; generator: Generator }
 type PhraseClefType = 'treble' | 'bass' | 'grand'
 export default function Phrases() {
   const [songConfig, setSongConfig] = useState(getDefaultSongSettings())
-  const player = getPlayer()
+  const player = usePlayer()
   const [showNoteLetters, setShowNoteLetters] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const [queryState, setQueryState] = useQueryString<QueryState>({
@@ -181,7 +181,7 @@ export default function Phrases() {
             config={songConfig}
             hand={hand as Hand}
             handSettings={getHandSettings(songConfig)}
-            getTime={() => getPlayer().getTime()}
+            getTime={() => player.getTime()}
             game={true}
           />
         </div>
@@ -202,12 +202,12 @@ export default function Phrases() {
 }
 
 function ProgressDisplay() {
+  const player = usePlayer()
   const progressRef = useRef<HTMLDivElement>(null)
   useRAFLoop(() => {
     if (!progressRef.current) {
       return
     }
-    const player = getPlayer()
     const progress = (player.getTime() / player.getDuration()) * 100
     progressRef.current.style.width = `${progress}%`
   })

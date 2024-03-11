@@ -6,7 +6,7 @@ import { Pause, Play } from '@/icons'
 import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
 import type { SongSource } from '@/types'
 import { SongPreview } from '@/features/SongPreview/SongPreview'
-import { getPlayer } from '@/features/player'
+import { usePlayer } from '@/features/player'
 import placeholderPic from './featured-songs-placeholder.png'
 import Image from 'next/image'
 
@@ -22,17 +22,18 @@ export function FeaturedSongsPreview() {
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('ode')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
   const showPlaceholder = !playerState.canPlay
+  const player = usePlayer()
 
   useEventListener('keydown', (event: Event) => {
     const e = event as KeyboardEvent
     if (e.key === ' ') {
       e.preventDefault()
-      getPlayer().toggle()
+      player.toggle()
       return
     }
   })
 
-  useOnUnmount(() => getPlayer().pause())
+  useOnUnmount(() => player.pause())
 
   return (
     <div
@@ -54,7 +55,7 @@ export function FeaturedSongsPreview() {
             'flex absolute left-5 sm:static',
             playerState.canPlay ? 'text-white' : 'text-gray-400 cursor-progress',
           )}
-          onClick={() => getPlayer().toggle()}
+          onClick={() => player.toggle()}
         >
           {playerState.playing ? (
             <>

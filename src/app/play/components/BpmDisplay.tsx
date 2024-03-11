@@ -1,10 +1,10 @@
-import { getPlayer } from '@/features/player'
+import { usePlayer } from '@/features/player'
 import { ChevronUp, ChevronDown } from '@/icons'
 import { round } from '@/utils'
 import { useAtomValue } from 'jotai'
 
 export default function BpmDisplay() {
-  const player = getPlayer()
+  const player = usePlayer()
   const bpm = useAtomValue(player.getBpm())
   const bpmModifier = useAtomValue(player.getBpmModifier())
   const bpmText = round(bpm) + ' BPM'

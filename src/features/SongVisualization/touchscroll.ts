@@ -2,17 +2,17 @@ import { clamp } from '@/utils'
 import { getPointerVelocity } from '../pointer'
 import { intersectsWithPiano } from './falling-notes'
 import { PIXELS_PER_SECOND as pps } from './utils'
-import { getPlayer } from '@/features/player'
 import { getDefaultStore } from 'jotai'
+import { Player } from '../player'
 
-const player = getPlayer()
+type JotaiStore = ReturnType<typeof getDefaultStore>
 
 let isDragging_ = false
 export function isDragging(): boolean {
   return isDragging_
 }
 
-function seekSeconds(seconds: number) {
+function seekSeconds(player: Player, seconds: number) {
   const songTime = clamp(seconds + player.getTime(), {
     min: 0,
     max: player.getDuration(),
@@ -22,25 +22,24 @@ function seekSeconds(seconds: number) {
 
 const decayRate = 0.96
 let acceleration = 0
-function decay() {
-  const store = getDefaultStore()
+function decay(store: JotaiStore, player: Player) {
   isDragging_ = false
   requestAnimationFrame(() => {
     const songSeconds = acceleration / pps
     // End touchscroll when the acceleration catches up to the natural song velocity.
     const endSnap = (1 / 60) * store.get(player.getBpmModifier()) // TODO: instead of 1/60 it should be 1 / frameRate.
     if (Math.abs(songSeconds) > endSnap) {
-      seekSeconds(songSeconds)
+      seekSeconds(player, songSeconds)
       acceleration *= decayRate
-      decay()
+      decay(store, player)
     } else {
-      endInertialScroll()
+      endInertialScroll(player)
     }
   })
 }
 
 let wasPlaying = false
-export function handleDown(e: PointerEvent) {
+export function handleDown(player: Player, e: PointerEvent) {
   if (intersectsWithPiano(e.clientY)) {
     isDragging_ = false
     return
@@ -57,14 +56,14 @@ export function handleDown(e: PointerEvent) {
   // TODO: doubleclick pause / play
 }
 
-export function handleUp(e: PointerEvent) {
+export function handleUp(store: JotaiStore, player: Player, e: PointerEvent) {
   const target = e.target as HTMLDivElement
   target.releasePointerCapture(e.pointerId)
-  decay()
+  decay(store, player)
 }
 
 // Should resume playback.
-function endInertialScroll() {
+function endInertialScroll(player: Player) {
   if (wasPlaying) {
     wasPlaying = false
     player.play()
@@ -72,12 +71,12 @@ function endInertialScroll() {
   acceleration = 0
 }
 
-export function handleMove(e: PointerEvent) {
+export function handleMove(player: Player, e: PointerEvent) {
   if (!isDragging_) {
     return
   }
   const yVel = getPointerVelocity().y
-  seekSeconds(yVel / pps)
+  seekSeconds(player, yVel / pps)
 
   //  Threshold to prevent accidental flings
   const threshold = 5
