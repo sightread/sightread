@@ -3,6 +3,7 @@ import { PropsWithChildren } from 'react'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { Provider as JotaiProvider } from 'jotai'
 import { isBrowser } from '@/utils'
+import { SWRConfig } from 'swr'
 
 // By default, Jotai uses a single global store. This creates problems during
 // Next.js SSR where state could accidentally leak between requests for

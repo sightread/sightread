@@ -13,6 +13,7 @@ interface SongPreviewProps {
 
 function SongPreview({ songId, source }: SongPreviewProps) {
   const { data: song, error } = useSong(songId, source)
+  console.log({ song })
 
   useEffect(() => {
     if (!song) {

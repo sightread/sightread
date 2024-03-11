@@ -1,8 +1,6 @@
 import { parseMidi } from '@/features/parsers'
-import { Song, SongMetadata, SongSource } from '@/types'
+import { Song, SongSource } from '@/types'
 import { getUploadedSong } from '@/features/persist'
-import * as library from './library'
-import { useMemo } from 'react'
 import useSWR, { type SWRResponse } from 'swr'
 
 function handleSong(response: Response): Promise<Song> {

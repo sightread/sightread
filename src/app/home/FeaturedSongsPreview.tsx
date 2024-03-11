@@ -7,7 +7,10 @@ import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
 import type { SongSource } from '@/types'
 import { SongPreview } from '@/features/SongPreview/SongPreview'
 import { getPlayer } from '@/features/player'
+import placeholderPic from './featured-songs-placeholder.png'
+import Image from 'next/image'
 
+// TODO: placeholder for featured img to improve loading state.
 const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
   prelude: { source: 'builtin', id: 'fa7a5d0bf5012a4cb4a19f1de2e58b10' },
   ode: { source: 'builtin', id: '8d4441d47b332772da481c529bd38e24' },
@@ -18,6 +21,7 @@ export function FeaturedSongsPreview() {
   const playerState = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('ode')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
+  const showPlaceholder = !playerState.canPlay
 
   useEventListener('keydown', (event: Event) => {
     const e = event as KeyboardEvent
@@ -40,18 +44,22 @@ export function FeaturedSongsPreview() {
       style={{ minWidth: 'min(100vw - 40px, 400px)' }}
     >
       <SongPreview songId={songId} source={source} />
+      {showPlaceholder && (
+        <Image alt="falling notes of ode to joy" src={placeholderPic} fill priority />
+      )}
       <div className="absolute top-0 w-full h-[50px] bg-black/80 flex items-center justify-center">
         <button
           className={clsx(
             'gap-1 items-center hover:text-gray-300',
             'flex absolute left-5 sm:static',
-            playerState.canPlay ? 'text-white' : 'text-gray-300',
+            playerState.canPlay ? 'text-white' : 'text-gray-400 cursor-progress',
           )}
           onClick={() => getPlayer().toggle()}
         >
           {playerState.playing ? (
             <>
-              <Pause size={24} /> Pause
+              <Pause size={24} />
+              Pause
             </>
           ) : (
             <>
