@@ -23,6 +23,6 @@ export default function useSongSettings(file: string) {
   }
 }
 
-// This modified version includes basic parameter validation and error handling, improving robustness and availability. 
+ 
 
 ​​
