@@ -16,15 +16,18 @@ interface FetchAction<T> {
 }
 
 function reducer<T>(state: FetchState<T>, action: FetchAction<T>): FetchState<T> {
-  if (action.type === 'pending') {
-    return { ...state, status: 'pending' }
-  } else if (action.type === 'success') {
-    return { status: 'success', data: action.data }
-  } else if (action.type === 'error') {
-    return { status: 'error', error: action.error }
+  switch (action.type) {
+    case 'pending':
+      return { ...state, status: 'pending' };
+    case 'success':
+      return { status: 'success', data: action.data };
+    case 'error':
+      return { status: 'error', error: action.error };
+    default:
+      return state;
   }
-  return state
 }
+
 
 export function useRemoteResource<T>(getResource: () => Promise<T>): FetchState<T> {
   const [state, dispatch] = useReducer<typeof reducer<T>>(reducer, { status: 'idle' })
