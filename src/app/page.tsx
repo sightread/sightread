@@ -18,7 +18,7 @@ export default function Home() {
           <Sizer height={overlappingHeight} />
         </div>
         <FeaturedSongsPreview marginTop={-overlappingHeight} />
-        <div className="bg-background mt-auto flex min-h-[200px] flex-col items-center gap-6 pt-[42px]">
+        <div className="mt-auto flex min-h-[200px] flex-col items-center gap-6 bg-background pt-[42px]">
           <h3 className="text-black" style={{ fontSize: 'clamp(1rem, 1rem + 1vw, 2rem)' }}>
             Start learning
           </h3>
