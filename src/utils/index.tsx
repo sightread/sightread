@@ -1,5 +1,7 @@
 import type { InstrumentName } from '@/features/synth'
 import type { SongConfig, SongSource } from '@/types'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 export function getKey(id: string, source: SongSource) {
   return `${source}/${id}`
@@ -227,4 +229,8 @@ export function getHands(songConfig: SongConfig) {
 
 export function isNumber(x: any): x is number {
   return Number.isFinite(x)
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }

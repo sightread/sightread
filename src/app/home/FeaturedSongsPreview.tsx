@@ -16,7 +16,7 @@ const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
   canon: { source: 'builtin', id: '7641a769d0e9ec9c95b2b967f2ad2cf3' },
 }
 
-export function FeaturedSongsPreview() {
+export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
   const playerState = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('ode')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
@@ -37,11 +37,11 @@ export function FeaturedSongsPreview() {
   return (
     <div
       className={clsx(
-        'relative mt-[-75px] h-[400px] w-3/4 max-w-[760px]  self-center',
+        'relative mt-[-200px] h-[400px] w-3/4 max-w-[760px]  self-center',
         'bg-gray-[#2e2e2e] overflow-hidden rounded-lg',
         'shadow-xl',
       )}
-      style={{ minWidth: 'min(100vw - 40px, 400px)' }}
+      style={{ minWidth: 'min(100vw - 40px, 400px)', marginTop }}
     >
       <SongPreview songId={songId} source={source} />
       {showPlaceholder && (

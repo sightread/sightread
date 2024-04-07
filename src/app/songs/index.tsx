@@ -1,6 +1,6 @@
 'use client'
 
-import { AppBar, Modal, Sizer } from '@/components'
+import { AppBar, MarketingFooter, Modal, Sizer } from '@/components'
 import { midishareMetadataAtom, useSongManifest } from '@/features/data/library'
 import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
@@ -114,7 +114,9 @@ export default function SelectSongPage({ midishareMetadata }: any) {
             search={search}
           />
         </div>
+        <Sizer height={32} />
       </div>
+      <MarketingFooter />
     </>
   )
 }
