@@ -1,10 +1,11 @@
 'use client'
-import { PropsWithChildren } from 'react'
+
 import { Sizer } from '@/components'
-import { Logo, GitHub, Menu } from '@/icons'
-import Link from 'next/link'
+import { GitHub, Logo, Menu } from '@/icons'
 import clsx from 'clsx'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { PropsWithChildren } from 'react'
 import { Dropdown } from './Dropdown'
 
 type NavItem = { route: string; label: string }
@@ -19,7 +20,7 @@ const navItems: NavItem[] = [
 export default function AppBar() {
   return (
     <div
-      className="h-[50px] min-h-[50px] bg-purple-dark flex flex-col justify-center relative"
+      className="relative flex h-[50px] min-h-[50px] flex-col justify-center bg-purple-dark"
       style={{
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
@@ -27,9 +28,9 @@ export default function AppBar() {
         paddingLeft: 'calc(100vw - 100%)',
       }}
     >
-      <div className="flex items-center pl-6 justify-center mx-auto w-full md:max-w-screen-lg">
+      <div className="mx-auto flex w-full items-center justify-center pl-6 md:max-w-screen-lg">
         <div
-          className="absolute top-1/2 -translate-y-1/2 md:hidden left-5 right-5 z-10"
+          className="absolute left-5 right-5 top-1/2 z-10 -translate-y-1/2 md:hidden"
           style={{ transform: 'translateY(-50%)' }}
         >
           <SmallWindowNav />
@@ -37,9 +38,9 @@ export default function AppBar() {
         <NavLink href={'/'} className="flex items-baseline text-white hover:text-purple-hover">
           <Logo height={24} width={24} className="relative top-[3px]" />
           <Sizer width={8} />
-          <span className="font-extralight text-2xl"> SIGHTREAD</span>
+          <span className="text-2xl font-extralight"> SIGHTREAD</span>
         </NavLink>
-        <div className="hidden md:flex align-baseline gap-6 flex-grow justify-evenly whitespace-nowrap pl-16">
+        <div className="hidden flex-grow justify-evenly gap-6 whitespace-nowrap pl-16 align-baseline md:flex">
           {navItems.map((nav) => {
             return (
               <NavLink
@@ -52,9 +53,9 @@ export default function AppBar() {
           })}
           <NavLink
             href={'https://github.com/sightread/sightread'}
-            className="pr-8 lgminus:pr-0 ml-auto flex gap-2 items-center text-white hover:text-purple-hover"
+            className="ml-auto flex items-center gap-2 pr-8 text-white hover:text-purple-hover lgminus:pr-0"
           >
-            <GitHub size={16} className="relative t-[2px]" />
+            <GitHub size={16} className="t-[2px] relative" />
             GitHub
           </NavLink>
         </div>
@@ -69,11 +70,11 @@ function SmallWindowNav() {
       <div className="flex flex-col bg-white">
         {navItems.map((nav, i) => {
           return (
-            <div className="flex flex-col py-3 gap-4 items-enter px-3" key={i}>
+            <div className="items-enter flex flex-col gap-4 px-3 py-3" key={i}>
               <NavLink
                 href={nav.route}
                 className={clsx(
-                  'text-purple-dark text-2xl px-6 transition hover:text-purple-hover inline-block cursor-pointer w-fit',
+                  'inline-block w-fit cursor-pointer px-6 text-2xl text-purple-dark transition hover:text-purple-hover',
                 )}
                 label={nav.label}
               />
@@ -97,7 +98,7 @@ function NavLink(
         'transition',
         currentRoute === props.href && 'font-bold',
         props.label &&
-          'after:block after:font-bold after:overflow-hidden after:invisible after:text-transparent after:h-0 after:content-[attr(label)]',
+          'after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:text-transparent after:content-[attr(label)]',
       )}
       data-label={props.label}
     >

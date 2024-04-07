@@ -1,6 +1,6 @@
 import { usePlayer } from '@/features/player'
-import { useMemo } from 'react'
 import { useAtomValue } from 'jotai'
+import { useMemo } from 'react'
 
 type PlayerStateHookReturn = { canPlay: boolean; playing: boolean; paused: boolean }
 

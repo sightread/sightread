@@ -1,4 +1,4 @@
-import { useEffect, RefObject } from 'react'
+import { RefObject, useEffect } from 'react'
 
 export default function useWhenClickedOutside(
   handleMouseEvent: (e: MouseEvent) => void,

@@ -1,5 +1,5 @@
-import type { SongConfig, SongSource } from '@/types'
 import type { InstrumentName } from '@/features/synth'
+import type { SongConfig, SongSource } from '@/types'
 
 export function getKey(id: string, source: SongSource) {
   return `${source}/${id}`

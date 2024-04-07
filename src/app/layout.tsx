@@ -1,9 +1,9 @@
 import '@/styles/global.css'
+import { GA_TRACKING_ID } from '@/features/analytics'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { Providers } from './providers'
-import { GA_TRACKING_ID } from '@/features/analytics'
 import { PropsWithChildren } from 'react'
+import { Providers } from './providers'
 
 // TODO: maybe implement routeChangeComplete events in app router
 // React.useEffect(() => {

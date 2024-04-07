@@ -1,4 +1,5 @@
 'use client'
+
 import * as RadixSlider from '@radix-ui/react-slider'
 import clsx from 'clsx'
 
@@ -8,13 +9,13 @@ export function Slider(props: RadixSlider.SliderProps) {
       {...props}
       className={clsx(
         props.className,
-        'relative flex flex-col w-full h-full items-center cursor-pointer',
+        'relative flex h-full w-full cursor-pointer flex-col items-center',
       )}
     >
-      <RadixSlider.Track className="flex relative h-full w-2 items-center flex-col bg-gray-300 overflow-hidden rounded-md">
-        <RadixSlider.Range className="flex absolute h-full w-2 bg-purple-primary" />
+      <RadixSlider.Track className="relative flex h-full w-2 flex-col items-center overflow-hidden rounded-md bg-gray-300">
+        <RadixSlider.Range className="absolute flex h-full w-2 bg-purple-primary" />
       </RadixSlider.Track>
-      <RadixSlider.Thumb className="flex rounded-full bg-purple-hover h-3 w-3 focus:outline-none hover:bg-purple-light hover:scale-125 transition" />
+      <RadixSlider.Thumb className="flex h-3 w-3 rounded-full bg-purple-hover transition hover:scale-125 hover:bg-purple-light focus:outline-none" />
     </RadixSlider.Root>
   )
 }

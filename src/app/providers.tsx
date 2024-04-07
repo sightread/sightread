@@ -1,8 +1,9 @@
 'use client'
-import { PropsWithChildren } from 'react'
+
+import { PlayerProvider } from '@/features/player'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { Provider as JotaiProvider } from 'jotai'
-import { PlayerProvider } from '@/features/player'
+import { PropsWithChildren } from 'react'
 
 // By default, Jotai uses a single global store. This creates problems during
 // Next.js SSR where state could accidentally leak between requests for

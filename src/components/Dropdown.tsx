@@ -1,7 +1,8 @@
 'use client'
-import { useWhenClickedOutside, useEventListener } from '@/hooks'
+
+import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import clsx from 'clsx'
-import { useState, useRef, useMemo, useCallback } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 export function Dropdown({
   children,
@@ -45,14 +46,14 @@ export function Dropdown({
 
   return (
     <div ref={dropdownRef} {...wrapperEvents}>
-      <div className="cursor-pointer w-min" {...targetEvents}>
+      <div className="w-min cursor-pointer" {...targetEvents}>
         {target}
       </div>
       <div className="relative">
         <div
           ref={menuRef}
           className={clsx(
-            'absolute flex justify-center items-center top-1 rounded-lg overflow-hidden transition shadow-xl',
+            'absolute top-1 flex items-center justify-center overflow-hidden rounded-lg shadow-xl transition',
             !open && 'hidden',
           )}
         >

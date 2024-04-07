@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import { breakpoints } from '@/utils'
+import { useEffect, useState } from 'react'
 
 export default function useWindowWidth(): number {
   const [windowWidth, setWindowWidth] = useState<number>(breakpoints.md)

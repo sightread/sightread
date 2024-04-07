@@ -17,7 +17,7 @@ export function TextInput(props: TextInputProps) {
       onChange={onChange}
       className={clsx(
         className,
-        'text-base rounded-md p-2 shadow-[inset_0px_1px_4px_rgba(0,0,0,0.25)]',
+        'rounded-md p-2 text-base shadow-[inset_0px_1px_4px_rgba(0,0,0,0.25)]',
         error && 'outline outline-red-600',
       )}
       placeholder={placeholder}
