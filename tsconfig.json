@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "types": ["bun-types", "jest", "webmidi"],
+    "types": ["jest", "webmidi"],
     // Enable latest features
-    "lib": ["esnext", "dom", "dom.iterable"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "target": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -23,8 +23,13 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

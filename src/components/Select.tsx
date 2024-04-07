@@ -1,3 +1,4 @@
+'use client'
 import * as React from 'react'
 import { useState, useRef } from 'react'
 import { ChevronDown, Loader } from '@/icons'

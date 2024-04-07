@@ -1,9 +1,10 @@
+'use client'
 import { PropsWithChildren } from 'react'
 import { Sizer } from '@/components'
 import { Logo, GitHub, Menu } from '@/icons'
 import Link from 'next/link'
 import clsx from 'clsx'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import { Dropdown } from './Dropdown'
 
 type NavItem = { route: string; label: string }
@@ -87,7 +88,7 @@ function SmallWindowNav() {
 function NavLink(
   props: PropsWithChildren<{ href: string; className?: string; style?: any; label?: string }>,
 ) {
-  const currentRoute = useRouter().route
+  const currentRoute = usePathname()
   return (
     <Link
       {...props}

@@ -1,6 +1,9 @@
-import type { SongConfig } from '@/types'
+import type { SongConfig, SongSource } from '@/types'
 import type { InstrumentName } from '@/features/synth'
-export * from './batch-fetch'
+
+export function getKey(id: string, source: SongSource) {
+  return `${source}/${id}`
+}
 
 export function peek(o: any) {
   console.log(o)
@@ -189,8 +192,13 @@ export function clamp(number: number, { min, max }: { min?: number; max?: number
   return number
 }
 
+// Rounds the given number to a fixed length of fractional digits. If given a
+// falsy input, return 0.
 export function round(num: number, fractionDigits: number = 0) {
-  return parseFloat(num.toFixed(fractionDigits))
+  if (num) {
+    return parseFloat(num.toFixed(fractionDigits))
+  }
+  return 0
 }
 
 export function mapValues<From, To>(
