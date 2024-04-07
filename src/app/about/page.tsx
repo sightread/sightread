@@ -1,4 +1,4 @@
-import { AppBar, Sizer } from '@/components'
+import { AppBar, MarketingFooter, Sizer } from '@/components'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import React, { PropsWithChildren } from 'react'
@@ -19,55 +19,54 @@ function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
 
 export default function AboutPage() {
   return (
-    <>
-      <div className="relative">
-        <AppBar />
-        <div className="md:bg-purple-lightest">
-          <div className="mx-auto flex max-w-screen-lg">
-            <div className="sticky top-0 hidden max-h-screen p-8 md:block">
-              <section className="mx-auto flex flex-col">
-                <h2 className="text-3xl">About</h2>
-                <Sizer height={32} />
-                <ul className="flex flex-col gap-5 whitespace-nowrap text-xl">
-                  <li>
-                    <SidebarLink>What</SidebarLink>
-                  </li>
-                  <li>
-                    <SidebarLink>Getting started</SidebarLink>
-                  </li>
-                  <li>
-                    <SidebarLink>Music selection</SidebarLink>
-                  </li>
-                  <li>
-                    <SidebarLink>Browser compatibility</SidebarLink>
-                  </li>
-                  <li>
-                    <SidebarLink>Roadmap</SidebarLink>
-                  </li>
-                  <li>
-                    <SidebarLink>Feedback</SidebarLink>
-                  </li>
-                  <li>
-                    <SidebarLink>Product recommendations</SidebarLink>
-                  </li>
-                </ul>
-              </section>
-            </div>
-            <div className="mx-auto my-8 w-full flex-1 bg-white p-8 text-base">
-              <div className="mx-auto flex max-w-prose flex-col gap-12">
-                <WhatSection />
-                <GettingStarted />
-                <MusicSelectionSection />
-                <BrowserCompatibilitySection />
-                <RoadmapSection />
-                <FeedbackSection />
-                <ProductRecommendations />
-              </div>
+    <div className="relative">
+      <AppBar />
+      <div className="md:bg-purple-lightest">
+        <div className="mx-auto flex max-w-screen-lg">
+          <div className="sticky top-0 hidden max-h-screen p-8 md:block">
+            <section className="mx-auto flex flex-col">
+              <h2 className="text-3xl">About</h2>
+              <Sizer height={32} />
+              <ul className="flex flex-col gap-5 whitespace-nowrap text-xl">
+                <li>
+                  <SidebarLink>What</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Getting started</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Music selection</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Browser compatibility</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Roadmap</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Feedback</SidebarLink>
+                </li>
+                <li>
+                  <SidebarLink>Product recommendations</SidebarLink>
+                </li>
+              </ul>
+            </section>
+          </div>
+          <div className="mx-auto my-8 w-full flex-1 bg-white p-8 text-base">
+            <div className="mx-auto flex max-w-prose flex-col gap-12">
+              <WhatSection />
+              <GettingStarted />
+              <MusicSelectionSection />
+              <BrowserCompatibilitySection />
+              <RoadmapSection />
+              <FeedbackSection />
+              <ProductRecommendations />
             </div>
           </div>
         </div>
       </div>
-    </>
+      <MarketingFooter />
+    </div>
   )
 }
 
