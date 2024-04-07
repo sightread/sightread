@@ -1,6 +1,6 @@
+import fs from 'fs'
 import { isPiano, parseMidi, parseMusicXml } from '../src/features/parsers'
 import { Song, Track } from '../src/types'
-import fs from 'fs'
 
 export function getPianoTracks(parsed: Song): Track[] {
   return Object.entries(parsed.tracks)

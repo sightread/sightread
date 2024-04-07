@@ -1,10 +1,10 @@
-import React, { PropsWithChildren, useCallback, useRef, useState } from 'react'
 import { Toggle } from '@/components'
-import { Song, SongConfig, VisualizationMode } from '@/types'
 import { AdjustInstruments } from '@/features/controls'
 import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
+import { Song, SongConfig, VisualizationMode } from '@/types'
 import clsx from 'clsx'
+import React, { PropsWithChildren, useCallback, useRef, useState } from 'react'
 import BpmDisplay from './BpmDisplay'
 
 type SidebarProps = {
@@ -17,7 +17,8 @@ type SidebarProps = {
 }
 
 export default function SettingsPanel(props: SidebarProps) {
-  const { left, right, visualization, waiting, noteLetter, coloredNotes, keySignature } = props.config
+  const { left, right, visualization, waiting, noteLetter, coloredNotes, keySignature } =
+    props.config
   const { onClose, onLoopToggled, isLooping } = props
   const [showTrackConfig, setShowTrackConfig] = useState(false)
 
@@ -58,27 +59,27 @@ export default function SettingsPanel(props: SidebarProps) {
 
   return (
     <div
-      className="flex flex-col sm:flex-row relative w-full bg-gray-100 p-4 gap-4 overflow-auto max-h-[calc(100vh-300px)]"
+      className="relative flex max-h-[calc(100vh-300px)] w-full flex-col gap-4 overflow-auto bg-gray-100 p-4 sm:flex-row"
       ref={sidebarRef}
     >
-      <h3 className="text-2xl text-purple-primary text-center">Settings</h3>
-      <div className="flex flex-col items-center sm:items-stretch sm:flex-row gap-4 whitespace-nowrap flex-wrap flex-grow">
+      <h3 className="text-center text-2xl text-purple-primary">Settings</h3>
+      <div className="flex flex-grow flex-col flex-wrap items-center gap-4 whitespace-nowrap sm:flex-row sm:items-stretch">
         <Section title="Speed" className="flex flex-grow">
           <BpmDisplay />
         </Section>
-        <Section title="Hands" className="flex flex-col flex-grow">
-          <div className="flex gap-2 justify-center">
+        <Section title="Hands" className="flex flex-grow flex-col">
+          <div className="flex justify-center gap-2">
             <span className="w-10">Left</span>
             <Toggle className="self-center" checked={left} onChange={() => handleHand('left')} />
           </div>
-          <div className="flex gap-2 justify-center">
+          <div className="flex justify-center gap-2">
             <span className="w-10">Right</span>
             <Toggle checked={right} onChange={() => handleHand('right')} />
           </div>
         </Section>
         <Section title="Visualization" className="flex-grow">
           <button
-            className="flex gap-1 items-center justify-center"
+            className="flex items-center justify-center gap-1"
             onClick={() => handleVisualization('falling-notes')}
           >
             <input
@@ -90,14 +91,14 @@ export default function SettingsPanel(props: SidebarProps) {
             <span className="block w-[120px] text-left">Falling notes</span>
           </button>
           <button
-            className="flex gap-1 items-center justify-center"
+            className="flex items-center justify-center gap-1"
             onClick={() => handleVisualization('sheet')}
           >
             <input className="w-5" type="radio" checked={visualization === 'sheet'} readOnly />
             <span className="block w-[120px] text-left"> Sheet hero (beta)</span>
           </button>
         </Section>
-        <div className="flex gap-4 flex-grow flex-col sm:flex-row">
+        <div className="flex flex-grow flex-col gap-4 sm:flex-row">
           <Section title="Additional settings" className="flex-grow justify-center">
             <div className="flex justify-center">
               <span className="min-w-[15ch]">Wait mode</span>
@@ -115,7 +116,7 @@ export default function SettingsPanel(props: SidebarProps) {
               <span className="min-w-[15ch]">Key signature</span>
               <select
                 name="keySignature"
-                className="border w-[50px]"
+                className="w-[50px] border"
                 value={keySignature ?? props.song?.keySignature}
                 onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
               >
@@ -125,7 +126,7 @@ export default function SettingsPanel(props: SidebarProps) {
               </select>
             </div>
           </Section>
-          <div className="flex flex-col gap-4 justify-between flex-grow">
+          <div className="flex flex-grow flex-col justify-between gap-4">
             <Section title="Practice loop">
               <div className="flex justify-center">
                 <Toggle checked={isLooping} onChange={onLoopToggled} />
@@ -139,7 +140,7 @@ export default function SettingsPanel(props: SidebarProps) {
           </div>
         </div>
         {showTrackConfig && (
-          <div className="flex basis-full flex-wrap justify-center max-w-[70vw]">
+          <div className="flex max-w-[70vw] basis-full flex-wrap justify-center">
             <AdjustInstruments
               config={props.config}
               setTracks={(tracks) => {
@@ -160,11 +161,11 @@ function Section({ children, title, className, onClick }: SectionProps) {
     <article
       className={clsx(
         className,
-        'bg-gray-200 p-4 rounded-md flex flex-col gap-4 max-w-[70vw] min-w-[70vw] sm:min-w-0',
+        'flex min-w-[70vw] max-w-[70vw] flex-col gap-4 rounded-md bg-gray-200 p-4 sm:min-w-0',
       )}
       onClick={onClick}
     >
-      <h3 className="font-semibold text-base text-center">{title}</h3>
+      <h3 className="text-center text-base font-semibold">{title}</h3>
       {children}
     </article>
   )

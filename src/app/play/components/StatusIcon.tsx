@@ -1,4 +1,4 @@
-import { Pause, Play, Loader } from '@/icons'
+import { Loader, Pause, Play } from '@/icons'
 import { ButtonWithTooltip } from './TopBar'
 
 export default function StatusIcon({
@@ -25,5 +25,5 @@ export default function StatusIcon({
       </ButtonWithTooltip>
     )
   }
-  return <Loader width={24} height={24} className="text-white animate-spin m-0 p-0" />
+  return <Loader width={24} height={24} className="m-0 animate-spin p-0 text-white" />
 }

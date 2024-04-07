@@ -1,8 +1,8 @@
-import React from 'react'
-import { Toggle, Sizer } from '@/components'
+import { Sizer, Toggle } from '@/components'
 import { palette as colors } from '@/styles/common'
-import { SpeedTrainingConfig } from '../page'
 import { Clef } from '@/types'
+import React from 'react'
+import { SpeedTrainingConfig } from '../page'
 
 type SidebarProps = {
   open: boolean

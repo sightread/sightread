@@ -10,10 +10,10 @@ export default function TrainingPage() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar />
       <Sizer height={48} />
-      <div className="flex py-6 flex-grow h-full content-center justify-center gap-5">
+      <div className="flex h-full flex-grow content-center justify-center gap-5 py-6">
         {links.map(({ label, url }) => (
-          <Link href={url} key={url} className="no-underline text-white">
-            <div className="w-[200px] h-[200px] bg-gray-500 flex items-center justify-center">
+          <Link href={url} key={url} className="text-white no-underline">
+            <div className="flex h-[200px] w-[200px] items-center justify-center bg-gray-500">
               {label}
             </div>
           </Link>

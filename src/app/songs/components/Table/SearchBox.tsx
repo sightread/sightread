@@ -1,14 +1,14 @@
-import { Search } from '@/icons'
 import { TextInput } from '@/components/TextInput'
+import { Search } from '@/icons'
 
 export type SearchBoxProps = { onSearch: (val: string) => void; placeholder: string }
 export function SearchBox({ onSearch, placeholder }: SearchBoxProps) {
   return (
-    <div className="relative w-80 h-[40px]">
+    <div className="relative h-[40px] w-80">
       <TextInput
         type="search"
         onChange={(e: any) => onSearch(e.target.value)}
-        className="absolute h-full w-full pl-10 rounded-md bg-gray-100 placeholder:text-base placeholder-gray-700"
+        className="absolute h-full w-full rounded-md bg-gray-100 pl-10 placeholder-gray-700 placeholder:text-base"
         placeholder={placeholder}
       />
       <Search

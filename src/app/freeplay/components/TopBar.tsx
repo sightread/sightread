@@ -1,10 +1,10 @@
-import React, { MouseEvent } from 'react'
+import { ButtonWithTooltip } from '@/app/play/components/TopBar'
 import { Select } from '@/components'
-import { formatInstrumentName } from '@/utils'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { ArrowLeft, Midi, StartRecord, StopRecord } from '@/icons'
-import { ButtonWithTooltip } from '@/app/play/components/TopBar'
+import { formatInstrumentName } from '@/utils'
 import Link from 'next/link'
+import React, { MouseEvent } from 'react'
 
 type TopBarProps = {
   isError: boolean
@@ -28,7 +28,7 @@ export default function TopBar({
   const recordTooltip = isRecordingAudio ? 'Stop recording' : 'Start recording audio'
 
   return (
-    <div className="px-4 text-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center gap-4">
+    <div className="flex h-[50px] min-h-[50px] w-full items-center gap-4 bg-[#292929] px-4 text-2xl text-white transition">
       <ButtonWithTooltip tooltip="Back">
         <Link href="/">
           <ArrowLeft size={24} />
@@ -41,7 +41,7 @@ export default function TopBar({
         <Midi size={24} />
       </ButtonWithTooltip>
       <Select
-        className="max-w-fit h-3/4 text-base text-black"
+        className="h-3/4 max-w-fit text-base text-black"
         loading={isLoading}
         error={isError}
         value={value}
