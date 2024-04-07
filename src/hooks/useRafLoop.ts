@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 export default function useRAFLoop(fn: Function) {
   const requestRef: any = React.useRef()

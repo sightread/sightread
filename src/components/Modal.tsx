@@ -1,8 +1,9 @@
 'use client'
-import { PropsWithChildren, useEffect, useRef } from 'react'
-import clsx from 'clsx'
+
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { X as XMark } from '@/icons'
+import clsx from 'clsx'
+import { PropsWithChildren, useEffect, useRef } from 'react'
 
 type ModalProps = {
   show: boolean
@@ -47,16 +48,16 @@ export default function Modal({
   }
 
   return (
-    <div className="fixed z-20 flex justify-center items-center left-0 top-0 w-full h-full overflow-auto bg-gray-400/60 md:p-10">
+    <div className="fixed left-0 top-0 z-20 flex h-full w-full items-center justify-center overflow-auto bg-gray-400/60 md:p-10">
       <div
         ref={modalRef}
         className={clsx(
           className,
-          'max-w-screen-lg m-auto bg-white z-10 rounded-md overflow-hidden relative',
+          'relative z-10 m-auto max-w-screen-lg overflow-hidden rounded-md bg-white',
         )}
       >
         <button
-          className="absolute right-5 top-5 text-purple-primary hover:text-purple-hover z-10"
+          className="absolute right-5 top-5 z-10 text-purple-primary hover:text-purple-hover"
           onClick={onClose}
         >
           <XMark height={24} width={24} />

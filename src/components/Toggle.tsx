@@ -1,4 +1,5 @@
 'use client'
+
 import clsx from 'clsx'
 import { useCallback, useState } from 'react'
 
@@ -28,19 +29,19 @@ export default function Toggle(props: ToggleProps) {
     <label className={clsx(props.className, 'relative')} style={{ width, height }}>
       <input
         type="checkbox"
-        className="opacity-0 w-0 h-0"
+        className="h-0 w-0 opacity-0"
         onClick={toggleCheckedAndNotify}
         style={{ margin: 0 }}
       />
       <span
         className={clsx(
-          'absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition rounded-2xl',
+          'absolute bottom-0 left-0 right-0 top-0 cursor-pointer rounded-2xl bg-gray-300 transition',
           checked && '!bg-purple-primary',
         )}
       />
       <span
         className={clsx(
-          'absolute h-4 w-4 left-0 rounded-[50%] bg-white transition-all mx-1',
+          'absolute left-0 mx-1 h-4 w-4 rounded-[50%] bg-white transition-all',
           'top-1/2 -translate-y-1/2',
           checked && '!left-[calc(100%-25px)]',
         )}

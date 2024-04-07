@@ -1,6 +1,7 @@
 'use client'
-import { forwardRef, Ref, useCallback, useRef } from 'react'
+
 import { useRAFLoop, useSize } from '@/hooks'
+import { forwardRef, Ref, useCallback, useRef } from 'react'
 
 type CanvasRenderFn = (
   ctx: CanvasRenderingContext2D,
@@ -51,7 +52,7 @@ const Canvas = forwardRef(({ render }: CanvasProps, ref) => {
   })
 
   return (
-    <div className="relative w-full h-full" ref={measureRef}>
+    <div className="relative h-full w-full" ref={measureRef}>
       <canvas ref={setupCanvas} width={width} height={height} />
     </div>
   )

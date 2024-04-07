@@ -1,5 +1,5 @@
-import { useState, useEffect, useReducer, useMemo } from 'react'
 import { getMidiOutputs } from '@/features/midi'
+import { useEffect, useMemo, useReducer, useState } from 'react'
 
 interface MidiOutputReturn {
   outputs: WebMidi.MIDIOutputMap | null
