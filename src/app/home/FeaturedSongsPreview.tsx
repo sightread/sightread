@@ -37,7 +37,7 @@ export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
   return (
     <div
       className={clsx(
-        'relative mt-[-200px] h-[400px] w-3/4 max-w-[760px]  self-center',
+        'relative h-[400px] w-3/4 max-w-[760px]  self-center',
         'bg-gray-[#2e2e2e] overflow-hidden rounded-lg',
         'shadow-xl',
       )}

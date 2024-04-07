@@ -4,6 +4,7 @@ import React from 'react'
 import { FeaturedSongsPreview } from './home/FeaturedSongsPreview'
 
 export default function Home() {
+  const overlappingHeight = 250
   return (
     <>
       <div className="relative flex min-h-[800px,100vh] w-full flex-col text-white">
@@ -14,10 +15,9 @@ export default function Home() {
           <h3 className="text-reponsiveXl">
             Plug in your keyboard and learn, right in your browser
           </h3>
-          <Sizer height={175 + 18} />
+          <Sizer height={overlappingHeight} />
         </div>
-        <Sizer height={60} />
-        <FeaturedSongsPreview marginTop={-250} />
+        <FeaturedSongsPreview marginTop={-overlappingHeight} />
         <div className="bg-background mt-auto flex min-h-[200px] flex-col items-center gap-6 pt-[42px]">
           <h3 className="text-black" style={{ fontSize: 'clamp(1rem, 1rem + 1vw, 2rem)' }}>
             Start learning
