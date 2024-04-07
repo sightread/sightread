@@ -1,6 +1,7 @@
+import { getKey } from '@/utils'
 import ClientPage from './index'
 
-import { SongMetadata, SongSource } from '@/types'
+import { SongMetadata } from '@/types'
 
 export type MidishareManifestSong = {
   title: string
@@ -24,10 +25,6 @@ async function getMidishareManifest() {
     console.error(`${new Date().toUTCString()}: Error reaching midishare.dev`, err)
     return {}
   }
-}
-
-function getKey(id: string, source: SongSource) {
-  return `${source}/${id}`
 }
 
 async function getStaticProps() {

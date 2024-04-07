@@ -8,10 +8,6 @@ function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)
 }
 
-export function getKey(id: string, source: SongSource) {
-  return `${source}/${id}`
-}
-
 function getSongUrl(id: string, source: SongSource) {
   return `/api/midi?id=${id}&source=${source}`
 }

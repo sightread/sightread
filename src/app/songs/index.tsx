@@ -43,7 +43,6 @@ export default function SelectSongPage({ midishareMetadata }: any) {
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
-  // console.log({ midishareMetadata })
   useHydrateAtoms([[midishareMetadataAtom, midishareMetadata]])
 
   useEventListener<KeyboardEvent>('keydown', (event) => {

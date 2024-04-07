@@ -10,7 +10,6 @@ import { usePlayer } from '@/features/player'
 import placeholderPic from './featured-songs-placeholder.png'
 import Image from 'next/image'
 
-// TODO: placeholder for featured img to improve loading state.
 const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
   prelude: { source: 'builtin', id: 'fa7a5d0bf5012a4cb4a19f1de2e58b10' },
   ode: { source: 'builtin', id: '8d4441d47b332772da481c529bd38e24' },

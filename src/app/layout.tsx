@@ -14,7 +14,6 @@ import { PropsWithChildren } from 'react'
 //   }
 // }, [router.events])
 
-// TODO: get chatgpt to help here.
 const fallingNotesScreenshot = {
   url: 'images/mode_falling_notes_screenshot.png',
   alt: 'Sightread demo displaying falling notes visualization',

@@ -1,9 +1,9 @@
 import { SongMetadata, SongSource } from '@/types'
-import { getKey } from '.'
 import builtinSongManifest from '@/manifest.json'
-import { PrimitiveAtom, atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getUploadedLibrary } from '../persist'
+import { getKey } from '@/utils'
 
 const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSongManifest).map(
   (metadata) => {
@@ -24,7 +24,7 @@ const storageMetadataAtom = atom(getStorageMetatadata())
 
 export function useRefreshStorageMetadata() {
   const set = useSetAtom(storageMetadataAtom)
-  const refresh = useCallback(() => set(getStorageMetatadata()), [])
+  const refresh = useCallback(() => set(getStorageMetatadata()), [set])
   return refresh
 }
 export const midishareMetadataAtom = atom<Array<[string, SongMetadata]>>([])
@@ -52,18 +52,6 @@ export function useSongManifest(): SongMetadata[] {
     setIsClient(true)
   }, [])
 
-  // const addSongs = useCallback(
-  //   (metadataList: SongMetadata[]) => {
-  //     const toAdd: Array<[string, SongMetadata]> = metadataList.map((metadata) => [
-  //       getKey(metadata.id, metadata.source),
-  //       metadata,
-  //     ])
-  //     const merged: Map<string, SongMetadata> = new Map([...Object.entries(songManifest), ...toAdd])
-  //     setSongManifest(merged)
-  //   },
-  //   [songManifest, setSongManifest],
-  // )
-  // return [isClient ? songManifestAsList : emptyList, emptyList]
   return isClient ? songManifestAsList : emptyList
 }
 
