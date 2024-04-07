@@ -1,9 +1,9 @@
-import React, { MouseEvent } from 'react'
-import { ArrowLeft, Midi } from '@/icons'
 import { ButtonWithTooltip } from '@/app/play/components/TopBar'
-import Link from 'next/link'
-import { isMobile } from '@/utils'
 import { VolumeSliderButton } from '@/features/controls'
+import { ArrowLeft, Midi } from '@/icons'
+import { isMobile } from '@/utils'
+import Link from 'next/link'
+import React, { MouseEvent } from 'react'
 
 type TopBarProps = {
   onClickMidi: (e: MouseEvent<any>) => void
@@ -11,7 +11,7 @@ type TopBarProps = {
 
 export default function TopBar({ onClickMidi }: TopBarProps) {
   return (
-    <div className="px-8 text-white transition text-2xl h-[50px] min-h-[50px] w-full bg-[#292929] flex items-center gap-4">
+    <div className="flex h-[50px] min-h-[50px] w-full items-center gap-4 bg-[#292929] px-8 text-2xl text-white transition">
       <ButtonWithTooltip tooltip="Back">
         <Link href="/">
           <ArrowLeft size={24} />

@@ -1,12 +1,12 @@
-import * as React from 'react'
-import { SongScrubBar } from '@/features/controls'
-import { useEventListener, usePlayerState } from '@/hooks'
 import { Modal, Sizer } from '@/components'
-import { SongSource } from '@/types'
-import { SongPreview } from '@/features/SongPreview/SongPreview'
-import PreviewIcon from '@/features/SongPreview/PreviewIcon'
-import { Share, Download } from '@/icons'
+import { SongScrubBar } from '@/features/controls'
 import { usePlayer } from '@/features/player'
+import PreviewIcon from '@/features/SongPreview/PreviewIcon'
+import { SongPreview } from '@/features/SongPreview/SongPreview'
+import { useEventListener, usePlayerState } from '@/hooks'
+import { Download, Share } from '@/icons'
+import { SongSource } from '@/types'
+import * as React from 'react'
 
 // A function to copy a string to the clipboard
 function copyToClipboard(text: string) {
@@ -56,13 +56,13 @@ export default function SongPreviewModal({
   return (
     <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
       <div className="flex flex-col gap-3 p-8">
-        <div className="flex flex-col w-full whitespace-nowrap">
-          <span className="font-semibold text-2xl">Preview your recording</span>
+        <div className="flex w-full flex-col whitespace-nowrap">
+          <span className="text-2xl font-semibold">Preview your recording</span>
           {/* <span className="overflow-hidden text-base text-gray-500"></span> */}
         </div>
-        <div className="flex rounded-md flex-col flex-grow overflow-hidden">
+        <div className="flex flex-grow flex-col overflow-hidden rounded-md">
           <div className="relative">
-            <div className="absolute w-full h-full z-20 pointer-events-none rounded-md" />
+            <div className="pointer-events-none absolute z-20 h-full w-full rounded-md" />
             <SongScrubBar height={30} />
           </div>
           <div
@@ -89,7 +89,7 @@ export default function SongPreviewModal({
           <Sizer height={16} />
           <div className="flex w-full gap-4">
             <button
-              className="w-full text-black h-10 cursor-pointer rounded-md text-xl transition border-purple-primary border bg-white hover:bg-purple-primary hover:text-white flex items-center gap-2 px-1 justify-center"
+              className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-purple-primary bg-white px-1 text-xl text-black transition hover:bg-purple-primary hover:text-white"
               onClick={() => {
                 const origin = window.location.origin
                 const url = `${origin}/play/?source=base64&id=${id}`
@@ -100,7 +100,7 @@ export default function SongPreviewModal({
               Copy Share URL
             </button>
             <button
-              className="w-full text-white h-10 border-none cursor-pointer rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover flex items-center gap-2 justify-center px-1"
+              className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border-none bg-purple-primary px-1 text-xl text-white transition hover:bg-purple-hover"
               onClick={() => downloadBase64Midi(id)}
             >
               <Download />

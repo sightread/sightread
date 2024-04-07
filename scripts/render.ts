@@ -1,13 +1,12 @@
-import type { Song } from '@/types'
-
 import fs from 'fs'
 import { PassThrough } from 'stream'
-import { Canvas } from 'skia-canvas'
-import ffmpeg from 'fluent-ffmpeg'
-import { render } from '@/features/SongVisualization/canvasRenderer'
-import { waitForImages, getImages } from '@/features/SongVisualization/images'
 import { parseMidi, parserInferHands } from '@/features/parsers'
+import { render } from '@/features/SongVisualization/canvasRenderer'
+import { getImages, waitForImages } from '@/features/SongVisualization/images'
 import { PIXELS_PER_SECOND as pps } from '@/features/SongVisualization/utils'
+import type { Song } from '@/types'
+import ffmpeg from 'fluent-ffmpeg'
+import { Canvas } from 'skia-canvas'
 
 const inputDir = '/Users/jake/Movies/sightread-recordings'
 const outputDir = '/Users/jake/Movies/sightread-recordings'

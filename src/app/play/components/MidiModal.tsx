@@ -1,10 +1,10 @@
 import { Modal, Sizer } from '@/components'
 import {
   disableInputMidiDevice,
-  enableInputMidiDevice,
-  isInputMidiDeviceEnabled,
   disableOutputMidiDevice,
+  enableInputMidiDevice,
   enableOutputMidiDevice,
+  isInputMidiDeviceEnabled,
   isOutputMidiDeviceEnabled,
 } from '@/features/midi'
 import {
@@ -38,7 +38,7 @@ export function MidiModal(props: MidiModalProps) {
 
   return (
     <Modal show={isOpen} onClose={onClose}>
-      <div className="relative text-base p-8 flex flex-col w-[min(100vw,500px)]">
+      <div className="relative flex w-[min(100vw,500px)] flex-col p-8 text-base">
         <h1 className="text-3xl font-bold">Connect Your Piano</h1>
         <Sizer height={32} />
         <div className="flex gap-3">
@@ -58,7 +58,7 @@ export function MidiModal(props: MidiModalProps) {
           </button>
         </div>
         <Sizer height={8} />
-        <div className="flex flex-col gap-1 min-h-[200px] bg-gray-100 rounded-md">
+        <div className="flex min-h-[200px] flex-col gap-1 rounded-md bg-gray-100">
           {!inputs?.size && (
             <span className="p-5 text-gray-900">
               No devices found. Please connect a MIDI device and hit refresh.
@@ -69,7 +69,7 @@ export function MidiModal(props: MidiModalProps) {
               const enabled = isInputMidiDeviceEnabled(device)
               return (
                 <div
-                  className="odd:bg-gray-200 flex justify-between items-center h-12 p-4"
+                  className="flex h-12 items-center justify-between p-4 odd:bg-gray-200"
                   key={device.id}
                 >
                   {device.name}
@@ -106,10 +106,10 @@ export function MidiModal(props: MidiModalProps) {
           </button>
         </div>
         <Sizer height={8} />
-        <div className="flex flex-col gap-1 min-h-[200px] bg-gray-100 rounded-md">
+        <div className="flex min-h-[200px] flex-col gap-1 rounded-md bg-gray-100">
           {outputs && (
             <div
-              className="odd:bg-gray-200 flex justify-between items-center h-12 p-4"
+              className="flex h-12 items-center justify-between p-4 odd:bg-gray-200"
               key={'local'}
             >
               {'This Device'}
@@ -132,7 +132,7 @@ export function MidiModal(props: MidiModalProps) {
               const enabled = isOutputMidiDeviceEnabled(device)
               return (
                 <div
-                  className="odd:bg-gray-200 flex justify-between items-center h-12 p-4"
+                  className="flex h-12 items-center justify-between p-4 odd:bg-gray-200"
                   key={device.id}
                 >
                   {device.name}
@@ -165,7 +165,7 @@ function DeviceBtn({
   return (
     <button
       className={clsx(
-        'px-2 py-1 border border-purple-primary rounded-xl transition hover:bg-purple-hover',
+        'rounded-xl border border-purple-primary px-2 py-1 transition hover:bg-purple-hover',
         enabled && 'bg-purple-primary text-white',
       )}
       {...rest}

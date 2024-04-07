@@ -1,4 +1,4 @@
-import { Play, Loader } from '@/icons'
+import { Loader, Play } from '@/icons'
 import clsx from 'clsx'
 import { MouseEvent } from 'react'
 
@@ -12,12 +12,12 @@ export default function PreviewIcon({ isPlaying, isLoading, onPlay }: PreviewIco
     return null
   }
   const icon = isLoading ? (
-    <Loader width={60} height={60} className="text-white animate-spin" />
+    <Loader width={60} height={60} className="animate-spin text-white" />
   ) : (
     <div
       className={clsx(
-        'text-purple-primary hover:text-purple-hover cursor-pointer',
-        'rounded-full bg-white w-16 h-16 grid place-items-center',
+        'cursor-pointer text-purple-primary hover:text-purple-hover',
+        'grid h-16 w-16 place-items-center rounded-full bg-white',
       )}
       onClick={onPlay}
     >
@@ -26,7 +26,7 @@ export default function PreviewIcon({ isPlaying, isLoading, onPlay }: PreviewIco
   )
   return (
     <div
-      className="z-10 absolute grid place-items-center w-full h-full bg-gray-700/70"
+      className="absolute z-10 grid h-full w-full place-items-center bg-gray-700/70"
       onClick={(e) => e.stopPropagation()}
     >
       {icon}

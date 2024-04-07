@@ -1,7 +1,7 @@
 import { getNote } from '@/features/theory'
-import { Midi } from '@tonejs/midi'
 import { MidiStateEvent } from '@/types'
 import { isBrowser } from '@/utils'
+import { Midi } from '@tonejs/midi'
 import { useRef, useState } from 'react'
 import { parseMidi } from '../parsers'
 

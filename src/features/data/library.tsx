@@ -1,9 +1,9 @@
-import { SongMetadata, SongSource } from '@/types'
 import builtinSongManifest from '@/manifest.json'
+import { SongMetadata, SongSource } from '@/types'
+import { getKey } from '@/utils'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getUploadedLibrary } from '../persist'
-import { getKey } from '@/utils'
 
 const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSongManifest).map(
   (metadata) => {

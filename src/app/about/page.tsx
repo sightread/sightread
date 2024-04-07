@@ -1,9 +1,9 @@
-import React, { PropsWithChildren } from 'react'
 import { AppBar, Sizer } from '@/components'
+import { Metadata } from 'next'
 import Link from 'next/link'
+import React, { PropsWithChildren } from 'react'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
-import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Sightread: About',
@@ -23,12 +23,12 @@ export default function AboutPage() {
       <div className="relative">
         <AppBar />
         <div className="md:bg-purple-lightest">
-          <div className="flex max-w-screen-lg mx-auto">
-            <div className="hidden md:block sticky top-0 p-8 max-h-screen">
-              <section className="flex flex-col mx-auto">
+          <div className="mx-auto flex max-w-screen-lg">
+            <div className="sticky top-0 hidden max-h-screen p-8 md:block">
+              <section className="mx-auto flex flex-col">
                 <h2 className="text-3xl">About</h2>
                 <Sizer height={32} />
-                <ul className="text-xl flex flex-col gap-5 whitespace-nowrap">
+                <ul className="flex flex-col gap-5 whitespace-nowrap text-xl">
                   <li>
                     <SidebarLink>What</SidebarLink>
                   </li>
@@ -53,8 +53,8 @@ export default function AboutPage() {
                 </ul>
               </section>
             </div>
-            <div className="my-8 p-8 mx-auto w-full text-base flex-1 bg-white">
-              <div className="max-w-prose flex flex-col gap-12 mx-auto">
+            <div className="mx-auto my-8 w-full flex-1 bg-white p-8 text-base">
+              <div className="mx-auto flex max-w-prose flex-col gap-12">
                 <WhatSection />
                 <GettingStarted />
                 <MusicSelectionSection />
@@ -181,7 +181,7 @@ function RoadmapSection() {
         We have so many exciting ideas, but we have full time jobs so progress is slow. Things we
         plan to implement in future releases:
       </p>
-      <ul className="px-12 list-disc">
+      <ul className="list-disc px-12">
         <li>iOS App</li>
         <li>MusicXML file upload and full Sheet Music display.</li>
         <li>Progress tracking and song scoring to see improvement over time.</li>
@@ -218,7 +218,7 @@ function ProductRecommendations() {
         for USB connection because Sightread is latency-sensitive.
       </p>
 
-      <ol className="list-disc ml-8">
+      <ol className="ml-8 list-disc">
         <li>
           <b>Beginner:</b> The{' '}
           <AboutLink href="https://www.amazon.com/Casio-61-Key-Portable-Keyboard-LK-S250/dp/B07WK7F7BF?ref_=ast_sto_dp&amp;th=1&_encoding=UTF8&tag=sightread-20&linkCode=ur2&linkId=19d0e41a202a32254091e6bafcae1b13&camp=1789&creative=9325">

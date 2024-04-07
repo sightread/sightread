@@ -1,5 +1,5 @@
 import { usePlayer } from '@/features/player'
-import { ChevronUp, ChevronDown } from '@/icons'
+import { ChevronDown, ChevronUp } from '@/icons'
 import { round } from '@/utils'
 import { useAtomValue } from 'jotai'
 
@@ -12,10 +12,10 @@ export default function BpmDisplay() {
 
   const iconSize = 24
   return (
-    <div className="flex mx-auto gap-2">
+    <div className="mx-auto flex gap-2">
       <div className="flex flex-col">
-        <span className="text-xl text-center self-center">{percentText}</span>
-        <span className="text-sm text-center">{bpmText}</span>
+        <span className="self-center text-center text-xl">{percentText}</span>
+        <span className="text-center text-sm">{bpmText}</span>
       </div>
       <div className="flex flex-col justify-between">
         <ChevronUp

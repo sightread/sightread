@@ -18,7 +18,7 @@ export function VolumeSliderButton() {
       }
       openOn="hover"
     >
-      <div className="relative flex flex-col items-center h-44 w-8 p-2 bg-white z-20">
+      <div className="relative z-20 flex h-44 w-8 flex-col items-center bg-white p-2">
         <Slider
           orientation="vertical"
           min={0}
@@ -29,7 +29,7 @@ export function VolumeSliderButton() {
           // Clicks to the volume slider shouldn't close other modal-like windows (e.g. SettingsPanel)
           onClick={(e) => e.stopPropagation()}
         />
-        <span className="text-black text-sm text-center">{Math.round(volume * 100)}</span>
+        <span className="text-center text-sm text-black">{Math.round(volume * 100)}</span>
       </div>
     </Dropdown>
   )

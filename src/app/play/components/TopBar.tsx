@@ -1,11 +1,10 @@
-import React, { PropsWithChildren } from 'react'
-import { ArrowLeft, SkipBack, Settings, Midi } from '@/icons'
-import { MouseEvent } from 'react'
-import StatusIcon from './StatusIcon'
-import clsx from 'clsx'
 import { Tooltip } from '@/components'
-import { isMobile } from '@/utils'
 import { VolumeSliderButton } from '@/features/controls'
+import { ArrowLeft, Midi, Settings, SkipBack } from '@/icons'
+import { isMobile } from '@/utils'
+import clsx from 'clsx'
+import React, { MouseEvent, PropsWithChildren } from 'react'
+import StatusIcon from './StatusIcon'
 
 type TopBarProps = {
   isLoading: boolean
@@ -31,7 +30,7 @@ export default function TopBar({
   onClickMidi,
 }: TopBarProps) {
   return (
-    <div className="h-[50px] min-h-[50px] w-screen bg-[#292929] flex px-1 relative justify-center align-center gap-8 z-10">
+    <div className="align-center relative z-10 flex h-[50px] min-h-[50px] w-screen justify-center gap-8 bg-[#292929] px-1">
       <ButtonWithTooltip
         tooltip="Back"
         className="!absolute left-3 top-1/2 -translate-y-1/2"
@@ -41,7 +40,7 @@ export default function TopBar({
       </ButtonWithTooltip>
       <div
         className={clsx(
-          'flex h-full gap-8 items-center',
+          'flex h-full items-center gap-8',
           'sm:absolute sm:left-1/2 sm:-translate-x-3/4',
         )}
       >
@@ -50,8 +49,8 @@ export default function TopBar({
         </ButtonWithTooltip>
         <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
       </div>
-      <div className="items-center hidden sm:flex sm:ml-auto h-full text-white">{title}</div>
-      <div className="flex h-full items-center mr-[20px] gap-8">
+      <div className="hidden h-full items-center text-white sm:ml-auto sm:flex">{title}</div>
+      <div className="mr-[20px] flex h-full items-center gap-8">
         <ButtonWithTooltip tooltip="Choose a MIDI device">
           <Midi size={24} onClick={onClickMidi} />
         </ButtonWithTooltip>
@@ -85,8 +84,8 @@ export function ButtonWithTooltip({
         {...rest}
         className={clsx(
           className,
-          isActive ? 'text-purple-primary fill-purple-primary' : 'text-white fill-white',
-          'hover:text-purple-hover hover:fill-purple-hover',
+          isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
+          'hover:fill-purple-hover hover:text-purple-hover',
         )}
       >
         {children}

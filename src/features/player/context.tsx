@@ -1,5 +1,5 @@
 import { useStore } from 'jotai'
-import { PropsWithChildren, createContext, useContext, useState } from 'react'
+import { createContext, PropsWithChildren, useContext, useState } from 'react'
 import { Player } from './player'
 
 const PlayerContext = createContext<Player | null>(null)

@@ -1,7 +1,8 @@
 'use client'
+
 import { parseMidi } from '@/features/parsers'
-import { Song, SongSource } from '@/types'
 import { getUploadedSong } from '@/features/persist'
+import { Song, SongSource } from '@/types'
 import useSWR, { type SWRResponse } from 'swr'
 
 function handleSong(response: Response): Promise<Song> {

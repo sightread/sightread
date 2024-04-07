@@ -1,6 +1,6 @@
+import { ChevronDown } from '@/icons'
 import clsx from 'clsx'
 import { TableHeadProps } from './types'
-import { ChevronDown } from '@/icons'
 
 export function TableHead<T, D extends keyof T>({
   columns,
@@ -16,13 +16,13 @@ export function TableHead<T, D extends keyof T>({
           <div
             className={clsx(
               'select-none',
-              'z-10 top-0 sticky flex items-center text-white bg-purple-darkest',
+              'sticky top-0 z-10 flex items-center bg-purple-darkest text-white',
               `h-[${rowHeight}px]`,
             )}
             key={`col-${col.id.toString()}`}
           >
             <span
-              className={clsx('flex items-center cursor-pointer gap-1', i === 0 && 'ml-5')}
+              className={clsx('flex cursor-pointer items-center gap-1', i === 0 && 'ml-5')}
               onClick={() => onSelectCol(i + 1)}
             >
               {col.label}

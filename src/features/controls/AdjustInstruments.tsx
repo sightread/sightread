@@ -1,12 +1,13 @@
 'use client'
-import React, { useState } from 'react'
-import clsx from 'clsx'
+
 import { Select } from '@/components'
-import { LeftHand, RightHand, Volume2, VolumeX } from '@/icons'
 import { usePlayer } from '@/features/player'
-import { InstrumentName, gmInstruments } from '@/features/synth'
+import { gmInstruments, InstrumentName } from '@/features/synth'
+import { LeftHand, RightHand, Volume2, VolumeX } from '@/icons'
 import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
+import clsx from 'clsx'
+import React, { useState } from 'react'
 
 type InstrumentSettingsProps = {
   config: SongConfig
@@ -74,13 +75,13 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
   }
 
   return (
-    <span className="bg-white rounded-md m-4 border border-black px-3 flex-grow sm:flex-grow-0">
-      <div className="flex justify-center items-center">
+    <span className="m-4 flex-grow rounded-md border border-black bg-white px-3 sm:flex-grow-0">
+      <div className="flex items-center justify-center">
         <span style={{}}>
           Track {trackId + 1}
           {track.track.name ? ': ' + track.track.name : ''}
         </span>
-        <span className="w-[2px] h-6 bg-purple-light mx-1 my-2"></span>
+        <span className="mx-1 my-2 h-6 w-[2px] bg-purple-light"></span>
         <span>{noteCount} Notes</span>
       </div>
       <InstrumentSelect
@@ -136,7 +137,7 @@ function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: Trac
   }
 
   return (
-    <div className="flex items-center jusitfy-around p-4 gap-4">
+    <div className="jusitfy-around flex items-center gap-4 p-4">
       <ToggleLeftHand
         on={hand === 'left'}
         onClick={() => {

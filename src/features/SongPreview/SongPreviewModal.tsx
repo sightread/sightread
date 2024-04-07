@@ -1,13 +1,14 @@
 'use client'
+
+import { Modal, Sizer } from '@/components'
+import { useEventListener, usePlayerState } from '@/hooks'
+import { SongMetadata } from '@/types'
+import Link from 'next/link'
 import * as React from 'react'
 import { SongScrubBar } from '../controls'
-import { useEventListener, usePlayerState } from '@/hooks'
-import { Modal, Sizer } from '@/components'
-import PreviewIcon from './PreviewIcon'
-import { SongMetadata } from '@/types'
-import { SongPreview } from './SongPreview'
-import Link from 'next/link'
 import { usePlayer } from '../player'
+import PreviewIcon from './PreviewIcon'
+import { SongPreview } from './SongPreview'
 
 type ModalProps = {
   show: boolean
@@ -44,13 +45,13 @@ export default function SongPreviewModal({
   return (
     <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
       <div className="flex flex-col gap-3 p-8">
-        <div className="flex flex-col w-full whitespace-nowrap">
-          <span className="font-semibold text-2xl">{title}</span>
+        <div className="flex w-full flex-col whitespace-nowrap">
+          <span className="text-2xl font-semibold">{title}</span>
           <span className="overflow-hidden text-base text-gray-500">{artist}</span>
         </div>
-        <div className="flex rounded-md flex-col flex-grow overflow-hidden">
+        <div className="flex flex-grow flex-col overflow-hidden rounded-md">
           <div className="relative">
-            <div className="absolute w-full h-full z-20 pointer-events-none rounded-md" />
+            <div className="pointer-events-none absolute z-20 h-full w-full rounded-md" />
             <SongScrubBar height={30} />
           </div>
           <div
@@ -77,7 +78,7 @@ export default function SongPreviewModal({
           <Sizer height={16} />
           <Link
             href={`/play?id=${id}&source=${source}`}
-            className="flex w-full text-white h-10 border-none rounded-md text-xl transition bg-purple-primary hover:bg-purple-hover items-center justify-center"
+            className="flex h-10 w-full items-center justify-center rounded-md border-none bg-purple-primary text-xl text-white transition hover:bg-purple-hover"
           >
             Play Now
           </Link>

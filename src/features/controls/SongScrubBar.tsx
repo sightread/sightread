@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect, useCallback, use } from 'react'
-import { clamp, formatTime } from '@/utils'
+import { usePlayer } from '@/features/player'
 import { useEventListener, useRAFLoop, useSize } from '@/hooks'
 import { Song } from '@/types'
-import { usePlayer } from '@/features/player'
+import { clamp, formatTime } from '@/utils'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
+import { use, useCallback, useEffect, useRef, useState } from 'react'
 
 const CAPTURE_OPT = { capture: true }
 
@@ -156,8 +156,8 @@ export default function SongScrubBar({
       <div
         className={clsx(
           pointerOver ? 'flex' : 'hidden',
-          'absolute min-w-max gap-8 items-center justify-between z-30',
-          'px-4 py-2 -top-1 rounded-lg bg-black/90',
+          'absolute z-30 min-w-max items-center justify-between gap-8',
+          '-top-1 rounded-lg bg-black/90 px-4 py-2',
           '-translate-y-full',
         )}
         ref={toolTipRef}
@@ -169,10 +169,10 @@ export default function SongScrubBar({
           Measure: <span className="text-sm text-purple-hover" ref={measureSpanRef} />
         </span>
       </div>
-      <span ref={currentTimeRef} className="self-center text-black py-2 px-4 min-w-[80px]" />
+      <span ref={currentTimeRef} className="min-w-[80px] self-center px-4 py-2 text-black" />
       <div
         ref={progressBarRef}
-        className="relative h-4 overflow-hidden self-center flex-grow rounded-full"
+        className="relative h-4 flex-grow self-center overflow-hidden rounded-full"
         onPointerOver={() => setPointerOver(true)}
         onPointerOut={() => setPointerOver(false)}
       >
@@ -180,24 +180,24 @@ export default function SongScrubBar({
         <div ref={measureRef} className={`absolute h-full w-full bg-gray-400`} />
         <div
           ref={divRef}
-          className={`absolute h-full w-full pointer-events-none bg-purple-primary`}
+          className={`pointer-events-none absolute h-full w-full bg-purple-primary`}
           style={{ left: -width }}
         />
       </div>
-      <span className="self-center text-black py-2 px-4 min-w-[80px]">
+      <span className="min-w-[80px] self-center px-4 py-2 text-black">
         {song ? formatTime(player.getRealTimeDuration(0, song.duration)) : '00:00'}
       </span>
       {rangeSelection && (
-        <div ref={rangeRef} className="absolute h-full flex items-center pointer-events-none">
-          <div className="absolute w-[calc(100%-10px)] h-4 bg-purple-dark/40" />
+        <div ref={rangeRef} className="pointer-events-none absolute flex h-full items-center">
+          <div className="absolute h-4 w-[calc(100%-10px)] bg-purple-dark/40" />
           <div
-            className="pointer-events-auto absolute left-0 cursor-pointer h-6 w-6 bg-purple-dark/90 hover:bg-purple-hover/90 rounded-full -translate-x-1/2 transition"
+            className="pointer-events-auto absolute left-0 h-6 w-6 -translate-x-1/2 cursor-pointer rounded-full bg-purple-dark/90 transition hover:bg-purple-hover/90"
             onPointerEnter={() => setPointerOver(true)}
             onPointerLeave={() => setPointerOver(false)}
             onPointerDown={() => (isDraggingL.current = true)}
           />
           <div
-            className="pointer-events-auto absolute right-0 translate-x-1/2 cursor-pointer h-6 w-6 bg-purple-dark/90 hover:bg-purple-hover/90 rounded-full transition"
+            className="pointer-events-auto absolute right-0 h-6 w-6 translate-x-1/2 cursor-pointer rounded-full bg-purple-dark/90 transition hover:bg-purple-hover/90"
             onPointerDown={() => (isDraggingR.current = true)}
             onPointerEnter={() => setPointerOver(true)}
             onPointerLeave={() => setPointerOver(false)}

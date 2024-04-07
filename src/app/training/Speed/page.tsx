@@ -1,17 +1,17 @@
 'use client'
-import React, { useState, useEffect } from 'react'
 
-import { Clef, MidiStateEvent } from '@/types'
-import { useSingleton } from '@/hooks'
-import { getSynthStub, Synth } from '@/features/synth'
-import midiState from '@/features/midi'
-import { SettingsSidebar } from './components'
-import { usePersistedState } from '@/features/persist'
-import { render } from './canvas'
 import { Canvas, Sizer } from '@/components'
+import midiState from '@/features/midi'
+import { usePersistedState } from '@/features/persist'
+import { getSynthStub, Synth } from '@/features/synth'
 import { getRandomNote, KEY_SIGNATURE } from '@/features/theory'
+import { useSingleton } from '@/hooks'
+import { Clef, MidiStateEvent } from '@/types'
 import { round } from '@/utils'
+import React, { useEffect, useState } from 'react'
 import { playFailSound } from '../sound-effects'
+import { render } from './canvas'
+import { SettingsSidebar } from './components'
 
 export type Props = {}
 

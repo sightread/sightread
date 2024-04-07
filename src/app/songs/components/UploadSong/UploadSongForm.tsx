@@ -1,12 +1,13 @@
 'use client'
-import { useState, useRef } from 'react'
-import { defaultUploadState, prevent } from './utils'
-import { UploadFormState } from './types'
+
 import { Sizer } from '@/components'
-import { saveSong } from '@/features/persist'
-import clsx from 'clsx'
 import { TextInput } from '@/components/TextInput'
 import { useRefreshStorageMetadata } from '@/features/data/library'
+import { saveSong } from '@/features/persist'
+import clsx from 'clsx'
+import { useRef, useState } from 'react'
+import { UploadFormState } from './types'
+import { defaultUploadState, prevent } from './utils'
 
 export default function UploadForm({ onClose }: { onClose: () => void }) {
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -92,11 +93,11 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative text-base p-8 flex flex-col gap-5 w-[min(100vw,500px)]"
+      className="relative flex w-[min(100vw,500px)] flex-col gap-5 p-8 text-base"
     >
       <h1 className="text-3xl font-bold">Upload</h1>
       <Sizer height={0} />
-      <div className="flex flex-wrap gap-2 items-baseline">
+      <div className="flex flex-wrap items-baseline gap-2">
         <label htmlFor="title" className="w-12">
           Title
         </label>
@@ -108,7 +109,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
           error={!!state.error}
         />
       </div>
-      <div className="flex flex-wrap gap-2 items-baseline">
+      <div className="flex flex-wrap items-baseline gap-2">
         <label htmlFor="artist" className="w-12">
           Artist
         </label>
@@ -120,7 +121,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
           error={!!state.error}
         />
       </div>
-      <div className="flex flex-wrap gap-2 items-baseline">
+      <div className="flex flex-wrap items-baseline gap-2">
         <label htmlFor="file" className="w-12 self-center">
           File
         </label>
@@ -135,8 +136,8 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
         />
         <div
           className={clsx(
-            'rounded-md p-5 transition cursor-pointer flex-grow text-center',
-            'border-2 border-dashed border-gray-400 hover:shadow-lg bg-gray-50',
+            'flex-grow cursor-pointer rounded-md p-5 text-center transition',
+            'border-2 border-dashed border-gray-400 bg-gray-50 hover:shadow-lg',
           )}
           onClick={chooseFiles}
           onDragOver={handleDrag}
@@ -152,7 +153,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
       </div>
       <Sizer height={16} />
       <button
-        className="rounded-md text-white py-2 w-full cursor-pointer bg-purple-primary transition hover:bg-purple-hover"
+        className="w-full cursor-pointer rounded-md bg-purple-primary py-2 text-white transition hover:bg-purple-hover"
         type="submit"
       >
         Upload
@@ -162,7 +163,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
           <Sizer height={24} />
           <div
             aria-label="Error message"
-            className="p-6 text-red-900 bg-[#f8d7da] border-[#f5c6cb] m-auto max-w-sm"
+            className="m-auto max-w-sm border-[#f5c6cb] bg-[#f8d7da] p-6 text-red-900"
           >
             {state.error}
           </div>
@@ -184,7 +185,7 @@ function FormInput({ onChange, name, className, error, type, placeholder }: Form
   return (
     <TextInput
       onChange={onChange}
-      className={clsx(className, 'flex-grow max-w-full text-base bg-gray-50')}
+      className={clsx(className, 'max-w-full flex-grow bg-gray-50 text-base')}
       error={error}
       name={name}
       type={type}

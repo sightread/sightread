@@ -1,14 +1,14 @@
 'use client'
 
-import clsx from 'clsx'
-import { useState } from 'react'
-import { Pause, Play } from '@/icons'
-import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
-import type { SongSource } from '@/types'
-import { SongPreview } from '@/features/SongPreview/SongPreview'
 import { usePlayer } from '@/features/player'
-import placeholderPic from './featured-songs-placeholder.png'
+import { SongPreview } from '@/features/SongPreview/SongPreview'
+import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
+import { Pause, Play } from '@/icons'
+import type { SongSource } from '@/types'
+import clsx from 'clsx'
 import Image from 'next/image'
+import { useState } from 'react'
+import placeholderPic from './featured-songs-placeholder.png'
 
 const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
   prelude: { source: 'builtin', id: 'fa7a5d0bf5012a4cb4a19f1de2e58b10' },
@@ -37,8 +37,8 @@ export function FeaturedSongsPreview() {
   return (
     <div
       className={clsx(
-        'relative w-3/4 max-w-[760px] h-[400px] self-center  mt-[-75px]',
-        'overflow-hidden rounded-lg bg-gray-[#2e2e2e]',
+        'relative mt-[-75px] h-[400px] w-3/4 max-w-[760px]  self-center',
+        'bg-gray-[#2e2e2e] overflow-hidden rounded-lg',
         'shadow-xl',
       )}
       style={{ minWidth: 'min(100vw - 40px, 400px)' }}
@@ -47,11 +47,11 @@ export function FeaturedSongsPreview() {
       {showPlaceholder && (
         <Image alt="falling notes of ode to joy" src={placeholderPic} fill priority />
       )}
-      <div className="absolute top-0 w-full h-[50px] bg-black/80 flex items-center justify-center">
+      <div className="absolute top-0 flex h-[50px] w-full items-center justify-center bg-black/80">
         <button
           className={clsx(
-            'gap-1 items-center hover:text-gray-300 text-white',
-            'flex absolute left-5 sm:static',
+            'items-center gap-1 text-white hover:text-gray-300',
+            'absolute left-5 flex sm:static',
             !playerState.canPlay && 'cursor-progress',
           )}
           onClick={() => player.toggle()}
