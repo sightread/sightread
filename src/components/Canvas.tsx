@@ -20,7 +20,7 @@ const Canvas = forwardRef(({ render }: CanvasProps, ref) => {
   renderRef.current = render
 
   const setupCanvas = useCallback(
-    async (canvasEl: HTMLCanvasElement) => {
+    (canvasEl: HTMLCanvasElement) => {
       if (!canvasEl) {
         return
       }
