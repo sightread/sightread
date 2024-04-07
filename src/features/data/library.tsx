@@ -1,8 +1,8 @@
 import { SongMetadata, SongSource } from '@/types'
 import { getKey } from '.'
 import builtinSongManifest from '@/manifest.json'
-import { PrimitiveAtom, atom, useAtom, useAtomValue } from 'jotai'
-import { useCallback, useMemo } from 'react'
+import { PrimitiveAtom, atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getUploadedLibrary } from '../persist'
 
 const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSongManifest).map(
@@ -11,37 +11,60 @@ const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSong
     return [key, metadata as SongMetadata]
   },
 )
-const storageMetadata: Array<[string, SongMetadata]> = Object.values(getUploadedLibrary()).map(
-  (metadata) => {
+
+function getStorageMetatadata(): Array<[string, SongMetadata]> {
+  return Object.values(getUploadedLibrary()).map((metadata) => {
     const key = getKey(metadata.id, metadata.source)
     return [key, metadata as SongMetadata]
-  },
-)
+  })
+}
 
-export const songManifestAtom: PrimitiveAtom<Map<string, SongMetadata>> = atom(
-  new Map([...builtinMetadata, ...storageMetadata]),
-)
+const builtinMetadataAtom = atom(builtinMetadata)
+const storageMetadataAtom = atom(getStorageMetatadata())
+
+export function useRefreshStorageMetadata() {
+  const set = useSetAtom(storageMetadataAtom)
+  const refresh = useCallback(() => set(getStorageMetatadata()), [])
+  return refresh
+}
+export const midishareMetadataAtom = atom<Array<[string, SongMetadata]>>([])
+
+export const songManifestAtom = atom<Map<string, SongMetadata>>((get) => {
+  const builtinMetadata = get(builtinMetadataAtom)
+  const storageMetadata = get(storageMetadataAtom)
+  const midishareMetadata = get(midishareMetadataAtom)
+  return new Map([...builtinMetadata, ...storageMetadata, ...midishareMetadata])
+})
 
 const songManifestAsListAtom = atom<Array<SongMetadata>>((get) => {
   const songManifest = get(songManifestAtom)
   return Array.from(songManifest.values())
 })
 
-export function useSongManifest(): [Array<SongMetadata>, (list: Array<SongMetadata>) => void] {
-  const [songManifest, setSongManifest] = useAtom(songManifestAtom)
+export function useSongManifest(): SongMetadata[] {
   const songManifestAsList = useAtomValue(songManifestAsListAtom)
-  const addSongs = useCallback(
-    (metadataList: SongMetadata[]) => {
-      const toAdd: Array<[string, SongMetadata]> = metadataList.map((metadata) => [
-        getKey(metadata.id, metadata.source),
-        metadata,
-      ])
-      const merged: Map<string, SongMetadata> = new Map([...Object.entries(songManifest), ...toAdd])
-      setSongManifest(merged)
-    },
-    [songManifest, setSongManifest],
-  )
-  return [songManifestAsList, addSongs]
+  const [isClient, setIsClient] = useState(false)
+  const emptyList = useMemo(() => [], [])
+
+  // On first render, we want to match what the server SSRed so we can't take advantage of local storage.
+  // not sure what to actually do here besides show a loading spinner
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // const addSongs = useCallback(
+  //   (metadataList: SongMetadata[]) => {
+  //     const toAdd: Array<[string, SongMetadata]> = metadataList.map((metadata) => [
+  //       getKey(metadata.id, metadata.source),
+  //       metadata,
+  //     ])
+  //     const merged: Map<string, SongMetadata> = new Map([...Object.entries(songManifest), ...toAdd])
+  //     setSongManifest(merged)
+  //   },
+  //   [songManifest, setSongManifest],
+  // )
+  // return [isClient ? songManifestAsList : emptyList, emptyList]
+  return isClient ? songManifestAsList : emptyList
 }
 
 export function useSongMetadata(id: string, source: SongSource): SongMetadata | undefined {

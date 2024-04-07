@@ -20,7 +20,7 @@ function SongPreview({ songId, source }: SongPreviewProps) {
       return
     }
     player.setSong(song, getDefaultSongSettings(song))
-  }, [song])
+  }, [song, player])
 
   const songConfig = getDefaultSongSettings(song)
   return (

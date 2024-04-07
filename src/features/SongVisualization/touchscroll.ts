@@ -22,16 +22,16 @@ function seekSeconds(player: Player, seconds: number) {
 
 const decayRate = 0.96
 let acceleration = 0
-function decay(store: JotaiStore, player: Player) {
+function decay(player: Player) {
   isDragging_ = false
   requestAnimationFrame(() => {
     const songSeconds = acceleration / pps
     // End touchscroll when the acceleration catches up to the natural song velocity.
-    const endSnap = (1 / 60) * store.get(player.getBpmModifier()) // TODO: instead of 1/60 it should be 1 / frameRate.
+    const endSnap = (1 / 60) * player.store.get(player.getBpmModifier()) // TODO: instead of 1/60 it should be 1 / frameRate.
     if (Math.abs(songSeconds) > endSnap) {
       seekSeconds(player, songSeconds)
       acceleration *= decayRate
-      decay(store, player)
+      decay(player)
     } else {
       endInertialScroll(player)
     }
@@ -56,10 +56,10 @@ export function handleDown(player: Player, e: PointerEvent) {
   // TODO: doubleclick pause / play
 }
 
-export function handleUp(store: JotaiStore, player: Player, e: PointerEvent) {
+export function handleUp(player: Player, e: PointerEvent) {
   const target = e.target as HTMLDivElement
   target.releasePointerCapture(e.pointerId)
-  decay(store, player)
+  decay(player)
 }
 
 // Should resume playback.

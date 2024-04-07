@@ -6,7 +6,6 @@ import * as touchscroll from '@/features/SongVisualization/touchscroll'
 import { PIXELS_PER_SECOND as pps } from './utils'
 import { Canvas } from '@/components'
 import { usePlayer } from '../player'
-import { useStore } from 'jotai'
 
 type HandSettings = {
   [trackId: string]: {
@@ -40,7 +39,6 @@ function CanvasRenderer({
   const { width, height, measureRef } = useSize()
   const canvasRef = useRef<HTMLCanvasElement>()
   const player = usePlayer()
-  const store = useStore()
 
   const canvasRect: DOMRect = useMemo(() => {
     return canvasRef.current?.getBoundingClientRect() ?? {}
@@ -70,6 +68,7 @@ function CanvasRenderer({
       canvasRect,
       selectedRange,
       game,
+      player,
     }
     render(state)
   }
@@ -80,7 +79,7 @@ function CanvasRenderer({
       ref={measureRef}
       onPointerMove={(e) => enableTouchscroll && touchscroll.handleMove(player, e.nativeEvent)}
       onPointerDown={(e) => enableTouchscroll && touchscroll.handleDown(player, e.nativeEvent)}
-      onPointerUp={(e) => enableTouchscroll && touchscroll.handleUp(store, player, e.nativeEvent)}
+      onPointerUp={(e) => enableTouchscroll && touchscroll.handleUp(player, e.nativeEvent)}
     >
       <Canvas ref={canvasRef} render={renderCanvas} />
     </div>

@@ -166,9 +166,9 @@ function getGameColorPrefix(state: State, note: SongNote, canvasX: number) {
   const playNotesLineX = getPlayNotesLineX(state)
   const isPlayingNote = canvasX <= playNotesLineX
 
-  if (isHitNote(note) && midiState.getPressedNotes().has(note.midiNote)) {
+  if (isHitNote(state.player, note) && midiState.getPressedNotes().has(note.midiNote)) {
     return colorMap.hover
-  } else if (isMissedNote(note)) {
+  } else if (isMissedNote(state.player, note)) {
     return colorMap.disabled
   } else if (isPlayingNote) {
     return colorMap.primary
@@ -176,7 +176,13 @@ function getGameColorPrefix(state: State, note: SongNote, canvasX: number) {
   return colorMap.black
 }
 
-function getLearnSongColorPrefix(state: State, note: SongNote, canvasX: number, coloredNotes: boolean, step: string) {
+function getLearnSongColorPrefix(
+  state: State,
+  note: SongNote,
+  canvasX: number,
+  coloredNotes: boolean,
+  step: string,
+) {
   const playNotesLineX = getPlayNotesLineX(state)
   const isPlayingNote = canvasX <= playNotesLineX
 
@@ -195,8 +201,13 @@ function renderLedgerLines(state: State, note: SongNote): void {
   const playNotesLineX = getPlayNotesLineX(state)
   let canvasX = posX + playNotesLineX + PLAY_NOTES_WIDTH / 2
 
-  const ledgerGradient = ctx.createLinearGradient(playNotesLineX - STAFF_SPACE * 2, 0, playNotesLineX, 0)
-  fadeColorToWhite("0,0,0", ledgerGradient)
+  const ledgerGradient = ctx.createLinearGradient(
+    playNotesLineX - STAFF_SPACE * 2,
+    0,
+    playNotesLineX,
+    0,
+  )
+  fadeColorToWhite('0,0,0', ledgerGradient)
 
   ctx.fillStyle = ledgerGradient
   ctx.strokeStyle = ledgerGradient
@@ -231,7 +242,12 @@ function renderSheetNote(state: State, note: SongNote): void {
 
   const trailLength = length - STAFF_SPACE
   const trailHeight = 10
-  const noteGradient = ctx.createLinearGradient(playNotesLineX - STAFF_SPACE * 2, 0, playNotesLineX, 0)
+  const noteGradient = ctx.createLinearGradient(
+    playNotesLineX - STAFF_SPACE * 2,
+    0,
+    playNotesLineX,
+    0,
+  )
   fadeColorToWhite(prefix, noteGradient)
 
   ctx.fillStyle = noteGradient
@@ -289,7 +305,7 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
       staff = state.hands?.[inRangeNote.track].hand === 'right' ? 'treble' : 'bass'
     }
 
-    if (state.game && isHitNote(inRangeNote)) {
+    if (state.game && isHitNote(state.player, inRangeNote)) {
       return
     }
 
@@ -297,12 +313,24 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
     const canvasY = getNoteY(note, staff, staffTopY)
     let canvasX = getPlayNotesLineX(state) - 2
     const key = getKey(note)
-    drawMusicNote(ctx, canvasX, canvasY, state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'red')
+    drawMusicNote(
+      ctx,
+      canvasX,
+      canvasY,
+      state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'red',
+    )
 
     // is sharp
     if (key.length === 2) {
-      const symbolColor =  state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'black';
-      drawSymbol(ctx, glyphs.accidentalSharp, canvasX - 24, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.6, symbolColor)
+      const symbolColor = state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'black'
+      drawSymbol(
+        ctx,
+        glyphs.accidentalSharp,
+        canvasX - 24,
+        canvasY,
+        STAFF_FIVE_LINES_HEIGHT * 0.6,
+        symbolColor,
+      )
     }
     if (state.drawNotes) {
       ctx.font = `9px ${TEXT_FONT}`

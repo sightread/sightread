@@ -6,11 +6,13 @@ import { Sizer } from '@/components'
 import { saveSong } from '@/features/persist'
 import clsx from 'clsx'
 import { TextInput } from '@/components/TextInput'
+import { useRefreshStorageMetadata } from '@/features/data/library'
 
 export default function UploadForm({ onClose }: { onClose: () => void }) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [state, setState] = useState<UploadFormState>(defaultUploadState())
   const [dragOver, setDragOver] = useState<boolean>(false)
+  const refreshStorage = useRefreshStorageMetadata()
 
   const handleAddFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target
@@ -29,6 +31,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
     if (state.file && state.artist && state.title) {
       try {
         await saveSong(state.file, state.title, state.artist)
+        refreshStorage()
         setState(defaultUploadState())
         onClose()
       } catch (error: any) {

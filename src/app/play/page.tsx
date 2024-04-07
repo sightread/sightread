@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, Suspense } from 'react'
 
 import { MidiStateEvent, SongSource } from '@/types'
 import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
@@ -23,7 +23,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAtomValue } from 'jotai'
 import { useSongMetadata } from '@/features/data/library'
 
-export default function PlaySong() {
+// This function exists as hack to stop the CSR deopt warning.
+// To do this the "next app router" way would require boxing up the bits
+// that depend on search params in a Suspense boundary.
+// See https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+function PlaySongLegacy() {
   const router = useRouter()
   const player = usePlayer()
   const searchParams = useSearchParams()
@@ -76,7 +80,7 @@ export default function PlaySong() {
     const config = getSongSettings(id, song)
     setSongConfig(config)
     player.setSong(song, config)
-  }, [song, setSongConfig, id])
+  }, [song, setSongConfig, id, player])
 
   useEventListener<KeyboardEvent>('keydown', (evt: KeyboardEvent) => {
     if (evt.code === 'Space') {
@@ -193,5 +197,13 @@ export default function PlaySong() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function PlayPage() {
+  return (
+    <Suspense>
+      <PlaySongLegacy />
+    </Suspense>
   )
 }

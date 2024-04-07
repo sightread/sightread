@@ -1,6 +1,6 @@
 import ClientPage from './index'
 
-import { SongMetadata } from '@/types'
+import { SongMetadata, SongSource } from '@/types'
 
 export type MidishareManifestSong = {
   title: string
@@ -25,12 +25,18 @@ async function getMidishareManifest() {
     return {}
   }
 }
+
+function getKey(id: string, source: SongSource) {
+  return `${source}/${id}`
+}
+
 async function getStaticProps() {
   const midishareMetadata: SongMetadata[] = Object.values(await getMidishareManifest())
   for (const song of midishareMetadata) {
     song.source = 'midishare'
   }
-  return midishareMetadata
+  const metadataByKey = midishareMetadata.map((m) => [getKey(m.id, m.source), m])
+  return metadataByKey
 }
 
 export default async function SelectSong() {

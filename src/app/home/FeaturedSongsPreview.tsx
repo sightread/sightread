@@ -51,9 +51,9 @@ export function FeaturedSongsPreview() {
       <div className="absolute top-0 w-full h-[50px] bg-black/80 flex items-center justify-center">
         <button
           className={clsx(
-            'gap-1 items-center hover:text-gray-300',
+            'gap-1 items-center hover:text-gray-300 text-white',
             'flex absolute left-5 sm:static',
-            playerState.canPlay ? 'text-white' : 'text-gray-400 cursor-progress',
+            !playerState.canPlay && 'cursor-progress',
           )}
           onClick={() => player.toggle()}
         >

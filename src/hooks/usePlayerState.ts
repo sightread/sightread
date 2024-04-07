@@ -1,11 +1,11 @@
-import { getPlayer } from '@/features/player'
+import { usePlayer } from '@/features/player'
 import { useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 
 type PlayerStateHookReturn = { canPlay: boolean; playing: boolean; paused: boolean }
 
 export default function usePlayerState(): PlayerStateHookReturn {
-  const player = getPlayer()
+  const player = usePlayer()
   const state = useAtomValue(player.state)
 
   return useMemo(() => {

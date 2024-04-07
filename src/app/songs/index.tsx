@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { formatTime } from '@/utils'
 import { SongPreviewModal } from '@/features/SongPreview'
 import { AppBar, Modal, Sizer } from '@/components'
@@ -10,8 +10,9 @@ import { Plus } from '@/icons'
 import { SearchBox } from './components/Table/SearchBox'
 import clsx from 'clsx'
 import { UploadForm, Table } from './components'
-import { useSongManifest } from '@/features/data/library'
+import { midishareMetadataAtom, useSongManifest } from '@/features/data/library'
 import { Metadata } from 'next'
+import { useHydrateAtoms } from 'jotai/utils'
 
 export const metadata: Metadata = {
   title: 'Sightread: Select a song',
@@ -37,16 +38,13 @@ function getDifficultyLabel(s: number): DifficultyLabel {
 
 // TODO: after an upload, scroll to the newly uploaded song / make it focused.
 export default function SelectSongPage({ midishareMetadata }: any) {
-  const [songs, addSongs] = useSongManifest()
+  const songs = useSongManifest()
   const [isUploadFormOpen, setUploadForm] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
-
-  // TODO: useHydrateAtoms([[libraryAtom, midishareMetadata]])
-  useEffect(() => {
-    addSongs(midishareMetadata)
-  }, [midishareMetadata])
+  // console.log({ midishareMetadata })
+  useHydrateAtoms([[midishareMetadataAtom, midishareMetadata]])
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (event.key === 'Escape') {
