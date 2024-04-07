@@ -1,11 +1,11 @@
-import { Hand, Song, SongConfig } from '@/types'
-import { GivenState, render } from './canvasRenderer'
-import { useSize } from '@/hooks'
-import { useRef, useMemo } from 'react'
-import * as touchscroll from '@/features/SongVisualization/touchscroll'
-import { PIXELS_PER_SECOND as pps } from './utils'
 import { Canvas } from '@/components'
+import * as touchscroll from '@/features/SongVisualization/touchscroll'
+import { useSize } from '@/hooks'
+import { Hand, Song, SongConfig } from '@/types'
+import { useMemo, useRef } from 'react'
 import { usePlayer } from '../player'
+import { GivenState, render } from './canvasRenderer'
+import { PIXELS_PER_SECOND as pps } from './utils'
 
 type HandSettings = {
   [trackId: string]: {
@@ -75,7 +75,7 @@ function CanvasRenderer({
 
   return (
     <div
-      className="absolute w-full h-full touch-none"
+      className="absolute h-full w-full touch-none"
       ref={measureRef}
       onPointerMove={(e) => enableTouchscroll && touchscroll.handleMove(player, e.nativeEvent)}
       onPointerDown={(e) => enableTouchscroll && touchscroll.handleDown(player, e.nativeEvent)}

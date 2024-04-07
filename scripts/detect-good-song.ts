@@ -5,13 +5,14 @@
  */
 
 import fs from 'fs'
+import { Song } from '../src/types'
+import { getPianoTracks, last, parseFile } from './utils'
+
 const jsdom = require('jsdom')
 const window = new jsdom.JSDOM().window
 const pathJoin = require('path').join
 globalThis.DOMParser = window.DOMParser
 globalThis.NodeFilter = window.NodeFilter
-import { Song } from '../src/types'
-import { parseFile, getPianoTracks, last } from './utils'
 
 const MIDIS_DIR = '/Users/jake/Music/midis/BitMidi'
 const GOOD_DIR = pathJoin(MIDIS_DIR, 'good')

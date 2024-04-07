@@ -11,11 +11,11 @@ export function Article({
     <article id={slugify(header)}>
       <h1 className="text-3xl font-bold">{header}</h1>
       <Sizer height={8} />
-      <div aria-hidden className="border-purple-primary border" />
+      <div aria-hidden className="border border-purple-primary" />
       <Sizer height={16} />
       {first && (
         <>
-          <h2 className="font-medium text-lg">{first}</h2>
+          <h2 className="text-lg font-medium">{first}</h2>
           <Sizer height={16} />
         </>
       )}

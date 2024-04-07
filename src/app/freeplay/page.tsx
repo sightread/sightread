@@ -1,14 +1,15 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
-import { MidiStateEvent, SongConfig } from '@/types'
+
+import { MidiModal } from '@/app/play/components/MidiModal'
+import midiState, { useRecordMidi } from '@/features/midi'
 import { SongVisualizer } from '@/features/SongVisualization'
 import { InstrumentName, useSynth } from '@/features/synth'
-import midiState, { useRecordMidi } from '@/features/midi'
 import { useSingleton } from '@/hooks'
-import FreePlayer from './utils/freePlayer'
-import TopBar from './components/TopBar'
+import { MidiStateEvent, SongConfig } from '@/types'
+import React, { useCallback, useEffect, useState } from 'react'
 import RecordingModal from './components/RecordingModal'
-import { MidiModal } from '@/app/play/components/MidiModal'
+import TopBar from './components/TopBar'
+import FreePlayer from './utils/freePlayer'
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
@@ -50,7 +51,7 @@ export default function FreePlay() {
 
   return (
     <>
-      <div className="w-screen h-screen flex flex-col">
+      <div className="flex h-screen w-screen flex-col">
         <TopBar
           onClickMidi={(e) => {
             e.stopPropagation()
@@ -80,7 +81,7 @@ export default function FreePlay() {
           onClose={() => setRecordingPreview('')}
           songMeta={{ source: 'base64', id: recordingPreview }}
         />
-        <div className="flex-grow relative">
+        <div className="relative flex-grow">
           <SongVisualizer
             song={freePlayer.song}
             config={{ visualization: 'falling-notes', noteLetter: false } as SongConfig}

@@ -1,11 +1,12 @@
 'use client'
+
+import { useWindowWidth } from '@/hooks'
+import { breakpoints } from '@/utils'
 import * as React from 'react'
 import { useState } from 'react'
-import { breakpoints } from '@/utils'
-import { useWindowWidth } from '@/hooks'
-import { TableProps, Row, RowValue } from './types'
-import { sortBy } from './utils'
 import { TableHead } from './TableHead'
+import { Row, RowValue, TableProps } from './types'
+import { sortBy } from './utils'
 
 export default function Table<T extends Row>({
   columns,
@@ -48,16 +49,16 @@ export default function Table<T extends Row>({
           rowHeight={rowHeight}
         />
       </div>
-      <div className="flex flex-grow relative">
+      <div className="relative flex flex-grow">
         <div
-          className="grid absolute w-full h-full bg-white overflow-y-scroll rounded-md shadow-md"
+          className="absolute grid h-full w-full overflow-y-scroll rounded-md bg-white shadow-md"
           style={{ gridTemplateColumns }}
         >
-          {sorted.length === 0 && <h2 className="text-2xl p-5">No results</h2>}
+          {sorted.length === 0 && <h2 className="p-5 text-2xl">No results</h2>}
           {sorted.map((row: T, i) => {
             return (
               <div
-                className="cursor-pointer contents group"
+                className="group contents cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation()
                   onSelectRow(getId(row))
@@ -69,7 +70,7 @@ export default function Table<T extends Row>({
                   const paddingLeft = j === 0 ? 20 : 0
                   return (
                     <span
-                      className="relative px-3 text-sm flex items-center flex-shrink-0 group-hover:bg-purple-hover group-even:bg-gray-100"
+                      className="relative flex flex-shrink-0 items-center px-3 text-sm group-even:bg-gray-100 group-hover:bg-purple-hover"
                       key={`row-${i}-col-${j}`}
                       style={{ paddingLeft, height: rowHeight }}
                     >

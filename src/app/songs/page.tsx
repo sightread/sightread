@@ -1,7 +1,6 @@
+import { SongMetadata } from '@/types'
 import { getKey } from '@/utils'
 import ClientPage from './index'
-
-import { SongMetadata } from '@/types'
 
 export type MidishareManifestSong = {
   title: string

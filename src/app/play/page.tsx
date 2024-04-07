@@ -1,10 +1,12 @@
 'use client'
-import React, { useState, useEffect, useMemo, Suspense } from 'react'
 
-import { MidiStateEvent, SongSource } from '@/types'
-import { SongVisualizer, getHandSettings, getSongSettings } from '@/features/SongVisualization'
 import { SongScrubBar } from '@/features/controls'
+import { useSong } from '@/features/data'
+import { useSongMetadata } from '@/features/data/library'
+import midiState from '@/features/midi'
 import { usePlayer } from '@/features/player'
+import { getHandSettings, getSongSettings, SongVisualizer } from '@/features/SongVisualization'
+import { getSynthStub } from '@/features/synth'
 import {
   useEventListener,
   useOnUnmount,
@@ -13,15 +15,13 @@ import {
   useSongSettings,
   useWakeLock,
 } from '@/hooks'
-import { useSong } from '@/features/data'
-import { getSynthStub } from '@/features/synth'
-import midiState from '@/features/midi'
-import { TopBar, SettingsPanel } from './components'
+import { MidiStateEvent, SongSource } from '@/types'
 import clsx from 'clsx'
-import { MidiModal } from './components/MidiModal'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { useAtomValue } from 'jotai'
-import { useSongMetadata } from '@/features/data/library'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { Suspense, useEffect, useMemo, useState } from 'react'
+import { SettingsPanel, TopBar } from './components'
+import { MidiModal } from './components/MidiModal'
 
 // This function exists as hack to stop the CSR deopt warning.
 // To do this the "next app router" way would require boxing up the bits
@@ -133,7 +133,7 @@ function PlaySongLegacy() {
         className={clsx(
           // Enable fixed to remove all scrolling.
           'fixed',
-          'flex flex-col h-screen max-h-screen max-w-screen',
+          'max-w-screen flex h-screen max-h-screen flex-col',
         )}
       >
         {!isRecording && (
@@ -180,7 +180,7 @@ function PlaySongLegacy() {
         )}
         <div
           className={clsx(
-            'fixed w-screen h-[100vh] -z-10',
+            'fixed -z-10 h-[100vh] w-screen',
             '!h-[100dvh]',
             songConfig.visualization === 'sheet' ? 'bg-white' : 'bg-[#2e2e2e]',
           )}

@@ -1,18 +1,19 @@
 'use client'
-import * as React from 'react'
-import { useState } from 'react'
-import { formatTime } from '@/utils'
-import { SongPreviewModal } from '@/features/SongPreview'
+
 import { AppBar, Modal, Sizer } from '@/components'
-import { DifficultyLabel, SongMetadata } from '@/types'
+import { midishareMetadataAtom, useSongManifest } from '@/features/data/library'
+import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
 import { Plus } from '@/icons'
-import { SearchBox } from './components/Table/SearchBox'
+import { DifficultyLabel, SongMetadata } from '@/types'
+import { formatTime } from '@/utils'
 import clsx from 'clsx'
-import { UploadForm, Table } from './components'
-import { midishareMetadataAtom, useSongManifest } from '@/features/data/library'
-import { Metadata } from 'next'
 import { useHydrateAtoms } from 'jotai/utils'
+import { Metadata } from 'next'
+import * as React from 'react'
+import { useState } from 'react'
+import { Table, UploadForm } from './components'
+import { SearchBox } from './components/Table/SearchBox'
 
 export const metadata: Metadata = {
   title: 'Sightread: Select a song',
@@ -72,9 +73,9 @@ export default function SelectSongPage({ midishareMetadata }: any) {
       <Modal show={isUploadFormOpen} onClose={handleCloseAddNew}>
         <UploadForm onClose={handleCloseAddNew} />
       </Modal>
-      <div className="bg-purple-lightest w-full h-screen flex flex-col">
+      <div className="flex h-screen w-full flex-col bg-purple-lightest">
         <AppBar />
-        <div className="p-6 mx-auto max-w-screen-lg flex flex-col flex-grow w-full">
+        <div className="mx-auto flex w-full max-w-screen-lg flex-grow flex-col p-6">
           <h2 className="text-3xl">Learn a song</h2>
           <Sizer height={8} />
           <h3 className="text-base"> Select a song, choose your settings, and begin learning</h3>
@@ -83,9 +84,9 @@ export default function SelectSongPage({ midishareMetadata }: any) {
             <SearchBox placeholder={'Search Songs by Title or Artist'} onSearch={setSearch} />
             <button
               className={clsx(
-                'hidden sm:flex whitespace-nowrap flex-nowrap',
-                'py-2 px-4 items-center rounded-md gap-1',
-                'bg-purple-dark transition hover:bg-purple-hover text-white',
+                'hidden flex-nowrap whitespace-nowrap sm:flex',
+                'items-center gap-1 rounded-md px-4 py-2',
+                'bg-purple-dark text-white transition hover:bg-purple-hover',
               )}
               onClick={handleAddNew}
             >

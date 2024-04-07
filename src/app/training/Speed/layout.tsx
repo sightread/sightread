@@ -1,5 +1,5 @@
-import { PropsWithChildren } from 'react'
 import { Metadata } from 'next'
+import { PropsWithChildren } from 'react'
 
 export const metadata: Metadata = {
   title: 'Sightread: Speed Training',
