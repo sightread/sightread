@@ -1,3 +1,4 @@
+'use client'
 import { useState, useCallback, useEffect } from 'react'
 import { isBrowser } from '@/utils'
 import Storage from './storage'

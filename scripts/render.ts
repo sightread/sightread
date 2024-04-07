@@ -131,6 +131,7 @@ async function renderVideo(file: string) {
 }
 
 let stepDepth = 0
+
 /**
  * Perform an arbitrary function and log the amount of time taken.
  */

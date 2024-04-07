@@ -1,6 +1,6 @@
 import { isBrowser } from '@/utils'
 import gmInstruments from './instruments'
-import { audioContextEnabled, getAudioContext, getKeyForSoundfont } from './utils'
+import { getAudioContext, getKeyForSoundfont, isAudioContextEnabled } from './utils'
 import { SoundFont, Synth, InstrumentName } from './types'
 import { loadInstrument, soundfonts } from './loadInstrument'
 import midi from '../midi'
@@ -25,7 +25,7 @@ export async function getSynth(instrument: InstrumentName | number): Promise<Syn
     instrument = gmInstruments[instrument]
   }
   if (!isValidInstrument(instrument)) {
-    console.error('Invalid instrument: ', instrument, 'reverting to acoustic_grand_piano.')
+    console.log('Invalid instrument: ', instrument, 'reverting to acoustic_grand_piano.')
     instrument = gmInstruments[0]
   }
 
@@ -89,7 +89,7 @@ class InstrumentSynth implements Synth {
 
   playNote(note: number, velocity = 127 / 2) {
     midi.pressOutput(note, this.masterVolume)
-    if (!audioContextEnabled.value) {
+    if (!isAudioContextEnabled()) {
       return
     }
     const key = getKeyForSoundfont(note)
@@ -112,7 +112,7 @@ class InstrumentSynth implements Synth {
     if (!this.playing.has(note)) {
       return
     }
-    if (!audioContextEnabled.value) {
+    if (!isAudioContextEnabled()) {
       return
     }
     const audioContext = getAudioContext()

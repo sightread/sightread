@@ -99,7 +99,6 @@ function inferHands(song: Song): { left?: number; right?: number } {
   return parserInferHands(song)
 }
 
-// TODO: is this an OK spot?
 export type CanvasItem = SongMeasure | SongNote
 
 export function getItemsInView<T>(

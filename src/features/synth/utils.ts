@@ -1,6 +1,6 @@
 import { isBrowser } from '@/utils'
 import { getOctave } from '../theory'
-import { signal } from '@preact/signals-react'
+import { atom, getDefaultStore } from 'jotai'
 
 // convert a MIDI.js javascript soundfont file to json
 async function parseMidiJsSoundfont(text: string): Promise<{ [key: string]: AudioBuffer }> {
@@ -37,10 +37,12 @@ function getAudioContext() {
   return AudioContext
 }
 
-let audioContextEnabledPrivate = true
-export const audioContextEnabled = signal(true)
+type JotaiStore = ReturnType<typeof getDefaultStore>
+let store: JotaiStore = getDefaultStore()
+export const audioContextEnabledAtom = atom(true)
+
 export function disableAudioContext() {
-  audioContextEnabledPrivate = audioContextEnabled.value = false
+  store.set(audioContextEnabledAtom, false)
   resetAudioContext()
 }
 
@@ -51,7 +53,11 @@ function resetAudioContext() {
   AudioContext = undefined
 }
 export function enableAudioContext() {
-  audioContextEnabledPrivate = audioContextEnabled.value = true
+  store.set(audioContextEnabledAtom, true)
+}
+
+export function isAudioContextEnabled() {
+  return store.get(audioContextEnabledAtom)
 }
 
 // The sound fonts need the key in C Major with only flat accidentals.

@@ -3,6 +3,7 @@ import { KEY_SIGNATURE } from '@/features/theory'
 import { CanvasItem } from './utils'
 import { renderFallingVis } from './falling-notes'
 import { renderSheetVis } from './sheet'
+import { Player } from '../player'
 
 export type GivenState = {
   time: number
@@ -23,6 +24,7 @@ export type GivenState = {
   // TODO: snap to measures
   selectedRange?: { start: number; end: number }
   game: boolean
+  player: Player
 }
 
 export function render(state: Readonly<GivenState>) {

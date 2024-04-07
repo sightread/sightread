@@ -2,7 +2,7 @@ import { isBrowser } from '@/utils'
 
 /**
  * Wraps `LocalStorage` with a few builtin features:
- * - in-mem lookup for faster successive reads and semi-functional behaviore in no-storage scenarios.
+ * - in-mem lookup for faster successive reads and semi-functional behavior in no-storage scenarios.
  * - JSON parse/stringify for reduced boilerplate
  * - Error swallowing to not crash app
  */

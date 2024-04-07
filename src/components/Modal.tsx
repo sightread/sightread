@@ -1,3 +1,4 @@
+'use client'
 import { PropsWithChildren, useEffect, useRef } from 'react'
 import clsx from 'clsx'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
