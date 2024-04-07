@@ -6,10 +6,10 @@ import { FeaturedSongsPreview } from './home/FeaturedSongsPreview'
 export default function Home() {
   return (
     <>
-      <div className="relative flex flex-col w-full min-h-[800px,100vh] text-white">
+      <div className="relative flex min-h-[800px,100vh] w-full flex-col text-white">
         <AppBar />
-        <div className="p-8 bg-purple-primary flex flex-col items-center text-center">
-          <h1 className="font-bold text-reponsive2Xl">Your Piano Journey Begins Here</h1>
+        <div className="flex flex-col items-center bg-purple-primary p-8 text-center">
+          <h1 className="text-reponsive2Xl font-bold">Your Piano Journey Begins Here</h1>
           <Sizer height={8} />
           <h3 className="text-reponsiveXl">
             Plug in your keyboard and learn, right in your browser
@@ -49,7 +49,7 @@ export default function Home() {
               </Button>
             </Link>
             <Link href={'/freeplay'}>
-              <Button className="bg-white text-purple-primary border border-purple-primary hover:bg-purple-light">
+              <Button className="border border-purple-primary bg-white text-purple-primary hover:bg-purple-light">
                 Free play
               </Button>
             </Link>

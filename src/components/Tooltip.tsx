@@ -1,6 +1,7 @@
 'use client'
-import React, { PropsWithChildren } from 'react'
+
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import React, { PropsWithChildren } from 'react'
 
 type TooltipProps = PropsWithChildren<{
   label: string
@@ -28,7 +29,7 @@ export function Tooltip({
       <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
       <TooltipPrimitive.Portal>
         <TooltipPrimitive.Content
-          className="bg-purple-primary text-white py-1 px-2 rounded-md text-sm"
+          className="rounded-md bg-purple-primary px-2 py-1 text-sm text-white"
           side="top"
           align="center"
           {...props}
