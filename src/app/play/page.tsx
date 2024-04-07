@@ -55,10 +55,10 @@ function PlaySongLegacy() {
     songConfig.left && songConfig.right
       ? 'both'
       : songConfig.left
-      ? 'left'
-      : songConfig.right
-      ? 'right'
-      : 'none'
+        ? 'left'
+        : songConfig.right
+          ? 'right'
+          : 'none'
 
   // Hack for updating player when config changes.
   // Maybe move to the onChange? Or is this chill.
