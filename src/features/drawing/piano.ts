@@ -155,9 +155,12 @@ export function drawPianoRoll(
     const isPressed = activeNotes.has(+midiNote)
     ctx.fillStyle = activeNotes.get(+midiNote) ?? 'black'
     const images = getImages()
-    let img = isPressed ? images.blackKeyPressed : images.blackKeyRaised
     let posY = isPressed ? pianoTopY : pianoTopY - 2
-    ctx.drawImage(img, left, posY, width, blackHeight)
+    if (images.blackKeyPressed && images.blackKeyRaised) {
+      let img = isPressed ? images.blackKeyPressed : images.blackKeyRaised
+      ctx.drawImage(img, left, posY, width, blackHeight)
+    }
+
     if (activeNotes.has(+midiNote)) {
       ctx.globalCompositeOperation = 'overlay'
       ctx.fillRect(left, posY, width, blackHeight)
