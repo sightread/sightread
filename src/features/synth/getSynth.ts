@@ -87,7 +87,7 @@ class InstrumentSynth implements Synth {
     this.masterVolume = 1
   }
 
-  playNote(note: number, velocity: number = 127 / 2) {
+  playNote(note: number, velocity = 127 / 2) {
     midi.pressOutput(note, this.masterVolume)
     if (!isAudioContextEnabled()) {
       return
