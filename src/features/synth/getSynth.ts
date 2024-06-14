@@ -1,9 +1,9 @@
 import { isBrowser } from '@/utils'
-import gmInstruments from './instruments'
-import { getAudioContext, getKeyForSoundfont, isAudioContextEnabled } from './utils'
-import { SoundFont, Synth, InstrumentName } from './types'
-import { loadInstrument, soundfonts } from './loadInstrument'
 import midi from '../midi'
+import gmInstruments from './instruments'
+import { loadInstrument, soundfonts } from './loadInstrument'
+import { InstrumentName, SoundFont, Synth } from './types'
+import { getAudioContext, getKeyForSoundfont, isAudioContextEnabled } from './utils'
 
 function isValidInstrument(instrument: InstrumentName | undefined) {
   return instrument && gmInstruments.find((s) => s === instrument)
@@ -49,7 +49,8 @@ class SynthStub implements Synth {
       this.synth.setMasterVolume(this.masterVolume)
     })
   }
-  playNote(note: number, velocity: number) {
+  playNote(note: number, velocity?: number) {
+    console.debug('called playnote in SynthStub')
     this.synth?.playNote(note, velocity)
   }
   stopNote(note: number) {
@@ -87,7 +88,7 @@ class InstrumentSynth implements Synth {
     this.masterVolume = 1
   }
 
-  playNote(note: number, velocity: number) {
+  playNote(note: number, velocity: number = 127 / 2) {
     midi.pressOutput(note, this.masterVolume)
     if (!isAudioContextEnabled()) {
       return
