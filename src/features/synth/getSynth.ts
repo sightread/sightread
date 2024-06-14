@@ -49,8 +49,8 @@ class SynthStub implements Synth {
       this.synth.setMasterVolume(this.masterVolume)
     })
   }
-  playNote(note: number) {
-    this.synth?.playNote(note)
+  playNote(note: number, velocity: number) {
+    this.synth?.playNote(note, velocity)
   }
   stopNote(note: number) {
     this.synth?.stopNote(note)
@@ -87,7 +87,7 @@ class InstrumentSynth implements Synth {
     this.masterVolume = 1
   }
 
-  playNote(note: number, velocity = 127 / 2) {
+  playNote(note: number, velocity: number) {
     midi.pressOutput(note, this.masterVolume)
     if (!isAudioContextEnabled()) {
       return
