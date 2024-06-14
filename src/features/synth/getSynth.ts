@@ -1,9 +1,9 @@
 import { isBrowser } from '@/utils'
-import midi from '../midi'
 import gmInstruments from './instruments'
-import { loadInstrument, soundfonts } from './loadInstrument'
-import { InstrumentName, SoundFont, Synth } from './types'
 import { getAudioContext, getKeyForSoundfont, isAudioContextEnabled } from './utils'
+import { SoundFont, Synth, InstrumentName } from './types'
+import { loadInstrument, soundfonts } from './loadInstrument'
+import midi from '../midi'
 
 function isValidInstrument(instrument: InstrumentName | undefined) {
   return instrument && gmInstruments.find((s) => s === instrument)
