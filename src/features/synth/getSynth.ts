@@ -50,7 +50,6 @@ class SynthStub implements Synth {
     })
   }
   playNote(note: number, velocity?: number) {
-    console.debug('called playnote in SynthStub')
     this.synth?.playNote(note, velocity)
   }
   stopNote(note: number) {
