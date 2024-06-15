@@ -49,8 +49,8 @@ class SynthStub implements Synth {
       this.synth.setMasterVolume(this.masterVolume)
     })
   }
-  playNote(note: number) {
-    this.synth?.playNote(note)
+  playNote(note: number, velocity?: number) {
+    this.synth?.playNote(note, velocity)
   }
   stopNote(note: number) {
     this.synth?.stopNote(note)
