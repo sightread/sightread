@@ -29,8 +29,8 @@ export default function parseMidi(midiData: ArrayBufferLike): Song {
         i,
         {
           name: track.name,
-          // infer percussion soundfont for drums
-          instrument: (track?.instrument?.family === 'drums' ? 'percussion' : track.instrument.name),
+          // infer percussion soundfont for drums (channel 9)
+          instrument: (track.channel === 9 ? 'percussion' : track.instrument.name),
           program: track.instrument.number,
         },
       ]
