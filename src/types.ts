@@ -11,7 +11,7 @@ export type DifficultyLabel =
   // "-" stands for Unknown
   | '-'
 
-export type SongSource = 'midishare' | 'upload' | 'builtin' | 'generated' | 'base64'
+export type SongSource = 'midishare' | 'upload' | 'builtin' | 'generated' | 'base64' | 'url'
 export type SongMetadata = {
   id: string
   file: string
@@ -75,6 +75,12 @@ export type Song = {
   keySignature: KEY_SIGNATURE
   items: Array<SongNote | SongMeasure>
   backing?: HTMLAudioElement
+}
+
+export type Playlist = {
+  id: string
+  name: string
+  songs: SongMetadata[]
 }
 
 export type Clef = 'bass' | 'treble'

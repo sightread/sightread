@@ -4,7 +4,7 @@ import { AppBar, MarketingFooter, Modal, Sizer } from '@/components'
 import { midishareMetadataAtom, useSongManifest } from '@/features/data/library'
 import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
-import { Plus } from '@/icons'
+import { Plus, Archive } from '@/icons'
 import { DifficultyLabel, SongMetadata } from '@/types'
 import { formatTime } from '@/utils'
 import clsx from 'clsx'
@@ -14,6 +14,7 @@ import * as React from 'react'
 import { useState } from 'react'
 import { Table, UploadForm } from './components'
 import { SearchBox } from './components/Table/SearchBox'
+import PlayListView from './components/Playlists/PlaylistsView'
 
 export const metadata: Metadata = {
   title: 'Sightread: Select a song',
@@ -41,6 +42,7 @@ function getDifficultyLabel(s: number): DifficultyLabel {
 export default function SelectSongPage({ midishareMetadata }: any) {
   const songs = useSongManifest()
   const [isUploadFormOpen, setUploadForm] = useState<boolean>(false)
+  const [isPlaylistFormOpen, setPlaylistFormOpen] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
@@ -61,6 +63,15 @@ export default function SelectSongPage({ midishareMetadata }: any) {
     setUploadForm(false)
   }
 
+  const handlePlaylists = (e: any) => {
+    setPlaylistFormOpen(true)
+    e.stopPropagation();
+  }
+
+  const handleClosePlaylists = () => {
+    setPlaylistFormOpen(false)
+  }
+
   return (
     <>
       <SongPreviewModal
@@ -72,6 +83,9 @@ export default function SelectSongPage({ midishareMetadata }: any) {
       />
       <Modal show={isUploadFormOpen} onClose={handleCloseAddNew}>
         <UploadForm onClose={handleCloseAddNew} />
+      </Modal>
+      <Modal show={isPlaylistFormOpen} onClose={handleClosePlaylists}>
+        <PlayListView onClose={handleCloseAddNew} />
       </Modal>
       <div className="flex h-screen w-full flex-col bg-purple-lightest">
         <AppBar />
@@ -92,6 +106,17 @@ export default function SelectSongPage({ midishareMetadata }: any) {
             >
               <Plus width={20} height={20} />
               <span>Add New</span>
+            </button>
+            <button
+              className={clsx(
+                'hidden flex-nowrap whitespace-nowrap sm:flex',
+                'items-center gap-1 rounded-md px-4 py-2',
+                'bg-purple-dark text-white transition hover:bg-purple-hover',
+              )}
+              onClick={handlePlaylists}
+            >
+              <Archive width={20} height={20} />
+              <span>Manage playlists</span>
             </button>
           </div>
           <Sizer height={32} />

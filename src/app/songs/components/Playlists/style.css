@@ -1,0 +1,12 @@
+details .details-mark-close{
+    display:block;
+}
+details .details-mark-open{
+    display: none;
+}
+details[open] .details-mark-close{
+    display: none;
+}
+details[open] .details-mark-open{
+    display: block;
+}

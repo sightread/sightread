@@ -19,18 +19,22 @@ function getBase64Song(data: string): Song {
 }
 
 function fetchSong(id: string, source: SongSource): Promise<Song> {
-  if (source === 'midishare' || source === 'builtin') {
+  switch (source) {
+    case 'midishare':
+    case 'builtin':
     const url = getSongUrl(id, source)
     return fetch(url).then(handleSong)
-  } else if (source === 'base64') {
+    case 'base64':
     return Promise.resolve(getBase64Song(id))
-  } else if (source === 'upload') {
+    case 'upload':
     return Promise.resolve(getUploadedSong(id)).then((res) =>
       res === null ? Promise.reject(new Error('Could not find song')) : res,
     )
+    case 'url':
+      return fetch(id).then(handleSong)
+    default:
+      return Promise.reject(new Error(`Could not get song for ${id}, ${source}`))
   }
-
-  return Promise.reject(new Error(`Could not get song for ${id}, ${source}`))
 }
 
 export function useSong(id: string, source: SongSource): SWRResponse<Song, any, any> {

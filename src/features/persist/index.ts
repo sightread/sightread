@@ -4,5 +4,8 @@ export {
   getUploadedSong,
   getPersistedSongSettings,
   saveSong,
+  getPlaylistLibrary,
+  savePlaylist,
+  deletePlaylist,
   setPersistedSongSettings,
 } from './persistence'
