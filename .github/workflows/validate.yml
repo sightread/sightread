@@ -16,7 +16,7 @@ jobs:
       NEXT_PUBLIC_GA_ID: mock-ga-id
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run test
       - run: bun run build
