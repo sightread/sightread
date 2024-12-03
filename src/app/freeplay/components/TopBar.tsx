@@ -5,7 +5,7 @@ import { ArrowLeft, Midi, StartRecord, StopRecord } from '@/icons'
 import { formatInstrumentName } from '@/utils'
 import Link from 'next/link'
 import React, { MouseEvent } from 'react'
-import { Maximize, Minimize } from 'react-feather'
+import { ChevronsUp, Maximize, Minimize } from 'react-feather'
 
 type TopBarProps = {
   isError: boolean
@@ -17,6 +17,7 @@ type TopBarProps = {
   onClickMidi: (e: MouseEvent<any>) => void
   onClickRecord: (e: MouseEvent<any>) => void
   onClickFullScreen: () => void
+  onClickHide: () => void
 }
 
 export default function TopBar({
@@ -29,6 +30,7 @@ export default function TopBar({
   onClickMidi,
   onClickRecord,
   onClickFullScreen,
+  onClickHide,
 }: TopBarProps) {
   const recordTooltip = isRecordingAudio ? 'Stop recording' : 'Start recording audio'
 
@@ -59,6 +61,9 @@ export default function TopBar({
         {isFullScreen ?
           <Minimize size={24} onClick={onClickFullScreen} />:
           <Maximize size={24} onClick={onClickFullScreen} />}
+      </ButtonWithTooltip>
+      <ButtonWithTooltip tooltip="Hide Menu">
+        <ChevronsUp size={24} onClick={onClickHide} />
       </ButtonWithTooltip>
     </div>
   )
