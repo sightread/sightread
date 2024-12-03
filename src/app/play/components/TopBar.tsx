@@ -3,9 +3,10 @@ import { VolumeSliderButton } from '@/features/controls'
 import { ArrowLeft, Midi, Settings, SkipBack } from '@/icons'
 import { isMobile } from '@/utils'
 import clsx from 'clsx'
-import React, { MouseEvent, PropsWithChildren } from 'react'
+import React, { MouseEvent, PropsWithChildren, useEffect, useState } from 'react'
 import StatusIcon from './StatusIcon'
-import { ChevronsUp, Maximize, Minimize } from 'react-feather'
+import { ChevronsUp, Maximize, Menu, Minimize } from 'react-feather'
+import useWindowWidth from '@/hooks/useWindowWidth';
 
 type TopBarProps = {
   isLoading: boolean
@@ -36,6 +37,12 @@ export default function TopBar({
   title,
   onClickMidi,
 }: TopBarProps) {
+  const [showMore, setShowMore] = useState<boolean>(false)
+  const windowWidth = useWindowWidth();
+  useEffect(() => {
+    setShowMore(false);
+  }, [windowWidth]);
+
   return (
     <div className="align-center relative z-10 flex h-[50px] min-h-[50px] w-screen justify-end gap-8 bg-[#292929] px-1">
       <ButtonWithTooltip
@@ -57,8 +64,13 @@ export default function TopBar({
         </ButtonWithTooltip>
         <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
       </div>
-      <div className="hidden h-full items-center text-white sm:ml-auto sm:flex">{title}</div>
-      <div className="mr-[20px] flex h-full items-center gap-8">
+      <div className="hidden w-1/4 lg:w-1/5 h-full items-center text-white sm:ml-auto sm:flex">
+        <div className="overflow-hidden whitespace-nowrap overflow-ellipsis">{title}</div>
+      </div>
+      <ButtonWithTooltip tooltip={"menu"} className="mr-3 min-h-[50px] xs:hidden absolute" isActive={showMore}>
+        <Menu size={24} onClick={() => setShowMore(!showMore)} />
+      </ButtonWithTooltip>
+      <div className={(showMore ? "flex flex-col mt-[50px] p-2 mr-1 h-fit bg-[#292929]": "hidden mr-[20px] h-full" ) + " xs:flex items-center gap-8"}>
         <ButtonWithTooltip tooltip="Choose a MIDI device">
           <Midi size={24} onClick={onClickMidi} />
         </ButtonWithTooltip>
