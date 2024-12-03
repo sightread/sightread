@@ -5,26 +5,31 @@ import { isMobile } from '@/utils'
 import clsx from 'clsx'
 import React, { MouseEvent, PropsWithChildren } from 'react'
 import StatusIcon from './StatusIcon'
+import { Maximize, Minimize } from 'react-feather'
 
 type TopBarProps = {
   isLoading: boolean
   isPlaying: boolean
+  isFullScreen: boolean
   title?: string
   onTogglePlaying: () => void
   onClickSettings: (e: MouseEvent<any>) => void
   onClickBack: () => void
   onClickRestart: () => void
   onClickMidi: (e: MouseEvent<any>) => void
+  onClickFullScreen: () => void
   settingsOpen: boolean
 }
 
 export default function TopBar({
   isPlaying,
   isLoading,
+  isFullScreen,
   onTogglePlaying,
   onClickSettings,
   onClickBack,
   onClickRestart,
+  onClickFullScreen,
   settingsOpen,
   title,
   onClickMidi,
@@ -58,6 +63,11 @@ export default function TopBar({
           <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
         {!isMobile() && <VolumeSliderButton />}
+        <ButtonWithTooltip tooltip="Full Screen">
+          {isFullScreen ?
+            <Minimize size={24} onClick={onClickFullScreen} />:
+            <Maximize size={24} onClick={onClickFullScreen} />}
+        </ButtonWithTooltip>
       </div>
     </div>
   )

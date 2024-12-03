@@ -22,6 +22,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import { SettingsPanel, TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
 // This function exists as hack to stop the CSR deopt warning.
 // To do this the "next app router" way would require boxing up the bits
@@ -36,6 +37,7 @@ function PlaySongLegacy() {
 
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
+  const fullScreenHandle = useFullScreenHandle()
   const playerState = usePlayerState()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   let { data: song } = useSong(id, source)
@@ -128,7 +130,7 @@ function PlaySongLegacy() {
   }
 
   return (
-    <>
+    <FullScreen handle={fullScreenHandle}>
       <div
         className={clsx(
           // Enable fixed to remove all scrolling.
@@ -156,6 +158,10 @@ function PlaySongLegacy() {
                 e.stopPropagation()
                 setSettingsPanel(!settingsOpen)
               }}
+              onClickFullScreen={() => fullScreenHandle.active ?
+                fullScreenHandle.exit() :
+                fullScreenHandle.enter()}
+              isFullScreen={fullScreenHandle.active}
               settingsOpen={settingsOpen}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
@@ -196,7 +202,7 @@ function PlaySongLegacy() {
           />
         </div>
       </div>
-    </>
+    </FullScreen>
   )
 }
 

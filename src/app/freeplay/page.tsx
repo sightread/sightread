@@ -10,6 +10,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import RecordingModal from './components/RecordingModal'
 import TopBar from './components/TopBar'
 import FreePlayer from './utils/freePlayer'
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
@@ -18,6 +19,7 @@ export default function FreePlay() {
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const { isRecording, startRecording, stopRecording } = useRecordMidi(midiState)
   const [recordingPreview, setRecordingPreview] = useState('')
+  const fullScreenHandle = useFullScreenHandle()
 
   const handleNoteDown = useCallback(
     (note: number, velocity: number = 80) => {
@@ -50,7 +52,7 @@ export default function FreePlay() {
   }, [handleNoteDown, handleNoteUp])
 
   return (
-    <>
+    <FullScreen handle={fullScreenHandle}>
       <div className="flex h-screen w-screen flex-col">
         <TopBar
           onClickMidi={(e) => {
@@ -74,6 +76,10 @@ export default function FreePlay() {
           isError={synthState.error}
           value={instrumentName}
           onChange={(name) => setInstrumentName(name)}
+          onClickFullScreen={() => fullScreenHandle.active ?
+            fullScreenHandle.exit() :
+            fullScreenHandle.enter()}
+          isFullScreen={fullScreenHandle.active}
         />
         <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
         <RecordingModal
@@ -92,6 +98,6 @@ export default function FreePlay() {
           />
         </div>
       </div>
-    </>
+    </FullScreen>
   )
 }
