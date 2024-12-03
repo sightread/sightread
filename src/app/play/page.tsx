@@ -189,11 +189,20 @@ function PlaySongLegacy() {
           </>
         )}
         {!isRecording && isHide &&
-          <div className="flex min-h-[50px] right-[24px] fixed">
-            <ButtonWithTooltip tooltip="Open Menu" >
-              <ChevronsDown className={"border rounded-lg"} size={24} onClick={() => setHide(false)} />
-            </ButtonWithTooltip>
-          </div>
+          <>
+            <div className="relative min-w-full w-screen">
+              <SongScrubBar
+                minimized={true}
+                rangeSelection={selectedRange}
+                height={2}
+              />
+            </div>
+            <div className="flex min-h-[50px] right-[24px] fixed">
+              <ButtonWithTooltip tooltip="Open Menu" >
+                <ChevronsDown className={"border rounded-lg"} size={24} onClick={() => setHide(false)} />
+              </ButtonWithTooltip>
+            </div>
+          </>
         }
         <div
           className={clsx(
