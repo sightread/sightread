@@ -49,9 +49,9 @@ export default function Table<T extends Row>({
           rowHeight={rowHeight}
         />
       </div>
-      <div className="relative flex flex-grow">
+      <div className="relative flex flex-grow min-h-64">
         <div
-          className="absolute grid h-full w-full overflow-y-scroll rounded-md bg-white shadow-md"
+          className="absolute grid h-full w-full overflow-y-scroll rounded-md bg-white shadow-md content-start"
           style={{ gridTemplateColumns }}
         >
           {sorted.length === 0 && <h2 className="p-5 text-2xl">No results</h2>}
