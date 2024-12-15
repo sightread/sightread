@@ -131,9 +131,10 @@ function InstrumentCard({ track, trackId, song, setTrack, noteCount, onPlayTrack
   const player = usePlayer()
   const [isPlaying, setPlaying] = useState<boolean>(false)
 
-  const handlePlayTrack = (isPlaying: boolean) => {
-    setPlaying(isPlaying)
-    onPlayTrack(trackId, isPlaying)
+  const handlePlayTrack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setPlaying(!isPlaying)
+    onPlayTrack(trackId, !isPlaying)
   }
 
   const handleRestoreTrack = () => {
@@ -177,6 +178,8 @@ function InstrumentCard({ track, trackId, song, setTrack, noteCount, onPlayTrack
         </span>
         <span className="bg-purple-light mx-1 my-2 h-6 w-[2px]"></span>
         <span>{noteCount} Notes</span>
+        <TogglePlayTrack on={isPlaying} onClick={handlePlayTrack} />
+        <RestoreTrack onClick={handleRestoreTrack} />
       </div>
       <InstrumentSelect
         value={track.instrument}
@@ -187,11 +190,8 @@ function InstrumentCard({ track, trackId, song, setTrack, noteCount, onPlayTrack
       <TrackSettingsSection
         hand={track.hand}
         sound={track.sound}
-        playTrack={isPlaying}
         onSelectHand={handleSelectHand}
         onToggleSound={handleSound}
-        onTogglePlayTrack={handlePlayTrack}
-        onRestoreTrack={handleRestoreTrack}
       />
     </span>
   )
@@ -224,26 +224,13 @@ function InstrumentSelect({
 type TrackSettingProps = {
   hand: 'left' | 'right' | 'none'
   sound: boolean
-  playTrack: boolean
   onSelectHand: (hand: 'left' | 'right' | 'none') => void
   onToggleSound: (sound: boolean) => void
-  onTogglePlayTrack: (playTrack: boolean) => void
-  onRestoreTrack: () => void
 }
-function TrackSettingsSection({ hand, sound, playTrack, onSelectHand, onToggleSound, onTogglePlayTrack, onRestoreTrack }: TrackSettingProps) {
+function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: TrackSettingProps) {
   const handleSound = (e: React.MouseEvent) => {
     e.stopPropagation()
     onToggleSound(!sound)
-  }
-
-  const handlePlayTrack = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onTogglePlayTrack(!playTrack)
-  }
-
-  const handleRestoreTrack = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onRestoreTrack()
   }
 
   return (
@@ -261,8 +248,6 @@ function TrackSettingsSection({ hand, sound, playTrack, onSelectHand, onToggleSo
         }}
       />
       <ToggleSound on={sound} onClick={handleSound} />
-      <TogglePlayTrack on={playTrack} onClick={handlePlayTrack} />
-      <RestoreTrack onClick={handleRestoreTrack} />
     </div>
   )
 }
@@ -323,17 +308,15 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
 }
 
 function TogglePlayTrack({ on, onClick }: ToggleIconProps) {
-  const labelText = on ? 'Stop track' : 'Play track'
 
   return (
-    <button className="flex flex-col items-center">
+    <button className="ml-2 mr-6 flex flex-col items-center">
       <Play
-        height={32}
-        width={32}
+        height={24}
+        width={24}
         className={clsx(on ? 'text-purple-primary fill-purple-primary' : 'hover:fill-purple-primary')}
         onClick={onClick}
       />
-      <span style={labelStyle}>{labelText}</span>
     </button>
   )
 }
@@ -341,14 +324,13 @@ function TogglePlayTrack({ on, onClick }: ToggleIconProps) {
 function RestoreTrack({ onClick }: {onClick: (e: React.MouseEvent) => void}) {
 
   return (
-    <button className="flex flex-col items-center">
+    <button className="ml-auto flex flex-col items-center">
       <RefreshCcw
-        height={32}
-        width={32}
+        height={24}
+        width={24}
         className={clsx('transition-transform duration-300 ease-in-out hover:-rotate-45')}
         onClick={onClick}
       />
-      <span style={labelStyle}>Restore default</span>
     </button>
   )
 }
