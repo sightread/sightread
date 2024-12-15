@@ -82,6 +82,15 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
     }
   }
 
+  const handleRestoreAll = () => {
+    if (song) {
+      const defaultSettings = getDefaultSongSettings(song)
+      if (defaultSettings) {
+        setTracks(defaultSettings.tracks);
+      }
+    }
+  }
+
   return (
     <>
       {Object.entries(tracks).map(([track, settings]) => {
@@ -97,6 +106,11 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
           />
         )
       })}
+      <div className="w-full flex justify-center" >
+        <span className="m-4 p-4 rounded-md border border-black bg-white">
+          <RestoreAll onClick={handleRestoreAll} />
+        </span>
+      </div>
     </>
   )
 }
@@ -335,6 +349,20 @@ function RestoreTrack({ onClick }: {onClick: (e: React.MouseEvent) => void}) {
         onClick={onClick}
       />
       <span style={labelStyle}>Restore default</span>
+    </button>
+  )
+}
+
+function RestoreAll({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
+  return (
+    <button className="flex flex-col items-center justify-center">
+      <RefreshCcw
+        height={32}
+        width={32}
+        className={clsx('transition-transform duration-300 ease-in-out hover:-rotate-45')}
+        onClick={onClick}
+      />
+      <span style={labelStyle}>Reset all</span>
     </button>
   )
 }
