@@ -1,13 +1,14 @@
 'use client'
 
 import { Select } from '@/components'
-import { usePlayer } from '@/features/player'
+import { Player, usePlayer } from '@/features/player'
 import { gmInstruments, InstrumentName } from '@/features/synth'
-import { LeftHand, RightHand, Volume2, VolumeX } from '@/icons'
+import { LeftHand, Play, RightHand, Volume2, VolumeX } from '@/icons'
 import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
 import clsx from 'clsx'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { createStore } from 'jotai'
 
 type InstrumentSettingsProps = {
   config: SongConfig
@@ -15,10 +16,68 @@ type InstrumentSettingsProps = {
   setTracks: (tracks: { [id: number]: TrackSetting }) => void
 }
 
+const miniPlayer = new Player(createStore());
+
 export default function AdjustInstruments({ setTracks, config, song }: InstrumentSettingsProps) {
   const tracks = config.tracks
   const handleSetTrack = (trackId: number, track: TrackSetting) => {
     setTracks({ ...tracks, [trackId]: track })
+    if (miniPlayer.isPlaying()) {
+      miniPlayer.pause()
+      miniPlayer.setTrackInstrument(trackId, track.instrument).then(() => miniPlayer.play())
+    }
+  }
+  const [playingTracks, setPlayingTracks] = useState<Set<number>>(new Set())
+
+  const playTracks = async () => {
+    if (!song)
+      return
+    const configCp: SongConfig = {...config}
+    configCp.waiting = false
+    await miniPlayer.setSong(song, configCp)
+    enableTracks()
+    // jump to the first playable note so the sound starts immediately
+    const firstNote = song.notes.find((note) => playingTracks.has(note.track))
+    if (firstNote) {
+      miniPlayer.seek(firstNote.time)
+      miniPlayer.play()
+    }
+  }
+
+  const stopTracks = () => {
+    miniPlayer.stop()
+  }
+
+  const enableTracks = () => {
+    if (!song)
+      return
+    Object.keys(song.tracks).forEach((trackId) => miniPlayer.setTrackVolume(trackId, playingTracks.has(+trackId) ? 1 : 0))
+  }
+
+  useEffect(() => {
+    if (playingTracks.size === 0) {
+      if (miniPlayer.isPlaying()) {
+        stopTracks()
+      }
+    } else {
+      if (miniPlayer.isPlaying()) {
+        enableTracks()
+      } else {
+        playTracks()
+      }
+    }
+  }, [playingTracks])
+
+  const handlePlayTrackChange = (trackId: number, isPlaying: boolean) => {
+    if (isPlaying) {
+      setPlayingTracks((prevPlayingTracks) => new Set(prevPlayingTracks).add(trackId));
+    } else {
+      setPlayingTracks((prevPlayingTracks) => {
+        const newPlayingTracks = new Set(prevPlayingTracks)
+        newPlayingTracks.delete(trackId);
+        return newPlayingTracks;
+      });
+    }
   }
 
   return (
@@ -31,6 +90,7 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
             key={track}
             setTrack={handleSetTrack}
             noteCount={song?.notes.filter((n) => n.track === +track).length ?? 0}
+            onPlayTrack={handlePlayTrackChange}
           />
         )
       })}
@@ -44,12 +104,19 @@ type CardProps = {
   trackId: number
   setTrack: (trackId: number, track: TrackSetting) => void
   noteCount: number
+  onPlayTrack: (trackId: number, isPlaying: boolean) => void
 }
 type SynthState = { error: boolean; loading: boolean }
 
-function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
+function InstrumentCard({ track, trackId, setTrack, noteCount, onPlayTrack }: CardProps) {
   const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
   const player = usePlayer()
+  const [isPlaying, setPlaying] = useState<boolean>(false)
+
+  const handlePlayTrack = (isPlaying: boolean) => {
+    setPlaying(isPlaying)
+    onPlayTrack(trackId, isPlaying)
+  }
 
   const handleSelectInstrument = (instrument: InstrumentName) => {
     setSynthState({ error: false, loading: true })
@@ -93,8 +160,10 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
       <TrackSettingsSection
         hand={track.hand}
         sound={track.sound}
+        playTrack={isPlaying}
         onSelectHand={handleSelectHand}
         onToggleSound={handleSound}
+        onTogglePlayTrack={handlePlayTrack}
       />
     </span>
   )
@@ -127,13 +196,20 @@ function InstrumentSelect({
 type TrackSettingProps = {
   hand: 'left' | 'right' | 'none'
   sound: boolean
+  playTrack: boolean
   onSelectHand: (hand: 'left' | 'right' | 'none') => void
   onToggleSound: (sound: boolean) => void
+  onTogglePlayTrack: (playTrack: boolean) => void
 }
-function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: TrackSettingProps) {
+function TrackSettingsSection({ hand, sound, playTrack, onSelectHand, onToggleSound, onTogglePlayTrack }: TrackSettingProps) {
   const handleSound = (e: React.MouseEvent) => {
     e.stopPropagation()
     onToggleSound(!sound)
+  }
+
+  const handlePlayTrack = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onTogglePlayTrack(!playTrack)
   }
 
   return (
@@ -151,6 +227,7 @@ function TrackSettingsSection({ hand, sound, onSelectHand, onToggleSound }: Trac
         }}
       />
       <ToggleSound on={sound} onClick={handleSound} />
+      <TogglePlayTrack on={playTrack} onClick={handlePlayTrack} />
     </div>
   )
 }
@@ -203,6 +280,22 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
         height={32}
         width={32}
         className={clsx('transition', on && 'text-purple-primary')}
+        onClick={onClick}
+      />
+      <span style={labelStyle}>{labelText}</span>
+    </button>
+  )
+}
+
+function TogglePlayTrack({ on, onClick }: ToggleIconProps) {
+  const labelText = on ? 'Stop track' : 'Play track'
+
+  return (
+    <button className="flex flex-col items-center">
+      <Play
+        height={32}
+        width={32}
+        className={clsx(on ? 'text-purple-primary fill-purple-primary' : 'hover:fill-purple-primary')}
         onClick={onClick}
       />
       <span style={labelStyle}>{labelText}</span>
