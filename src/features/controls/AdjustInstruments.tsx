@@ -9,6 +9,8 @@ import { formatInstrumentName } from '@/utils'
 import clsx from 'clsx'
 import React, { useEffect, useState } from 'react'
 import { createStore } from 'jotai'
+import { RefreshCcw } from 'react-feather'
+import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
 
 type InstrumentSettingsProps = {
   config: SongConfig
@@ -87,6 +89,7 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
           <InstrumentCard
             track={settings}
             trackId={+track}
+            song={song}
             key={track}
             setTrack={handleSetTrack}
             noteCount={song?.notes.filter((n) => n.track === +track).length ?? 0}
@@ -100,6 +103,7 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
 
 type CardProps = {
   track: TrackSetting
+  song?: Song
   key: string
   trackId: number
   setTrack: (trackId: number, track: TrackSetting) => void
@@ -108,7 +112,7 @@ type CardProps = {
 }
 type SynthState = { error: boolean; loading: boolean }
 
-function InstrumentCard({ track, trackId, setTrack, noteCount, onPlayTrack }: CardProps) {
+function InstrumentCard({ track, trackId, song, setTrack, noteCount, onPlayTrack }: CardProps) {
   const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
   const player = usePlayer()
   const [isPlaying, setPlaying] = useState<boolean>(false)
@@ -116,6 +120,15 @@ function InstrumentCard({ track, trackId, setTrack, noteCount, onPlayTrack }: Ca
   const handlePlayTrack = (isPlaying: boolean) => {
     setPlaying(isPlaying)
     onPlayTrack(trackId, isPlaying)
+  }
+
+  const handleRestoreTrack = () => {
+    if (song) {
+      const defaultTrack = getDefaultSongSettings(song).tracks[trackId]
+      if (defaultTrack) {
+        setTrack(trackId, defaultTrack)
+      }
+    }
   }
 
   const handleSelectInstrument = (instrument: InstrumentName) => {
@@ -164,6 +177,7 @@ function InstrumentCard({ track, trackId, setTrack, noteCount, onPlayTrack }: Ca
         onSelectHand={handleSelectHand}
         onToggleSound={handleSound}
         onTogglePlayTrack={handlePlayTrack}
+        onRestoreTrack={handleRestoreTrack}
       />
     </span>
   )
@@ -200,8 +214,9 @@ type TrackSettingProps = {
   onSelectHand: (hand: 'left' | 'right' | 'none') => void
   onToggleSound: (sound: boolean) => void
   onTogglePlayTrack: (playTrack: boolean) => void
+  onRestoreTrack: () => void
 }
-function TrackSettingsSection({ hand, sound, playTrack, onSelectHand, onToggleSound, onTogglePlayTrack }: TrackSettingProps) {
+function TrackSettingsSection({ hand, sound, playTrack, onSelectHand, onToggleSound, onTogglePlayTrack, onRestoreTrack }: TrackSettingProps) {
   const handleSound = (e: React.MouseEvent) => {
     e.stopPropagation()
     onToggleSound(!sound)
@@ -210,6 +225,11 @@ function TrackSettingsSection({ hand, sound, playTrack, onSelectHand, onToggleSo
   const handlePlayTrack = (e: React.MouseEvent) => {
     e.stopPropagation()
     onTogglePlayTrack(!playTrack)
+  }
+
+  const handleRestoreTrack = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onRestoreTrack()
   }
 
   return (
@@ -228,6 +248,7 @@ function TrackSettingsSection({ hand, sound, playTrack, onSelectHand, onToggleSo
       />
       <ToggleSound on={sound} onClick={handleSound} />
       <TogglePlayTrack on={playTrack} onClick={handlePlayTrack} />
+      <RestoreTrack onClick={handleRestoreTrack} />
     </div>
   )
 }
@@ -299,6 +320,21 @@ function TogglePlayTrack({ on, onClick }: ToggleIconProps) {
         onClick={onClick}
       />
       <span style={labelStyle}>{labelText}</span>
+    </button>
+  )
+}
+
+function RestoreTrack({ onClick }: {onClick: (e: React.MouseEvent) => void}) {
+
+  return (
+    <button className="flex flex-col items-center">
+      <RefreshCcw
+        height={32}
+        width={32}
+        className={clsx('transition-transform duration-300 ease-in-out hover:-rotate-45')}
+        onClick={onClick}
+      />
+      <span style={labelStyle}>Restore default</span>
     </button>
   )
 }
