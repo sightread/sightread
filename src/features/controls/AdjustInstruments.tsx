@@ -8,7 +8,7 @@ import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
 import clsx from 'clsx'
 import React, { useEffect, useState } from 'react'
-import { createStore } from 'jotai'
+import { getDefaultStore } from 'jotai'
 import { RefreshCcw } from 'react-feather'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
 
@@ -18,7 +18,7 @@ type InstrumentSettingsProps = {
   setTracks: (tracks: { [id: number]: TrackSetting }) => void
 }
 
-const miniPlayer = new Player(createStore());
+const miniPlayer = new Player(getDefaultStore());
 
 export default function AdjustInstruments({ setTracks, config, song }: InstrumentSettingsProps) {
   const tracks = config.tracks
