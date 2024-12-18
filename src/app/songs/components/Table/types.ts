@@ -16,6 +16,8 @@ export type TableProps<T extends Row> = {
   onSelectRow: (id: string) => void
   filter: (keyof T)[]
   getId: (row: T) => string
+  pinned?: Set<string>
+  onPin?: (id: string) => void
 }
 
 export type TableHeadProps<T, D extends keyof T> = {

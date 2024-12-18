@@ -1,7 +1,7 @@
 import type { Song, SongConfig, SongMetadata } from '@/types'
 import { fileToUint8 } from '@/utils'
 import { parseMidi } from '../parsers'
-import { LOCAL_STORAGE_SONG_LIST_KEY } from './constants'
+import { LOCAL_STORAGE_SONG_LIST_KEY, LOCAL_STORAGE_PINNED_SONGS } from './constants'
 import Storage from './storage'
 
 export function hasUploadedSong(id: string): Song | null {
@@ -17,6 +17,18 @@ export function getUploadedLibrary(): SongMetadata[] {
     Storage.set<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY, [])
   }
   return Storage.get<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY) ?? []
+}
+
+export function loadPinnedSongs(): Set<string> | null {
+  const pinned = Storage.get<string>(LOCAL_STORAGE_PINNED_SONGS);
+  if (pinned) {
+    return new Set(JSON.parse(pinned));
+  }
+  return null;
+}
+
+export function savePinnedSongs(pinned: Set<string>) {
+  return Storage.set(LOCAL_STORAGE_PINNED_SONGS, JSON.stringify(Array.from(pinned)));
 }
 
 /**

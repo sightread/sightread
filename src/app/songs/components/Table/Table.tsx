@@ -2,11 +2,13 @@
 
 import { useWindowWidth } from '@/hooks'
 import { breakpoints } from '@/utils'
+import { Star } from '@/icons'
 import * as React from 'react'
 import { useState } from 'react'
 import { TableHead } from './TableHead'
 import { Row, RowValue, TableProps } from './types'
 import { sortBy } from './utils'
+import clsx from 'clsx'
 
 export default function Table<T extends Row>({
   columns,
@@ -15,6 +17,8 @@ export default function Table<T extends Row>({
   onSelectRow,
   filter,
   getId,
+  pinned,
+  onPin
 }: TableProps<T>) {
   const [sortCol, setSortCol] = useState(1)
   const isSmall = useWindowWidth() < breakpoints.sm
@@ -22,6 +26,12 @@ export default function Table<T extends Row>({
 
   if (isSmall) {
     columns = columns.filter((c) => c.keep)
+  }
+
+  const headColumns = [...columns];
+
+  if (onPin) {
+    headColumns.push({label:"", id:"_pin"});
   }
 
   const handleSelectCol = (index: number) => {
@@ -35,15 +45,19 @@ export default function Table<T extends Row>({
   const isSearchMatch = (s: RowValue = '') =>
     !search || String(s).toUpperCase().includes(search.toUpperCase())
   const filtered = !search ? rows : rows.filter((row) => filter.some((f) => isSearchMatch(row[f])))
-  const sortField = columns[Math.abs(sortCol) - 1].id
-  const sorted = sortBy<T>((row) => row[sortField] ?? 0, sortCol < 0, filtered)
-  const gridTemplateColumns = `repeat(${columns.length}, 1fr)`
+  const sortField = columns[Math.abs(sortCol) - 1].id 
+  const sorted = [
+    ...sortBy<T>((row) => row[sortField] ?? 0, sortCol < 0, filtered.filter(row => pinned && pinned.has(getId(row)))),
+    ...sortBy<T>((row) => row[sortField] ?? 0, sortCol < 0, filtered.filter(row => !pinned || !pinned.has(getId(row)))),
+  ];
+
+  const gridTemplateColumns = onPin ? `repeat(${headColumns.length - 1}, 1fr) 26px`: `repeat(${headColumns.length}, 1fr)`
 
   return (
     <>
       <div className="grid" style={{ gridTemplateColumns }}>
         <TableHead
-          columns={columns}
+          columns={headColumns}
           sortCol={sortCol}
           onSelectCol={handleSelectCol}
           rowHeight={rowHeight}
@@ -70,7 +84,7 @@ export default function Table<T extends Row>({
                   const paddingLeft = j === 0 ? 20 : 0
                   return (
                     <span
-                      className="relative flex flex-shrink-0 items-center px-3 text-sm group-even:bg-gray-100 group-hover:bg-purple-hover"
+                      className={clsx("relative flex flex-shrink-0 items-center px-3 text-sm group-hover:bg-purple-hover", pinned && pinned.has(getId(row)) ? "group-odd:bg-yellow-100 group-even:bg-yellow-200" : "group-even:bg-gray-100")}
                       key={`row-${i}-col-${j}`}
                       style={{ paddingLeft, height: rowHeight }}
                     >
@@ -78,6 +92,15 @@ export default function Table<T extends Row>({
                     </span>
                   )
                 })}
+                { onPin && <button
+                 className={clsx("relative items-center group-hover:bg-purple-hover", pinned && pinned.has(getId(row)) ? "group-odd:bg-yellow-100 group-even:bg-yellow-200" : "group-even:bg-gray-100")}
+                  style={{ paddingLeft:0, height: rowHeight }}
+                  onClick={(e) => {
+                  e.stopPropagation();
+                  onPin(getId(row))}}>
+                    <Star size={24} className={clsx("hover:fill-yellow-100", pinned && pinned.has(getId(row)) && "fill-purple-primary")} />
+                 </button>
+                }
               </div>
             )
           })}
