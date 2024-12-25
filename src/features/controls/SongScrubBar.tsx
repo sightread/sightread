@@ -35,8 +35,8 @@ export default function SongScrubBar({
   const isDraggingL = useRef(false)
   const isDraggingR = useRef(false)
   const song: Song | null = useAtomValue(player.song)
-  const progressBarRef: React.Ref<HTMLDivElement> = useRef<any>()
-  const wrapperRef: React.Ref<HTMLDivElement> = useRef<any>()
+  const progressBarRef: React.Ref<HTMLDivElement> = useRef<any>(null)
+  const wrapperRef: React.Ref<HTMLDivElement> = useRef<any>(null)
   const isScrubbing = useRef<boolean>(false)
 
   const getProgress = useCallback(
