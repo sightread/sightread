@@ -46,7 +46,8 @@ export async function GET(request: NextRequest) {
       },
     })
   } else {
-    console.log(`Requesting URL: https://${process.env.VERCEL_URL}/${path}`)
-    return fetch(`https://${process.env.VERCEL_URL}/${path}`)
+    console.log(Object.keys(process.env), process.env)
+    console.log(`Requesting URL: https://${process.env.NEXT_PUBLIC_WEBSITE_URL}/${path}`)
+    return fetch(`https://${process.env.NEXT_PUBLIC_WEBSITE_URL}/${path}`)
   }
 }

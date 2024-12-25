@@ -2,7 +2,7 @@ import { Canvas } from '@/components'
 import * as touchscroll from '@/features/SongVisualization/touchscroll'
 import { useSize } from '@/hooks'
 import { Hand, Song, SongConfig } from '@/types'
-import { useMemo, useRef } from 'react'
+import { LegacyRef, useMemo, useRef } from 'react'
 import { usePlayer } from '../player'
 import { GivenState, render } from './canvasRenderer'
 import { PIXELS_PER_SECOND as pps } from './utils'
@@ -37,7 +37,7 @@ function CanvasRenderer({
   game = false,
 }: CanvasRendererProps) {
   const { width, height, measureRef } = useSize()
-  const canvasRef = useRef<HTMLCanvasElement>()
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const player = usePlayer()
 
   const canvasRect: DOMRect = useMemo(() => {
@@ -81,7 +81,7 @@ function CanvasRenderer({
       onPointerDown={(e) => enableTouchscroll && touchscroll.handleDown(player, e.nativeEvent)}
       onPointerUp={(e) => enableTouchscroll && touchscroll.handleUp(player, e.nativeEvent)}
     >
-      <Canvas ref={canvasRef} render={renderCanvas} />
+      <Canvas ref={canvasRef  as LegacyRef<HTMLCanvasElement>} render={renderCanvas} />
     </div>
   )
 }
