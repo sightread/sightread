@@ -1,7 +1,7 @@
 'use client'
 
 import { useRAFLoop, useSize } from '@/hooks'
-import { forwardRef, Ref, useCallback, useRef } from 'react'
+import { ForwardedRef, forwardRef, ForwardRefRenderFunction, Ref, useCallback, useRef } from 'react'
 
 type CanvasRenderFn = (
   ctx: CanvasRenderingContext2D,
@@ -10,13 +10,13 @@ type CanvasRenderFn = (
 
 interface CanvasProps {
   render: CanvasRenderFn
-  ref: Ref<HTMLCanvasElement>
+  ref: ForwardedRef<HTMLCanvasElement>
 }
 
-const Canvas = forwardRef(({ render }: CanvasProps, ref) => {
+const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(({ render }: {render: CanvasRenderFn}, ref) => {
   const { width, height, measureRef } = useSize()
-  const ctxRef = useRef<CanvasRenderingContext2D>()
-  const renderRef = useRef<CanvasRenderFn>()
+  const ctxRef = useRef<CanvasRenderingContext2D>(null)
+  const renderRef = useRef<CanvasRenderFn>(null)
   renderRef.current = render
 
   const setupCanvas = useCallback(

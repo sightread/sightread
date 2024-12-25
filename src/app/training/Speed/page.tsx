@@ -97,7 +97,7 @@ export default function SpeedTraining({}: Props) {
         <div>
           <div style={{ position: 'relative', height: 300 }}>
             <Canvas
-              render={(ctx: CanvasRenderingContext2D, size) => {
+              render={(ctx: CanvasRenderingContext2D, size:any) => {
                 const state = { ctx, canvasSize: size, speedState, speedConfig }
                 render(state)
               }}

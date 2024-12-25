@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect } from 'react'
 
 export default function useRAFLoop(fn: Function) {
-  const requestRef: any = React.useRef()
-  const previousTimeRef: any = React.useRef()
+  const requestRef: any = React.useRef(null)
+  const previousTimeRef: any = React.useRef(null)
 
   const animate = useCallback(
     (time: number) => {
