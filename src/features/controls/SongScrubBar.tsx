@@ -96,7 +96,7 @@ export default function SongScrubBar({
   })
 
   useEventListener<PointerEvent>(
-    'click',
+    'pointerup',
     (e) => {
       const target = e.target as HTMLElement
       const completedAction = isDraggingL.current || isDraggingR.current || isScrubbing.current
@@ -129,7 +129,7 @@ export default function SongScrubBar({
 
   return (
     <div
-      className="relative flex w-full select-none border-b border-b-black bg-gray-300"
+      className="relative flex w-full select-none border-b border-b-black bg-gray-300 touch-none"
       onClick={onClick}
       style={{ height }}
       ref={wrapperRef}
