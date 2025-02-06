@@ -54,6 +54,7 @@ export function formatTime(seconds: number) {
 }
 
 export const breakpoints = {
+  xs: 440,
   sm: 650,
   md: 800,
   lg: 1100,

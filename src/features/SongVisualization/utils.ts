@@ -6,7 +6,7 @@ import { isBlack } from '../theory'
 import { parserInferHands } from '../parsers'
 import { GivenState } from './canvasRenderer'
 
-export function getSongRange(song: { notes: SongNote[] } | undefined) {
+export function getSongRange(song: { notes: SongNote[] } | undefined, minNotes: number) {
   const notes = song?.notes ?? []
   let startNote = notes[0]?.midiNote ?? 21
   let endNote = notes[0]?.midiNote ?? 108
@@ -18,8 +18,8 @@ export function getSongRange(song: { notes: SongNote[] } | undefined) {
 
   // Ensure we show at least a min of 36 notes just so it doesn't look ridiculous
   const diff = endNote - startNote
-  if (diff < 36) {
-    const fix = Math.floor((36 - diff) / 2)
+  if (diff < minNotes) {
+    const fix = Math.floor((minNotes - diff) / 2)
     startNote -= fix
     endNote += fix
   }

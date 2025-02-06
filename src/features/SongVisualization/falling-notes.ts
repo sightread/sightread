@@ -76,7 +76,10 @@ function deriveState(state: GivenState): State {
   const notes: SongNote[] = items
     ? (items.filter((i) => i.type === 'note') as SongNote[])
     : ([{ midiNote: 21 }, { midiNote: 108 }] as SongNote[])
-  const { startNote, endNote } = getSongRange({ notes })
+
+  const minNotes = Math.floor(Math.max(36, 50 * ( state.windowWidth / state.height)))
+
+  const { startNote, endNote } = getSongRange({ notes }, minNotes)
 
   const pianoMeasurements = getPianoRollMeasurements(state.windowWidth, { startNote, endNote })
   const { whiteHeight } = pianoMeasurements

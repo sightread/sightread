@@ -22,6 +22,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import { SettingsPanel, TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { ButtonWithTooltip } from '@/app/play/components/TopBar.tsx'
+import { ChevronsDown } from 'react-feather'
 
 // This function exists as hack to stop the CSR deopt warning.
 // To do this the "next app router" way would require boxing up the bits
@@ -36,6 +39,8 @@ function PlaySongLegacy() {
 
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
+  const [isHide, setHide] = useState<boolean>(false)
+  const fullScreenHandle = useFullScreenHandle()
   const playerState = usePlayerState()
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
   let { data: song } = useSong(id, source)
@@ -128,7 +133,7 @@ function PlaySongLegacy() {
   }
 
   return (
-    <>
+    <FullScreen handle={fullScreenHandle}>
       <div
         className={clsx(
           // Enable fixed to remove all scrolling.
@@ -136,7 +141,7 @@ function PlaySongLegacy() {
           'max-w-screen flex h-screen max-h-screen flex-col',
         )}
       >
-        {!isRecording && (
+        {!isRecording && !isHide && (
           <>
             <TopBar
               title={songMeta?.title}
@@ -156,6 +161,11 @@ function PlaySongLegacy() {
                 e.stopPropagation()
                 setSettingsPanel(!settingsOpen)
               }}
+              onClickFullScreen={() => fullScreenHandle.active ?
+                fullScreenHandle.exit() :
+                fullScreenHandle.enter()}
+              isFullScreen={fullScreenHandle.active}
+              onClickHide={() => setHide(!isHide)}
               settingsOpen={settingsOpen}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
@@ -178,6 +188,22 @@ function PlaySongLegacy() {
             </div>
           </>
         )}
+        {!isRecording && isHide &&
+          <>
+            <div className="relative min-w-full w-screen">
+              <SongScrubBar
+                minimized={true}
+                rangeSelection={selectedRange}
+                height={2}
+              />
+            </div>
+            <div className="flex min-h-[50px] right-[24px] fixed">
+              <ButtonWithTooltip tooltip="Open Menu" >
+                <ChevronsDown className={"border rounded-lg"} size={24} onClick={() => setHide(false)} />
+              </ButtonWithTooltip>
+            </div>
+          </>
+        }
         <div
           className={clsx(
             'fixed -z-10 h-[100vh] w-screen',
@@ -196,7 +222,7 @@ function PlaySongLegacy() {
           />
         </div>
       </div>
-    </>
+    </FullScreen>
   )
 }
 

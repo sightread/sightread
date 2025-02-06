@@ -39,6 +39,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-feather": "2.0.10",
+    "react-full-screen": "1.1.1",
     "tailwind-merge": "2.6.0"
   },
   "scripts": {
