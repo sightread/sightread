@@ -11,10 +11,10 @@ import clsx from 'clsx'
 import { useHydrateAtoms } from 'jotai/utils'
 import { Metadata } from 'next'
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Table, UploadForm } from './components'
 import { SearchBox } from './components/Table/SearchBox'
-
+import { loadPinnedSongs, savePinnedSongs } from '@/features/persist/persistence.ts'
 export const metadata: Metadata = {
   title: 'Sightread: Select a song',
 }
@@ -44,6 +44,7 @@ export default function SelectSongPage({ midishareMetadata }: any) {
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
+  const [pinned, setPinned] = useState<Set<string>>(loadPinnedSongs() || new Set());
   useHydrateAtoms([[midishareMetadataAtom, midishareMetadata]])
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
@@ -60,6 +61,22 @@ export default function SelectSongPage({ midishareMetadata }: any) {
   const handleCloseAddNew = () => {
     setUploadForm(false)
   }
+
+  const handlePin = (id: string) => {
+    setPinned((prevSet) => {
+      const newSet = new Set(prevSet);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  useEffect(() => {
+    savePinnedSongs(pinned);
+  }, [pinned])
 
   return (
     <>
@@ -112,6 +129,8 @@ export default function SelectSongPage({ midishareMetadata }: any) {
             filter={['title', 'artist']}
             onSelectRow={setSelectedSongId}
             search={search}
+            pinned={pinned}
+            onPin={handlePin}
           />
         </div>
         <Sizer height={32} />
