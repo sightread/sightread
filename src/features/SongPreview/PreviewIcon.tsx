@@ -16,7 +16,7 @@ export default function PreviewIcon({ isPlaying, isLoading, onPlay }: PreviewIco
   ) : (
     <div
       className={clsx(
-        'cursor-pointer text-purple-primary hover:text-purple-hover',
+        'text-purple-primary hover:text-purple-hover cursor-pointer',
         'grid h-16 w-16 place-items-center rounded-full bg-white',
       )}
       onClick={onPlay}

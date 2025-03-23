@@ -35,17 +35,16 @@ export default function Toggle(props: ToggleProps) {
       />
       <span
         className={clsx(
-          'absolute bottom-0 left-0 right-0 top-0 cursor-pointer rounded-2xl bg-gray-300 transition',
-          checked && '!bg-purple-primary',
+          'absolute top-0 right-0 bottom-0 left-0 cursor-pointer rounded-2xl bg-gray-300 transition',
+          checked && 'bg-purple-primary!',
         )}
       />
       <span
         className={clsx(
           'absolute left-0 mx-1 h-4 w-4 rounded-[50%] bg-white transition-all',
           'top-1/2 -translate-y-1/2',
-          checked && '!left-[calc(100%-25px)]',
+          checked && 'left-[calc(100%-25px)]!',
         )}
-        style={{ transform: 'translateY(-50%)' }}
       />
     </label>
   )

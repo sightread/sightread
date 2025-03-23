@@ -62,12 +62,12 @@ export default function SettingsPanel(props: SidebarProps) {
       className="relative flex max-h-[calc(100vh-300px)] w-full flex-col gap-4 overflow-auto bg-gray-100 p-4 sm:flex-row"
       ref={sidebarRef}
     >
-      <h3 className="text-center text-2xl text-purple-primary">Settings</h3>
-      <div className="flex flex-grow flex-col flex-wrap items-center gap-4 whitespace-nowrap sm:flex-row sm:items-stretch">
-        <Section title="Speed" className="flex flex-grow">
+      <h3 className="text-purple-primary text-center text-2xl">Settings</h3>
+      <div className="flex grow flex-col flex-wrap items-center gap-4 whitespace-nowrap sm:flex-row sm:items-stretch">
+        <Section title="Speed" className="flex grow">
           <BpmDisplay />
         </Section>
-        <Section title="Hands" className="flex flex-grow flex-col">
+        <Section title="Hands" className="flex grow flex-col">
           <div className="flex justify-center gap-2">
             <span className="w-10">Left</span>
             <Toggle className="self-center" checked={left} onChange={() => handleHand('left')} />
@@ -77,7 +77,7 @@ export default function SettingsPanel(props: SidebarProps) {
             <Toggle checked={right} onChange={() => handleHand('right')} />
           </div>
         </Section>
-        <Section title="Visualization" className="flex-grow">
+        <Section title="Visualization" className="grow">
           <button
             className="flex items-center justify-center gap-1"
             onClick={() => handleVisualization('falling-notes')}
@@ -98,8 +98,8 @@ export default function SettingsPanel(props: SidebarProps) {
             <span className="block w-[120px] text-left"> Sheet hero (beta)</span>
           </button>
         </Section>
-        <div className="flex flex-grow flex-col gap-4 sm:flex-row">
-          <Section title="Additional settings" className="flex-grow justify-center">
+        <div className="flex grow flex-col gap-4 sm:flex-row">
+          <Section title="Additional settings" className="grow justify-center">
             <div className="flex justify-center">
               <span className="min-w-[15ch]">Wait mode</span>
               <Toggle className="" checked={waiting} onChange={handleWaiting} />
@@ -116,7 +116,7 @@ export default function SettingsPanel(props: SidebarProps) {
               <span className="min-w-[15ch]">Key signature</span>
               <select
                 name="keySignature"
-                className="w-[50px] border"
+                className="w-[50px] border bg-white"
                 value={keySignature ?? props.song?.keySignature}
                 onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
               >
@@ -126,7 +126,7 @@ export default function SettingsPanel(props: SidebarProps) {
               </select>
             </div>
           </Section>
-          <div className="flex flex-grow flex-col justify-between gap-4">
+          <div className="flex grow flex-col justify-between gap-4">
             <Section title="Practice loop">
               <div className="flex justify-center">
                 <Toggle checked={isLooping} onChange={onLoopToggled} />
@@ -135,7 +135,7 @@ export default function SettingsPanel(props: SidebarProps) {
             <Section
               title="Track configuration"
               onClick={() => setShowTrackConfig((b) => !b)}
-              className="cursor-pointer hover:bg-purple-light"
+              className="hover:bg-purple-light cursor-pointer"
             ></Section>
           </div>
         </div>
@@ -161,7 +161,7 @@ function Section({ children, title, className, onClick }: SectionProps) {
     <article
       className={clsx(
         className,
-        'flex min-w-[70vw] max-w-[70vw] flex-col gap-4 rounded-md bg-gray-200 p-4 sm:min-w-0',
+        'flex max-w-[70vw] min-w-[70vw] flex-col gap-4 rounded-md bg-gray-200 p-4 sm:min-w-0',
       )}
       onClick={onClick}
     >

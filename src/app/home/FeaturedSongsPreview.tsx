@@ -37,7 +37,7 @@ export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
   return (
     <div
       className={clsx(
-        'relative h-[400px] w-3/4 max-w-[760px]  self-center',
+        'relative h-[400px] w-3/4 max-w-[760px] self-center',
         'bg-gray-[#2e2e2e] overflow-hidden rounded-lg',
         'shadow-xl',
       )}
@@ -68,10 +68,7 @@ export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
             </>
           )}
         </button>
-        <div
-          className="absolute right-5 top-1/2 -translate-y-1/2 text-white"
-          style={{ transform: 'translateY(-50%)' }}
-        >
+        <div className="absolute top-1/2 right-5 -translate-y-1/2 text-white">
           <select
             style={{
               padding: 6,

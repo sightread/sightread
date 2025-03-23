@@ -20,12 +20,12 @@ export default function BpmDisplay() {
       <div className="flex flex-col justify-between">
         <ChevronUp
           size={iconSize}
-          className="text-black hover:cursor-pointer hover:text-purple-hover"
+          className="hover:text-purple-hover text-black hover:cursor-pointer"
           onClick={player.increaseBpm.bind(player)}
         />
         <ChevronDown
           size={iconSize}
-          className="text-black hover:cursor-pointer hover:text-purple-hover"
+          className="hover:text-purple-hover text-black hover:cursor-pointer"
           onClick={player.decreaseBpm.bind(player)}
         />
       </div>

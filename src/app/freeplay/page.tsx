@@ -81,7 +81,7 @@ export default function FreePlay() {
           onClose={() => setRecordingPreview('')}
           songMeta={{ source: 'base64', id: recordingPreview }}
         />
-        <div className="relative flex-grow">
+        <div className="relative grow">
           <SongVisualizer
             song={freePlayer.song}
             config={{ visualization: 'falling-notes', noteLetter: false } as SongConfig}

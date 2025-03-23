@@ -29,7 +29,7 @@ export function Tooltip({
       <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
       <TooltipPrimitive.Portal>
         <TooltipPrimitive.Content
-          className="rounded-md bg-purple-primary px-2 py-1 text-sm text-white"
+          className="bg-purple-primary rounded-md px-2 py-1 text-sm text-white"
           side="top"
           align="center"
           {...props}
