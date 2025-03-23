@@ -1,19 +1,18 @@
-import type { SongMeasure, SongNote } from '@/types'
-import { getKey, isBlack } from '@/features/theory'
-
 import { line, roundRect } from '@/features/drawing'
-import { GivenState } from './canvasRenderer'
-import midiState from '../midi'
 import {
   drawPianoRoll,
   getPianoRollMeasurements,
   handlePianoRollMousePress,
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
-import { getRelativePointerCoordinates } from '../pointer'
-import { CanvasItem, getFontSize, getItemsInView, getSongRange, Viewport } from './utils'
-import { clamp } from '@/utils'
+import { getKey, isBlack } from '@/features/theory'
 import { palette } from '@/styles/common'
+import type { SongMeasure, SongNote } from '@/types'
+import { clamp } from '@/utils'
+import midiState from '../midi'
+import { getRelativePointerCoordinates } from '../pointer'
+import { GivenState } from './canvasRenderer'
+import { CanvasItem, getFontSize, getItemsInView, getSongRange, Viewport } from './utils'
 
 const TEXT_FONT = 'Arial'
 const colors = {
@@ -76,8 +75,23 @@ function deriveState(state: GivenState): State {
   const notes: SongNote[] = items
     ? (items.filter((i) => i.type === 'note') as SongNote[])
     : ([{ midiNote: 21 }, { midiNote: 108 }] as SongNote[])
-  const { startNote, endNote } = getSongRange({ notes })
 
+  let minNotes = 36
+  if (state.windowWidth > state.height) {
+    if (state.windowWidth > 800) {
+      minNotes = 88
+    } else if (state.windowWidth > 600) {
+      minNotes = 72
+    } else if (state.windowWidth > 500) {
+      minNotes = 60
+    } else if (state.windowWidth > 400) {
+      minNotes = 40
+    } else if (state.windowWidth > 300) {
+      minNotes = 32
+    }
+  }
+
+  const { startNote, endNote } = getSongRange({ notes }, minNotes)
   const pianoMeasurements = getPianoRollMeasurements(state.windowWidth, { startNote, endNote })
   const { whiteHeight } = pianoMeasurements
   const pianoTopY = state.height - whiteHeight - 5

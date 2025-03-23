@@ -1,12 +1,12 @@
-import { Song, Track, SongNote, SongConfig, SongMeasure, Hand, TrackSetting } from '@/types'
-import { gmInstruments, InstrumentName } from '@/features/synth'
-import { clamp, mapValues } from '@/utils'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
-import { isBlack } from '../theory'
+import { gmInstruments, InstrumentName } from '@/features/synth'
+import { Hand, Song, SongConfig, SongMeasure, SongNote, Track, TrackSetting } from '@/types'
+import { clamp, mapValues } from '@/utils'
 import { parserInferHands } from '../parsers'
+import { isBlack } from '../theory'
 import { GivenState } from './canvasRenderer'
 
-export function getSongRange(song: { notes: SongNote[] } | undefined) {
+export function getSongRange(song: { notes: SongNote[] } | undefined, minNotes: number) {
   const notes = song?.notes ?? []
   let startNote = notes[0]?.midiNote ?? 21
   let endNote = notes[0]?.midiNote ?? 108
@@ -16,10 +16,10 @@ export function getSongRange(song: { notes: SongNote[] } | undefined) {
     endNote = Math.max(endNote, midiNote)
   }
 
-  // Ensure we show at least a min of 36 notes just so it doesn't look ridiculous
+  // Ensure we show at least a minNotes just so it doesn't look ridiculous
   const diff = endNote - startNote
-  if (diff < 36) {
-    const fix = Math.floor((36 - diff) / 2)
+  if (diff < minNotes) {
+    const fix = Math.floor((minNotes - diff) / 2)
     startNote -= fix
     endNote += fix
   }
@@ -51,7 +51,7 @@ export function getHandSettings(config: SongConfig | undefined) {
 function getInstrument(track: Track): InstrumentName {
   return track.program && track.program >= 0
     ? gmInstruments[track.program]
-    : ((track.instrument || track.name) as InstrumentName) ?? gmInstruments[0]
+    : (((track.instrument || track.name) as InstrumentName) ?? gmInstruments[0])
 }
 
 export function getDefaultSongSettings(song?: Song): SongConfig {
