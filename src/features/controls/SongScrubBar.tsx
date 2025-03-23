@@ -127,7 +127,7 @@ export default function SongScrubBar({
 
   return (
     <div
-      className="relative flex w-full select-none border-b border-b-black bg-gray-300"
+      className="relative flex w-full border-b border-b-black bg-gray-300 select-none"
       onClick={onClick}
       style={{ height }}
       ref={wrapperRef}
@@ -163,16 +163,16 @@ export default function SongScrubBar({
         ref={toolTipRef}
       >
         <span className="text-gray-300">
-          Time: <span className="text-sm text-purple-hover" ref={timeSpanRef} />
+          Time: <span className="text-purple-hover text-sm" ref={timeSpanRef} />
         </span>
         <span className="text-gray-300">
-          Measure: <span className="text-sm text-purple-hover" ref={measureSpanRef} />
+          Measure: <span className="text-purple-hover text-sm" ref={measureSpanRef} />
         </span>
       </div>
       <span ref={currentTimeRef} className="min-w-[80px] self-center px-4 py-2 text-black" />
       <div
         ref={progressBarRef}
-        className="relative h-4 flex-grow self-center overflow-hidden rounded-full"
+        className="relative h-4 grow self-center overflow-hidden rounded-full"
         onPointerOver={() => setPointerOver(true)}
         onPointerOut={() => setPointerOver(false)}
       >
@@ -180,7 +180,7 @@ export default function SongScrubBar({
         <div ref={measureRef} className={`absolute h-full w-full bg-gray-400`} />
         <div
           ref={divRef}
-          className={`pointer-events-none absolute h-full w-full bg-purple-primary`}
+          className={`bg-purple-primary pointer-events-none absolute h-full w-full`}
           style={{ left: -width }}
         />
       </div>
@@ -189,15 +189,15 @@ export default function SongScrubBar({
       </span>
       {rangeSelection && (
         <div ref={rangeRef} className="pointer-events-none absolute flex h-full items-center">
-          <div className="absolute h-4 w-[calc(100%-10px)] bg-purple-dark/40" />
+          <div className="bg-purple-dark/40 absolute h-4 w-[calc(100%-10px)]" />
           <div
-            className="pointer-events-auto absolute left-0 h-6 w-6 -translate-x-1/2 cursor-pointer rounded-full bg-purple-dark/90 transition hover:bg-purple-hover/90"
+            className="bg-purple-dark/90 hover:bg-purple-hover/90 pointer-events-auto absolute left-0 h-6 w-6 -translate-x-1/2 cursor-pointer rounded-full transition"
             onPointerEnter={() => setPointerOver(true)}
             onPointerLeave={() => setPointerOver(false)}
             onPointerDown={() => (isDraggingL.current = true)}
           />
           <div
-            className="pointer-events-auto absolute right-0 h-6 w-6 translate-x-1/2 cursor-pointer rounded-full bg-purple-dark/90 transition hover:bg-purple-hover/90"
+            className="bg-purple-dark/90 hover:bg-purple-hover/90 pointer-events-auto absolute right-0 h-6 w-6 translate-x-1/2 cursor-pointer rounded-full transition"
             onPointerDown={() => (isDraggingR.current = true)}
             onPointerEnter={() => setPointerOver(true)}
             onPointerLeave={() => setPointerOver(false)}

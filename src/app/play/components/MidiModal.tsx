@@ -165,7 +165,7 @@ function DeviceBtn({
   return (
     <button
       className={clsx(
-        'rounded-xl border border-purple-primary px-2 py-1 transition hover:bg-purple-hover',
+        'border-purple-primary hover:bg-purple-hover rounded-xl border px-2 py-1 transition',
         enabled && 'bg-purple-primary text-white',
       )}
       {...rest}
