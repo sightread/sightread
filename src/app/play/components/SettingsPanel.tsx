@@ -63,11 +63,11 @@ export default function SettingsPanel(props: SidebarProps) {
       ref={sidebarRef}
     >
       <h3 className="text-center text-2xl text-purple-primary">Settings</h3>
-      <div className="flex flex-grow flex-col flex-wrap items-center gap-4 whitespace-nowrap sm:flex-row sm:items-stretch">
-        <Section title="Speed" className="flex flex-grow">
+      <div className="flex grow flex-col flex-wrap items-center gap-4 whitespace-nowrap sm:flex-row sm:items-stretch">
+        <Section title="Speed" className="flex grow">
           <BpmDisplay />
         </Section>
-        <Section title="Hands" className="flex flex-grow flex-col">
+        <Section title="Hands" className="flex grow flex-col">
           <div className="flex justify-center gap-2">
             <span className="w-10">Left</span>
             <Toggle className="self-center" checked={left} onChange={() => handleHand('left')} />
@@ -77,7 +77,7 @@ export default function SettingsPanel(props: SidebarProps) {
             <Toggle checked={right} onChange={() => handleHand('right')} />
           </div>
         </Section>
-        <Section title="Visualization" className="flex-grow">
+        <Section title="Visualization" className="grow">
           <button
             className="flex items-center justify-center gap-1"
             onClick={() => handleVisualization('falling-notes')}
@@ -98,8 +98,8 @@ export default function SettingsPanel(props: SidebarProps) {
             <span className="block w-[120px] text-left"> Sheet hero (beta)</span>
           </button>
         </Section>
-        <div className="flex flex-grow flex-col gap-4 sm:flex-row">
-          <Section title="Additional settings" className="flex-grow justify-center">
+        <div className="flex grow flex-col gap-4 sm:flex-row">
+          <Section title="Additional settings" className="grow justify-center">
             <div className="flex justify-center">
               <span className="min-w-[15ch]">Wait mode</span>
               <Toggle className="" checked={waiting} onChange={handleWaiting} />
@@ -126,7 +126,7 @@ export default function SettingsPanel(props: SidebarProps) {
               </select>
             </div>
           </Section>
-          <div className="flex flex-grow flex-col justify-between gap-4">
+          <div className="flex grow flex-col justify-between gap-4">
             <Section title="Practice loop">
               <div className="flex justify-center">
                 <Toggle checked={isLooping} onChange={onLoopToggled} />

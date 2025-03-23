@@ -136,7 +136,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
         />
         <div
           className={clsx(
-            'flex-grow cursor-pointer rounded-md p-5 text-center transition',
+            'grow cursor-pointer rounded-md p-5 text-center transition',
             'border-2 border-dashed border-gray-400 bg-gray-50 hover:shadow-lg',
           )}
           onClick={chooseFiles}
@@ -185,7 +185,7 @@ function FormInput({ onChange, name, className, error, type, placeholder }: Form
   return (
     <TextInput
       onChange={onChange}
-      className={clsx(className, 'max-w-full flex-grow bg-gray-50 text-base')}
+      className={clsx(className, 'max-w-full grow bg-gray-50 text-base')}
       error={error}
       name={name}
       type={type}

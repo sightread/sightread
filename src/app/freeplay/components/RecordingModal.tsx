@@ -60,7 +60,7 @@ export default function SongPreviewModal({
           <span className="text-2xl font-semibold">Preview your recording</span>
           {/* <span className="overflow-hidden text-base text-gray-500"></span> */}
         </div>
-        <div className="flex flex-grow flex-col overflow-hidden rounded-md">
+        <div className="flex grow flex-col overflow-hidden rounded-md">
           <div className="relative">
             <div className="pointer-events-none absolute z-20 h-full w-full rounded-md" />
             <SongScrubBar height={30} />

@@ -75,7 +75,7 @@ export default function SelectSongPage({ midishareMetadata }: any) {
       </Modal>
       <div className="flex h-screen w-full flex-col bg-purple-lightest">
         <AppBar />
-        <div className="mx-auto flex w-full max-w-screen-lg flex-grow flex-col p-6">
+        <div className="mx-auto flex w-full max-w-(--breakpoint-lg) grow flex-col p-6">
           <h2 className="text-3xl">Learn a song</h2>
           <Sizer height={8} />
           <h3 className="text-base"> Select a song, choose your settings, and begin learning</h3>

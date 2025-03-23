@@ -172,7 +172,7 @@ export default function SongScrubBar({
       <span ref={currentTimeRef} className="min-w-[80px] self-center px-4 py-2 text-black" />
       <div
         ref={progressBarRef}
-        className="relative h-4 flex-grow self-center overflow-hidden rounded-full"
+        className="relative h-4 grow self-center overflow-hidden rounded-full"
         onPointerOver={() => setPointerOver(true)}
         onPointerOut={() => setPointerOver(false)}
       >

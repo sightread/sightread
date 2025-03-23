@@ -181,7 +181,7 @@ function PlaySongLegacy() {
         <div
           className={clsx(
             'fixed -z-10 h-[100vh] w-screen',
-            '!h-[100dvh]',
+            'h-[100dvh]!',
             songConfig.visualization === 'sheet' ? 'bg-white' : 'bg-[#2e2e2e]',
           )}
         >

@@ -53,7 +53,7 @@ export default function Select({
         type="text"
         className={clsx(
           'max-h-full w-full cursor-pointer rounded-md border border-gray-200 p-2',
-          'hover:border hover:border-purple-primary focus:border-purple-primary focus:outline-none',
+          'hover:border hover:border-purple-primary focus:border-purple-primary focus:outline-hidden',
         )}
         onClick={(e) => {
           e.stopPropagation()

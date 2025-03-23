@@ -28,7 +28,7 @@ export default function AppBar() {
         paddingLeft: 'calc(100vw - 100%)',
       }}
     >
-      <div className="mx-auto flex w-full items-center justify-center pl-6 md:max-w-screen-lg">
+      <div className="mx-auto flex w-full items-center justify-center pl-6 md:max-w-(--breakpoint-lg)">
         <div
           className="absolute left-5 right-5 top-1/2 z-10 -translate-y-1/2 md:hidden"
           style={{ transform: 'translateY(-50%)' }}
@@ -40,7 +40,7 @@ export default function AppBar() {
           <Sizer width={8} />
           <span className="text-2xl font-extralight"> SIGHTREAD</span>
         </NavLink>
-        <div className="hidden flex-grow justify-evenly gap-6 whitespace-nowrap pl-16 align-baseline md:flex">
+        <div className="hidden grow justify-evenly gap-6 whitespace-nowrap pl-16 align-baseline md:flex">
           {navItems.map((nav) => {
             return (
               <NavLink

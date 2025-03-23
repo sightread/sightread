@@ -33,7 +33,7 @@ export default function TopBar({
     <div className="align-center relative z-10 flex h-[50px] min-h-[50px] w-screen justify-center gap-8 bg-[#292929] px-1">
       <ButtonWithTooltip
         tooltip="Back"
-        className="!absolute left-3 top-1/2 -translate-y-1/2"
+        className="absolute! left-3 top-1/2 -translate-y-1/2"
         style={{ transform: 'translateY(-50%)' }}
       >
         <ArrowLeft size={24} onClick={onClickBack} />

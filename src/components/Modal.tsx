@@ -53,7 +53,7 @@ export default function Modal({
         ref={modalRef}
         className={clsx(
           className,
-          'relative z-10 m-auto max-w-screen-lg overflow-hidden rounded-md bg-white',
+          'relative z-10 m-auto max-w-(--breakpoint-lg) overflow-hidden rounded-md bg-white',
         )}
       >
         <button

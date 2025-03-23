@@ -220,7 +220,7 @@ function ProgressDisplay() {
           style={{
             boxShadow: `inset 0px 2px 3px rgba(255, 255, 255, 0.4), inset 0px 7px 11px rgba(255, 255, 255, 0.25)`,
           }}
-          className="absolute bottom-0 h-[34px] rounded-r-3xl bg-gradient-to-r from-purple-darkest to-purple-primary"
+          className="absolute bottom-0 h-[34px] rounded-r-3xl bg-linear-to-r from-purple-darkest to-purple-primary"
           ref={progressRef}
         />
       </div>

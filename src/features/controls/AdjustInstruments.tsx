@@ -75,7 +75,7 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
   }
 
   return (
-    <span className="m-4 flex-grow rounded-md border border-black bg-white px-3 sm:flex-grow-0">
+    <span className="m-4 grow rounded-md border border-black bg-white px-3 sm:grow-0">
       <div className="flex items-center justify-center">
         <span style={{}}>
           Track {trackId + 1}
