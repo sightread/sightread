@@ -159,7 +159,7 @@ function PlaySongLegacy() {
               settingsOpen={settingsOpen}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
-            <div className={clsx(!settingsOpen && 'hidden')}>
+            {settingsOpen && (
               <SettingsPanel
                 onClose={() => setSettingsPanel(false)}
                 onChange={setSongConfig}
@@ -168,7 +168,7 @@ function PlaySongLegacy() {
                 onLoopToggled={handleLoopingToggle}
                 isLooping={isLooping}
               />
-            </div>
+            )}
             <div className="relative min-w-full">
               <SongScrubBar
                 rangeSelection={selectedRange}

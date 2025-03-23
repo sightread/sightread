@@ -1,13 +1,17 @@
 'use client'
 
 import { Select } from '@/components'
-import { usePlayer } from '@/features/player'
+import { Player, usePlayer } from '@/features/player'
+import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
 import { gmInstruments, InstrumentName } from '@/features/synth'
-import { LeftHand, RightHand, Volume2, VolumeX } from '@/icons'
+import { useOnUnmount } from '@/hooks'
+import { LeftHand, Play, RightHand, Volume2, VolumeX } from '@/icons'
 import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
 import clsx from 'clsx'
-import React, { useState } from 'react'
+import { getDefaultStore, useAtomValue } from 'jotai'
+import React, { useEffect, useState } from 'react'
+import { Pause, RefreshCcw } from 'react-feather'
 
 type InstrumentSettingsProps = {
   config: SongConfig
@@ -15,22 +19,71 @@ type InstrumentSettingsProps = {
   setTracks: (tracks: { [id: number]: TrackSetting }) => void
 }
 
+const miniPlayer = new Player(getDefaultStore())
+
 export default function AdjustInstruments({ setTracks, config, song }: InstrumentSettingsProps) {
+  useOnUnmount(() => miniPlayer.stop())
   const tracks = config.tracks
   const handleSetTrack = (trackId: number, track: TrackSetting) => {
     setTracks({ ...tracks, [trackId]: track })
+    if (miniPlayer.isPlaying()) {
+      miniPlayer.pause()
+      miniPlayer.setTrackInstrument(trackId, track.instrument).then(() => miniPlayer.play())
+    }
+  }
+  const [playingTrack, setPlayingTrack] = useState<number | null>(null)
+  const miniPlayerState = useAtomValue(miniPlayer.state, { store: getDefaultStore() })
+  const miniPlayerIsPlaying = miniPlayerState === 'Playing'
+
+  async function playTrack(trackId: number) {
+    if (!song) {
+      return
+    }
+    const songConfig: SongConfig = { ...config }
+    songConfig.waiting = false
+    await miniPlayer.setSong(song, songConfig)
+    setPlayingTrack(trackId)
+    Object.keys(song.tracks).forEach((id) =>
+      miniPlayer.setTrackVolume(+id, trackId === +id ? 1 : 0),
+    )
+
+    // jump to the first playable note so the sound starts immediately
+    const firstNote = song.notes.find((note) => note.track === trackId)
+    if (firstNote) {
+      miniPlayer.seek(firstNote.time)
+      miniPlayer.play()
+    }
+  }
+
+  function stopMiniPlayer() {
+    setPlayingTrack(null)
+    miniPlayer.stop()
+  }
+
+  const handlePlayTrackChange = (trackId: number) => {
+    const isPlaying = miniPlayerIsPlaying && playingTrack === trackId
+    if (!isPlaying) {
+      playTrack(trackId)
+    } else {
+      stopMiniPlayer()
+    }
   }
 
   return (
     <>
       {Object.entries(tracks).map(([track, settings]) => {
+        const isPlaying = miniPlayerIsPlaying && playingTrack === +track
         return (
           <InstrumentCard
             track={settings}
             trackId={+track}
+            song={song}
             key={track}
             setTrack={handleSetTrack}
             noteCount={song?.notes.filter((n) => n.track === +track).length ?? 0}
+            onPlayTrack={handlePlayTrackChange}
+            isPlaying={isPlaying}
+            stopPlayer={stopMiniPlayer}
           />
         )
       })}
@@ -40,16 +93,44 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
 
 type CardProps = {
   track: TrackSetting
+  song?: Song
   key: string
   trackId: number
   setTrack: (trackId: number, track: TrackSetting) => void
   noteCount: number
+  onPlayTrack: (trackId: number) => void
+  isPlaying: boolean
+  stopPlayer: () => void
 }
 type SynthState = { error: boolean; loading: boolean }
 
-function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
+function InstrumentCard({
+  track,
+  trackId,
+  song,
+  setTrack,
+  noteCount,
+  onPlayTrack,
+  isPlaying,
+  stopPlayer,
+}: CardProps) {
   const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
   const player = usePlayer()
+
+  const handlePlayTrack = (e: React.MouseEvent) => {
+    e.preventDefault()
+    onPlayTrack(trackId)
+  }
+
+  const handleRestoreTrack = () => {
+    if (song) {
+      stopPlayer()
+      const defaultTrack = getDefaultSongSettings(song).tracks[trackId]
+      if (defaultTrack) {
+        setTrack(trackId, defaultTrack)
+      }
+    }
+  }
 
   const handleSelectInstrument = (instrument: InstrumentName) => {
     setSynthState({ error: false, loading: true })
@@ -83,6 +164,8 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
         </span>
         <span className="bg-purple-light mx-1 my-2 h-6 w-[2px]"></span>
         <span>{noteCount} Notes</span>
+        <TogglePlayTrack on={isPlaying} onClick={handlePlayTrack} />
+        <RestoreTrack onClick={handleRestoreTrack} />
       </div>
       <InstrumentSelect
         value={track.instrument}
@@ -206,6 +289,39 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
         onClick={onClick}
       />
       <span style={labelStyle}>{labelText}</span>
+    </button>
+  )
+}
+
+function TogglePlayTrack({ on, onClick }: ToggleIconProps) {
+  const Icon = on ? Pause : Play
+  return (
+    <button
+      className="mr-6 ml-2 flex flex-col items-center"
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        onClick(e)
+      }}
+    >
+      <Icon
+        height={24}
+        width={24}
+        className={clsx('hover:fill-purple-primary', on && 'fill-purple-primary')}
+      />
+    </button>
+  )
+}
+
+function RestoreTrack({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
+  return (
+    <button className="ml-auto flex flex-col items-center">
+      <RefreshCcw
+        height={24}
+        width={24}
+        className={clsx('transition-transform duration-300 ease-in-out hover:-rotate-45')}
+        onClick={onClick}
+      />
     </button>
   )
 }
