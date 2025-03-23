@@ -204,11 +204,14 @@ export class Player {
       const instrument =
         songConfig.tracks[+trackId]?.instrument ?? config.program ?? config.instrument ?? 0
       synths[+trackId] = getSynth(instrument)
-      const vol = songConfig.tracks[+trackId]?.sound ? 1 : 0
-      this.setTrackVolume(+trackId, vol)
     })
     await Promise.all(synths).then((s) => {
       this.synths = s
+      // setTrackVolume must be called after synths have been set
+      Object.entries(song.tracks).forEach(([trackId]) => {
+        const vol = songConfig.tracks[+trackId]?.sound ? 1 : 0
+        this.setTrackVolume(+trackId, vol)
+      });
       this.store.set(this.state, 'Paused')
     })
     // this.skipMissedNotes = songConfig.skipMissedNotes

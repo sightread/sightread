@@ -131,7 +131,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
           id="file"
           name="file"
           type="file"
-          accept=".mid, .xml"
+          accept=".mid,audio/midi,audio/x-midi,.xml,application/xml,text/xml"
           className="hidden"
         />
         <div
