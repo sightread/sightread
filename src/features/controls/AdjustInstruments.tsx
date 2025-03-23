@@ -2,15 +2,15 @@
 
 import { Select } from '@/components'
 import { Player, usePlayer } from '@/features/player'
+import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { LeftHand, Play, RightHand, Volume2, VolumeX } from '@/icons'
 import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
 import clsx from 'clsx'
+import { getDefaultStore, useAtomValue } from 'jotai'
 import React, { useEffect, useState } from 'react'
-import { getDefaultStore } from 'jotai'
-import { RefreshCcw } from 'react-feather'
-import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
+import { Pause, RefreshCcw } from 'react-feather'
 
 type InstrumentSettingsProps = {
   config: SongConfig
@@ -18,7 +18,7 @@ type InstrumentSettingsProps = {
   setTracks: (tracks: { [id: number]: TrackSetting }) => void
 }
 
-const miniPlayer = new Player(getDefaultStore());
+const miniPlayer = new Player(getDefaultStore())
 
 export default function AdjustInstruments({ setTracks, config, song }: InstrumentSettingsProps) {
   const tracks = config.tracks
@@ -29,71 +29,54 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
       miniPlayer.setTrackInstrument(trackId, track.instrument).then(() => miniPlayer.play())
     }
   }
-  const [playingTracks, setPlayingTracks] = useState<Set<number>>(new Set())
+  const [playingTrack, setPlayingTrack] = useState<number | null>(null)
+  const miniPlayerState = useAtomValue(miniPlayer.state, { store: getDefaultStore() })
+  const miniPlayerIsPlaying = miniPlayerState === 'Playing'
 
-  const playTracks = async () => {
-    if (!song)
+  async function playTrack(trackId: number) {
+    if (!song) {
       return
-    const configCp: SongConfig = {...config}
-    configCp.waiting = false
-    await miniPlayer.setSong(song, configCp)
-    enableTracks()
+    }
+    const songConfig: SongConfig = { ...config }
+    songConfig.waiting = false
+    await miniPlayer.setSong(song, songConfig)
     // jump to the first playable note so the sound starts immediately
-    const firstNote = song.notes.find((note) => playingTracks.has(note.track))
+    const firstNote = song.notes.find((note) => note.track === trackId)
     if (firstNote) {
       miniPlayer.seek(firstNote.time)
       miniPlayer.play()
     }
   }
 
-  const stopTracks = () => {
+  function stopMiniPlayer() {
+    setPlayingTrack(null)
     miniPlayer.stop()
   }
 
-  const enableTracks = () => {
-    if (!song)
+  function enableTrack(trackId: number) {
+    if (!song) {
       return
-    Object.keys(song.tracks).forEach((trackId) => miniPlayer.setTrackVolume(trackId, playingTracks.has(+trackId) ? 1 : 0))
+    }
+    setPlayingTrack(trackId)
+    Object.keys(song.tracks).forEach((trackId) =>
+      miniPlayer.setTrackVolume(+trackId, playingTrack === +trackId ? 1 : 0),
+    )
   }
 
-  useEffect(() => {
-    if (playingTracks.size === 0) {
-      if (miniPlayer.isPlaying()) {
-        stopTracks()
-      }
+  const handlePlayTrackChange = (trackId: number) => {
+    const isPlaying = miniPlayerIsPlaying && playingTrack === trackId
+    if (!isPlaying) {
+      enableTrack(trackId)
+      playTrack(trackId)
     } else {
-      if (miniPlayer.isPlaying()) {
-        enableTracks()
-      } else {
-        playTracks()
-      }
-    }
-  }, [playingTracks])
-
-  const handlePlayTrackChange = (trackId: number, isPlaying: boolean) => {
-    if (isPlaying) {
-      setPlayingTracks((prevPlayingTracks) => new Set(prevPlayingTracks).add(trackId));
-    } else {
-      setPlayingTracks((prevPlayingTracks) => {
-        const newPlayingTracks = new Set(prevPlayingTracks)
-        newPlayingTracks.delete(trackId);
-        return newPlayingTracks;
-      });
-    }
-  }
-
-  const handleRestoreAll = () => {
-    if (song) {
-      const defaultSettings = getDefaultSongSettings(song)
-      if (defaultSettings) {
-        setTracks(defaultSettings.tracks);
-      }
+      stopMiniPlayer()
     }
   }
 
   return (
     <>
       {Object.entries(tracks).map(([track, settings]) => {
+        const isPlaying = miniPlayerIsPlaying && playingTrack === +track
         return (
           <InstrumentCard
             track={settings}
@@ -103,14 +86,10 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
             setTrack={handleSetTrack}
             noteCount={song?.notes.filter((n) => n.track === +track).length ?? 0}
             onPlayTrack={handlePlayTrackChange}
+            isPlaying={isPlaying}
           />
         )
       })}
-      <div className="w-full flex justify-center" >
-        <span className="m-4 p-4 rounded-md border border-black bg-white">
-          <RestoreAll onClick={handleRestoreAll} />
-        </span>
-      </div>
     </>
   )
 }
@@ -122,19 +101,26 @@ type CardProps = {
   trackId: number
   setTrack: (trackId: number, track: TrackSetting) => void
   noteCount: number
-  onPlayTrack: (trackId: number, isPlaying: boolean) => void
+  onPlayTrack: (trackId: number) => void
+  isPlaying: boolean
 }
 type SynthState = { error: boolean; loading: boolean }
 
-function InstrumentCard({ track, trackId, song, setTrack, noteCount, onPlayTrack }: CardProps) {
+function InstrumentCard({
+  track,
+  trackId,
+  song,
+  setTrack,
+  noteCount,
+  onPlayTrack,
+  isPlaying,
+}: CardProps) {
   const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
   const player = usePlayer()
-  const [isPlaying, setPlaying] = useState<boolean>(false)
 
   const handlePlayTrack = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setPlaying(!isPlaying)
-    onPlayTrack(trackId, !isPlaying)
+    e.preventDefault()
+    onPlayTrack(trackId)
   }
 
   const handleRestoreTrack = () => {
@@ -308,21 +294,26 @@ function ToggleSound({ on, onClick }: ToggleIconProps) {
 }
 
 function TogglePlayTrack({ on, onClick }: ToggleIconProps) {
-
+  const Icon = on ? Pause : Play
   return (
-    <button className="ml-2 mr-6 flex flex-col items-center">
-      <Play
+    <button
+      className="mr-6 ml-2 flex flex-col items-center"
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        onClick(e)
+      }}
+    >
+      <Icon
         height={24}
         width={24}
-        className={clsx(on ? 'text-purple-primary fill-purple-primary' : 'hover:fill-purple-primary')}
-        onClick={onClick}
+        className={clsx('hover:fill-purple-primary', on && 'fill-purple-primary')}
       />
     </button>
   )
 }
 
-function RestoreTrack({ onClick }: {onClick: (e: React.MouseEvent) => void}) {
-
+function RestoreTrack({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
   return (
     <button className="ml-auto flex flex-col items-center">
       <RefreshCcw
@@ -331,20 +322,6 @@ function RestoreTrack({ onClick }: {onClick: (e: React.MouseEvent) => void}) {
         className={clsx('transition-transform duration-300 ease-in-out hover:-rotate-45')}
         onClick={onClick}
       />
-    </button>
-  )
-}
-
-function RestoreAll({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
-  return (
-    <button className="flex flex-col items-center justify-center">
-      <RefreshCcw
-        height={32}
-        width={32}
-        className={clsx('transition-transform duration-300 ease-in-out hover:-rotate-45')}
-        onClick={onClick}
-      />
-      <span style={labelStyle}>Reset all</span>
     </button>
   )
 }
