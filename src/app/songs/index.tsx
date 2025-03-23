@@ -73,7 +73,7 @@ export default function SelectSongPage({ midishareMetadata }: any) {
       <Modal show={isUploadFormOpen} onClose={handleCloseAddNew}>
         <UploadForm onClose={handleCloseAddNew} />
       </Modal>
-      <div className="bg-purple-lightest flex h-screen w-full flex-col">
+      <div className="bg-purple-lightest flex min-h-screen w-full flex-col">
         <AppBar />
         <div className="mx-auto flex w-full max-w-(--breakpoint-lg) grow flex-col p-6">
           <h2 className="text-3xl">Learn a song</h2>
