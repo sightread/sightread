@@ -46,8 +46,13 @@ export async function GET(request: NextRequest) {
       },
     })
   } else {
+    const url =
+      process.env.VERCEL_ENV === 'production'
+        ? process.env.VERCEL_PROJECT_PRODUCTION_URL
+        : process.env.VERCEL_URL
+
     console.log(Object.keys(process.env), process.env)
-    console.log(`Requesting URL: ${process.env.VERCEL_URL}/${path}`)
-    return fetch(`${process.env.VERCEL_URL}/${path}`)
+    console.log(`Requesting URL: https://${url}/${path}`)
+    return fetch(`https://${url}/${path}`)
   }
 }
