@@ -62,7 +62,7 @@ export default function SettingsPanel(props: SidebarProps) {
       className="relative flex max-h-[calc(100vh-300px)] w-full flex-col gap-4 overflow-auto bg-gray-100 p-4 sm:flex-row"
       ref={sidebarRef}
     >
-      <h3 className="text-center text-2xl text-purple-primary">Settings</h3>
+      <h3 className="text-purple-primary text-center text-2xl">Settings</h3>
       <div className="flex grow flex-col flex-wrap items-center gap-4 whitespace-nowrap sm:flex-row sm:items-stretch">
         <Section title="Speed" className="flex grow">
           <BpmDisplay />
@@ -116,7 +116,7 @@ export default function SettingsPanel(props: SidebarProps) {
               <span className="min-w-[15ch]">Key signature</span>
               <select
                 name="keySignature"
-                className="w-[50px] border"
+                className="w-[50px] border bg-white"
                 value={keySignature ?? props.song?.keySignature}
                 onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
               >
@@ -135,7 +135,7 @@ export default function SettingsPanel(props: SidebarProps) {
             <Section
               title="Track configuration"
               onClick={() => setShowTrackConfig((b) => !b)}
-              className="cursor-pointer hover:bg-purple-light"
+              className="hover:bg-purple-light cursor-pointer"
             ></Section>
           </div>
         </div>
@@ -161,7 +161,7 @@ function Section({ children, title, className, onClick }: SectionProps) {
     <article
       className={clsx(
         className,
-        'flex min-w-[70vw] max-w-[70vw] flex-col gap-4 rounded-md bg-gray-200 p-4 sm:min-w-0',
+        'flex max-w-[70vw] min-w-[70vw] flex-col gap-4 rounded-md bg-gray-200 p-4 sm:min-w-0',
       )}
       onClick={onClick}
     >

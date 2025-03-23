@@ -20,7 +20,7 @@ const navItems: NavItem[] = [
 export default function AppBar() {
   return (
     <div
-      className="relative flex h-[50px] min-h-[50px] flex-col justify-center bg-purple-dark"
+      className="bg-purple-dark relative flex h-[50px] min-h-[50px] flex-col justify-center"
       style={{
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
@@ -29,22 +29,19 @@ export default function AppBar() {
       }}
     >
       <div className="mx-auto flex w-full items-center justify-center pl-6 md:max-w-(--breakpoint-lg)">
-        <div
-          className="absolute left-5 right-5 top-1/2 z-10 -translate-y-1/2 md:hidden"
-          style={{ transform: 'translateY(-50%)' }}
-        >
+        <div className="absolute top-1/2 right-5 left-5 z-10 -translate-y-1/2 md:hidden">
           <SmallWindowNav />
         </div>
-        <NavLink href={'/'} className="flex items-baseline text-white hover:text-purple-hover">
+        <NavLink href={'/'} className="hover:text-purple-hover flex items-baseline text-white">
           <Logo height={24} width={24} className="relative top-[3px]" />
           <Sizer width={8} />
           <span className="text-2xl font-extralight"> SIGHTREAD</span>
         </NavLink>
-        <div className="hidden grow justify-evenly gap-6 whitespace-nowrap pl-16 align-baseline md:flex">
+        <div className="hidden grow justify-evenly gap-6 pl-16 align-baseline whitespace-nowrap md:flex">
           {navItems.map((nav) => {
             return (
               <NavLink
-                className="text-white hover:text-purple-hover"
+                className="hover:text-purple-hover text-white"
                 href={nav.route}
                 key={nav.label}
                 label={nav.label}
@@ -53,7 +50,7 @@ export default function AppBar() {
           })}
           <NavLink
             href={'https://github.com/sightread/sightread'}
-            className="ml-auto flex items-center gap-2 pr-8 text-white hover:text-purple-hover lgminus:pr-0"
+            className="hover:text-purple-hover lgminus:pr-0 ml-auto flex items-center gap-2 pr-8 text-white"
           >
             <GitHub size={16} className="t-[2px] relative" />
             GitHub
@@ -74,7 +71,7 @@ function SmallWindowNav() {
               <NavLink
                 href={nav.route}
                 className={clsx(
-                  'inline-block w-fit cursor-pointer px-6 text-2xl text-purple-dark transition hover:text-purple-hover',
+                  'text-purple-dark hover:text-purple-hover inline-block w-fit cursor-pointer px-6 text-2xl transition',
                 )}
                 label={nav.label}
               />

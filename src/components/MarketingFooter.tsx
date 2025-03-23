@@ -5,7 +5,7 @@ import Sizer from './Sizer'
 
 function FooterHeader({ children }: any) {
   return (
-    <h3 className="fontleading-6 flex gap-2 whitespace-nowrap text-base font-medium text-foreground">
+    <h3 className="fontleading-6 text-foreground flex gap-2 text-base font-medium whitespace-nowrap">
       {children}
     </h3>
   )
@@ -18,7 +18,7 @@ function FooterCol({ children, className }: any) {
 function FooterLink({ href, children }: any) {
   return (
     <Link
-      className="whitespace-nowrap font-light text-muted-foreground transition hover:text-foreground hover:underline hover:underline-offset-4"
+      className="text-muted-foreground hover:text-foreground font-light whitespace-nowrap transition hover:underline hover:underline-offset-4"
       href={href}
     >
       {children}
@@ -34,7 +34,7 @@ function MaxWidthWrapper(props: PropsWithChildren<{ as?: any; className?: string
 export function MarketingFooter() {
   return (
     <footer
-      className="w-full border-t border-border bg-foreground/[0.02] dark:bg-foreground/[0.01]"
+      className="border-border bg-foreground/[0.02] dark:bg-foreground/[0.01] w-full border-t"
       aria-labelledby="footer-heading"
     >
       <Sizer height={24} />
@@ -60,7 +60,7 @@ export function MarketingFooter() {
           </FooterCol>
         </div>
         <Sizer height={32} />
-        <span className="text-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           © 2024 Sightread Studio, LLC. All rights reserved.
         </span>
 

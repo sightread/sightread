@@ -81,7 +81,7 @@ function InstrumentCard({ track, trackId, setTrack, noteCount }: CardProps) {
           Track {trackId + 1}
           {track.track.name ? ': ' + track.track.name : ''}
         </span>
-        <span className="mx-1 my-2 h-6 w-[2px] bg-purple-light"></span>
+        <span className="bg-purple-light mx-1 my-2 h-6 w-[2px]"></span>
         <span>{noteCount} Notes</span>
       </div>
       <InstrumentSelect

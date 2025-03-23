@@ -153,7 +153,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
       </div>
       <Sizer height={16} />
       <button
-        className="w-full cursor-pointer rounded-md bg-purple-primary py-2 text-white transition hover:bg-purple-hover"
+        className="bg-purple-primary hover:bg-purple-hover w-full cursor-pointer rounded-md py-2 text-white transition"
         type="submit"
       >
         Upload

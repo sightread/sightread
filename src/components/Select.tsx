@@ -52,8 +52,8 @@ export default function Select({
         value={!loading ? display(value) : ''}
         type="text"
         className={clsx(
-          'max-h-full w-full cursor-pointer rounded-md border border-gray-200 p-2',
-          'hover:border hover:border-purple-primary focus:border-purple-primary focus:outline-hidden',
+          'max-h-full w-full cursor-pointer rounded-md border border-gray-200 bg-white p-2',
+          'hover:border-purple-primary focus:border-purple-primary hover:border focus:outline-hidden',
         )}
         onClick={(e) => {
           e.stopPropagation()
@@ -65,7 +65,7 @@ export default function Select({
         width={15}
         height={15}
         className={clsx(
-          'absolute right-1 top-1/2 -translate-y-1/2 cursor-pointer transition',
+          'absolute top-1/2 right-1 -translate-y-1/2 cursor-pointer transition',
           openMenu && 'rotate-180',
         )}
         onClick={(e) => {
@@ -75,7 +75,7 @@ export default function Select({
       />
       {loading && (
         <div className="pointer-events-none absolute top-0 grid h-full w-full place-items-center">
-          <Loader size={24} height={24} className="animate-spin text-purple-primary" />
+          <Loader size={24} height={24} className="text-purple-primary animate-spin" />
         </div>
       )}
       <div className="relative">
@@ -83,7 +83,7 @@ export default function Select({
           <div
             ref={menuRef}
             className={clsx(
-              'h-full max-h-[250px] w-full overflow-y-auto rounded-md border border-purple-primary bg-white transition',
+              'border-purple-primary h-full max-h-[250px] w-full overflow-y-auto rounded-md border bg-white transition',
               openMenu ? '' : 'hidden',
             )}
           >
@@ -91,7 +91,7 @@ export default function Select({
               return (
                 <div
                   key={option}
-                  className={clsx('cursor-pointer p-1 hover:bg-purple-light')}
+                  className={clsx('hover:bg-purple-light cursor-pointer p-1')}
                   onClick={(e) => {
                     e.stopPropagation()
                     handleSelect(option)

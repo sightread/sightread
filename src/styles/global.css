@@ -7,8 +7,8 @@
   --breakpoint-lg: 1100px;
   --breakpoint-lgminus: 1130px;
 
-  --text-reponsive2Xl: clamp(1.7rem, 1rem + 3vw, 4rem);
-  --text-reponsive-xl: clamp(1rem, 1rem + 1vw, 1.2rem);
+  --text-responsive-xxl: clamp(1.7rem, 1rem + 3vw, 4rem);
+  --text-responsive-xl: clamp(1rem, 1rem + 1vw, 1.2rem);
 
   --color-purple-lightest: #f7f4fe;
   --color-purple-light: #eee5ff;

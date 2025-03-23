@@ -27,7 +27,7 @@ export default function AboutPage() {
             <section className="mx-auto flex flex-col">
               <h2 className="text-3xl">About</h2>
               <Sizer height={32} />
-              <ul className="flex flex-col gap-5 whitespace-nowrap text-xl">
+              <ul className="flex flex-col gap-5 text-xl whitespace-nowrap">
                 <li>
                   <SidebarLink>What</SidebarLink>
                 </li>

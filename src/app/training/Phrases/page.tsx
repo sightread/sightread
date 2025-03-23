@@ -113,16 +113,16 @@ export default function Phrases() {
           }}
         />
         <div className="relative flex w-full justify-center gap-4 bg-gray-200 px-8 py-4">
-          <div className="flex items-center gap-2 whitespace-nowrap rounded-md bg-white p-2 text-black">
+          <div className="flex items-center gap-2 rounded-md bg-white p-2 whitespace-nowrap text-black">
             <label>BPM {round(bpmModifier * 100)}%</label>
             <ButtonWithTooltip tooltip="Increase BPM" onClick={() => player.increaseBpm()}>
-              <ChevronUp className="text-black hover:text-purple-primary" />
+              <ChevronUp className="hover:text-purple-primary text-black" />
             </ButtonWithTooltip>
             <ButtonWithTooltip tooltip="Decrease BPM" onClick={() => player.decreaseBpm()}>
-              <ChevronDown className="text-black hover:text-purple-primary" />
+              <ChevronDown className="hover:text-purple-primary text-black" />
             </ButtonWithTooltip>
           </div>
-          <div className="flex items-center gap-2 whitespace-nowrap rounded-md bg-white p-2">
+          <div className="flex items-center gap-2 rounded-md bg-white p-2 whitespace-nowrap">
             <label>Show letter</label>
             <Toggle
               width={50}
@@ -188,7 +188,7 @@ export default function Phrases() {
         <div className="flex basis-0 items-center justify-center gap-4 text-white">
           <PhrasesBtn
             onClick={handleReplay}
-            className="border border-purple-primary bg-white text-purple-primary hover:bg-purple-light"
+            className="border-purple-primary text-purple-primary hover:bg-purple-light border bg-white"
           >
             Replay
           </PhrasesBtn>
@@ -220,7 +220,7 @@ function ProgressDisplay() {
           style={{
             boxShadow: `inset 0px 2px 3px rgba(255, 255, 255, 0.4), inset 0px 7px 11px rgba(255, 255, 255, 0.25)`,
           }}
-          className="absolute bottom-0 h-[34px] rounded-r-3xl bg-linear-to-r from-purple-darkest to-purple-primary"
+          className="from-purple-darkest to-purple-primary absolute bottom-0 h-[34px] rounded-r-3xl bg-linear-to-r"
           ref={progressRef}
         />
       </div>
@@ -232,7 +232,7 @@ function StatDisplay(props: PropsWithChildren<{ label: string }>) {
   return (
     <div className="flex min-w-[150px] flex-col gap-2">
       <span className="text-xl font-semibold text-black">{props.label}</span>
-      <span className="text-4xl font-semibold text-purple-primary">{props.children}</span>
+      <span className="text-purple-primary text-4xl font-semibold">{props.children}</span>
     </div>
   )
 }

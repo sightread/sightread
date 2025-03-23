@@ -89,7 +89,7 @@ export default function SongPreviewModal({
           <Sizer height={16} />
           <div className="flex w-full gap-4">
             <button
-              className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-purple-primary bg-white px-1 text-xl text-black transition hover:bg-purple-primary hover:text-white"
+              className="border-purple-primary hover:bg-purple-primary flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border bg-white px-1 text-xl text-black transition hover:text-white"
               onClick={() => {
                 const origin = window.location.origin
                 const url = `${origin}/play/?source=base64&id=${id}`
@@ -100,7 +100,7 @@ export default function SongPreviewModal({
               Copy Share URL
             </button>
             <button
-              className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border-none bg-purple-primary px-1 text-xl text-white transition hover:bg-purple-hover"
+              className="bg-purple-primary hover:bg-purple-hover flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border-none px-1 text-xl text-white transition"
               onClick={() => downloadBase64Midi(id)}
             >
               <Download />

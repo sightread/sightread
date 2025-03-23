@@ -73,7 +73,7 @@ export default function SelectSongPage({ midishareMetadata }: any) {
       <Modal show={isUploadFormOpen} onClose={handleCloseAddNew}>
         <UploadForm onClose={handleCloseAddNew} />
       </Modal>
-      <div className="flex h-screen w-full flex-col bg-purple-lightest">
+      <div className="bg-purple-lightest flex h-screen w-full flex-col">
         <AppBar />
         <div className="mx-auto flex w-full max-w-(--breakpoint-lg) grow flex-col p-6">
           <h2 className="text-3xl">Learn a song</h2>
@@ -86,7 +86,7 @@ export default function SelectSongPage({ midishareMetadata }: any) {
               className={clsx(
                 'hidden flex-nowrap whitespace-nowrap sm:flex',
                 'items-center gap-1 rounded-md px-4 py-2',
-                'bg-purple-dark text-white transition hover:bg-purple-hover',
+                'bg-purple-dark hover:bg-purple-hover text-white transition',
               )}
               onClick={handleAddNew}
             >

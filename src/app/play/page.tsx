@@ -133,7 +133,7 @@ function PlaySongLegacy() {
         className={clsx(
           // Enable fixed to remove all scrolling.
           'fixed',
-          'max-w-screen flex h-screen max-h-screen flex-col',
+          'flex h-screen max-h-screen max-w-screen flex-col',
         )}
       >
         {!isRecording && (

@@ -78,7 +78,7 @@ export default function SongPreviewModal({
           <Sizer height={16} />
           <Link
             href={`/play?id=${id}&source=${source}`}
-            className="flex h-10 w-full items-center justify-center rounded-md border-none bg-purple-primary text-xl text-white transition hover:bg-purple-hover"
+            className="bg-purple-primary hover:bg-purple-hover flex h-10 w-full items-center justify-center rounded-md border-none text-xl text-white transition"
           >
             Play Now
           </Link>
