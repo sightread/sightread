@@ -4,6 +4,7 @@ import { Select } from '@/components'
 import { Player, usePlayer } from '@/features/player'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
 import { gmInstruments, InstrumentName } from '@/features/synth'
+import { useOnUnmount } from '@/hooks'
 import { LeftHand, Play, RightHand, Volume2, VolumeX } from '@/icons'
 import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
@@ -21,6 +22,7 @@ type InstrumentSettingsProps = {
 const miniPlayer = new Player(getDefaultStore())
 
 export default function AdjustInstruments({ setTracks, config, song }: InstrumentSettingsProps) {
+  useOnUnmount(() => miniPlayer.stop())
   const tracks = config.tracks
   const handleSetTrack = (trackId: number, track: TrackSetting) => {
     setTracks({ ...tracks, [trackId]: track })
@@ -40,6 +42,11 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
     const songConfig: SongConfig = { ...config }
     songConfig.waiting = false
     await miniPlayer.setSong(song, songConfig)
+    setPlayingTrack(trackId)
+    Object.keys(song.tracks).forEach((id) =>
+      miniPlayer.setTrackVolume(+id, trackId === +id ? 1 : 0),
+    )
+
     // jump to the first playable note so the sound starts immediately
     const firstNote = song.notes.find((note) => note.track === trackId)
     if (firstNote) {
@@ -53,20 +60,9 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
     miniPlayer.stop()
   }
 
-  function enableTrack(trackId: number) {
-    if (!song) {
-      return
-    }
-    setPlayingTrack(trackId)
-    Object.keys(song.tracks).forEach((trackId) =>
-      miniPlayer.setTrackVolume(+trackId, playingTrack === +trackId ? 1 : 0),
-    )
-  }
-
   const handlePlayTrackChange = (trackId: number) => {
     const isPlaying = miniPlayerIsPlaying && playingTrack === trackId
     if (!isPlaying) {
-      enableTrack(trackId)
       playTrack(trackId)
     } else {
       stopMiniPlayer()
@@ -87,6 +83,7 @@ export default function AdjustInstruments({ setTracks, config, song }: Instrumen
             noteCount={song?.notes.filter((n) => n.track === +track).length ?? 0}
             onPlayTrack={handlePlayTrackChange}
             isPlaying={isPlaying}
+            stopPlayer={stopMiniPlayer}
           />
         )
       })}
@@ -103,6 +100,7 @@ type CardProps = {
   noteCount: number
   onPlayTrack: (trackId: number) => void
   isPlaying: boolean
+  stopPlayer: () => void
 }
 type SynthState = { error: boolean; loading: boolean }
 
@@ -114,6 +112,7 @@ function InstrumentCard({
   noteCount,
   onPlayTrack,
   isPlaying,
+  stopPlayer,
 }: CardProps) {
   const [synthState, setSynthState] = useState<SynthState>({ error: false, loading: false })
   const player = usePlayer()
@@ -125,6 +124,7 @@ function InstrumentCard({
 
   const handleRestoreTrack = () => {
     if (song) {
+      stopPlayer()
       const defaultTrack = getDefaultSongSettings(song).tracks[trackId]
       if (defaultTrack) {
         setTrack(trackId, defaultTrack)
