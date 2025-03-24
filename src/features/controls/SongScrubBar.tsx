@@ -127,7 +127,7 @@ export default function SongScrubBar({
 
   return (
     <div
-      className="relative flex w-full touch-none select-none border-b border-b-black bg-gray-300"
+      className="relative flex w-full touch-none border-b border-b-black bg-gray-300 select-none"
       onClick={onClick}
       style={{ height }}
       ref={wrapperRef}

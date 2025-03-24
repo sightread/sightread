@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         : process.env.VERCEL_URL
 
     console.log(Object.keys(process.env), process.env)
-    console.log(`Requesting URL: ${url}/${path}`)
-    return fetch(`${url}/${path}`)
+    console.log(`Requesting URL: https://${url}/${path}`)
+    return fetch(`https://${url}/${path}`)
   }
 }
