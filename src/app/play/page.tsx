@@ -94,11 +94,11 @@ function PlaySongLegacy() {
   })
 
   useEffect(() => {
-    const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
+    const handleMidiEvent = ({ type, note, velocity }: MidiStateEvent) => {
       if (type === 'down') {
-        synth.playNote(note)
+        synth.playNote(note, velocity)
       } else {
-        synth.stopNote(note)
+        synth.stopNote(note, velocity)
       }
     }
 
