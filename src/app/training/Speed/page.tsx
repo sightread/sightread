@@ -199,16 +199,16 @@ function advanceGame(
   if (speedState.complete) {
     return
   }
-  const { note: midiNote, type } = midiEvent
+  const { note: midiNote, type, velocity } = midiEvent
   if (type === 'up') {
-    synth.stopNote(midiNote)
+    synth.stopNote(midiNote, velocity)
     return
   }
   const currentNote = speedState.notes[speedState.currentNoteIndex]
   const complete = speedState.currentNoteIndex >= speedState.notes.length - 1
   if (midiNote === currentNote) {
     if (type === 'down' && !soundOff) {
-      synth.playNote(midiNote)
+      synth.playNote(midiNote, velocity)
     }
     setSpeedState({
       ...speedState,
