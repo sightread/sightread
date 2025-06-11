@@ -129,7 +129,7 @@ export function MidiModal(props: MidiModalProps) {
 
           {outputs &&
             Array.from(outputs.values()).map((device) => {
-              const enabled = isOutputMidiDeviceEnabled(device)
+              const enabled = isOutputMidiDeviceEnabled(device as any)
               return (
                 <div
                   className="flex h-12 items-center justify-between p-4 odd:bg-gray-200"
@@ -140,9 +140,9 @@ export function MidiModal(props: MidiModalProps) {
                     enabled={enabled}
                     onClick={async () => {
                       if (enabled) {
-                        disableOutputMidiDevice(device)
+                        disableOutputMidiDevice(device as any)
                       } else {
-                        enableOutputMidiDevice(device)
+                        enableOutputMidiDevice(device as any)
                       }
                       refreshMidiDevices()
                     }}
