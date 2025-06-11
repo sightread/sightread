@@ -19,13 +19,13 @@ export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
   }
 }
 
-export async function getMidiOutputs(): Promise<WebMidi.MIDIOutputMap> {
+export async function getMidiOutputs(): Promise<MIDIOutputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {
     return new Map()
   }
 
   try {
-    const midiAccess = await window.navigator.requestMIDIAccess()
+    const midiAccess = await window.navigator.requestMIDIAccess({ sysex: false })
     return midiAccess.outputs
   } catch (error) {
     console.error('Error accessing MIDI devices: ' + error)
@@ -74,15 +74,18 @@ export function disableOutputMidiDevice(deviceParam: WebMidi.MIDIOutput) {
 }
 
 setupMidiDeviceListeners()
+
+
+// Sets up listeners for all non-virtual MIDI input devices.
+// Skips "through" ports (often used for routing/echo) to avoid feedback loops.
+// Output devices are ignored by default and must be enabled manually.
 async function setupMidiDeviceListeners() {
   const inputs = await getMidiInputs()
-  const outputs = await getMidiOutputs()
   for (const device of inputs.values()) {
+    if (device.name?.toLowerCase().includes('through')) {
+      continue
+    }
     enableInputMidiDevice(device)
-  }
-
-  for (const device of outputs.values()) {
-    enableOutputMidiDevice(device)
   }
 }
 
