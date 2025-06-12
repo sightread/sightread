@@ -3,7 +3,7 @@ import { SongMetadata, SongSource } from '@/types'
 import { getKey } from '@/utils'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getUploadedLibrary } from '../persist'
+import { getUploadedLibrary, deleteSong } from '../persist'
 
 const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSongManifest).map(
   (metadata) => {
@@ -12,7 +12,7 @@ const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSong
   },
 )
 
-function getStorageMetatadata(): Array<[string, SongMetadata]> {
+function getStorageMetadata(): Array<[string, SongMetadata]> {
   return Object.values(getUploadedLibrary()).map((metadata) => {
     const key = getKey(metadata.id, metadata.source)
     return [key, metadata as SongMetadata]
@@ -20,11 +20,11 @@ function getStorageMetatadata(): Array<[string, SongMetadata]> {
 }
 
 const builtinMetadataAtom = atom(builtinMetadata)
-const storageMetadataAtom = atom(getStorageMetatadata())
+const storageMetadataAtom = atom(getStorageMetadata())
 
 export function useRefreshStorageMetadata() {
   const set = useSetAtom(storageMetadataAtom)
-  const refresh = useCallback(() => set(getStorageMetatadata()), [set])
+  const refresh = useCallback(() => set(getStorageMetadata()), [set])
   return refresh
 }
 export const midishareMetadataAtom = atom<Array<[string, SongMetadata]>>([])
@@ -60,3 +60,12 @@ export function useSongMetadata(id: string, source: SongSource): SongMetadata | 
   const songManifest = useAtomValue(songManifestAtom)
   return songManifest.get(key)
 }
+
+export function useDeleteSong() {
+  const refresh = useRefreshStorageMetadata()
+  return useCallback((id: string) => {
+    deleteSong(id)  // assumes this exists
+    refresh()
+  }, [refresh])
+}
+
