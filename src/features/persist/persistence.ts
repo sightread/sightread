@@ -19,6 +19,10 @@ export function getUploadedLibrary(): SongMetadata[] {
   return Storage.get<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY) ?? []
 }
 
+function setUploadedLibrary(library: SongMetadata[]): void {
+  Storage.set<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY, library)
+}
+
 /**
  * Song data is stored in localStorage in two places:
  * - Song Library: list of songs and their metadata
@@ -43,9 +47,15 @@ export async function saveSong(file: File, title: string, artist: string): Promi
   if (library.find((s) => s.id === id)) {
     throw new Error('Cannot upload the same song twice')
   }
-  Storage.set(LOCAL_STORAGE_SONG_LIST_KEY, library.concat(uploadedSong))
+  setUploadedLibrary(library.concat(uploadedSong))
   Storage.set(id, song)
   return uploadedSong
+}
+
+export function deleteSong(id: string) {
+  const songLibrary = getUploadedLibrary()
+  setUploadedLibrary(songLibrary.filter((s => s.id !== id)))
+  Storage.delete(id)
 }
 
 async function sha1(msgUint8: Uint8Array) {
