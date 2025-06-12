@@ -36,7 +36,13 @@ export default function Table<T extends Row>({
     !search || String(s).toUpperCase().includes(search.toUpperCase())
   const filtered = !search ? rows : rows.filter((row) => filter.some((f) => isSearchMatch(row[f])))
   const sortField = columns[Math.abs(sortCol) - 1].id
-  const sorted = sortBy<T>((row) => row[sortField] ?? 0, sortCol < 0, filtered)
+  const sorted = sortBy<T>((row) => {
+    let field = row[sortField]
+    if (typeof field === 'string' || typeof field === 'number') {
+      return field
+    }
+    return 0
+  }, sortCol < 0, filtered)
   const gridTemplateColumns = `repeat(${columns.length}, 1fr)`
 
   return (
@@ -70,7 +76,7 @@ export default function Table<T extends Row>({
                   const paddingLeft = j === 0 ? 20 : 0
                   return (
                     <span
-                      className="group-hover:bg-purple-hover relative flex shrink-0 items-center px-3 text-sm group-even:bg-gray-100"
+                      className="group-hover:bg-violet-200 relative flex shrink-0 items-center px-3 text-sm group-even:bg-gray-100"
                       key={`row-${i}-col-${j}`}
                       style={{ paddingLeft, height: rowHeight }}
                     >
