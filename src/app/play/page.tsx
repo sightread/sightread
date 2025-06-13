@@ -143,7 +143,7 @@ function PlaySongLegacy() {
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
               onTogglePlaying={() => player.toggle()}
-              onClickRestart={() => player.stop()}
+              onClickRestart={() => player.restart()}
               onClickBack={() => {
                 player.stop()
                 router.push('/')
