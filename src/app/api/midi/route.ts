@@ -1,6 +1,6 @@
-import type { NextRequest } from 'next/server'
 import fs from 'fs'
 import { SongMetadata } from '@/types'
+import type { NextRequest } from 'next/server'
 
 const songManifest = require('@/manifest.json')
 const map: Map<string, SongMetadata> = new Map(songManifest.map((s: SongMetadata) => [s.id, s]))
@@ -46,7 +46,13 @@ export async function GET(request: NextRequest) {
       },
     })
   } else {
-    console.log(`Requesting URL: https://${process.env.VERCEL_URL}/${path}`)
-    return fetch(`https://${process.env.VERCEL_URL}/${path}`)
+    const url =
+      process.env.VERCEL_ENV === 'production'
+        ? process.env.VERCEL_PROJECT_PRODUCTION_URL
+        : process.env.VERCEL_URL
+
+    console.log(Object.keys(process.env), process.env)
+    console.log(`Requesting URL: https://${url}/${path}`)
+    return fetch(`https://${url}/${path}`)
   }
 }

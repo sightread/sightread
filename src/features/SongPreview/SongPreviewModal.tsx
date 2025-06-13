@@ -49,7 +49,7 @@ export default function SongPreviewModal({
           <span className="text-2xl font-semibold">{title}</span>
           <span className="overflow-hidden text-base text-gray-500">{artist}</span>
         </div>
-        <div className="flex flex-grow flex-col overflow-hidden rounded-md">
+        <div className="flex grow flex-col overflow-hidden rounded-md">
           <div className="relative">
             <div className="pointer-events-none absolute z-20 h-full w-full rounded-md" />
             <SongScrubBar height={30} />
@@ -78,7 +78,7 @@ export default function SongPreviewModal({
           <Sizer height={16} />
           <Link
             href={`/play?id=${id}&source=${source}`}
-            className="flex h-10 w-full items-center justify-center rounded-md border-none bg-purple-primary text-xl text-white transition hover:bg-purple-hover"
+            className="bg-purple-primary hover:bg-purple-hover flex h-10 w-full items-center justify-center rounded-md border-none text-xl text-white transition"
           >
             Play Now
           </Link>

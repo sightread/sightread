@@ -1,10 +1,10 @@
 'use client'
 
-import { AppBar, MarketingFooter, Modal, Sizer } from '@/components'
+import { AppBar, Dropdown, MarketingFooter, Modal, Sizer } from '@/components'
 import { midishareMetadataAtom, useSongManifest } from '@/features/data/library'
 import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
-import { Plus } from '@/icons'
+import { MoreVertical, Plus } from '@/icons'
 import { DifficultyLabel, SongMetadata } from '@/types'
 import { formatTime } from '@/utils'
 import clsx from 'clsx'
@@ -14,6 +14,8 @@ import * as React from 'react'
 import { useState } from 'react'
 import { Table, UploadForm } from './components'
 import { SearchBox } from './components/Table/SearchBox'
+import * as icons from '@/icons'
+import { useDeleteSong } from '@/features/data/library'
 
 export const metadata: Metadata = {
   title: 'Sightread: Select a song',
@@ -37,13 +39,16 @@ function getDifficultyLabel(s: number): DifficultyLabel {
   return difficultyMap[s]
 }
 
+type SongMetadataWithActions = SongMetadata & { actions?: React.ReactNode }
+
 // TODO: after an upload, scroll to the newly uploaded song / make it focused.
 export default function SelectSongPage({ midishareMetadata }: any) {
-  const songs = useSongManifest()
+  let songs: SongMetadataWithActions[] = useSongManifest()
   const [isUploadFormOpen, setUploadForm] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
+  const deleteSong = useDeleteSong()
   useHydrateAtoms([[midishareMetadataAtom, midishareMetadata]])
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
@@ -61,6 +66,38 @@ export default function SelectSongPage({ midishareMetadata }: any) {
     setUploadForm(false)
   }
 
+  // Create the actions column and cell values
+  songs = songs.map((s) => {
+    let actions = <></>
+    if (s.source === 'upload') {
+      actions = (
+        <Dropdown
+          target={
+            <button className="text-muted-foreground hover:text-foreground transition-colors p-1">
+              <MoreVertical size={20} />
+            </button>
+          }
+        >
+          <div className="z-20 w-40 rounded-md bg-white p-2 shadow-md ring-1 ring-border space-y-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteSong(s.id)
+              }}
+              className="flex w-full items-center gap-2 rounded px-2 py-1 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+            >
+              <icons.Trash size={16} />
+              Delete
+            </button>
+          </div>
+        </Dropdown>
+      );
+    }
+
+    return { ...s, actions }
+  });
+
+
   return (
     <>
       <SongPreviewModal
@@ -73,9 +110,9 @@ export default function SelectSongPage({ midishareMetadata }: any) {
       <Modal show={isUploadFormOpen} onClose={handleCloseAddNew}>
         <UploadForm onClose={handleCloseAddNew} />
       </Modal>
-      <div className="flex h-screen w-full flex-col bg-purple-lightest">
+      <div className="bg-purple-lightest flex min-h-screen w-full flex-col">
         <AppBar />
-        <div className="mx-auto flex w-full max-w-screen-lg flex-grow flex-col p-6">
+        <div className="mx-auto flex w-full max-w-(--breakpoint-lg) grow flex-col p-6">
           <h2 className="text-3xl">Learn a song</h2>
           <Sizer height={8} />
           <h3 className="text-base"> Select a song, choose your settings, and begin learning</h3>
@@ -86,7 +123,7 @@ export default function SelectSongPage({ midishareMetadata }: any) {
               className={clsx(
                 'hidden flex-nowrap whitespace-nowrap sm:flex',
                 'items-center gap-1 rounded-md px-4 py-2',
-                'bg-purple-dark text-white transition hover:bg-purple-hover',
+                'bg-purple-dark hover:bg-purple-hover text-white transition',
               )}
               onClick={handleAddNew}
             >
@@ -106,8 +143,9 @@ export default function SelectSongPage({ midishareMetadata }: any) {
                 format: (n) => formatTime(Number(n)),
               },
               { label: 'Source', id: 'source' },
+              { label: "Actions", id: 'actions' }
             ]}
-            getId={(s: SongMetadata) => s.id}
+            getId={(s: SongMetadataWithActions) => s.id}
             rows={songs}
             filter={['title', 'artist']}
             onSelectRow={setSelectedSongId}

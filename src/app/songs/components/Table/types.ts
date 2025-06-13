@@ -6,7 +6,7 @@ export type TableColumn<T, D extends keyof T = never> = {
   sort?: (a: T[D], b: T[D]) => -1 | 0 | 1
 }
 
-export type RowValue = string | number | undefined
+export type RowValue = string | number | undefined | React.ReactNode
 export type Row = { [key: string]: RowValue }
 
 export type TableProps<T extends Row> = {

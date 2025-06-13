@@ -94,11 +94,11 @@ function PlaySongLegacy() {
   })
 
   useEffect(() => {
-    const handleMidiEvent = ({ type, note }: MidiStateEvent) => {
+    const handleMidiEvent = ({ type, note, velocity }: MidiStateEvent) => {
       if (type === 'down') {
-        synth.playNote(note)
+        synth.playNote(note, velocity)
       } else {
-        synth.stopNote(note)
+        synth.stopNote(note, velocity)
       }
     }
 
@@ -133,7 +133,7 @@ function PlaySongLegacy() {
         className={clsx(
           // Enable fixed to remove all scrolling.
           'fixed',
-          'max-w-screen flex h-screen max-h-screen flex-col',
+          'flex h-screen max-h-screen max-w-screen flex-col',
         )}
       >
         {!isRecording && (
@@ -143,7 +143,7 @@ function PlaySongLegacy() {
               isLoading={!playerState.canPlay}
               isPlaying={playerState.playing}
               onTogglePlaying={() => player.toggle()}
-              onClickRestart={() => player.stop()}
+              onClickRestart={() => player.restart()}
               onClickBack={() => {
                 player.stop()
                 router.push('/')
@@ -159,7 +159,7 @@ function PlaySongLegacy() {
               settingsOpen={settingsOpen}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
-            <div className={clsx(!settingsOpen && 'hidden')}>
+            {settingsOpen && (
               <SettingsPanel
                 onClose={() => setSettingsPanel(false)}
                 onChange={setSongConfig}
@@ -168,7 +168,7 @@ function PlaySongLegacy() {
                 onLoopToggled={handleLoopingToggle}
                 isLooping={isLooping}
               />
-            </div>
+            )}
             <div className="relative min-w-full">
               <SongScrubBar
                 rangeSelection={selectedRange}
@@ -181,7 +181,7 @@ function PlaySongLegacy() {
         <div
           className={clsx(
             'fixed -z-10 h-[100vh] w-screen',
-            '!h-[100dvh]',
+            'h-[100dvh]!',
             songConfig.visualization === 'sheet' ? 'bg-white' : 'bg-[#2e2e2e]',
           )}
         >

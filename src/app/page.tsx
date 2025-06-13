@@ -9,16 +9,16 @@ export default function Home() {
     <>
       <div className="relative flex min-h-[800px,100vh] w-full flex-col text-white">
         <AppBar />
-        <div className="flex flex-col items-center bg-purple-primary p-8 text-center">
-          <h1 className="text-reponsive2Xl font-bold">Your Piano Journey Begins Here</h1>
+        <div className="bg-purple-primary flex flex-col items-center p-8 text-center">
+          <h1 className="text-responsive-xxl font-bold">Your Piano Journey Begins Here</h1>
           <Sizer height={8} />
-          <h3 className="text-reponsiveXl">
+          <h3 className="text-responsive-xl">
             Plug in your keyboard and learn, right in your browser
           </h3>
           <Sizer height={overlappingHeight} />
         </div>
         <FeaturedSongsPreview marginTop={-overlappingHeight} />
-        <div className="mt-auto flex min-h-[200px] flex-col items-center gap-6 bg-background pt-[42px]">
+        <div className="bg-background mt-auto flex min-h-[200px] flex-col items-center gap-6 pt-[42px]">
           <h3 className="text-black" style={{ fontSize: 'clamp(1rem, 1rem + 1vw, 2rem)' }}>
             Start learning
           </h3>
@@ -27,12 +27,12 @@ export default function Home() {
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min-content, 150px))' }}
           >
             <Link href={'/songs'}>
-              <Button className="bg-purple-primary text-white hover:bg-purple-hover">
+              <Button className="bg-purple-primary hover:bg-purple-hover text-white">
                 Learn a song
               </Button>
             </Link>
             <Link href={'/freeplay'}>
-              <Button className="border border-purple-primary bg-white text-purple-primary hover:bg-purple-light">
+              <Button className="border-purple-primary text-purple-primary hover:bg-purple-light border bg-white">
                 Free play
               </Button>
             </Link>

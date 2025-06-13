@@ -204,11 +204,14 @@ export class Player {
       const instrument =
         songConfig.tracks[+trackId]?.instrument ?? config.program ?? config.instrument ?? 0
       synths[+trackId] = getSynth(instrument)
-      const vol = songConfig.tracks[+trackId]?.sound ? 1 : 0
-      this.setTrackVolume(+trackId, vol)
     })
     await Promise.all(synths).then((s) => {
       this.synths = s
+      // setTrackVolume must be called after synths have been set
+      Object.entries(song.tracks).forEach(([trackId]) => {
+        const vol = songConfig.tracks[+trackId]?.sound ? 1 : 0
+        this.setTrackVolume(+trackId, vol)
+      });
       this.store.set(this.state, 'Paused')
     })
     // this.skipMissedNotes = songConfig.skipMissedNotes
@@ -469,6 +472,18 @@ export class Player {
     this.stopAllSounds()
   }
 
+  restart() {
+    const range = this.store.get(this.range)
+    if (range == null) {
+      this.stop()
+      return
+    }
+    const [start, _end] = range
+    this.pause()
+    this.seek(start)
+    this.resetStats_()
+  }
+
   stop() {
     this.pause()
     this.reset_()
@@ -484,7 +499,10 @@ export class Player {
     if (backingTrack) {
       backingTrack.currentTime = 0
     }
+    this.resetStats_()
+  }
 
+  resetStats_() {
     this.hitNotes.clear()
     this.missedNotes.clear()
     this.store.set(this.score.good, 0)

@@ -22,12 +22,12 @@ export default function AboutPage() {
     <div className="relative">
       <AppBar />
       <div className="md:bg-purple-lightest">
-        <div className="mx-auto flex max-w-screen-lg">
+        <div className="mx-auto flex max-w-(--breakpoint-lg)">
           <div className="sticky top-0 hidden max-h-screen p-8 md:block">
             <section className="mx-auto flex flex-col">
               <h2 className="text-3xl">About</h2>
               <Sizer height={32} />
-              <ul className="flex flex-col gap-5 whitespace-nowrap text-xl">
+              <ul className="flex flex-col gap-5 text-xl whitespace-nowrap">
                 <li>
                   <SidebarLink>What</SidebarLink>
                 </li>

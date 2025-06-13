@@ -131,12 +131,12 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
           id="file"
           name="file"
           type="file"
-          accept=".mid, .xml"
+          accept=".mid,audio/midi,audio/x-midi,.xml,application/xml,text/xml"
           className="hidden"
         />
         <div
           className={clsx(
-            'flex-grow cursor-pointer rounded-md p-5 text-center transition',
+            'grow cursor-pointer rounded-md p-5 text-center transition',
             'border-2 border-dashed border-gray-400 bg-gray-50 hover:shadow-lg',
           )}
           onClick={chooseFiles}
@@ -153,7 +153,7 @@ export default function UploadForm({ onClose }: { onClose: () => void }) {
       </div>
       <Sizer height={16} />
       <button
-        className="w-full cursor-pointer rounded-md bg-purple-primary py-2 text-white transition hover:bg-purple-hover"
+        className="bg-purple-primary hover:bg-purple-hover w-full cursor-pointer rounded-md py-2 text-white transition"
         type="submit"
       >
         Upload
@@ -185,7 +185,7 @@ function FormInput({ onChange, name, className, error, type, placeholder }: Form
   return (
     <TextInput
       onChange={onChange}
-      className={clsx(className, 'max-w-full flex-grow bg-gray-50 text-base')}
+      className={clsx(className, 'max-w-full grow bg-gray-50 text-base')}
       error={error}
       name={name}
       type={type}

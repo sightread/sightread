@@ -1,16 +1,86 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-/* Font stuff */
-@font-face {
-  font-family: Leland;
-  src: url('fonts/Leland/Leland.otf') format('opentype');
-  font-feature-settings: 'ccmp';
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 650px;
+  --breakpoint-md: 800px;
+  --breakpoint-lg: 1100px;
+  --breakpoint-lgminus: 1130px;
+
+  --text-responsive-xxl: clamp(1.7rem, 1rem + 3vw, 4rem);
+  --text-responsive-xl: clamp(1rem, 1rem + 1vw, 1.2rem);
+
+  --color-purple-lightest: #f7f4fe;
+  --color-purple-light: #eee5ff;
+  --color-purple-hover: #b99af4;
+  --color-purple-primary: #8147eb;
+  --color-purple-dark: #611ae5;
+  --color-purple-darker: #5326a6;
+  --color-purple-darkest: #280a6c;
+
+  --color-orange-light: #dc7e52;
+  --color-orange-primary: #eb7847;
+  --color-orange-dark: #cf4e17;
+
+  --color-green-light: #44b22e;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
 }
 
-body {
-  font-family: var(--primary-font-family);
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer utilities {
+  /* Font stuff */
+  @font-face {
+    font-family: Leland;
+    src: url('fonts/Leland/Leland.otf') format('opentype');
+    font-feature-settings: 'ccmp';
+  }
+
+  body {
+    font-family: var(--primary-font-family);
+  }
 }
 
 @layer base {
