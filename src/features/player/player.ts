@@ -472,6 +472,18 @@ export class Player {
     this.stopAllSounds()
   }
 
+  restart() {
+    const range = this.store.get(this.range)
+    if (range == null) {
+      this.stop()
+      return
+    }
+    const [start, _end] = range
+    this.pause()
+    this.seek(start)
+    this.resetStats_()
+  }
+
   stop() {
     this.pause()
     this.reset_()
@@ -487,7 +499,10 @@ export class Player {
     if (backingTrack) {
       backingTrack.currentTime = 0
     }
+    this.resetStats_()
+  }
 
+  resetStats_() {
     this.hitNotes.clear()
     this.missedNotes.clear()
     this.store.set(this.score.good, 0)
