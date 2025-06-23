@@ -1,6 +1,11 @@
 import { Toggle } from '@/components'
 import { AdjustInstruments } from '@/features/controls'
-import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
+import {
+  getFixedDoNoteFromKey,
+  getKeySignatures,
+  KEY_NOTATION,
+  KEY_SIGNATURE,
+} from '@/features/theory'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import clsx from 'clsx'
@@ -17,8 +22,16 @@ type SidebarProps = {
 }
 
 export default function SettingsPanel(props: SidebarProps) {
-  const { left, right, visualization, waiting, noteLetter, coloredNotes, keySignature } =
-    props.config
+  const {
+    left,
+    right,
+    visualization,
+    waiting,
+    noteLetter,
+    coloredNotes,
+    keySignature,
+    keyNotation,
+  } = props.config
   const { onClose, onLoopToggled, isLooping } = props
   const [showTrackConfig, setShowTrackConfig] = useState(false)
 
@@ -55,6 +68,9 @@ export default function SettingsPanel(props: SidebarProps) {
   }
   function handleKeySignature(keySignature: KEY_SIGNATURE) {
     props.onChange({ ...props.config, keySignature })
+  }
+  function handleKeyNotation(keyNotation: KEY_NOTATION) {
+    props.onChange({ ...props.config, keyNotation })
   }
 
   return (
@@ -121,8 +137,31 @@ export default function SettingsPanel(props: SidebarProps) {
                 onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
               >
                 {getKeySignatures().map((keySig) => {
-                  return <option key={`id-${keySig}`}>{keySig}</option>
+                  const sigText =
+                    keyNotation === 'alphabetical' ? keySig : getFixedDoNoteFromKey(keySig)
+
+                  return (
+                    <option key={`id-${keySig}`} value={keySig}>
+                      {sigText}
+                    </option>
+                  )
                 })}
+              </select>
+            </div>
+            <div className="flex justify-center">
+              <span className="min-w-[15ch]">Notation</span>
+              <select
+                name="keyNotation"
+                className="w-[50px] border bg-white"
+                value={keyNotation}
+                onChange={(e) => handleKeyNotation(e.target.value as KEY_NOTATION)}
+              >
+                <option key={`id-alphabetical`} value={'alphabetical'}>
+                  Alphabetical
+                </option>
+                <option key={`id-fixed-do`} value={'fixed-do'}>
+                  Fixed-Do
+                </option>
               </select>
             </div>
           </Section>

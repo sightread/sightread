@@ -64,6 +64,7 @@ function CanvasRenderer({
       items: song.items,
       constrictView: !!constrictView,
       keySignature: config.keySignature ?? song.keySignature,
+      keyNotation: config.keyNotation,
       timeSignature: song.timeSignature,
       canvasRect,
       selectedRange,

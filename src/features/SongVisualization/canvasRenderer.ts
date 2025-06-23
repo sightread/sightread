@@ -1,9 +1,9 @@
+import { KEY_NOTATION, KEY_SIGNATURE } from '@/features/theory'
 import { Hand, HandSettings } from '@/types'
-import { KEY_SIGNATURE } from '@/features/theory'
-import { CanvasItem } from './utils'
+import { Player } from '../player'
 import { renderFallingVis } from './falling-notes'
 import { renderSheetVis } from './sheet'
-import { Player } from '../player'
+import { CanvasItem } from './utils'
 
 export type GivenState = {
   time: number
@@ -19,6 +19,7 @@ export type GivenState = {
   items: CanvasItem[]
   constrictView?: boolean
   keySignature: KEY_SIGNATURE
+  keyNotation: KEY_NOTATION
   timeSignature?: { numerator: number; denominator: number }
   canvasRect: DOMRect
   // TODO: snap to measures

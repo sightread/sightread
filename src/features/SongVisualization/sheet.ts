@@ -1,5 +1,3 @@
-import { GivenState } from './canvasRenderer'
-import { CanvasItem, getItemsInView, Viewport } from './utils'
 import {
   drawCurlyBrace,
   drawFClef,
@@ -20,9 +18,11 @@ import {
   getNoteY,
   PLAY_NOTES_WIDTH,
 } from '../drawing/sheet'
-import { getKey, getKeyDetails, getNote, glyphs } from '../theory'
 import midiState from '../midi'
 import { isHitNote, isMissedNote } from '../player'
+import { getFixedDoNoteFromKey, getKey, getKeyDetails, getNote, glyphs } from '../theory'
+import { GivenState } from './canvasRenderer'
+import { CanvasItem, getItemsInView, Viewport } from './utils'
 
 const TEXT_FONT = 'Arial'
 const STAFF_START_X = 100
@@ -272,7 +272,8 @@ function renderSheetNote(state: State, note: SongNote): void {
     ctx.font = `9px ${TEXT_FONT}`
     ctx.fillStyle = 'white'
     const step = key[0]
-    ctx.fillText(step, canvasX, canvasY + 3)
+    const noteText = state.keyNotation === 'alphabetical' ? step : getFixedDoNoteFromKey(step)
+    ctx.fillText(noteText, canvasX, canvasY + 3)
   }
   ctx.restore()
 }
@@ -335,7 +336,9 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
     if (state.drawNotes) {
       ctx.font = `9px ${TEXT_FONT}`
       ctx.fillStyle = 'white'
-      ctx.fillText(key[0], canvasX, canvasY + 3)
+      const step = key[0]
+      const noteText = state.keyNotation === 'alphabetical' ? step : getFixedDoNoteFromKey(step)
+      ctx.fillText(noteText, canvasX, canvasY + 3)
     }
   }
 }

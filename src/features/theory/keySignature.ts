@@ -156,3 +156,22 @@ export function getKey(note: number, keySignature: KEY_SIGNATURE = 'C'): string 
 export function getOctave(note: number): number {
   return Math.floor((note - 12) / 12)
 }
+
+export type KEY_NOTATION = 'alphabetical' | 'fixed-do'
+
+const alphabetToFixedDoKey: { [key: string]: string } = {
+  C: 'Do',
+  D: 'Re',
+  E: 'Mi',
+  F: 'Fa',
+  G: 'Sol',
+  A: 'La',
+  B: 'Ti',
+}
+
+export function getFixedDoNoteFromKey(key: string): string {
+  const step = key[0]
+  const accidental = key.length === 2 ? key[1] : undefined
+
+  return `${alphabetToFixedDoKey[step] ?? step}${accidental ?? ''}`
+}

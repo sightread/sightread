@@ -5,7 +5,7 @@ import {
   handlePianoRollMousePress,
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
-import { getKey, isBlack } from '@/features/theory'
+import { getFixedDoNoteFromKey, getKey, isBlack } from '@/features/theory'
 import { palette } from '@/styles/common'
 import type { SongMeasure, SongNote } from '@/types'
 import { clamp } from '@/utils'
@@ -245,7 +245,7 @@ export function renderFallingNote(note: SongNote, state: State): void {
     return
   }
 
-  const { ctx, pps, drawNotes } = state
+  const { ctx, pps, drawNotes, keyNotation } = state
   const lane = state.pianoMeasurements.lanes[note.midiNote]
   const posY = getItemStartEnd(note, state).end - (state.height - state.noteHitY)
   const posX = Math.floor(lane.left + 1)
@@ -264,10 +264,11 @@ export function renderFallingNote(note: SongNote, state: State): void {
     ctx.fillStyle = 'white'
     ctx.strokeStyle = 'black'
     ctx.textBaseline = 'bottom'
-    const noteText = getKey(note.midiNote, state.keySignature)
+    const key = getKey(note.midiNote, state.keySignature)
     const fontPx = (width * 2) / 3
     ctx.font = `${fontPx}px ${TEXT_FONT}`
-    const textWidth = getFontSize(ctx, noteText, fontPx).width
+    const textWidth = getFontSize(ctx, key, fontPx).width
+    const noteText = keyNotation === 'alphabetical' ? key : getFixedDoNoteFromKey(key)
     ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 2)
   }
 
