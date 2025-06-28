@@ -166,7 +166,7 @@ const alphabetToFixedDoKey: { [key: string]: string } = {
   F: 'Fa',
   G: 'Sol',
   A: 'La',
-  B: 'Ti',
+  B: 'Si',
 }
 
 export function getFixedDoNoteFromKey(key: string): string {
