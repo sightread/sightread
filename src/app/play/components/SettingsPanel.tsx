@@ -144,12 +144,12 @@ export default function SettingsPanel(props: SidebarProps) {
                   onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
                 >
                   {getKeySignatures().map((keySig) => {
-                    const sigText =
+                    const text =
                       keyNotation === 'alphabetical' ? keySig : getFixedDoNoteFromKey(keySig)
 
                     return (
                       <option key={`id-${keySig}`} value={keySig}>
-                        {sigText}
+                        {text}
                       </option>
                     )
                   })}

@@ -271,7 +271,6 @@ export function renderFallingNote(note: SongNote, state: State): void {
     const noteText = keyNotation === 'alphabetical' ? key : getFixedDoNoteFromKey(key)
     const textWidth = getFontSize(ctx, noteText, fontPx).width
     ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 2)
-    console.log(noteText)
   }
 
   ctx.restore()
