@@ -273,7 +273,8 @@ function renderSheetNote(state: State, note: SongNote): void {
     ctx.fillStyle = 'white'
     const step = key[0]
     const noteText = state.keyNotation === 'alphabetical' ? step : getFixedDoNoteFromKey(step)
-    ctx.fillText(noteText, canvasX, canvasY + 3)
+    const xOffset = state.keyNotation === 'alphabetical' ? 0 : 3
+    ctx.fillText(noteText, canvasX - xOffset, canvasY + 3)
   }
   ctx.restore()
 }

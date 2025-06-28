@@ -265,11 +265,13 @@ export function renderFallingNote(note: SongNote, state: State): void {
     ctx.strokeStyle = 'black'
     ctx.textBaseline = 'bottom'
     const key = getKey(note.midiNote, state.keySignature)
-    const fontPx = (width * 2) / 3
+    const fontRatio = keyNotation === 'alphabetical' ? 2 / 3 : 1 / 2
+    const fontPx = width * fontRatio
     ctx.font = `${fontPx}px ${TEXT_FONT}`
-    const textWidth = getFontSize(ctx, key, fontPx).width
     const noteText = keyNotation === 'alphabetical' ? key : getFixedDoNoteFromKey(key)
+    const textWidth = getFontSize(ctx, noteText, fontPx).width
     ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 2)
+    console.log(noteText)
   }
 
   ctx.restore()
