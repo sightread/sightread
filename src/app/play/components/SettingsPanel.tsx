@@ -79,7 +79,7 @@ export default function SettingsPanel(props: SidebarProps) {
       ref={sidebarRef}
     >
       <h3 className="text-purple-primary text-center text-2xl">Settings</h3>
-      <div className="flex grow flex-col flex-wrap items-center gap-4 whitespace-nowrap sm:flex-row sm:items-stretch">
+      <div className="mx-20 flex grow flex-col flex-wrap items-stretch gap-4 whitespace-nowrap sm:mx-0 sm:flex-row">
         <Section title="Speed" className="flex grow">
           <BpmDisplay />
         </Section>
@@ -117,42 +117,50 @@ export default function SettingsPanel(props: SidebarProps) {
         <div className="flex grow flex-col gap-4 sm:flex-row">
           <Section title="Additional settings" className="grow justify-center">
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Wait mode</span>
-              <Toggle className="" checked={waiting} onChange={handleWaiting} />
+              <span className="min-w-[18ch]">Wait mode</span>
+              <div className="flex w-[120px]">
+                <Toggle checked={waiting} onChange={handleWaiting} />
+              </div>
             </div>
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Display note letter</span>
-              <Toggle checked={noteLetter} onChange={handleNotes} />
+              <span className="min-w-[18ch]">Display note letter</span>
+              <div className="flex w-[120px]">
+                <Toggle checked={noteLetter} onChange={handleNotes} />
+              </div>
             </div>
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Colored notes</span>
-              <Toggle checked={coloredNotes} onChange={handleColoredNotes} />
+              <span className="min-w-[18ch]">Colored notes</span>
+              <div className="flex w-[120px]">
+                <Toggle checked={coloredNotes} onChange={handleColoredNotes} />
+              </div>
             </div>
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Key signature</span>
-              <select
-                name="keySignature"
-                className="w-[50px] border bg-white"
-                value={keySignature ?? props.song?.keySignature}
-                onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
-              >
-                {getKeySignatures().map((keySig) => {
-                  const sigText =
-                    keyNotation === 'alphabetical' ? keySig : getFixedDoNoteFromKey(keySig)
+              <span className="min-w-[18ch]">Key signature</span>
+              <div className="flex w-[120px]">
+                <select
+                  name="keySignature"
+                  className="w-[50px] border bg-white"
+                  value={keySignature ?? props.song?.keySignature}
+                  onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
+                >
+                  {getKeySignatures().map((keySig) => {
+                    const sigText =
+                      keyNotation === 'alphabetical' ? keySig : getFixedDoNoteFromKey(keySig)
 
-                  return (
-                    <option key={`id-${keySig}`} value={keySig}>
-                      {sigText}
-                    </option>
-                  )
-                })}
-              </select>
+                    return (
+                      <option key={`id-${keySig}`} value={keySig}>
+                        {sigText}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
             </div>
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Notation</span>
+              <span className="min-w-[18ch]">Notation</span>
               <select
                 name="keyNotation"
-                className="w-[50px] border bg-white"
+                className="w-[120px] border bg-white"
                 value={keyNotation}
                 onChange={(e) => handleKeyNotation(e.target.value as KEY_NOTATION)}
               >
@@ -198,10 +206,7 @@ type SectionProps = PropsWithChildren<{ title: string; className?: string; onCli
 function Section({ children, title, className, onClick }: SectionProps) {
   return (
     <article
-      className={clsx(
-        className,
-        'flex max-w-[70vw] min-w-[70vw] flex-col gap-4 rounded-md bg-gray-200 p-4 sm:min-w-0',
-      )}
+      className={clsx(className, 'flex flex-col gap-4 rounded-md bg-gray-200 px-8 py-4 sm:min-w-0')}
       onClick={onClick}
     >
       <h3 className="text-center text-base font-semibold">{title}</h3>
