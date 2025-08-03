@@ -61,7 +61,7 @@ export function MarketingFooter() {
         </div>
         <Sizer height={32} />
         <span className="text-muted-foreground text-xs">
-          © 2024 Sightread Studio, LLC. All rights reserved.
+          © 2025 Sightread Studio, LLC. All rights reserved.
         </span>
 
         <Sizer height={24} />
