@@ -46,7 +46,6 @@ type PhraseClefType = 'treble' | 'bass' | 'grand'
 export default function Phrases() {
   const [songConfig, setSongConfig] = useState(getDefaultSongSettings())
   const player = usePlayer()
-  const [showNoteLetters, setShowNoteLetters] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const [queryState, setQueryState] = useQueryString<QueryState>({
     level: '0',
@@ -65,7 +64,6 @@ export default function Phrases() {
   const handMap = { bass: 'left', grand: 'both', treble: 'right' }
   const hand = handMap[clefType]
   player.setHand(hand)
-  songConfig.noteLetter = showNoteLetters
 
   atomEffect((get) => {
     const pointlessHitsCount = get(player.score.pointless)
@@ -121,15 +119,6 @@ export default function Phrases() {
             <ButtonWithTooltip tooltip="Decrease BPM" onClick={() => player.decreaseBpm()}>
               <ChevronDown className="hover:text-purple-primary text-black" />
             </ButtonWithTooltip>
-          </div>
-          <div className="flex items-center gap-2 rounded-md bg-white p-2 whitespace-nowrap">
-            <label>Show letter</label>
-            <Toggle
-              width={50}
-              height={24}
-              checked={showNoteLetters}
-              onChange={() => setShowNoteLetters(!showNoteLetters)}
-            />
           </div>
           <Select
             className="max-w-fit"
