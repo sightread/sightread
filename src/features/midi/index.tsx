@@ -4,6 +4,7 @@ import { isBrowser } from '@/utils'
 import { Midi } from '@tonejs/midi'
 import { useRef, useState } from 'react'
 import { parseMidi } from '../parsers'
+import LocalStorageWrapper from '../persist/storage'
 
 export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {
@@ -111,9 +112,16 @@ function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
   }
 }
 
+const dvorakMap: { [qwerty: string]: string } = {}
+const dvorak = "`1234567890[]',.pyfgcrl/=\\aoeuidhtns-;qjkxbmwvz "
+const qwerty = "`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ "
+for (let i = 0; i < qwerty.length; i += 1) {
+  dvorakMap[qwerty[i]] = dvorak[i]
+}
+
 const qwertyKeyConfig: { [key: string]: [string, number] } = {}
 
-function setQwertyKeyConfig(blackKeys: string, whiteKeys: string, octave: number) {
+function setQwertyKeyConfig(blackKeys: string, whiteKeys: string, octave: number, dvorak = false) {
   if (blackKeys.length !== 6 || blackKeys[2] !== ' ' || whiteKeys.length !== 7) {
     throw new Error(
       'Assertion error (bug found): Incorrect format. Expected: blackKeys: "xx xxx"  whiteKeys: "xxxxxxx"',
@@ -123,34 +131,37 @@ function setQwertyKeyConfig(blackKeys: string, whiteKeys: string, octave: number
   const whiteNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 
   blackNotes.forEach((n, i) => {
-    qwertyKeyConfig[blackKeys[i]] = [n, octave]
+    qwertyKeyConfig[dvorak ? dvorakMap[blackKeys[i]] : blackKeys[i]] = [n, octave]
   })
   whiteNotes.forEach((n, i) => {
     if (n !== '') {
-      qwertyKeyConfig[whiteKeys[i]] = [n, octave]
+      qwertyKeyConfig[dvorak ? dvorakMap[whiteKeys[i]] : whiteKeys[i]] = [n, octave]
     }
   })
 }
 
-export function setKeyboardConfig() {
+export function setKeyboardConfig(dvorak: boolean) {
   setQwertyKeyConfig(
     'sd ghj', // black keys
     'zxcvbnm', // white keys
     3,
+    dvorak,
   )
   setQwertyKeyConfig(
     'l; 234', // black keys
     ',./qwer', // white keys
     4,
+    dvorak,
   )
   setQwertyKeyConfig(
     '67 90-', // black keys
     'tyuiop[', // white keys
     5,
+    dvorak,
   )
 }
 
-setKeyboardConfig()
+setKeyboardConfig(LocalStorageWrapper.get('isDvorak') ?? false)
 
 class MidiState {
   octaveDiff = 0
