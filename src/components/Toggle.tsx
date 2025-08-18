@@ -27,7 +27,7 @@ export default function Toggle(props: ToggleProps) {
   }, [isControlled, checked, onChange])
 
   return (
-    <label className={clsx(props.className)}>
+    <label className={clsx(props.className, 'cursor-pointer')}>
       <div className="relative" style={{ width, height }}>
         <input
           type="checkbox"
@@ -37,7 +37,7 @@ export default function Toggle(props: ToggleProps) {
         />
         <span
           className={clsx(
-            'absolute top-0 right-0 bottom-0 left-0 cursor-pointer rounded-2xl bg-gray-300 transition',
+            'absolute top-0 right-0 bottom-0 left-0 rounded-2xl bg-gray-300 transition',
             checked && !props.noColor && 'bg-purple-primary!',
           )}
         />
