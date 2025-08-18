@@ -1,7 +1,7 @@
 'use client'
 
 import clsx from 'clsx'
-import { useCallback, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 
 type ToggleProps = {
   checked?: boolean
@@ -10,6 +10,7 @@ type ToggleProps = {
   height?: number
   className?: string
   noColor?: boolean
+  children?: ReactNode
 }
 export default function Toggle(props: ToggleProps) {
   const [checkedState, setChecked] = useState(!!props.checked)
@@ -27,7 +28,8 @@ export default function Toggle(props: ToggleProps) {
   }, [isControlled, checked, onChange])
 
   return (
-    <label className={clsx(props.className, 'cursor-pointer')}>
+    <label className={clsx(props.className, 'flex cursor-pointer items-center gap-2')}>
+      {props.children}
       <div className="relative" style={{ width, height }}>
         <input
           type="checkbox"
