@@ -9,6 +9,7 @@ type ToggleProps = {
   width?: number
   height?: number
   className?: string
+  noColor?: boolean
 }
 export default function Toggle(props: ToggleProps) {
   const [checkedState, setChecked] = useState(!!props.checked)
@@ -37,7 +38,7 @@ export default function Toggle(props: ToggleProps) {
         <span
           className={clsx(
             'absolute top-0 right-0 bottom-0 left-0 cursor-pointer rounded-2xl bg-gray-300 transition',
-            checked && 'bg-purple-primary!',
+            checked && !props.noColor && 'bg-purple-primary!',
           )}
         />
         <span
