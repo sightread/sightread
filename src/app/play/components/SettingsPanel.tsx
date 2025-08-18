@@ -1,6 +1,6 @@
 import { Toggle } from '@/components'
 import { AdjustInstruments } from '@/features/controls'
-import { getKeySignatures, KEY_SIGNATURE } from '@/features/theory'
+import { getKeySignatures, KEY_SIGNATURE, NOTE_LABELS } from '@/features/theory'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import clsx from 'clsx'
@@ -17,7 +17,7 @@ type SidebarProps = {
 }
 
 export default function SettingsPanel(props: SidebarProps) {
-  const { left, right, visualization, waiting, noteLetter, coloredNotes, keySignature } =
+  const { left, right, visualization, waiting, noteLabels, coloredNotes, keySignature } =
     props.config
   const { onClose, onLoopToggled, isLooping } = props
   const [showTrackConfig, setShowTrackConfig] = useState(false)
@@ -47,8 +47,8 @@ export default function SettingsPanel(props: SidebarProps) {
   function handleWaiting(waiting: boolean) {
     props.onChange({ ...props.config, waiting })
   }
-  function handleNotes() {
-    props.onChange({ ...props.config, noteLetter: !noteLetter })
+  function handleNoteLabels(noteLabels: NOTE_LABELS) {
+    props.onChange({ ...props.config, noteLabels })
   }
   function handleColoredNotes() {
     props.onChange({ ...props.config, coloredNotes: !coloredNotes })
@@ -63,7 +63,7 @@ export default function SettingsPanel(props: SidebarProps) {
       ref={sidebarRef}
     >
       <h3 className="text-purple-primary text-center text-2xl">Settings</h3>
-      <div className="flex grow flex-col flex-wrap items-center gap-4 whitespace-nowrap sm:flex-row sm:items-stretch">
+      <div className="mx-20 flex grow flex-col flex-wrap items-stretch gap-4 whitespace-nowrap sm:mx-0 sm:flex-row">
         <Section title="Speed" className="flex grow">
           <BpmDisplay />
         </Section>
@@ -101,29 +101,54 @@ export default function SettingsPanel(props: SidebarProps) {
         <div className="flex grow flex-col gap-4 sm:flex-row">
           <Section title="Additional settings" className="grow justify-center">
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Wait mode</span>
-              <Toggle className="" checked={waiting} onChange={handleWaiting} />
+              <span className="min-w-[18ch]">Wait mode</span>
+              <div className="flex w-[120px]">
+                <Toggle checked={waiting} onChange={handleWaiting} />
+              </div>
             </div>
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Display note letter</span>
-              <Toggle checked={noteLetter} onChange={handleNotes} />
+              <span className="min-w-[18ch]">Colored notes</span>
+              <div className="flex w-[120px]">
+                <Toggle checked={coloredNotes} onChange={handleColoredNotes} />
+              </div>
             </div>
             <div className="flex justify-center">
-              <span className="min-w-[15ch]">Colored notes</span>
-              <Toggle checked={coloredNotes} onChange={handleColoredNotes} />
-            </div>
-            <div className="flex justify-center">
-              <span className="min-w-[15ch]">Key signature</span>
+              <span className="min-w-[18ch]">Note Labels</span>
               <select
-                name="keySignature"
-                className="w-[50px] border bg-white"
-                value={keySignature ?? props.song?.keySignature}
-                onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
+                name="noteLabels"
+                className="w-[120px] border bg-white"
+                value={noteLabels}
+                onChange={(e) => handleNoteLabels(e.target.value as NOTE_LABELS)}
               >
-                {getKeySignatures().map((keySig) => {
-                  return <option key={`id-${keySig}`}>{keySig}</option>
-                })}
+                <option key={`id-none`} value="none">
+                  None
+                </option>
+                <option key={`id-alphabetical`} value={'alphabetical'}>
+                  Alphabetical
+                </option>
+                <option key={`id-fixed-do`} value={'fixed-do'}>
+                  Fixed-Do
+                </option>
               </select>
+            </div>
+            <div className="flex justify-center">
+              <span className="min-w-[18ch]">Key signature</span>
+              <div className="flex w-[120px]">
+                <select
+                  name="keySignature"
+                  className="w-[50px] border bg-white"
+                  value={keySignature ?? props.song?.keySignature}
+                  onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
+                >
+                  {getKeySignatures().map((keySig) => {
+                    return (
+                      <option key={`id-${keySig}`} value={keySig}>
+                        {keySig}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
             </div>
           </Section>
           <div className="flex grow flex-col justify-between gap-4">
@@ -159,10 +184,7 @@ type SectionProps = PropsWithChildren<{ title: string; className?: string; onCli
 function Section({ children, title, className, onClick }: SectionProps) {
   return (
     <article
-      className={clsx(
-        className,
-        'flex max-w-[70vw] min-w-[70vw] flex-col gap-4 rounded-md bg-gray-200 p-4 sm:min-w-0',
-      )}
+      className={clsx(className, 'flex flex-col gap-4 rounded-md bg-gray-200 px-8 py-4 sm:min-w-0')}
       onClick={onClick}
     >
       <h3 className="text-center text-base font-semibold">{title}</h3>

@@ -53,7 +53,7 @@ function CanvasRenderer({
     const state: GivenState = {
       time: getTime(),
       visualization: config.visualization,
-      drawNotes: config.noteLetter,
+      noteLabels: config.noteLabels,
       coloredNotes: config.coloredNotes,
       windowWidth: width,
       height,
