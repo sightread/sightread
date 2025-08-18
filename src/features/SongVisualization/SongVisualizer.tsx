@@ -53,7 +53,7 @@ function CanvasRenderer({
     const state: GivenState = {
       time: getTime(),
       visualization: config.visualization,
-      drawNotes: config.noteLetter,
+      noteLabels: config.noteLabels,
       coloredNotes: config.coloredNotes,
       windowWidth: width,
       height,
@@ -64,7 +64,6 @@ function CanvasRenderer({
       items: song.items,
       constrictView: !!constrictView,
       keySignature: config.keySignature ?? song.keySignature,
-      keyNotation: config.keyNotation,
       timeSignature: song.timeSignature,
       canvasRect,
       selectedRange,

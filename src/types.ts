@@ -1,5 +1,5 @@
 import { InstrumentName } from '@/features/synth'
-import { KEY_NOTATION, KEY_SIGNATURE } from './features/theory'
+import { KEY_SIGNATURE, NOTE_LABELS } from './features/theory'
 
 export type DifficultyLabel =
   | 'Easiest'
@@ -85,11 +85,10 @@ export type SongConfig = {
   right: boolean
   waiting: boolean
   visualization: VisualizationMode
-  noteLetter: boolean
+  noteLabels: NOTE_LABELS
   coloredNotes: boolean
   skipMissedNotes: boolean
   keySignature?: KEY_SIGNATURE
-  keyNotation: KEY_NOTATION
   tracks: {
     [trackId: number]: TrackSetting
   }

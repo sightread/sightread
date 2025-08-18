@@ -1,4 +1,4 @@
-import { KEY_NOTATION, KEY_SIGNATURE } from '@/features/theory'
+import { KEY_SIGNATURE, NOTE_LABELS } from '@/features/theory'
 import { Hand, HandSettings } from '@/types'
 import { Player } from '../player'
 import { renderFallingVis } from './falling-notes'
@@ -7,7 +7,7 @@ import { CanvasItem } from './utils'
 
 export type GivenState = {
   time: number
-  drawNotes: boolean
+  noteLabels: NOTE_LABELS
   coloredNotes: boolean
   visualization: 'falling-notes' | 'sheet'
   windowWidth: number
@@ -19,7 +19,6 @@ export type GivenState = {
   items: CanvasItem[]
   constrictView?: boolean
   keySignature: KEY_SIGNATURE
-  keyNotation: KEY_NOTATION
   timeSignature?: { numerator: number; denominator: number }
   canvasRect: DOMRect
   // TODO: snap to measures

@@ -1,11 +1,6 @@
 import { Toggle } from '@/components'
 import { AdjustInstruments } from '@/features/controls'
-import {
-  getFixedDoNoteFromKey,
-  getKeySignatures,
-  KEY_NOTATION,
-  KEY_SIGNATURE,
-} from '@/features/theory'
+import { getKeySignatures, KEY_SIGNATURE, NOTE_LABELS } from '@/features/theory'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import clsx from 'clsx'
@@ -22,16 +17,8 @@ type SidebarProps = {
 }
 
 export default function SettingsPanel(props: SidebarProps) {
-  const {
-    left,
-    right,
-    visualization,
-    waiting,
-    noteLetter,
-    coloredNotes,
-    keySignature,
-    keyNotation,
-  } = props.config
+  const { left, right, visualization, waiting, noteLabels, coloredNotes, keySignature } =
+    props.config
   const { onClose, onLoopToggled, isLooping } = props
   const [showTrackConfig, setShowTrackConfig] = useState(false)
 
@@ -60,17 +47,14 @@ export default function SettingsPanel(props: SidebarProps) {
   function handleWaiting(waiting: boolean) {
     props.onChange({ ...props.config, waiting })
   }
-  function handleNotes() {
-    props.onChange({ ...props.config, noteLetter: !noteLetter })
+  function handleNoteLabels(noteLabels: NOTE_LABELS) {
+    props.onChange({ ...props.config, noteLabels })
   }
   function handleColoredNotes() {
     props.onChange({ ...props.config, coloredNotes: !coloredNotes })
   }
   function handleKeySignature(keySignature: KEY_SIGNATURE) {
     props.onChange({ ...props.config, keySignature })
-  }
-  function handleKeyNotation(keyNotation: KEY_NOTATION) {
-    props.onChange({ ...props.config, keyNotation })
   }
 
   return (
@@ -123,16 +107,29 @@ export default function SettingsPanel(props: SidebarProps) {
               </div>
             </div>
             <div className="flex justify-center">
-              <span className="min-w-[18ch]">Display note letter</span>
-              <div className="flex w-[120px]">
-                <Toggle checked={noteLetter} onChange={handleNotes} />
-              </div>
-            </div>
-            <div className="flex justify-center">
               <span className="min-w-[18ch]">Colored notes</span>
               <div className="flex w-[120px]">
                 <Toggle checked={coloredNotes} onChange={handleColoredNotes} />
               </div>
+            </div>
+            <div className="flex justify-center">
+              <span className="min-w-[18ch]">Note Labels</span>
+              <select
+                name="noteLabels"
+                className="w-[120px] border bg-white"
+                value={noteLabels}
+                onChange={(e) => handleNoteLabels(e.target.value as NOTE_LABELS)}
+              >
+                <option key={`id-none`} value="none">
+                  None
+                </option>
+                <option key={`id-alphabetical`} value={'alphabetical'}>
+                  Alphabetical
+                </option>
+                <option key={`id-fixed-do`} value={'fixed-do'}>
+                  Fixed-Do
+                </option>
+              </select>
             </div>
             <div className="flex justify-center">
               <span className="min-w-[18ch]">Key signature</span>
@@ -144,33 +141,14 @@ export default function SettingsPanel(props: SidebarProps) {
                   onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
                 >
                   {getKeySignatures().map((keySig) => {
-                    const text =
-                      keyNotation === 'alphabetical' ? keySig : getFixedDoNoteFromKey(keySig)
-
                     return (
                       <option key={`id-${keySig}`} value={keySig}>
-                        {text}
+                        {keySig}
                       </option>
                     )
                   })}
                 </select>
               </div>
-            </div>
-            <div className="flex justify-center">
-              <span className="min-w-[18ch]">Notation</span>
-              <select
-                name="keyNotation"
-                className="w-[120px] border bg-white"
-                value={keyNotation}
-                onChange={(e) => handleKeyNotation(e.target.value as KEY_NOTATION)}
-              >
-                <option key={`id-alphabetical`} value={'alphabetical'}>
-                  Alphabetical
-                </option>
-                <option key={`id-fixed-do`} value={'fixed-do'}>
-                  Fixed-Do
-                </option>
-              </select>
             </div>
           </Section>
           <div className="flex grow flex-col justify-between gap-4">

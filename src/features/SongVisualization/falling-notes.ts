@@ -12,9 +12,16 @@ import { clamp } from '@/utils'
 import midiState from '../midi'
 import { getRelativePointerCoordinates } from '../pointer'
 import { GivenState } from './canvasRenderer'
-import { CanvasItem, getFontSize, getItemsInView, getSongRange, Viewport } from './utils'
+import {
+  CanvasItem,
+  getFontSize,
+  getItemsInView,
+  getOptimalFontSize,
+  getSongRange,
+  Viewport,
+} from './utils'
 
-const TEXT_FONT = 'Arial'
+const TEXT_FONT = 'monospace'
 const colors = {
   right: {
     black: palette.purple.dark,
@@ -245,7 +252,7 @@ export function renderFallingNote(note: SongNote, state: State): void {
     return
   }
 
-  const { ctx, pps, drawNotes, keyNotation } = state
+  const { ctx, pps, noteLabels } = state
   const lane = state.pianoMeasurements.lanes[note.midiNote]
   const posY = getItemStartEnd(note, state).end - (state.height - state.noteHitY)
   const posX = Math.floor(lane.left + 1)
@@ -260,17 +267,22 @@ export function renderFallingNote(note: SongNote, state: State): void {
   ctx.strokeStyle = 'rgb(40,40,40)'
   roundRect(ctx, posX, posY, width, length)
 
-  if (drawNotes) {
+  if (noteLabels !== 'none') {
     ctx.fillStyle = 'white'
     ctx.strokeStyle = 'black'
     ctx.textBaseline = 'bottom'
     const key = getKey(note.midiNote, state.keySignature)
-    const fontRatio = keyNotation === 'alphabetical' ? 2 / 3 : 1 / 2
-    const fontPx = width * fontRatio
+    const noteText = noteLabels === 'alphabetical' ? key : getFixedDoNoteFromKey(key)
+    const padding = 1
+    const maxWidth = width - padding * 2
+    const { fontPx, measuredWidth: textWidth } = getOptimalFontSize(
+      ctx,
+      noteText,
+      TEXT_FONT,
+      maxWidth,
+    )
     ctx.font = `${fontPx}px ${TEXT_FONT}`
-    const noteText = keyNotation === 'alphabetical' ? key : getFixedDoNoteFromKey(key)
-    const textWidth = getFontSize(ctx, noteText, fontPx).width
-    ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 2)
+    ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 4)
   }
 
   ctx.restore()

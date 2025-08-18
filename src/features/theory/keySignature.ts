@@ -157,7 +157,7 @@ export function getOctave(note: number): number {
   return Math.floor((note - 12) / 12)
 }
 
-export type KEY_NOTATION = 'alphabetical' | 'fixed-do'
+export type NOTE_LABELS = 'alphabetical' | 'fixed-do' | 'none'
 
 const alphabetToFixedDoKey: { [key: string]: string } = {
   C: 'Do',

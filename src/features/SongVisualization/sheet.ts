@@ -268,12 +268,12 @@ function renderSheetNote(state: State, note: SongNote): void {
     const symbolX = canvasX - (STAFF_SPACE + 8)
     drawSymbol(ctx, symbol, symbolX, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.8, noteGradient)
   }
-  if (state.drawNotes) {
+  if (state.noteLabels !== 'none') {
     ctx.font = `9px ${TEXT_FONT}`
     ctx.fillStyle = 'white'
     const step = key[0]
-    const noteText = state.keyNotation === 'alphabetical' ? step : getFixedDoNoteFromKey(step)
-    const xOffset = state.keyNotation === 'alphabetical' ? 0 : 3
+    const noteText = state.noteLabels === 'alphabetical' ? step : getFixedDoNoteFromKey(step)
+    const xOffset = state.noteLabels === 'alphabetical' ? 0 : 3
     ctx.fillText(noteText, canvasX - xOffset, canvasY + 3)
   }
   ctx.restore()
@@ -334,11 +334,11 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
         symbolColor,
       )
     }
-    if (state.drawNotes) {
+    if (state.noteLabels !== 'none') {
       ctx.font = `9px ${TEXT_FONT}`
       ctx.fillStyle = 'white'
       const step = key[0]
-      const noteText = state.keyNotation === 'alphabetical' ? step : getFixedDoNoteFromKey(step)
+      const noteText = state.noteLabels === 'alphabetical' ? step : getFixedDoNoteFromKey(step)
       ctx.fillText(noteText, canvasX, canvasY + 3)
     }
   }

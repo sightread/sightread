@@ -1,3 +1,4 @@
+import { get } from 'http'
 import { getPersistedSongSettings, setPersistedSongSettings } from '@/features/persist'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { Hand, Song, SongConfig, SongMeasure, SongNote, Track, TrackSetting } from '@/types'
@@ -5,6 +6,10 @@ import { clamp, mapValues } from '@/utils'
 import { parserInferHands } from '../parsers'
 import { isBlack } from '../theory'
 import { GivenState } from './canvasRenderer'
+
+// TODO: Precompute and cache optimal font sizes and widths for the small, fixed set of note‐label strings (e.g. “A”–“G” or “Do”–“Ti”) outside of the per‐note render loop.
+//  - Build a tiny lookup (label → { fontPx, measuredWidth }), with a cache-bust on window size
+//  - In renderFallingNote, replace repeated getOptimalFontSize calls with O(1) lookups
 
 export function getSongRange(song: { notes: SongNote[] } | undefined, minNotes: number) {
   const notes = song?.notes ?? []
@@ -59,12 +64,11 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     left: true,
     right: true,
     waiting: false,
-    noteLetter: false,
+    noteLabels: 'none',
     coloredNotes: false,
     skipMissedNotes: false,
     visualization: 'falling-notes',
     tracks: {},
-    keyNotation: 'alphabetical',
   }
   if (!song) {
     return songConfig
@@ -154,6 +158,55 @@ function isMatchingHand(item: CanvasItem, state: GivenState) {
 }
 
 export type Viewport = { start: number; end: number }
+
+const mWidthCache: Record<string, number> = {}
+
+function getMWidthCacheKey(fontPx: number, len: number): string {
+  return `${fontPx}-${len}`
+}
+
+/**
+ * Find the largest font‐size (px) that fits within maxWidth via binary search.
+ * Actually doing this for each possible string is incredibly expensive, so
+ * We conservatively approximate with capital 'M's.
+ *
+ * Results are cached, with a key of <fontSize * len>
+ */
+export function getOptimalFontSize(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  font: string,
+  maxWidth: number,
+): { fontPx: number; measuredWidth: number } {
+  const len = text.length
+  let low = 1
+  let high = maxWidth
+  let bestPx = low
+  let bestWidth = 0
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2)
+    const key = getMWidthCacheKey(mid, len)
+
+    // measure (or lookup) width of “MMM…” at mid px
+    let width = mWidthCache[key]
+    if (width == null) {
+      ctx.font = `${mid}px ${font}`
+      width = ctx.measureText('M'.repeat(len)).width
+      mWidthCache[key] = width
+    }
+
+    if (width <= maxWidth) {
+      bestPx = mid
+      bestWidth = width
+      low = mid + 1
+    } else {
+      high = mid - 1
+    }
+  }
+
+  return { fontPx: bestPx, measuredWidth: bestWidth }
+}
 
 let fontSizeCache: { [px: number]: { [text: string]: { width: number; height: number } } } = {}
 export function getFontSize(
