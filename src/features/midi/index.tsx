@@ -75,7 +75,6 @@ export function disableOutputMidiDevice(deviceParam: WebMidi.MIDIOutput) {
 
 setupMidiDeviceListeners()
 
-
 // Sets up listeners for all non-virtual MIDI input devices.
 // Skips "through" ports (often used for routing/echo) to avoid feedback loops.
 // Output devices are ignored by default and must be enabled manually.
@@ -132,6 +131,7 @@ const qwertyKeyConfig: { [key: string]: string } = {
 class MidiState {
   octave = 4
   pressedNotes = new Map<number, { time: number; vel: number }>()
+  keyPressedNotes = new Set<number>()
   listeners: Array<Function> = []
 
   constructor() {
@@ -148,16 +148,20 @@ class MidiState {
       return
     }
 
-    // TODO: what if octave switch while note is held down
-    // must release all currently pressed notes.
     const key = e.key.toLowerCase()
     if (key === 'arrowup') {
       this.octave = Math.min(7, this.octave + 1)
+      this.keyPressedNotes.forEach((n) => this.release(n))
+      this.keyPressedNotes.clear()
     } else if (key === 'arrowdown') {
       this.octave = Math.max(1, this.octave - 1)
+      this.keyPressedNotes.forEach((n) => this.release(n))
+      this.keyPressedNotes.clear()
     } else if (key in qwertyKeyConfig) {
       const note = qwertyKeyConfig[key]
-      this.press(getNote(note + this.octave), 80)
+      const noteN = getNote(note + this.octave)
+      this.keyPressedNotes.add(noteN)
+      this.press(noteN, 80)
     }
   }
 
@@ -165,7 +169,9 @@ class MidiState {
     const key = e.key.toLowerCase()
     if (key in qwertyKeyConfig) {
       const note = qwertyKeyConfig[key]
-      this.release(getNote(note + this.octave))
+      const noteN = getNote(note + this.octave)
+      this.keyPressedNotes.delete(noteN)
+      this.release(noteN)
     }
   }
 
