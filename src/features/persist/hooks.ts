@@ -15,8 +15,8 @@ export function usePersistedState<T>(key: string, init: T): [T, (state: T) => vo
 
   // Since the initial HTML will be set from an SSR and React will only attempt to Hydrate,
   // we need to ensure any state dependent on storage renders once loaded.
-  // If UX poorly implemented, this can cause a flicker.
-  useEffect(() => setState(Storage.get(key) ?? init), [key, init])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- This useEffect needs to be run only once (or if ever 'key' changes)
+  useEffect(() => setState(Storage.get(key) ?? init), [key])
 
   if (!isBrowser()) {
     return [init, () => {}]
