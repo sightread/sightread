@@ -1,9 +1,9 @@
 import { getKey, getOctave, isBlack, isWhite } from '@/features/theory'
-import { roundRect, roundCorner } from '@/features/drawing'
+import { roundCorner, roundRect } from '@/features/drawing'
 import midiState from '../midi'
 import { isPointerDown } from '../pointer'
 import { isNumber } from '@/utils'
-import { getImages } from '../SongVisualization/images'
+import { getImages, waitForImages } from '../SongVisualization/images'
 import { isDragging } from '../SongVisualization/touchscroll'
 
 const TEXT_FONT = 'Arial'
@@ -74,7 +74,7 @@ export function getPianoRollMeasurements(
 
 // x,y are top-left of the piano about to be drawn.
 // height is determined by the width, since aspect ratio is guaranteed.
-export function drawPianoRoll(
+export async function drawPianoRoll(
   ctx: CanvasRenderingContext2D,
   measurements: PianoRollMeasurements,
   pianoTopY: number,
@@ -125,6 +125,8 @@ export function drawPianoRoll(
       })
     }
   }
+
+  await waitForImages()
 
   for (let [midiNote, lane] of blackNotes) {
     let { left, width, whiteMiddle } = lane
