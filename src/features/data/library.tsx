@@ -3,7 +3,7 @@ import { SongMetadata, SongSource } from '@/types'
 import { getKey } from '@/utils'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getUploadedLibrary, deleteSong } from '../persist'
+import { deleteSong, getUploadedLibrary } from '../persist'
 
 const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSongManifest).map(
   (metadata) => {
@@ -63,9 +63,11 @@ export function useSongMetadata(id: string, source: SongSource): SongMetadata | 
 
 export function useDeleteSong() {
   const refresh = useRefreshStorageMetadata()
-  return useCallback((id: string) => {
-    deleteSong(id)  // assumes this exists
-    refresh()
-  }, [refresh])
+  return useCallback(
+    (id: string) => {
+      deleteSong(id) // assumes this exists
+      refresh()
+    },
+    [refresh],
+  )
 }
-

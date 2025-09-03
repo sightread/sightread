@@ -40,7 +40,15 @@ export function Dropdown({
   }, [openOn, toggleOpen])
 
   let targetEvents: React.HTMLAttributes<HTMLDivElement> = useMemo(
-    () => (openOn === 'click' ? { onClick: e => { e.stopPropagation(); toggleOpen() } } : {}),
+    () =>
+      openOn === 'click'
+        ? {
+            onClick: (e) => {
+              e.stopPropagation()
+              toggleOpen()
+            },
+          }
+        : {},
     [openOn, toggleOpen],
   )
 
