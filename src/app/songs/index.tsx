@@ -1,10 +1,11 @@
 'use client'
 
 import { AppBar, Dropdown, MarketingFooter, Modal, Sizer } from '@/components'
-import { midishareMetadataAtom, useSongManifest } from '@/features/data/library'
+import { midishareMetadataAtom, useDeleteSong, useSongManifest } from '@/features/data/library'
 import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
 import { MoreVertical, Plus } from '@/icons'
+import * as icons from '@/icons'
 import { DifficultyLabel, SongMetadata } from '@/types'
 import { formatTime } from '@/utils'
 import clsx from 'clsx'
@@ -14,8 +15,6 @@ import * as React from 'react'
 import { useState } from 'react'
 import { Table, UploadForm } from './components'
 import { SearchBox } from './components/Table/SearchBox'
-import * as icons from '@/icons'
-import { useDeleteSong } from '@/features/data/library'
 
 export const metadata: Metadata = {
   title: 'Sightread: Select a song',
@@ -73,30 +72,29 @@ export default function SelectSongPage({ midishareMetadata }: any) {
       actions = (
         <Dropdown
           target={
-            <button className="text-muted-foreground hover:text-foreground transition-colors p-1">
+            <button className="text-muted-foreground hover:text-foreground p-1 transition-colors">
               <MoreVertical size={20} />
             </button>
           }
         >
-          <div className="z-20 w-40 rounded-md bg-white p-2 shadow-md ring-1 ring-border space-y-1">
+          <div className="ring-border z-20 w-40 space-y-1 rounded-md bg-white p-2 shadow-md ring-1">
             <button
               onClick={(e) => {
-                e.stopPropagation();
+                e.stopPropagation()
                 deleteSong(s.id)
               }}
-              className="flex w-full items-center gap-2 rounded px-2 py-1 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+              className="flex w-full items-center gap-2 rounded px-2 py-1 text-sm text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
             >
               <icons.Trash size={16} />
               Delete
             </button>
           </div>
         </Dropdown>
-      );
+      )
     }
 
     return { ...s, actions }
-  });
-
+  })
 
   return (
     <>
@@ -143,7 +141,7 @@ export default function SelectSongPage({ midishareMetadata }: any) {
                 format: (n) => formatTime(Number(n)),
               },
               { label: 'Source', id: 'source' },
-              { label: "Actions", id: 'actions' }
+              { label: 'Actions', id: 'actions' },
             ]}
             getId={(s: SongMetadataWithActions) => s.id}
             rows={songs}

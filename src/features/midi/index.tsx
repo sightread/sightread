@@ -111,30 +111,29 @@ function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
 }
 
 function getKeyConfig() {
-  const white = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-  const black = ['Db', 'Eb', 'Gb', 'Ab', 'Bb'];
+  const white = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+  const black = ['Db', 'Eb', 'Gb', 'Ab', 'Bb']
 
   const layouts = [
     { keys: 'zxcvbnm', notes: white, octave: 3 },
     { keys: 'sdghj', notes: black, octave: 3 },
     { keys: 'qwertyu', notes: white, octave: 4 },
     { keys: '23567', notes: black, octave: 4 },
-  ];
+  ]
 
-  const map: Record<string, [string, number]> = {};
+  const map: Record<string, [string, number]> = {}
   for (const { keys, notes, octave } of layouts) {
     for (let i = 0; i < keys.length; i++) {
-      const c = keys[i];
+      const c = keys[i]
       const prefix = /\d/.test(c) ? 'Digit' : 'Key'
-      const code = prefix + c.toUpperCase();
-      map[code] = [notes[i], octave];
+      const code = prefix + c.toUpperCase()
+      map[code] = [notes[i], octave]
     }
   }
-  return map;
+  return map
 }
 
 const keyboardConfig: { [key: string]: [string, number] } = getKeyConfig()
-
 
 class MidiState {
   octaveDiff = 0
