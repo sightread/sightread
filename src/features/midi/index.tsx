@@ -3,7 +3,6 @@ import { MidiStateEvent } from '@/types'
 import { isBrowser } from '@/utils'
 import { Midi } from '@tonejs/midi'
 import { useRef, useState } from 'react'
-import { parseMidi } from '../parsers'
 
 export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {
@@ -75,7 +74,6 @@ export function disableOutputMidiDevice(deviceParam: WebMidi.MIDIOutput) {
 
 setupMidiDeviceListeners()
 
-
 // Sets up listeners for all non-virtual MIDI input devices.
 // Skips "through" ports (often used for routing/echo) to avoid feedback loops.
 // Output devices are ignored by default and must be enabled manually.
@@ -112,26 +110,36 @@ function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
   }
 }
 
-const qwertyKeyConfig: { [key: string]: string } = {
-  // White Notes
-  f: 'C',
-  g: 'D',
-  h: 'E',
-  j: 'F',
-  k: 'G',
-  l: 'A',
-  ';': 'B',
-  // Black notes
-  t: 'Db',
-  y: 'Eb',
-  i: 'Gb',
-  o: 'Ab',
-  p: 'Bb',
+function getKeyConfig() {
+  const white = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+  const black = ['Db', 'Eb', 'Gb', 'Ab', 'Bb'];
+
+  const layouts = [
+    { keys: 'zxcvbnm', notes: white, octave: 3 },
+    { keys: 'sdghj', notes: black, octave: 3 },
+    { keys: 'qwertyu', notes: white, octave: 4 },
+    { keys: '23567', notes: black, octave: 4 },
+  ];
+
+  const map: Record<string, [string, number]> = {};
+  for (const { keys, notes, octave } of layouts) {
+    for (let i = 0; i < keys.length; i++) {
+      const c = keys[i];
+      const prefix = /\d/.test(c) ? 'Digit' : 'Key'
+      const code = prefix + c.toUpperCase();
+      map[code] = [notes[i], octave];
+    }
+  }
+  return map;
 }
 
+const keyboardConfig: { [key: string]: [string, number] } = getKeyConfig()
+
+
 class MidiState {
-  octave = 4
+  octaveDiff = 0
   pressedNotes = new Map<number, { time: number; vel: number }>()
+  keyPressedNotes = new Set<number>()
   listeners: Array<Function> = []
 
   constructor() {
@@ -142,30 +150,51 @@ class MidiState {
   }
 
   handleKeyDown(e: KeyboardEvent) {
-    // Some OSes / browsers will automatically repeat a letter when held down.
-    // We don't want to count those.
-    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) {
+    let { key, code, metaKey, ctrlKey, altKey } = e
+
+    if (metaKey || ctrlKey || altKey) {
+      return
+    }
+    if (!(code in keyboardConfig) && key !== 'ArrowUp' && key !== 'ArrowDown') {
       return
     }
 
-    // TODO: what if octave switch while note is held down
-    // must release all currently pressed notes.
-    const key = e.key.toLowerCase()
-    if (key === 'arrowup') {
-      this.octave = Math.min(7, this.octave + 1)
-    } else if (key === 'arrowdown') {
-      this.octave = Math.max(1, this.octave - 1)
-    } else if (key in qwertyKeyConfig) {
-      const note = qwertyKeyConfig[key]
-      this.press(getNote(note + this.octave), 80)
+    e.preventDefault()
+    e.stopPropagation()
+
+    // Some OSes / browsers will automatically repeat a letter when held down.
+    // We don't want to count those.
+    if (e.repeat) {
+      return
+    }
+
+    if (key === 'ArrowUp') {
+      this.octaveDiff = Math.min(4, this.octaveDiff + 2)
+      this.keyPressedNotes.forEach((n) => this.release(n))
+      this.keyPressedNotes.clear()
+    } else if (key === 'ArrowDown') {
+      this.octaveDiff = Math.max(-4, this.octaveDiff - 2)
+      this.keyPressedNotes.forEach((n) => this.release(n))
+      this.keyPressedNotes.clear()
+    } else if (code in keyboardConfig) {
+      const [note, octave] = keyboardConfig[code]
+      const computedOctave = octave + this.octaveDiff
+      const computedNote = getNote(note + computedOctave)
+      if (computedNote) {
+        this.keyPressedNotes.add(computedNote)
+        this.press(computedNote, 80)
+      }
     }
   }
 
   handleKeyUp(e: KeyboardEvent) {
-    const key = e.key.toLowerCase()
-    if (key in qwertyKeyConfig) {
-      const note = qwertyKeyConfig[key]
-      this.release(getNote(note + this.octave))
+    const code = e.code
+    if (code in keyboardConfig) {
+      const [note, octave] = keyboardConfig[code]
+      const computedOctave = octave + this.octaveDiff
+      const computedNote = getNote(note + computedOctave)
+      this.keyPressedNotes.delete(computedNote)
+      this.release(computedNote)
     }
   }
 
