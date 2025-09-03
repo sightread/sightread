@@ -34,7 +34,6 @@ export default function TopBar({
           <ArrowLeft size={24} />
         </Link>
       </ButtonWithTooltip>
-
       <ButtonWithTooltip tooltip={recordTooltip} className='ml-auto' onClick={onClickRecord}>
         {isRecordingAudio ? <StopRecord size={24} /> : <StartRecord size={24} />}
       </ButtonWithTooltip>
