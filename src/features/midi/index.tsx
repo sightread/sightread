@@ -3,8 +3,6 @@ import { MidiStateEvent } from '@/types'
 import { isBrowser } from '@/utils'
 import { Midi } from '@tonejs/midi'
 import { useRef, useState } from 'react'
-import { parseMidi } from '../parsers'
-import LocalStorageWrapper from '../persist/storage'
 
 export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {
@@ -112,56 +110,31 @@ function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
   }
 }
 
-const dvorakMap: { [qwerty: string]: string } = {}
-const dvorak = "`1234567890[]',.pyfgcrl/=\\aoeuidhtns-;qjkxbmwvz "
-const qwerty = "`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ "
-for (let i = 0; i < qwerty.length; i += 1) {
-  dvorakMap[qwerty[i]] = dvorak[i]
-}
+function getKeyConfig() {
+  const white = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+  const black = ['Db', 'Eb', 'Gb', 'Ab', 'Bb'];
 
-const qwertyKeyConfig: { [key: string]: [string, number] } = {}
+  const layouts = [
+    { keys: 'zxcvbnm', notes: white, octave: 3 },
+    { keys: 'sdghj', notes: black, octave: 3 },
+    { keys: 'qwertyu', notes: white, octave: 4 },
+    { keys: '23567', notes: black, octave: 4 },
+  ];
 
-function setQwertyKeyConfig(blackKeys: string, whiteKeys: string, octave: number, dvorak = false) {
-  if (blackKeys.length !== 6 || blackKeys[2] !== ' ' || whiteKeys.length !== 7) {
-    throw new Error(
-      'Assertion error (bug found): Incorrect format. Expected: blackKeys: "xx xxx"  whiteKeys: "xxxxxxx"',
-    )
-  }
-  const blackNotes = ['Db', 'Eb', '', 'Gb', 'Ab', 'Bb']
-  const whiteNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
-
-  blackNotes.forEach((n, i) => {
-    qwertyKeyConfig[dvorak ? dvorakMap[blackKeys[i]] : blackKeys[i]] = [n, octave]
-  })
-  whiteNotes.forEach((n, i) => {
-    if (n !== '') {
-      qwertyKeyConfig[dvorak ? dvorakMap[whiteKeys[i]] : whiteKeys[i]] = [n, octave]
+  const map: Record<string, [string, number]> = {};
+  for (const { keys, notes, octave } of layouts) {
+    for (let i = 0; i < keys.length; i++) {
+      const c = keys[i];
+      const prefix = /\d/.test(c) ? 'Digit' : 'Key'
+      const code = prefix + c.toUpperCase();
+      map[code] = [notes[i], octave];
     }
-  })
+  }
+  return map;
 }
 
-export function setKeyboardConfig(dvorak: boolean) {
-  setQwertyKeyConfig(
-    'sd ghj', // black keys
-    'zxcvbnm', // white keys
-    3,
-    dvorak,
-  )
-  setQwertyKeyConfig(
-    'l; 234', // black keys
-    ',./qwer', // white keys
-    4,
-    dvorak,
-  )
-  setQwertyKeyConfig(
-    '67 90-', // black keys
-    'tyuiop[', // white keys
-    5,
-    dvorak,
-  )
-}
+const keyboardConfig: { [key: string]: [string, number] } = getKeyConfig()
 
-setKeyboardConfig(LocalStorageWrapper.get('isDvorak') ?? false)
 
 class MidiState {
   octaveDiff = 0
@@ -177,15 +150,17 @@ class MidiState {
   }
 
   handleKeyDown(e: KeyboardEvent) {
-    if (e.metaKey || e.ctrlKey || e.altKey) {
+    let { key, code, metaKey, ctrlKey, altKey } = e
+
+    if (metaKey || ctrlKey || altKey) {
       return
     }
-    const key = e.key.toLowerCase()
-
-    if (key in qwertyKeyConfig) {
-      e.preventDefault()
-      e.stopPropagation()
+    if (!(code in keyboardConfig) && key !== 'ArrowUp' && key !== 'ArrowDown') {
+      return
     }
+
+    e.preventDefault()
+    e.stopPropagation()
 
     // Some OSes / browsers will automatically repeat a letter when held down.
     // We don't want to count those.
@@ -193,29 +168,33 @@ class MidiState {
       return
     }
 
-    if (key === 'arrowup') {
-      this.octaveDiff = Math.min(2, this.octaveDiff + 2)
+    if (key === 'ArrowUp') {
+      this.octaveDiff = Math.min(4, this.octaveDiff + 2)
       this.keyPressedNotes.forEach((n) => this.release(n))
       this.keyPressedNotes.clear()
-    } else if (key === 'arrowdown') {
-      this.octaveDiff = Math.max(-2, this.octaveDiff - 2)
+    } else if (key === 'ArrowDown') {
+      this.octaveDiff = Math.max(-4, this.octaveDiff - 2)
       this.keyPressedNotes.forEach((n) => this.release(n))
       this.keyPressedNotes.clear()
-    } else if (key in qwertyKeyConfig) {
-      const [note, octave] = qwertyKeyConfig[key]
-      const noteN = getNote(note + (octave + this.octaveDiff))
-      this.keyPressedNotes.add(noteN)
-      this.press(noteN, 80)
+    } else if (code in keyboardConfig) {
+      const [note, octave] = keyboardConfig[code]
+      const computedOctave = octave + this.octaveDiff
+      const computedNote = getNote(note + computedOctave)
+      if (computedNote) {
+        this.keyPressedNotes.add(computedNote)
+        this.press(computedNote, 80)
+      }
     }
   }
 
   handleKeyUp(e: KeyboardEvent) {
-    const key = e.key.toLowerCase()
-    if (key in qwertyKeyConfig) {
-      const [note, octave] = qwertyKeyConfig[key]
-      const noteN = getNote(note + (octave + this.octaveDiff))
-      this.keyPressedNotes.delete(noteN)
-      this.release(noteN)
+    const code = e.code
+    if (code in keyboardConfig) {
+      const [note, octave] = keyboardConfig[code]
+      const computedOctave = octave + this.octaveDiff
+      const computedNote = getNote(note + computedOctave)
+      this.keyPressedNotes.delete(computedNote)
+      this.release(computedNote)
     }
   }
 

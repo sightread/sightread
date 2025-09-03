@@ -1,5 +1,6 @@
 import { roundCorner, roundRect } from '@/features/drawing'
 import { getKey, getOctave, isBlack, isWhite } from '@/features/theory'
+import { isNumber } from '@/utils'
 import midiState from '../midi'
 import { isPointerDown } from '../pointer'
 import { getImages, waitForImages } from '../SongVisualization/images'

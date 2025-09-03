@@ -1,12 +1,10 @@
 import { ButtonWithTooltip } from '@/app/play/components/TopBar'
-import { Select, Toggle } from '@/components'
-import { setKeyboardConfig } from '@/features/midi'
-import { usePersistedState } from '@/features/persist'
+import { Select } from '@/components'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { ArrowLeft, Midi, StartRecord, StopRecord } from '@/icons'
 import { formatInstrumentName } from '@/utils'
 import Link from 'next/link'
-import React, { MouseEvent, useState } from 'react'
+import React, { MouseEvent } from 'react'
 
 type TopBarProps = {
   isError: boolean
@@ -28,7 +26,6 @@ export default function TopBar({
   onClickRecord,
 }: TopBarProps) {
   const recordTooltip = isRecordingAudio ? 'Stop recording' : 'Start recording audio'
-  const [isDvorak, setIsDvorak] = usePersistedState('isDvorak', false, (v) => setKeyboardConfig(v))
 
   return (
     <div className="flex h-[50px] min-h-[50px] w-full items-center gap-4 bg-[#292929] px-4 text-2xl text-white transition">
@@ -38,10 +35,7 @@ export default function TopBar({
         </Link>
       </ButtonWithTooltip>
 
-      <Toggle className="ml-auto" noColor checked={isDvorak} onChange={setIsDvorak}>
-        <span className="text-xs">{isDvorak ? 'Dvorak' : 'Qwerty'}</span>
-      </Toggle>
-      <ButtonWithTooltip tooltip={recordTooltip} onClick={onClickRecord}>
+      <ButtonWithTooltip tooltip={recordTooltip} className='ml-auto' onClick={onClickRecord}>
         {isRecordingAudio ? <StopRecord size={24} /> : <StartRecord size={24} />}
       </ButtonWithTooltip>
       <ButtonWithTooltip tooltip="Choose a MIDI device" onClick={onClickMidi}>

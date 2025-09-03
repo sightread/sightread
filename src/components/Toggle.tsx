@@ -9,7 +9,6 @@ type ToggleProps = {
   width?: number
   height?: number
   className?: string
-  noColor?: boolean
   children?: ReactNode
 }
 export default function Toggle(props: ToggleProps) {
@@ -40,7 +39,7 @@ export default function Toggle(props: ToggleProps) {
         <span
           className={clsx(
             'absolute top-0 right-0 bottom-0 left-0 rounded-2xl bg-gray-300 transition',
-            checked && !props.noColor && 'bg-purple-primary!',
+            checked && 'bg-purple-primary!',
           )}
         />
         <span
