@@ -15,6 +15,6 @@ export type MidishareManifestSong = {
   midiUrl: string
 }
 
-export default async function SelectSong() { 
+export default async function SelectSong() {
   return <ClientPage />
 }
