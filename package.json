@@ -12,7 +12,6 @@
     "@types/prettier": "3.0.0",
     "@types/react": "19.1.12",
     "@types/resize-observer-browser": "0.1.11",
-    "@types/webmidi": "3.0.1",
     "eslint": "9.35.0",
     "eslint-config-next": "15.5.2",
     "fluent-ffmpeg": "2.1.3",
