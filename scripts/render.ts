@@ -110,6 +110,7 @@ async function renderVideo(file: string) {
     images: getImages(),
     ctx: null as any,
     canvasRect: { left: 0, top: 0 },
+    noteLabels: 'none'
   }
 
   // Duration goes until a single frame *past* the end, just in case the mp3 has 0-noise suffix.
