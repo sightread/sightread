@@ -3,15 +3,16 @@
 import { usePlayer } from '@/features/player'
 import { SongPreview } from '@/features/SongPreview/SongPreview'
 import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'
+import useDelayedFlag from '@/hooks/useDelayedFlag'
 import { Pause, Play } from '@/icons'
 import type { SongSource } from '@/types'
 import clsx from 'clsx'
 import { useState } from 'react'
 
 const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
-  gymnopedie: { source: 'builtin', id: '9521391d4b904a16bde99b118e70d490' },
-  ode: { source: 'builtin', id: '8d4441d47b332772da481c529bd38e24' },
-  canon: { source: 'builtin', id: '7641a769d0e9ec9c95b2b967f2ad2cf3' },
+  gymnopedie: { source: 'builtin', id: 'gymnopedie-no1.mid' },
+  ode: { source: 'builtin', id: 'ode-to-joy.mid' },
+  canon: { source: 'builtin', id: 'canon-in-d.mid' },
 }
 
 export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
@@ -19,6 +20,7 @@ export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('ode')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
   const showPlaceholder = !playerState.canPlay
+  const showSpinner = useDelayedFlag(showPlaceholder, 300)
   const player = usePlayer()
 
   useEventListener('keydown', (event: Event) => {
@@ -44,7 +46,9 @@ export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
       <SongPreview songId={songId} source={source} />
       {showPlaceholder && (
         <div className="absolute inset-0 flex items-center justify-center bg-[#2e2e2e]">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
+          {showSpinner && (
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
+          )}
         </div>
       )}
       <div className="absolute top-0 flex h-[50px] w-full items-center justify-center bg-black/80">
