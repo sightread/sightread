@@ -45,7 +45,6 @@
     "lint": "next lint",
     "check-fmt": "prettier --check '**/*.{ts,tsx}'",
     "fmt": "prettier --write '**/*.{ts,tsx}'",
-    "gen": "bun scripts/generate.ts",
     "render": "bun scripts/render.ts",
     "test": "bun test",
     "test:watch": "bun test --watch"
