@@ -2,11 +2,18 @@ import { AppBar, MarketingFooter, Sizer } from '@/components'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import React, { PropsWithChildren } from 'react'
+import manifest from './../../manifest.json'
+import type { SongMetadata } from './../../types'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
 
 export const metadata: Metadata = {
   title: 'Sightread: About',
+}
+
+const LICENSE_LABELS: Record<string, string> = {
+  'https://creativecommons.org/licenses/by/4.0/': 'CC BY 4.0',
+  'https://creativecommons.org/publicdomain/mark/1.0/': 'Public Domain Mark 1.0',
 }
 
 function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
@@ -49,6 +56,9 @@ export default function AboutPage() {
                 <li>
                   <SidebarLink>Product recommendations</SidebarLink>
                 </li>
+                <li>
+                  <SidebarLink>Attributions</SidebarLink>
+                </li>
               </ul>
             </section>
           </div>
@@ -61,6 +71,7 @@ export default function AboutPage() {
               <RoadmapSection />
               <FeedbackSection />
               <ProductRecommendations />
+              <AttributionsSection />
             </div>
           </div>
         </div>
@@ -137,22 +148,10 @@ function MusicSelectionSection() {
   return (
     <Article
       header="Music selection"
-      first="The Sightread catalog has three components: midishare, builtin, and local file uploads."
+      first="The Sightread catalog has two components: builtin and local file uploads."
     >
-      <p>
-        Sightread includes works from <AboutLink href="https://midishare.dev">midishare</AboutLink>,
-        as well as builtin music from the public domain.
-      </p>
-      <p>
-        You can <AboutLink href="https://midishare.com/upload">upload</AboutLink> MIDI files to
-        midishare where they’ll be available for the entire community. If you’d prefer to keep them
-        local, you can also upload them directly to Sightread which saves them in browser storage.
-      </p>
-      <p>
-        If you can’t find the music you’re looking for on midishare, a Google search is your best
-        bet. Or you can send me an <AboutLink href="mailto:sightreadllc@gmail.com">email</AboutLink>{' '}
-        and I’ll try to help out.
-      </p>
+      <p>Sightread includes music from the public domain.</p>
+      <p>You can upload MIDI files directly to Sightread which saves them in browser storage.</p>
     </Article>
   )
 }
@@ -238,6 +237,50 @@ function ProductRecommendations() {
       <p>
         These are affiliate links, so we earn from purchases. This is our only form of monetization.
       </p>
+    </Article>
+  )
+}
+
+function AttributionsSection() {
+  const sortedSongs = (manifest as SongMetadata[])
+    .slice()
+    .sort((a, b) => a.title.localeCompare(b.title))
+
+  return (
+    <Article header="Attributions">
+      <p>
+        Some of the sheet music and arrangements featured on this site are based on scores shared
+        through <AboutLink href="https://musescore.com">MuseScore</AboutLink> under Creative Commons
+        licenses.
+      </p>
+      <p>We gratefully acknowledge the following creators for making their work available:</p>
+      <ul className="list-disc pl-6">
+        {sortedSongs.map((song) => (
+          <li key={song.id} className="mb-2">
+            <a
+              href={song.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline"
+            >
+              {song.title}
+            </a>
+            {song.license && (
+              <>
+                {' : '}
+                <a
+                  href={song.license}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  {LICENSE_LABELS[song.license] || song.license}
+                </a>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
     </Article>
   )
 }

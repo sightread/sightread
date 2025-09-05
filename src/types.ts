@@ -11,7 +11,7 @@ export type DifficultyLabel =
   // "-" stands for Unknown
   | '-'
 
-export type SongSource = 'midishare' | 'upload' | 'builtin' | 'generated' | 'base64'
+export type SongSource = 'upload' | 'builtin' | 'generated' | 'base64'
 export type SongMetadata = {
   id: string
   file: string
@@ -20,6 +20,8 @@ export type SongMetadata = {
   difficulty: number
   duration: number
   source: SongSource
+  url?: string
+  license?: string
 }
 
 export interface Size {

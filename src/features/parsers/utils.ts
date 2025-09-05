@@ -1,6 +1,6 @@
 // Since this is called from Deno as well, we need to use relative paths.
-import { getKey } from '../theory'
 import { Song, Track } from '../../../src/types'
+import { getKey } from '../theory'
 
 export function getPitch(midiNote: number): { octave: number; step: string; alter: number } {
   // e.g. Cb3
@@ -41,20 +41,23 @@ export function parserInferHands(song: Song): { left: number; right: number } {
       right: +rightId,
     }
   }
-  const pianoTracks = Object.values(song.tracks).filter((track) => isPiano(track))
+  const pianoTracks = Array.from(Object.entries(song.tracks))
+    .filter(([_id, track]) => isPiano(track))
+    .filter(([id, _track]) => {
+      const notes = song.notes.filter((note) => note.track === +id)
+      return song.notes.filter((note) => note.track === +id).length > 0
+    })
   // TODO: force users to choose tracks in this case.
 
   let t1!: number
   let t2!: number
   if (pianoTracks.length >= 2) {
     if (pianoTracks.length > 2) {
-      console.error(
+      console.warn(
         `Choosing the first two Piano tracks, even though there are ${pianoTracks.length}`,
       )
     }
-    ;[t1, t2] = Object.keys(song.tracks)
-      .filter((track) => isPiano(song.tracks[+track]))
-      .map(Number)
+    ;[t1, t2] = pianoTracks.map(([trackId, _track]) => +trackId)
   } else if (pianoTracks.length < 2) {
     ;[t1, t2] = Object.keys(song.tracks).map(Number)
   }

@@ -8,7 +8,7 @@ const map: Map<string, SongMetadata> = new Map(songManifest.map((s: SongMetadata
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const { id, source } = Object.fromEntries(searchParams)
-  const supportedSources = new Set(['builtin', 'midishare'])
+  const supportedSources = new Set(['builtin'])
 
   if (!id || !source) {
     return new Response('Must provide both a a source and an id.', { status: 400 })
@@ -18,15 +18,6 @@ export async function GET(request: NextRequest) {
     return new Response(`Received invalid source: ${source}`, { status: 400 })
   }
 
-  if (source === 'midishare') {
-    // TODO(samouri): determine why the former URL is blocked by CF.
-    // stream = await get(`https://midishare.dev/api/midi?id=${id}`)
-    // const response = await fetch(`https://midishare.dev/api/midi?id=${id}`)
-    // stream = dStream.fromWeb(response.body!)
-    return fetch(`https://assets.midishare.dev/scores/${id}/${id}.mid`)
-  }
-
-  // else source === builtin
   const path = map.get(id)?.file
   if (!path) {
     return new Response(`Could not find midi with id: "${id}"`, { status: 404 })
