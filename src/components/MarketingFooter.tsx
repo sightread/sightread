@@ -52,7 +52,6 @@ export function MarketingFooter() {
           </FooterCol>
           <FooterCol>
             <FooterHeader>external links</FooterHeader>
-            <FooterLink href="https://midishare.dev">midishare</FooterLink>
             <FooterLink href="https://www.youtube.com/channel/UCGf2AlCRD3ZCc8ahkqBMtqA">
               youtube
             </FooterLink>

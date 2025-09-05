@@ -27,13 +27,11 @@ export function useRefreshStorageMetadata() {
   const refresh = useCallback(() => set(getStorageMetadata()), [set])
   return refresh
 }
-export const midishareMetadataAtom = atom<Array<[string, SongMetadata]>>([])
 
 export const songManifestAtom = atom<Map<string, SongMetadata>>((get) => {
   const builtinMetadata = get(builtinMetadataAtom)
   const storageMetadata = get(storageMetadataAtom)
-  const midishareMetadata = get(midishareMetadataAtom)
-  return new Map([...builtinMetadata, ...storageMetadata, ...midishareMetadata])
+  return new Map([...builtinMetadata, ...storageMetadata])
 })
 
 const songManifestAsListAtom = atom<Array<SongMetadata>>((get) => {
