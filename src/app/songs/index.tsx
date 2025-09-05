@@ -1,12 +1,12 @@
 'use client'
 
 import { AppBar, Dropdown, MarketingFooter, Modal, Sizer } from '@/components'
-import { midishareMetadataAtom, useDeleteSong, useSongManifest } from '@/features/data/library'
+import { useDeleteSong, useSongManifest } from '@/features/data/library'
 import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
 import { MoreVertical, Plus } from '@/icons'
 import * as icons from '@/icons'
-import { DifficultyLabel, SongMetadata } from '@/types'
+import { SongMetadata } from '@/types'
 import { formatTime } from '@/utils'
 import clsx from 'clsx'
 import { useHydrateAtoms } from 'jotai/utils'
@@ -20,35 +20,16 @@ export const metadata: Metadata = {
   title: 'Sightread: Select a song',
 }
 
-function getDifficultyLabel(s: number): DifficultyLabel {
-  if (!s) {
-    return '-'
-  }
-
-  const difficultyMap: { [d: number]: DifficultyLabel } = {
-    0: '-',
-    10: 'Easiest',
-    20: 'Easier',
-    30: 'Easy',
-    40: 'Medium',
-    50: 'Hard',
-    60: 'Hardest',
-    65: 'Hardest',
-  }
-  return difficultyMap[s]
-}
-
 type SongMetadataWithActions = SongMetadata & { actions?: React.ReactNode }
 
 // TODO: after an upload, scroll to the newly uploaded song / make it focused.
-export default function SelectSongPage({ midishareMetadata }: any) {
+export default function SelectSongPage() {
   let songs: SongMetadataWithActions[] = useSongManifest()
   const [isUploadFormOpen, setUploadForm] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
   const deleteSong = useDeleteSong()
-  useHydrateAtoms([[midishareMetadataAtom, midishareMetadata]])
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (event.key === 'Escape') {
@@ -134,13 +115,11 @@ export default function SelectSongPage({ midishareMetadata }: any) {
             columns={[
               { label: 'Title', id: 'title', keep: true },
               { label: 'Artist', id: 'artist', keep: true },
-              // { label: 'Difficulty', id: 'difficulty', format: getDifficultyLabel as any },
               {
                 label: 'Length',
                 id: 'duration',
                 format: (n) => formatTime(Number(n)),
               },
-              { label: 'Source', id: 'source' },
               { label: 'Actions', id: 'actions' },
             ]}
             getId={(s: SongMetadataWithActions) => s.id}

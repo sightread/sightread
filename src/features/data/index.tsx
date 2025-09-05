@@ -19,7 +19,7 @@ function getBase64Song(data: string): Song {
 }
 
 function fetchSong(id: string, source: SongSource): Promise<Song> {
-  if (source === 'midishare' || source === 'builtin') {
+  if (source === 'builtin') {
     const url = getSongUrl(id, source)
     return fetch(url).then(handleSong)
   } else if (source === 'base64') {
