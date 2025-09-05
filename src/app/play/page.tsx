@@ -133,8 +133,10 @@ function PlaySongLegacy() {
         className={clsx(
           // Enable fixed to remove all scrolling.
           'fixed',
-          'flex h-screen max-h-screen max-w-screen flex-col',
+          'flex h-screen max-h-screen max-w-screen flex-col outline-none',
         )}
+        {...midiState.getListenerProps()}
+        autoFocus
       >
         {!isRecording && (
           <>

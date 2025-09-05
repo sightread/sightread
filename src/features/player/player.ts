@@ -1,10 +1,10 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { SongNote, Song, SongConfig, SongMeasure, MidiStateEvent } from '@/types'
-import { atom, getDefaultStore, Atom, PrimitiveAtom, useStore } from 'jotai'
 import { InstrumentName } from '@/features/synth'
+import { MidiStateEvent, Song, SongConfig, SongMeasure, SongNote } from '@/types'
 import { getHands, isBrowser, round } from '@/utils'
-import { getSynth, Synth } from '../synth'
+import { atom, Atom, getDefaultStore, PrimitiveAtom, useStore } from 'jotai'
 import midi from '../midi'
+import { getSynth, Synth } from '../synth'
 import { getAudioContext } from '../synth/utils'
 
 function increment(x: number) {
@@ -211,7 +211,7 @@ export class Player {
       Object.entries(song.tracks).forEach(([trackId]) => {
         const vol = songConfig.tracks[+trackId]?.sound ? 1 : 0
         this.setTrackVolume(+trackId, vol)
-      });
+      })
       this.store.set(this.state, 'Paused')
     })
     // this.skipMissedNotes = songConfig.skipMissedNotes

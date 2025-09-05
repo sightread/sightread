@@ -259,6 +259,7 @@ export function renderFallingNote(note: SongNote, state: State): void {
   const width = lane.width - 2
   const color = getNoteColor(state, note)
   const actualLength = note.duration * pps
+  // TODO: the renderingt height is wonky since it relies on browser canvas-only things.
   const minLengthToDisplayLetter = getFontSize(ctx, '', (width * 2) / 3).height + 15
   const length = Math.floor(Math.max(actualLength, minLengthToDisplayLetter))
 

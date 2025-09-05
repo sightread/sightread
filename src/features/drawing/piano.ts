@@ -1,9 +1,9 @@
-import { getKey, getOctave, isBlack, isWhite } from '@/features/theory'
 import { roundCorner, roundRect } from '@/features/drawing'
+import { getKey, getOctave, isBlack, isWhite } from '@/features/theory'
+import { isNumber } from '@/utils'
 import midiState from '../midi'
 import { isPointerDown } from '../pointer'
-import { isNumber } from '@/utils'
-import { getImages, waitForImages } from '../SongVisualization/images'
+import { getImages } from '../SongVisualization/images'
 import { isDragging } from '../SongVisualization/touchscroll'
 
 const TEXT_FONT = 'Arial'
@@ -125,8 +125,6 @@ export async function drawPianoRoll(
       })
     }
   }
-
-  await waitForImages()
 
   for (let [midiNote, lane] of blackNotes) {
     let { left, width, whiteMiddle } = lane

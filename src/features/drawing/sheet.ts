@@ -1,4 +1,4 @@
-import { getKey, getKeyDetails, getNote, getOctave, KEY_SIGNATURE, glyphs } from '@/features/theory'
+import { getKey, getKeyDetails, getNote, getOctave, glyphs, KEY_SIGNATURE } from '@/features/theory'
 import { Clef } from '@/types'
 import { line } from './index'
 
@@ -186,8 +186,8 @@ export function drawSymbol(
   } else {
     ctx.font = MUSIC_FONT
   }
-  ctx.fillStyle = color 
-  ctx.strokeStyle = color 
+  ctx.fillStyle = color
+  ctx.strokeStyle = color
   ctx.fillText(symbol, x, y)
   ctx.restore()
 }

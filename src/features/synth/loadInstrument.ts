@@ -1,5 +1,5 @@
+import { InstrumentName, SoundFont } from './types'
 import { parseMidiJsSoundfont } from './utils'
-import { SoundFont, InstrumentName } from './types'
 
 export const soundfonts: { [key in InstrumentName]?: SoundFont } = {}
 const downloading: { [key in InstrumentName]?: Promise<void> } = {}

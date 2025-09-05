@@ -1,46 +1,51 @@
-import { isBrowser } from '@/utils'
+export type ImageLoader = (src: string) => Promise<HTMLImageElement>
 
-let loadImage: (src: string) => Promise<HTMLImageElement | void>
-if (isBrowser()) {
-  loadImage = (src: string) => {
-    const img = new Image()
-    img.src = src
-    return new Promise((resolve, reject) => {
-      img.onload = () => resolve(img)
-      img.onerror = () => reject(img)
-    })
+let loadImage: ImageLoader = (src: string) => {
+  const img = new Image()
+  img.src = src
+  return new Promise((resolve, reject) => {
+    img.onload = () => resolve(img)
+    img.onerror = () => reject(img)
+  })
+}
+
+/**
+ * Set a runtime image loader. Used by non-browser environments
+ */
+export function setImageLoader(loader: ImageLoader) {
+  loadImage = loader
+}
+
+let images: null | {
+  blackKeyRaised: HTMLImageElement
+  blackKeyPressed: HTMLImageElement
+} = null
+
+let imagesReadyPromise: Promise<void> | null = null
+
+export function waitForImages(): Promise<void> {
+  if (!imagesReadyPromise) {
+    imagesReadyPromise = (async () => {
+      const [blackKeyRaised, blackKeyPressed] = await Promise.all([
+        loadImage('/images/black-key-raised.png'),
+        loadImage('/images/black-key-pressed.png'),
+      ])
+      images = { blackKeyRaised, blackKeyPressed }
+    })()
   }
-} else if (process.env.RENDER) {
-  // TODO: fix this before merge.
-  // loadImage = (src: string) => require('skia-canvas').loadImage(`${process.cwd()}/public${src}`)
-  loadImage = () => Promise.resolve()
-} else {
-  loadImage = () => Promise.resolve()
+  return imagesReadyPromise
 }
 
-let blackKeyRaisedImg: HTMLImageElement | null
-let blackKeyPressedImg: HTMLImageElement | null
-const blackKeyRaisedPromise = loadImage('/images/black-key-raised.png').then(
-  (img: HTMLImageElement | void) => {
-    blackKeyRaisedImg = img as any
-  },
-)
-const blackKeyPressedPromise = loadImage('/images/black-key-pressed.png').then(
-  (img: HTMLImageElement | void) => {
-    blackKeyPressedImg = img as any
-  },
-)
-
-export async function waitForImages() {
-  await Promise.all([blackKeyRaisedPromise, blackKeyPressedPromise])
-}
-
+/**
+ * Synchronous accessor for render loop. Call waitForImages() before starting render.
+ * Throws if called before images are ready — forces the caller to await preload.
+ */
 export function getImages(): {
   blackKeyRaised: HTMLImageElement
   blackKeyPressed: HTMLImageElement
 } {
-  return {
-    blackKeyRaised: blackKeyRaisedImg!,
-    blackKeyPressed: blackKeyPressedImg!,
+  if (!images) {
+    throw new Error('Images not loaded — call await waitForImages() before rendering')
   }
+  return images
 }

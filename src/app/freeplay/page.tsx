@@ -51,7 +51,11 @@ export default function FreePlay() {
 
   return (
     <>
-      <div className="flex h-screen w-screen flex-col">
+      <div
+        className="flex h-screen w-screen flex-col outline-none"
+        {...midiState.getListenerProps()}
+        autoFocus
+      >
         <TopBar
           onClickMidi={(e) => {
             e.stopPropagation()

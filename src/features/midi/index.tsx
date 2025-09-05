@@ -141,13 +141,6 @@ class MidiState {
   keyPressedNotes = new Set<number>()
   listeners: Array<Function> = []
 
-  constructor() {
-    if (typeof window === 'object') {
-      window.addEventListener('keydown', (e) => this.handleKeyDown(e))
-      window.addEventListener('keyup', (e) => this.handleKeyUp(e))
-    }
-  }
-
   handleKeyDown(e: KeyboardEvent) {
     let { key, code, metaKey, ctrlKey, altKey } = e
 
@@ -194,6 +187,18 @@ class MidiState {
       const computedNote = getNote(note + computedOctave)
       this.keyPressedNotes.delete(computedNote)
       this.release(computedNote)
+    }
+  }
+
+  getListenerProps(): {
+    onKeyDown: React.KeyboardEventHandler
+    onKeyUp: React.KeyboardEventHandler
+    tabIndex: number
+  } {
+    return {
+      onKeyDown: (e: React.KeyboardEvent) => this.handleKeyDown(e as any),
+      onKeyUp: (e: React.KeyboardEvent) => this.handleKeyUp(e as any),
+      tabIndex: -1,
     }
   }
 

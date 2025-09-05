@@ -23,8 +23,6 @@
     "skia-canvas": "3.0.6",
     "swr": "2.3.6",
     "tailwindcss": "4.1.13",
-    "ts-node": "10.9.2",
-    "tsconfig-paths": "4.2.0",
     "typescript": "5.9.2"
   },
   "dependencies": {
@@ -45,10 +43,10 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "next lint",
-    "check-fmt": "prettier --check **/*.{ts,tsx}",
-    "fmt": "prettier --write **/*.{ts,tsx}",
-    "gen": "cd scripts && ts-node generate.ts && cd ..",
-    "render": "RENDER=1 ts-node --project scripts/tsconfig.json scripts/render.ts --huge-max-old-generation-size",
+    "check-fmt": "prettier --check '**/*.{ts,tsx}'",
+    "fmt": "prettier --write '**/*.{ts,tsx}'",
+    "gen": "bun scripts/generate.ts",
+    "render": "bun scripts/render.ts",
     "test": "bun test",
     "test:watch": "bun test --watch"
   },
