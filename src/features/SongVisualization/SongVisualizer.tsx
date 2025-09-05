@@ -2,9 +2,10 @@ import { Canvas } from '@/components'
 import * as touchscroll from '@/features/SongVisualization/touchscroll'
 import { useSize } from '@/hooks'
 import { Hand, Song, SongConfig } from '@/types'
-import { LegacyRef, useMemo, useRef } from 'react'
+import { LegacyRef, useEffect, useMemo, useRef } from 'react'
 import { usePlayer } from '../player'
 import { GivenState, render } from './canvasRenderer'
+import { waitForImages } from './images'
 import { PIXELS_PER_SECOND as pps } from './utils'
 
 type HandSettings = {
@@ -36,9 +37,14 @@ function CanvasRenderer({
   enableTouchscroll = false,
   game = false,
 }: CanvasRendererProps) {
+  const isReady = useRef(false)
   const { width, height, measureRef } = useSize()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const player = usePlayer()
+
+  useEffect(() => {
+    waitForImages().then(() => (isReady.current = true))
+  })
 
   const canvasRect: DOMRect = useMemo(() => {
     return canvasRef.current?.getBoundingClientRect() ?? {}
@@ -46,7 +52,7 @@ function CanvasRenderer({
   }, [width, height]) as DOMRect
 
   function renderCanvas(ctx: CanvasRenderingContext2D, { width, height }: any) {
-    if (!song) {
+    if (!song || !isReady.current) {
       return
     }
 

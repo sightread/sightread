@@ -1,9 +1,9 @@
 import { clamp } from '@/utils'
+import { getDefaultStore } from 'jotai'
+import { Player } from '../player'
 import { getPointerVelocity } from '../pointer'
 import { intersectsWithPiano } from './falling-notes'
 import { PIXELS_PER_SECOND as pps } from './utils'
-import { getDefaultStore } from 'jotai'
-import { Player } from '../player'
 
 type JotaiStore = ReturnType<typeof getDefaultStore>
 

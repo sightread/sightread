@@ -2,11 +2,11 @@ import fs from 'fs'
 import { PassThrough } from 'stream'
 import { parseMidi, parserInferHands } from '@/features/parsers'
 import { render } from '@/features/SongVisualization/canvasRenderer'
-import { getImages, waitForImages } from '@/features/SongVisualization/images'
+import { ImageLoader, setImageLoader, waitForImages } from '@/features/SongVisualization/images'
 import { PIXELS_PER_SECOND as pps } from '@/features/SongVisualization/utils'
 import type { Song } from '@/types'
 import ffmpeg from 'fluent-ffmpeg'
-import { Canvas } from 'skia-canvas'
+import { Canvas, loadImage } from 'skia-canvas'
 
 const inputDir = '/Users/jake/Movies/sightread-recordings'
 const outputDir = '/Users/jake/Movies/sightread-recordings'
@@ -45,8 +45,14 @@ function verifyFiles(files: string[]) {
 }
 
 async function main() {
+  const imageLoader: ImageLoader = (src: string) =>
+    loadImage(`${process.cwd()}/public${src}`) as unknown as Promise<HTMLImageElement>
+
+  setImageLoader(imageLoader)
+  await waitForImages()
   const files: string[] = [
     // Force multi-line
+    '0_for_testing',
   ]
 
   await step('file verification', () => {
@@ -91,8 +97,6 @@ async function renderVideo(file: string) {
     })
     .save(`${outputDir}/${file}/${file}.mp4`)
 
-  await waitForImages()
-
   const state: any = {
     time: 0,
     drawNotes: false,
@@ -107,21 +111,26 @@ async function renderVideo(file: string) {
     constrictView: true,
     keySignature: 'C',
     timeSignature: { numerator: 4, denominator: 4 },
-    images: getImages(),
     ctx: null as any,
     canvasRect: { left: 0, top: 0 },
     noteLabels: 'none',
   }
 
+  // It is important to reuse the Canvas instance. I had previously been creating a new instance per
+  // iteration of the while loop, which caused memory usage to balloon to 100GB.
+  const canvas = new Canvas(viewport.width, viewport.height)
+  state.ctx = canvas.getContext('2d')
+
   // Duration goes until a single frame *past* the end, just in case the mp3 has 0-noise suffix.
   // It would be weird to continue showing the pressed notes with no audio.
   // This enables us to show a frame past the last keypress.
   while (state.time < end + 1 / fps) {
-    let canvas = new Canvas(viewport.width, viewport.height)
-    state.ctx = canvas.getContext('2d')
     render(state)
     const jpg = canvas.toBufferSync('jpg', { density })
-    passthrough.write(jpg)
+    const ok = passthrough.write(jpg)
+    if (!ok) {
+      await new Promise((resolve) => passthrough.once('drain', resolve))
+    }
     state.time += 1 / fps
     throttledLog(`Frame generation: ${Math.floor((100 * state.time) / end)}%`)
   }

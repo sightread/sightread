@@ -103,7 +103,11 @@ export default function Phrases() {
   return (
     <>
       <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
-      <div className={clsx('flex h-screen flex-col', 'h-[100dvh]')}>
+      <div
+        className={clsx('flex h-screen flex-col outline-none', 'h-[100dvh]')}
+        autoFocus
+        {...midiState.getListenerProps()}
+      >
         <TopBar
           onClickMidi={(e) => {
             e.stopPropagation()

@@ -1,6 +1,5 @@
-import { Song } from '@/types'
+import { Song, SongNote } from '@/types'
 import { isBrowser } from '@/utils'
-import { SongNote } from '@/types'
 
 export default class FreePlayer {
   time: number = 0
