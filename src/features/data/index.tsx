@@ -9,8 +9,8 @@ function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)
 }
 
-function getSongUrl(id: string, source: SongSource) {
-  return `/api/midi?id=${id}&source=${source}`
+function getBuiltinSongUrl(id: string) {
+  return `/music/songs/${id}`
 }
 
 function getBase64Song(data: string): Song {
@@ -20,7 +20,7 @@ function getBase64Song(data: string): Song {
 
 function fetchSong(id: string, source: SongSource): Promise<Song> {
   if (source === 'builtin') {
-    const url = getSongUrl(id, source)
+    const url = getBuiltinSongUrl(id)
     return fetch(url).then(handleSong)
   } else if (source === 'base64') {
     return Promise.resolve(getBase64Song(id))
