@@ -250,7 +250,7 @@ function AttributionsSection() {
     <Article header="Attributions">
       <p>
         Some of the sheet music and arrangements featured on this site are based on scores shared
-        through <AboutLink href="https://musescore.com">Musescore</AboutLink> under Creative Commons
+        through <AboutLink href="https://musescore.com">MuseScore</AboutLink> under Creative Commons
         licenses.
       </p>
       <p>We gratefully acknowledge the following creators for making their work available:</p>
