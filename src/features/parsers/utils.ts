@@ -1,6 +1,6 @@
 // Since this is called from Deno as well, we need to use relative paths.
-import { getKey } from '../theory'
 import { Song, Track } from '../../../src/types'
+import { getKey } from '../theory'
 
 export function getPitch(midiNote: number): { octave: number; step: string; alter: number } {
   // e.g. Cb3

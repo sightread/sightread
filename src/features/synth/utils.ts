@@ -1,6 +1,6 @@
 import { isBrowser } from '@/utils'
-import { getOctave } from '../theory'
 import { atom, getDefaultStore } from 'jotai'
+import { getOctave } from '../theory'
 
 // convert a MIDI.js javascript soundfont file to json
 async function parseMidiJsSoundfont(text: string): Promise<{ [key: string]: AudioBuffer }> {

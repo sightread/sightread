@@ -1,6 +1,6 @@
 // Since this is called from Deno as well, we need to use relative paths.
+import { Bpm, Song, SongMeasure, SongNote, Tracks } from '../../types'
 import { getNote } from '../theory'
-import { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../types'
 
 export default function parseMusicXml(txt: string): Song {
   /*

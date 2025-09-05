@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
-import { InstrumentName } from '@/features/synth'
-import { Synth, getSynth, getSynthStub } from '@/features/synth'
+import { getSynth, getSynthStub, InstrumentName, Synth } from '@/features/synth'
+import { useEffect, useState } from 'react'
 
-export function useSynth(
-  instrument: InstrumentName,
-): { loading: boolean; error: boolean; synth: Synth } {
+export function useSynth(instrument: InstrumentName): {
+  loading: boolean
+  error: boolean
+  synth: Synth
+} {
   const [loadError, setLoadError] = useState({ loading: true, error: false })
 
   useEffect(() => {

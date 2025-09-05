@@ -1,7 +1,7 @@
 // Since this is called from Deno as well, we need to use relative paths.
-import type { Song, SongMeasure, SongNote, Tracks, Bpm } from '../../../src/types'
-import { KEY_SIGNATURE } from '../theory'
 import * as tonejs from '@tonejs/midi'
+import type { Bpm, Song, SongMeasure, SongNote, Tracks } from '../../../src/types'
+import { KEY_SIGNATURE } from '../theory'
 
 function sort<T extends { time: number }>(arr: T[]): T[] {
   return arr.sort((i1, i2) => i1.time - i2.time)
@@ -30,7 +30,7 @@ export default function parseMidi(midiData: ArrayBufferLike): Song {
         {
           name: track.name,
           // infer percussion soundfont for drums (channel 9)
-          instrument: (track.channel === 9 ? 'percussion' : track.instrument.name),
+          instrument: track.channel === 9 ? 'percussion' : track.instrument.name,
           program: track.instrument.number,
         },
       ]

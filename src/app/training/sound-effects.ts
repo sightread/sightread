@@ -10,4 +10,3 @@ if (isBrowser()) {
 export function playFailSound() {
   failSound?.play()
 }
-
