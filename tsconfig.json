@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["jest", "webmidi"],
+    "types": ["jest"],
     // Enable latest features
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",

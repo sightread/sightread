@@ -2,13 +2,13 @@ import { getMidiInputs } from '@/features/midi'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 
 interface MidiInputReturn {
-  inputs: WebMidi.MIDIInputMap | null
+  inputs: MIDIInputMap | null
   loading: boolean
   refreshInput: () => void
 }
 
 export default function useMidiInputs(): MidiInputReturn {
-  const [midiMap, setMidiMap] = useState<WebMidi.MIDIInputMap | null>(null)
+  const [midiMap, setMidiMap] = useState<MIDIInputMap | null>(null)
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0)
 
   useEffect(() => {
