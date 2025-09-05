@@ -65,7 +65,7 @@ export function MidiModal(props: MidiModalProps) {
             </span>
           )}
           {inputs &&
-            Array.from(inputs.values()).map((device) => {
+            Array.from(inputs.values()).map((device: MIDIInput) => {
               const enabled = isInputMidiDeviceEnabled(device)
               return (
                 <div

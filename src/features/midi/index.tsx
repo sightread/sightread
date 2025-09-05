@@ -4,7 +4,7 @@ import { isBrowser } from '@/utils'
 import { Midi } from '@tonejs/midi'
 import { useRef, useState } from 'react'
 
-export async function getMidiInputs(): Promise<WebMidi.MIDIInputMap> {
+export async function getMidiInputs(): Promise<MIDIInputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {
     return new Map()
   }
@@ -32,27 +32,27 @@ export async function getMidiOutputs(): Promise<MIDIOutputMap> {
   }
 }
 
-const enabledInputDevices: Map<string, WebMidi.MIDIInput> = new Map()
-const enabledOutputDevices: Map<string, WebMidi.MIDIOutput> = new Map()
+const enabledInputDevices: Map<string, MIDIInput> = new Map()
+const enabledOutputDevices: Map<string, MIDIOutput> = new Map()
 
-export function isInputMidiDeviceEnabled(device: WebMidi.MIDIInput) {
+export function isInputMidiDeviceEnabled(device: MIDIInput) {
   return enabledInputDevices.has(device.id)
 }
-export function isOutputMidiDeviceEnabled(device: WebMidi.MIDIOutput) {
+export function isOutputMidiDeviceEnabled(device: MIDIOutput) {
   return enabledOutputDevices.has(device.id)
 }
 
-export function enableInputMidiDevice(device: WebMidi.MIDIInput) {
+export function enableInputMidiDevice(device: MIDIInput) {
   device.open()
   device.addEventListener('midimessage', onMidiMessage)
   enabledInputDevices.set(device.id, device)
 }
-export function enableOutputMidiDevice(device: WebMidi.MIDIOutput) {
+export function enableOutputMidiDevice(device: MIDIOutput) {
   device.open()
   enabledOutputDevices.set(device.id, device)
 }
 
-export function disableInputMidiDevice(deviceParam: WebMidi.MIDIInput) {
+export function disableInputMidiDevice(deviceParam: MIDIInput) {
   const device = enabledInputDevices.get(deviceParam.id)
   if (!device) {
     return
@@ -62,7 +62,7 @@ export function disableInputMidiDevice(deviceParam: WebMidi.MIDIInput) {
   enabledInputDevices.delete(device.id)
 }
 
-export function disableOutputMidiDevice(deviceParam: WebMidi.MIDIOutput) {
+export function disableOutputMidiDevice(deviceParam: MIDIOutput) {
   const device = enabledOutputDevices.get(deviceParam.id)
   if (!device) {
     return
@@ -94,8 +94,8 @@ export type MidiEvent = {
   timeStamp: number
 }
 
-function parseMidiMessage(event: WebMidi.MIDIMessageEvent): MidiEvent | null {
-  const data = event.data
+function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
+  const data = event.data!
   if (data.length !== 3) {
     return null
   }
@@ -244,7 +244,7 @@ class MidiState {
 
 const midiState = new MidiState()
 
-function onMidiMessage(e: WebMidi.MIDIMessageEvent) {
+function onMidiMessage(e: MIDIMessageEvent) {
   const msg: MidiEvent | null = parseMidiMessage(e)
   if (!msg) {
     return

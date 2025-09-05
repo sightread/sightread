@@ -54,12 +54,12 @@ export async function saveSong(file: File, title: string, artist: string): Promi
 
 export function deleteSong(id: string) {
   const songLibrary = getUploadedLibrary()
-  setUploadedLibrary(songLibrary.filter((s => s.id !== id)))
+  setUploadedLibrary(songLibrary.filter((s) => s.id !== id))
   Storage.delete(id)
 }
 
 async function sha1(msgUint8: Uint8Array) {
-  const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8)
+  const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8.buffer as ArrayBuffer)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
