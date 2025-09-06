@@ -1,7 +1,7 @@
 import { AppBar, MarketingFooter, Sizer } from '@/components'
-import Link from 'next/link'
 import React from 'react'
-import { FeaturedSongsPreview } from './home/FeaturedSongsPreview'
+import { FeaturedSongsPreview } from './FeaturedSongsPreview'
+import { Link } from 'react-router'
 
 export default function Home() {
   const overlappingHeight = 250
@@ -26,12 +26,12 @@ export default function Home() {
             className="grid w-full justify-center gap-4"
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min-content, 150px))' }}
           >
-            <Link href={'/songs'}>
+            <Link to={'/songs'}>
               <Button className="bg-purple-primary hover:bg-purple-hover text-white">
                 Learn a song
               </Button>
             </Link>
-            <Link href={'/freeplay'}>
+            <Link to={'/freeplay'}>
               <Button className="border-purple-primary text-purple-primary hover:bg-purple-light border bg-white">
                 Free play
               </Button>

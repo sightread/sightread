@@ -32,7 +32,7 @@ export interface SpeedState {
   lastNoteHitTime: Date
 }
 
-export default function SpeedTraining({}: Props) {
+export default function SpeedTraining({ }: Props) {
   const [sidebar, setSidebar] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
@@ -66,6 +66,7 @@ export default function SpeedTraining({}: Props) {
 
   return (
     <div>
+      <title>Sightread: Speed Training</title>
       <>
         <div
           style={{
@@ -159,7 +160,7 @@ export default function SpeedTraining({}: Props) {
 }
 
 function ScoreInfo({ speedState }: { speedState: SpeedState }) {
-  const { correct, notes, currentNoteIndex, lastNoteHitTime, startTime } = speedState
+  const { correct, currentNoteIndex, lastNoteHitTime, startTime } = speedState
   const accuracy = round(100 * (correct / currentNoteIndex), 2)
   const npm = round(
     (currentNoteIndex / (lastNoteHitTime.getTime() - startTime.getTime())) * 1000 * 60,
@@ -228,7 +229,7 @@ function advanceGame(
   }
 }
 
-function generateRandomNotes(clef: Clef, keySignature: KEY_SIGNATURE) {
+function generateRandomNotes(clef: Clef, _keySignature: KEY_SIGNATURE) {
   let minOctave = 4
   let maxOctave = 5
   if (clef === 'bass') {

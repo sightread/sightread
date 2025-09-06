@@ -51,6 +51,7 @@ export default function FreePlay() {
 
   return (
     <>
+      <title>Sightread: Free Play</title>
       <div
         className="flex h-screen w-screen flex-col outline-none"
         {...midiState.getListenerProps()}

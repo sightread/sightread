@@ -1,8 +1,9 @@
 import { getNote } from '@/features/theory'
 import { MidiStateEvent } from '@/types'
 import { isBrowser } from '@/utils'
-import { Midi } from '@tonejs/midi'
+import * as tonejs from '@tonejs/midi'
 import { useRef, useState } from 'react'
+const Midi = tonejs.Midi
 
 export async function getMidiInputs(): Promise<MIDIInputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {

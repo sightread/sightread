@@ -1,5 +1,5 @@
 import { AppBar, Sizer } from '@/components'
-import Link from 'next/link'
+import { Link } from 'react-router'
 
 export default function TrainingPage() {
   const links = [
@@ -12,7 +12,7 @@ export default function TrainingPage() {
       <Sizer height={48} />
       <div className="flex h-full grow content-center justify-center gap-5 py-6">
         {links.map(({ label, url }) => (
-          <Link href={url} key={url} className="text-white no-underline">
+          <Link to={url} key={url} className="text-white no-underline">
             <div className="flex h-[200px] w-[200px] items-center justify-center bg-gray-500">
               {label}
             </div>

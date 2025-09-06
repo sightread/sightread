@@ -2,13 +2,13 @@
 
 import { MidiModal } from '@/app/play/components/MidiModal'
 import { ButtonWithTooltip } from '@/app/play/components/TopBar'
-import { Select, Sizer, Toggle } from '@/components'
+import { Select, Sizer } from '@/components'
 import midiState from '@/features/midi'
 import { usePlayer } from '@/features/player'
 import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils'
 import { getGeneratedSong } from '@/features/theory/procedural'
-import { useOnUnmount, useQueryString, useRAFLoop, useWakeLock } from '@/hooks'
+import { useOnUnmount, useRAFLoop, useWakeLock } from '@/hooks'
 import { ChevronDown, ChevronUp } from '@/icons'
 import { Hand, Song, SongConfig } from '@/types'
 import { round } from '@/utils'
@@ -17,7 +17,8 @@ import { useAtomValue } from 'jotai'
 import { atomEffect } from 'jotai-effect'
 import React, { PropsWithChildren, useEffect, useReducer, useRef, useState } from 'react'
 import { playFailSound } from '../sound-effects'
-import TopBar from './components/TopBar'
+import { useSearchParams } from 'react-router'
+import TopBar from './components/TopBar.tsx'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
 type Level = 0 | 1 | 2 | 3
@@ -41,20 +42,21 @@ function useGeneratedSong(
   return [song, forceNewSong]
 }
 
-type QueryState = { level: string; clef: string; generator: Generator }
+// type QueryState = { level: string; clef: string; generator: Generator }
 type PhraseClefType = 'treble' | 'bass' | 'grand'
 export default function Phrases() {
   const [songConfig, setSongConfig] = useState(getDefaultSongSettings())
   const player = usePlayer()
   const [isMidiModalOpen, setMidiModal] = useState(false)
-  const [queryState, setQueryState] = useQueryString<QueryState>({
+  const [searchParams, setSearchParams] = useSearchParams({
     level: '0',
     clef: 'treble',
     generator: 'eMinor',
   })
-  const clefType = queryState.clef as PhraseClefType
-  const generatorType = queryState.generator as Generator
-  const [song, forceNewSong] = useGeneratedSong(generatorType, +queryState.level as Level, clefType)
+  let searchParamsObj = Object.fromEntries(searchParams)
+  const clefType = searchParamsObj.clef as PhraseClefType
+  const generatorType = searchParamsObj.generator as Generator
+  const [song, forceNewSong] = useGeneratedSong(generatorType, +searchParamsObj.level as Level, clefType)
 
   const accuracy = useAtomValue(player.score.accuracy)
   const score = useAtomValue(player.score.combined)
@@ -102,6 +104,7 @@ export default function Phrases() {
 
   return (
     <>
+      <title>Sightread: Phrases</title>
       <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
       <div
         className={clsx('flex h-screen flex-col outline-none', 'h-[100dvh]')}
@@ -128,7 +131,7 @@ export default function Phrases() {
             className="max-w-fit"
             options={['random', 'eMinor', 'dMajor']}
             value={generatorType}
-            onChange={(generator) => setQueryState({ ...queryState, generator })}
+            onChange={(generator) => setSearchParams({ ...searchParamsObj, generator })}
             display={(v) =>
               ({
                 random: 'Random',
@@ -147,15 +150,15 @@ export default function Phrases() {
           <Select
             className="max-w-fit"
             options={['0', '1', '2', '3']}
-            value={queryState.level}
-            onChange={(level) => setQueryState({ ...queryState, level })}
+            value={searchParamsObj.level}
+            onChange={(level) => setSearchParams({ ...searchParams, level })}
             display={(lvl) => `Level: ${lvl}`}
           />
           <Select
             className="max-w-fit"
             options={['treble', 'bass', 'grand']}
             value={clefType}
-            onChange={(clef) => setQueryState({ ...queryState, clef })}
+            onChange={(clef) => setSearchParams({ ...searchParams, clef })}
             display={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' })[v]}
             format={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' })[v]}
           />

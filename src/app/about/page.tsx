@@ -1,15 +1,11 @@
 import { AppBar, MarketingFooter, Sizer } from '@/components'
-import { Metadata } from 'next'
-import Link from 'next/link'
+import { Link } from "react-router";
 import React, { PropsWithChildren } from 'react'
 import manifest from './../../manifest.json'
 import type { SongMetadata } from './../../types'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
 
-export const metadata: Metadata = {
-  title: 'Sightread: About',
-}
 
 const LICENSE_LABELS: Record<string, string> = {
   'https://creativecommons.org/licenses/by/4.0/': 'CC BY 4.0',
@@ -27,6 +23,7 @@ function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
 export default function AboutPage() {
   return (
     <div className="relative">
+      <title>Sightread: About</title>
       <AppBar />
       <div className="md:bg-purple-lightest">
         <div className="mx-auto flex max-w-(--breakpoint-lg)">
@@ -287,7 +284,7 @@ function AttributionsSection() {
 
 function AboutLink({ href, children }: PropsWithChildren<{ href: string }>) {
   return (
-    <Link href={href} className="text-purple-primary hover:text-purple-hover">
+    <Link to={href} className="text-purple-primary hover:text-purple-hover">
       {children}
     </Link>
   )

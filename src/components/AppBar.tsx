@@ -3,8 +3,7 @@
 import { Sizer } from '@/components'
 import { GitHub, Logo, Menu } from '@/icons'
 import clsx from 'clsx'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link, useLocation } from 'react-router'
 import { PropsWithChildren } from 'react'
 import { Dropdown } from './Dropdown'
 
@@ -32,7 +31,7 @@ export default function AppBar() {
         <div className="absolute top-1/2 right-5 left-5 z-10 -translate-y-1/2 md:hidden">
           <SmallWindowNav />
         </div>
-        <NavLink href={'/'} className="hover:text-purple-hover flex items-baseline text-white">
+        <NavLink to={'/'} className="hover:text-purple-hover flex items-baseline text-white">
           <Logo height={24} width={24} className="relative top-[3px]" />
           <Sizer width={8} />
           <span className="text-2xl font-extralight"> SIGHTREAD</span>
@@ -42,14 +41,14 @@ export default function AppBar() {
             return (
               <NavLink
                 className="hover:text-purple-hover text-white"
-                href={nav.route}
+                to={nav.route}
                 key={nav.label}
                 label={nav.label}
               />
             )
           })}
           <NavLink
-            href={'https://github.com/sightread/sightread'}
+            to={'https://github.com/sightread/sightread'}
             className="hover:text-purple-hover lgminus:pr-0 ml-auto flex items-center gap-2 pr-8 text-white"
           >
             <GitHub size={16} className="t-[2px] relative" />
@@ -69,7 +68,7 @@ function SmallWindowNav() {
           return (
             <div className="items-enter flex flex-col gap-4 px-3 py-3" key={i}>
               <NavLink
-                href={nav.route}
+                to={nav.route}
                 className={clsx(
                   'text-purple-dark hover:text-purple-hover inline-block w-fit cursor-pointer px-6 text-2xl transition',
                 )}
@@ -84,18 +83,18 @@ function SmallWindowNav() {
 }
 
 function NavLink(
-  props: PropsWithChildren<{ href: string; className?: string; style?: any; label?: string }>,
+  props: PropsWithChildren<{ to: string; className?: string; style?: any; label?: string }>,
 ) {
-  const currentRoute = usePathname()
+  const currentRoute = useLocation().pathname
   return (
     <Link
       {...props}
       className={clsx(
         props.className,
         'transition',
-        currentRoute === props.href && 'font-bold',
+        currentRoute === props.to && 'font-bold',
         props.label &&
-          'after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:text-transparent after:content-[attr(label)]',
+        'after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:text-transparent after:content-[attr(label)]',
       )}
       data-label={props.label}
     >

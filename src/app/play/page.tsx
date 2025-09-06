@@ -18,19 +18,19 @@ import {
 import { MidiStateEvent, SongSource } from '@/types'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
-import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import { SettingsPanel, TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
+import { useNavigate, useSearchParams } from 'react-router'
 
 // This function exists as hack to stop the CSR deopt warning.
 // To do this the "next app router" way would require boxing up the bits
 // that depend on search params in a Suspense boundary.
 // See https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
 function PlaySongLegacy() {
-  const router = useRouter()
+  const [searchParams, _setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const player = usePlayer()
-  const searchParams = useSearchParams()
   const { source, id, recording }: { source: SongSource; id: string; recording?: string } =
     Object.fromEntries(searchParams) as any
 
@@ -110,7 +110,7 @@ function PlaySongLegacy() {
 
   // If source or id is messed up, redirect to the homepage
   if (!source || !id) {
-    router.replace('/')
+    navigate("/", { replace: true })
   }
 
   const handleLoopingToggle = (enable: boolean) => {
@@ -129,6 +129,7 @@ function PlaySongLegacy() {
 
   return (
     <>
+      <title>Sightread: Playing</title>
       <div
         className={clsx(
           // Enable fixed to remove all scrolling.
@@ -148,7 +149,7 @@ function PlaySongLegacy() {
               onClickRestart={() => player.restart()}
               onClickBack={() => {
                 player.stop()
-                router.push('/')
+                navigate('/')
               }}
               onClickMidi={(e) => {
                 e.stopPropagation()
