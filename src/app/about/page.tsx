@@ -23,7 +23,7 @@ function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
 export default function AboutPage() {
   return (
     <div className="relative">
-      <title>Sightread: About</title>
+      <title>About</title>
       <AppBar />
       <div className="md:bg-purple-lightest">
         <div className="mx-auto flex max-w-(--breakpoint-lg)">

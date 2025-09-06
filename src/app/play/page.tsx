@@ -127,7 +127,7 @@ function PlaySongLegacy() {
 
   return (
     <>
-      <title>Sightread: Playing</title>
+      <title>Playing</title>
       <div
         className={clsx(
           // Enable fixed to remove all scrolling.

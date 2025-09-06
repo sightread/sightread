@@ -64,7 +64,7 @@ export default function SpeedTraining({ }: Props) {
 
   return (
     <div>
-      <title>Sightread: Speed Training</title>
+      <title>Speed Training</title>
       <>
         <div
           style={{

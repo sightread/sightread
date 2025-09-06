@@ -71,7 +71,7 @@ export default function SelectSongPage() {
 
   return (
     <>
-      <title>Sightread: Select a song</title>
+      <title>Select a song</title>
       <SongPreviewModal
         show={!!selectedSongId}
         songMeta={selectedSongMeta}
