@@ -1,5 +1,3 @@
-'use client'
-
 import { AppBar, Dropdown, MarketingFooter, Modal, Sizer } from '@/components'
 import { useDeleteSong, useSongManifest } from '@/features/data/library'
 import { SongPreviewModal } from '@/features/SongPreview'

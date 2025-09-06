@@ -1,5 +1,3 @@
-'use client'
-
 import { SongScrubBar } from '@/features/controls'
 import { useSong } from '@/features/data'
 import { useSongMetadata } from '@/features/data/library'

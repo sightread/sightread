@@ -1,5 +1,3 @@
-'use client'
-
 import { useWindowWidth } from '@/hooks'
 import { breakpoints } from '@/utils'
 import * as React from 'react'

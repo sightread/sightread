@@ -1,5 +1,3 @@
-'use client'
-
 import { useWhenClickedOutside } from '@/hooks'
 import { ChevronDown, Loader } from '@/icons'
 import clsx from 'clsx'

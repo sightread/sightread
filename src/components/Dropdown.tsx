@@ -1,5 +1,3 @@
-'use client'
-
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import clsx from 'clsx'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -43,11 +41,11 @@ export function Dropdown({
     () =>
       openOn === 'click'
         ? {
-            onClick: (e) => {
-              e.stopPropagation()
-              toggleOpen()
-            },
-          }
+          onClick: (e) => {
+            e.stopPropagation()
+            toggleOpen()
+          },
+        }
         : {},
     [openOn, toggleOpen],
   )

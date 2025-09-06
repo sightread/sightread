@@ -1,5 +1,3 @@
-'use client'
-
 import { Canvas, Sizer } from '@/components'
 import midiState from '@/features/midi'
 import { usePersistedState } from '@/features/persist'

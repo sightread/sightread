@@ -1,5 +1,3 @@
-'use client'
-
 import { Sizer } from '@/components'
 import { GitHub, Logo, Menu } from '@/icons'
 import clsx from 'clsx'

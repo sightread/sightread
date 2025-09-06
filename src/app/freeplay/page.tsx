@@ -1,5 +1,3 @@
-'use client'
-
 import { MidiModal } from '@/app/play/components/MidiModal'
 import midiState, { useRecordMidi } from '@/features/midi'
 import { SongVisualizer } from '@/features/SongVisualization'

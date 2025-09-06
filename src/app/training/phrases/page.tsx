@@ -1,5 +1,3 @@
-'use client'
-
 import { MidiModal } from '@/app/play/components/MidiModal'
 import { ButtonWithTooltip } from '@/app/play/components/TopBar'
 import { Select, Sizer } from '@/components'

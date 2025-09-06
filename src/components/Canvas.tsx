@@ -1,5 +1,3 @@
-'use client'
-
 import { useRAFLoop, useSize } from '@/hooks'
 import { ForwardedRef, forwardRef, ForwardRefRenderFunction, Ref, useCallback, useRef } from 'react'
 
@@ -31,7 +29,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
           if (typeof ref === 'function') {
             ref(canvasEl)
           } else if ('current' in ref) {
-            ;(ref as any).current = canvasEl
+            ; (ref as any).current = canvasEl
           }
         }
 

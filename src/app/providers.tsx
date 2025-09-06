@@ -1,5 +1,3 @@
-'use client'
-
 import { PlayerProvider } from '@/features/player'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { Provider as JotaiProvider } from 'jotai'

@@ -1,5 +1,3 @@
-'use client'
-
 import { isBrowser } from '@/utils'
 import { useCallback, useEffect, useState } from 'react'
 import Storage from './storage'
@@ -23,7 +21,7 @@ export function usePersistedState<T>(key: string, init: T): [T, (state: T) => vo
   }, [key])
 
   if (!isBrowser()) {
-    return [init, () => {}]
+    return [init, () => { }]
   }
 
   return [state, setPersistedState]
