@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: production
-      NEXT_PUBLIC_GA_ID: mock-ga-id
+      VITE_PUBLIC_GA_ID: mock-ga-id
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
