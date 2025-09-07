@@ -94,6 +94,7 @@ function WhatSection() {
         caption="Falling Notes with note labels"
         height={1628}
         width={1636}
+        fetchPriority="high"
       />
       <Sizer height={24} />
       <p>
