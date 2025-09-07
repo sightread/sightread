@@ -1,7 +1,7 @@
 import { AppBar, MarketingFooter, Sizer } from '@/components'
 import React from 'react'
-import { FeaturedSongsPreview } from './FeaturedSongsPreview'
 import { Link } from 'react-router'
+import { FeaturedSongsPreview } from './FeaturedSongsPreview'
 
 export default function Home() {
   const overlappingHeight = 250

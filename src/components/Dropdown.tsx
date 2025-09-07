@@ -41,11 +41,11 @@ export function Dropdown({
     () =>
       openOn === 'click'
         ? {
-          onClick: (e) => {
-            e.stopPropagation()
-            toggleOpen()
-          },
-        }
+            onClick: (e) => {
+              e.stopPropagation()
+              toggleOpen()
+            },
+          }
         : {},
     [openOn, toggleOpen],
   )

@@ -21,7 +21,7 @@ export function usePersistedState<T>(key: string, init: T): [T, (state: T) => vo
   }, [key])
 
   if (!isBrowser()) {
-    return [init, () => { }]
+    return [init, () => {}]
   }
 
   return [state, setPersistedState]

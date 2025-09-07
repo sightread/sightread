@@ -14,8 +14,8 @@ import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
 import { atomEffect } from 'jotai-effect'
 import React, { PropsWithChildren, useEffect, useReducer, useRef, useState } from 'react'
-import { playFailSound } from '../sound-effects'
 import { useSearchParams } from 'react-router'
+import { playFailSound } from '../sound-effects'
 import TopBar from './components/TopBar.tsx'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
@@ -54,7 +54,11 @@ export default function Phrases() {
   let searchParamsObj = Object.fromEntries(searchParams)
   const clefType = searchParamsObj.clef as PhraseClefType
   const generatorType = searchParamsObj.generator as Generator
-  const [song, forceNewSong] = useGeneratedSong(generatorType, +searchParamsObj.level as Level, clefType)
+  const [song, forceNewSong] = useGeneratedSong(
+    generatorType,
+    +searchParamsObj.level as Level,
+    clefType,
+  )
 
   const accuracy = useAtomValue(player.score.accuracy)
   const score = useAtomValue(player.score.combined)

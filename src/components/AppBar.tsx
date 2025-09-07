@@ -1,8 +1,8 @@
 import { Sizer } from '@/components'
 import { GitHub, Logo, Menu } from '@/icons'
 import clsx from 'clsx'
-import { Link, useLocation } from 'react-router'
 import { PropsWithChildren } from 'react'
+import { Link, useLocation } from 'react-router'
 import { Dropdown } from './Dropdown'
 
 type NavItem = { route: string; label: string }
@@ -92,7 +92,7 @@ function NavLink(
         'transition',
         currentRoute === props.to && 'font-bold',
         props.label &&
-        'after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:text-transparent after:content-[attr(label)]',
+          'after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:text-transparent after:content-[attr(label)]',
       )}
       data-label={props.label}
     >

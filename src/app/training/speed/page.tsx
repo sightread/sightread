@@ -30,7 +30,7 @@ export interface SpeedState {
   lastNoteHitTime: Date
 }
 
-export default function SpeedTraining({ }: Props) {
+export default function SpeedTraining({}: Props) {
   const [sidebar, setSidebar] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
   const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))

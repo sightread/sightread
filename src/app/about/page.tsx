@@ -1,11 +1,10 @@
 import { AppBar, MarketingFooter, Sizer } from '@/components'
-import { Link } from "react-router";
 import React, { PropsWithChildren } from 'react'
+import { Link } from 'react-router'
 import manifest from './../../manifest.json'
 import type { SongMetadata } from './../../types'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
-
 
 const LICENSE_LABELS: Record<string, string> = {
   'https://creativecommons.org/licenses/by/4.0/': 'CC BY 4.0',

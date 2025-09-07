@@ -1,7 +1,7 @@
 import { cn } from '@/utils'
 import React, { PropsWithChildren } from 'react'
-import Sizer from './Sizer'
 import { Link } from 'react-router'
+import Sizer from './Sizer'
 
 function FooterHeader({ children }: any) {
   return (

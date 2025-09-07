@@ -3,6 +3,7 @@ import { MidiStateEvent } from '@/types'
 import { isBrowser } from '@/utils'
 import * as tonejs from '@tonejs/midi'
 import { useRef, useState } from 'react'
+
 const Midi = tonejs.Midi
 
 export async function getMidiInputs(): Promise<MIDIInputMap> {

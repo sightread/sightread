@@ -1,8 +1,8 @@
 import '@/styles/global.css'
 import { GA_TRACKING_ID } from '@/features/analytics'
 import { PropsWithChildren } from 'react'
-import { Outlet, Scripts, ScrollRestoration } from "react-router";
-import { Providers } from './providers';
+import { Outlet, Scripts, ScrollRestoration } from 'react-router'
+import { Providers } from './providers'
 
 // TODO: maybe implement routeChangeComplete events in app router
 // React.useEffect(() => {
@@ -65,12 +65,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta property="og:site_name" content="Sightread" />
         <meta property="og:description" content="app for learning piano" />
         <meta property="og:image" content="/images/mode_falling_notes_screenshot.png" />
-        <meta property="og:image:alt" content="Sightread demo displaying falling notes visualization" />
+        <meta
+          property="og:image:alt"
+          content="Sightread demo displaying falling notes visualization"
+        />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content="https://sightread.dev/images/mode_falling_notes_screenshot.png" />
-        <meta name="twitter:image:alt" content="Sightread demo displaying falling notes visualization" />
+        <meta
+          name="twitter:image"
+          content="https://sightread.dev/images/mode_falling_notes_screenshot.png"
+        />
+        <meta
+          name="twitter:image:alt"
+          content="Sightread demo displaying falling notes visualization"
+        />
 
         {/* Favicons */}
         <link rel="icon" href="/favicon.ico" />
@@ -82,7 +91,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  );
+  )
 }
 
 export default function App() {

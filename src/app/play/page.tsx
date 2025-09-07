@@ -17,9 +17,9 @@ import { MidiStateEvent, SongSource } from '@/types'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 import { SettingsPanel, TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
-import { useNavigate, useSearchParams } from 'react-router'
 
 // This function exists as hack to stop the CSR deopt warning.
 // To do this the "next app router" way would require boxing up the bits
@@ -108,7 +108,7 @@ function PlaySongLegacy() {
 
   // If source or id is messed up, redirect to the homepage
   if (!source || !id) {
-    navigate("/", { replace: true })
+    navigate('/', { replace: true })
   }
 
   const handleLoopingToggle = (enable: boolean) => {
