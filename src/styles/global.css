@@ -71,15 +71,11 @@
 }
 
 @layer utilities {
-  /* Font stuff */
+  /* Music font stuff */
   @font-face {
     font-family: Leland;
     src: url('fonts/Leland/Leland.otf') format('opentype');
     font-feature-settings: 'ccmp';
-  }
-
-  body {
-    font-family: var(--primary-font-family);
   }
 }
 

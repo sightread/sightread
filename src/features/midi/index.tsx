@@ -4,8 +4,6 @@ import { isBrowser } from '@/utils'
 import * as tonejs from '@tonejs/midi'
 import { useRef, useState } from 'react'
 
-const Midi = tonejs.Midi
-
 export async function getMidiInputs(): Promise<MIDIInputMap> {
   if (!isBrowser() || !window.navigator.requestMIDIAccess) {
     return new Map()
@@ -268,7 +266,7 @@ function onMidiMessage(e: MIDIMessageEvent) {
 // This function doesn't yet handle notes left open when record was clicked. It
 // should close those notes.
 function midiEventsToMidi(events: MidiEvent[]) {
-  const midi = new Midi()
+  const midi = new tonejs.Midi()
   const track = midi.addTrack()
   const openNotes = new Map<number, MidiEvent>()
   for (const event of events) {

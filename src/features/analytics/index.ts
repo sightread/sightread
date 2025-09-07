@@ -1,8 +1,8 @@
-if (!import.meta.env.PROD && !process.env.NEXT_PUBLIC_GA_ID) {
+if (import.meta.env.PROD && !import.meta.env.NEXT_PUBLIC_GA_ID) {
   throw new Error('Missing NEXT_PUBLIC_GA_ID')
 }
 
-export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID || ''
+export const GA_TRACKING_ID = import.meta.env.NEXT_PUBLIC_GA_ID ?? ''
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export const pageview = (url: string) => {
