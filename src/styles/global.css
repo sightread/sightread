@@ -50,6 +50,8 @@
 
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+
+  --font-sans: var(--sightread-font-family);
 }
 
 /*
