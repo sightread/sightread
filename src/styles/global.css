@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+:root {
+  --sightread-font-family:
+    system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  font-family: var(--sightread-font-family);
+}
+
 @theme {
   --breakpoint-*: initial;
   --breakpoint-sm: 650px;
@@ -50,6 +57,8 @@
 
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+
+  --font-sans: var(--sightread-font-family);
 }
 
 /*
@@ -71,15 +80,11 @@
 }
 
 @layer utilities {
-  /* Font stuff */
+  /* Music font stuff */
   @font-face {
     font-family: Leland;
     src: url('fonts/Leland/Leland.otf') format('opentype');
     font-feature-settings: 'ccmp';
-  }
-
-  body {
-    font-family: var(--primary-font-family);
   }
 }
 

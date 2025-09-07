@@ -1,5 +1,3 @@
-'use client'
-
 import { isBrowser } from '@/utils'
 import { useCallback, useEffect, useState } from 'react'
 import Storage from './storage'

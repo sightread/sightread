@@ -1,5 +1,3 @@
-'use client'
-
 import { Select } from '@/components'
 import { Player, usePlayer } from '@/features/player'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
@@ -10,7 +8,7 @@ import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
 import clsx from 'clsx'
 import { getDefaultStore, useAtomValue } from 'jotai'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Pause, RefreshCcw } from 'react-feather'
 
 type InstrumentSettingsProps = {

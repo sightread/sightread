@@ -1,5 +1,3 @@
-'use client'
-
 import { useRAFLoop, useSize } from '@/hooks'
 import { ForwardedRef, forwardRef, ForwardRefRenderFunction, Ref, useCallback, useRef } from 'react'
 

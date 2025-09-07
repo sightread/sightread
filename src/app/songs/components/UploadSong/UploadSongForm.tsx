@@ -1,5 +1,3 @@
-'use client'
-
 import { Sizer } from '@/components'
 import { TextInput } from '@/components/TextInput'
 import { useRefreshStorageMetadata } from '@/features/data/library'

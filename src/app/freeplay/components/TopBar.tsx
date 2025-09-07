@@ -3,8 +3,8 @@ import { Select } from '@/components'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { ArrowLeft, Midi, StartRecord, StopRecord } from '@/icons'
 import { formatInstrumentName } from '@/utils'
-import Link from 'next/link'
 import React, { MouseEvent } from 'react'
+import { Link } from 'react-router'
 
 type TopBarProps = {
   isError: boolean
@@ -30,7 +30,7 @@ export default function TopBar({
   return (
     <div className="flex h-[50px] min-h-[50px] w-full items-center gap-4 bg-[#292929] px-4 text-2xl text-white transition">
       <ButtonWithTooltip tooltip="Back">
-        <Link href="/">
+        <Link to="/">
           <ArrowLeft size={24} />
         </Link>
       </ButtonWithTooltip>

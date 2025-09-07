@@ -1,5 +1,3 @@
-'use client'
-
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { X as XMark } from '@/icons'
 import clsx from 'clsx'

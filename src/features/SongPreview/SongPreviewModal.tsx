@@ -1,10 +1,8 @@
-'use client'
-
 import { Modal, Sizer } from '@/components'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { SongMetadata } from '@/types'
-import Link from 'next/link'
 import * as React from 'react'
+import { Link } from 'react-router'
 import { SongScrubBar } from '../controls'
 import { usePlayer } from '../player'
 import PreviewIcon from './PreviewIcon'
@@ -77,7 +75,7 @@ export default function SongPreviewModal({
           </div>
           <Sizer height={16} />
           <Link
-            href={`/play?id=${id}&source=${source}`}
+            to={`/play?id=${id}&source=${source}`}
             className="bg-purple-primary hover:bg-purple-hover flex h-10 w-full items-center justify-center rounded-md border-none text-xl text-white transition"
           >
             Play Now

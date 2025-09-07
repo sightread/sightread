@@ -75,7 +75,7 @@ function getStaffTopY(state: State) {
 }
 
 function renderSheetNote(state: State, midiNote: number, idx: number): void {
-  const { ctx, speedConfig, speedState } = state
+  const { ctx, speedConfig } = state
   ctx.save()
   const posX = idx * 100
   const staff = speedConfig.clef
