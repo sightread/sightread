@@ -7,9 +7,9 @@ import { getHandSettings, getSongSettings, SongVisualizer } from '@/features/Son
 import { getSynthStub } from '@/features/synth'
 import {
   useEventListener,
+  useLazyStableRef,
   useOnUnmount,
   usePlayerState,
-  useSingleton,
   useSongSettings,
   useWakeLock,
 } from '@/hooks'
@@ -35,7 +35,7 @@ function PlaySongLegacy() {
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const playerState = usePlayerState()
-  const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
+  const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   let { data: song } = useSong(id, source)
   let songMeta = useSongMetadata(id, source)
   const range = useAtomValue(player.getRange())

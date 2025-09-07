@@ -2,7 +2,7 @@ import { MidiModal } from '@/app/play/components/MidiModal'
 import midiState, { useRecordMidi } from '@/features/midi'
 import { SongVisualizer } from '@/features/SongVisualization'
 import { InstrumentName, useSynth } from '@/features/synth'
-import { useSingleton } from '@/hooks'
+import { useLazyStableRef } from '@/hooks'
 import { MidiStateEvent, SongConfig } from '@/types'
 import React, { useCallback, useEffect, useState } from 'react'
 import RecordingModal from './components/RecordingModal'
@@ -12,7 +12,7 @@ import FreePlayer from './utils/freePlayer'
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
   const synthState = useSynth(instrumentName)
-  const freePlayer = useSingleton(() => new FreePlayer())
+  const freePlayer = useLazyStableRef(() => new FreePlayer())
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const { isRecording, startRecording, stopRecording } = useRecordMidi(midiState)
   const [recordingPreview, setRecordingPreview] = useState('')

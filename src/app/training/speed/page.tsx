@@ -3,7 +3,7 @@ import midiState from '@/features/midi'
 import { usePersistedState } from '@/features/persist'
 import { getSynthStub, Synth } from '@/features/synth'
 import { getRandomNote, KEY_SIGNATURE } from '@/features/theory'
-import { useSingleton } from '@/hooks'
+import { useLazyStableRef } from '@/hooks'
 import { Clef, MidiStateEvent } from '@/types'
 import { round } from '@/utils'
 import React, { useEffect, useState } from 'react'
@@ -33,7 +33,7 @@ export interface SpeedState {
 export default function SpeedTraining({}: Props) {
   const [sidebar, setSidebar] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
-  const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
+  const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   const [speedConfig, setSpeedConfig] = usePersistedState<SpeedTrainingConfig>('speedConfig', {
     clef: 'treble',
     displayLetter: false,
