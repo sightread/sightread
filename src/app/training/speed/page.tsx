@@ -1,11 +1,9 @@
-'use client'
-
 import { Canvas, Sizer } from '@/components'
 import midiState from '@/features/midi'
 import { usePersistedState } from '@/features/persist'
 import { getSynthStub, Synth } from '@/features/synth'
 import { getRandomNote, KEY_SIGNATURE } from '@/features/theory'
-import { useSingleton } from '@/hooks'
+import { useLazyStableRef } from '@/hooks'
 import { Clef, MidiStateEvent } from '@/types'
 import { round } from '@/utils'
 import React, { useEffect, useState } from 'react'
@@ -35,7 +33,7 @@ export interface SpeedState {
 export default function SpeedTraining({}: Props) {
   const [sidebar, setSidebar] = useState(false)
   const [soundOff, setSoundOff] = useState(false)
-  const synth = useSingleton(() => getSynthStub('acoustic_grand_piano'))
+  const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   const [speedConfig, setSpeedConfig] = usePersistedState<SpeedTrainingConfig>('speedConfig', {
     clef: 'treble',
     displayLetter: false,
@@ -66,6 +64,7 @@ export default function SpeedTraining({}: Props) {
 
   return (
     <div>
+      <title>Speed Training</title>
       <>
         <div
           style={{
@@ -159,7 +158,7 @@ export default function SpeedTraining({}: Props) {
 }
 
 function ScoreInfo({ speedState }: { speedState: SpeedState }) {
-  const { correct, notes, currentNoteIndex, lastNoteHitTime, startTime } = speedState
+  const { correct, currentNoteIndex, lastNoteHitTime, startTime } = speedState
   const accuracy = round(100 * (correct / currentNoteIndex), 2)
   const npm = round(
     (currentNoteIndex / (lastNoteHitTime.getTime() - startTime.getTime())) * 1000 * 60,
@@ -228,7 +227,7 @@ function advanceGame(
   }
 }
 
-function generateRandomNotes(clef: Clef, keySignature: KEY_SIGNATURE) {
+function generateRandomNotes(clef: Clef, _keySignature: KEY_SIGNATURE) {
   let minOctave = 4
   let maxOctave = 5
   if (clef === 'bass') {

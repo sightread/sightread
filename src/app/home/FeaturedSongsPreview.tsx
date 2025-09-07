@@ -1,5 +1,3 @@
-'use client'
-
 import { usePlayer } from '@/features/player'
 import { SongPreview } from '@/features/SongPreview/SongPreview'
 import { useEventListener, useOnUnmount, usePlayerState } from '@/hooks'

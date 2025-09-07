@@ -1,6 +1,6 @@
 import { cn } from '@/utils'
-import Link from 'next/link'
 import React, { PropsWithChildren } from 'react'
+import { Link } from 'react-router'
 import Sizer from './Sizer'
 
 function FooterHeader({ children }: any) {
@@ -19,7 +19,7 @@ function FooterLink({ href, children }: any) {
   return (
     <Link
       className="text-muted-foreground hover:text-foreground font-light whitespace-nowrap transition hover:underline hover:underline-offset-4"
-      href={href}
+      to={href}
     >
       {children}
     </Link>

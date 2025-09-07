@@ -1,5 +1,3 @@
-'use client'
-
 import { AppBar, Dropdown, MarketingFooter, Modal, Sizer } from '@/components'
 import { useDeleteSong, useSongManifest } from '@/features/data/library'
 import { SongPreviewModal } from '@/features/SongPreview'
@@ -9,16 +7,10 @@ import * as icons from '@/icons'
 import { SongMetadata } from '@/types'
 import { formatTime } from '@/utils'
 import clsx from 'clsx'
-import { useHydrateAtoms } from 'jotai/utils'
-import { Metadata } from 'next'
 import * as React from 'react'
 import { useState } from 'react'
 import { Table, UploadForm } from './components'
 import { SearchBox } from './components/Table/SearchBox'
-
-export const metadata: Metadata = {
-  title: 'Sightread: Select a song',
-}
 
 type SongMetadataWithActions = SongMetadata & { actions?: React.ReactNode }
 
@@ -79,6 +71,7 @@ export default function SelectSongPage() {
 
   return (
     <>
+      <title>Select a song</title>
       <SongPreviewModal
         show={!!selectedSongId}
         songMeta={selectedSongMeta}

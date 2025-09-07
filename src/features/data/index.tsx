@@ -1,5 +1,3 @@
-'use client'
-
 import { parseMidi } from '@/features/parsers'
 import { getUploadedSong } from '@/features/persist'
 import { Song, SongSource } from '@/types'
