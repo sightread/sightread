@@ -1,6 +1,6 @@
 import { AppBar, MarketingFooter, Sizer } from '@/components'
 import React, { PropsWithChildren } from 'react'
-import { Link } from 'react-router'
+import { Link, LinkProps } from 'react-router'
 import manifest from './../../manifest.json'
 import type { SongMetadata } from './../../types'
 import { Article, CaptionedImage } from './components'
@@ -161,8 +161,8 @@ function BrowserCompatibilitySection() {
       <p>
         Plugging in a MIDI keyboard will not work on iOS or Safari. This is because Apple has not
         implemented the WebMIDI spec and also{' '}
-        <AboutLink href="https://css-tricks.com/ios-browser-choice/">restricts</AboutLink> iOS
-        devices from using any browser engine but their own.
+        <AboutLink to="https://css-tricks.com/ios-browser-choice/">restricts</AboutLink> iOS devices
+        from using any browser engine but their own.
       </p>
     </Article>
   )
@@ -194,8 +194,8 @@ function FeedbackSection() {
     <Article header="Feedback">
       <p>
         Found a bug or have a feature request? Please file an issue on{' '}
-        <AboutLink href="https://github.com/sightread/sightread/issues">GitHub</AboutLink> or send
-        an <AboutLink href="mailto:sightreadllc@gmail.com">email</AboutLink>.
+        <AboutLink to="https://github.com/sightread/sightread/issues">GitHub</AboutLink> or send an{' '}
+        <AboutLink to="mailto:sightreadllc@gmail.com">email</AboutLink>.
       </p>
     </Article>
   )
@@ -215,14 +215,14 @@ function ProductRecommendations() {
       <ol className="ml-8 list-disc">
         <li>
           <b>Beginner:</b> The{' '}
-          <AboutLink href="https://www.amazon.com/Casio-61-Key-Portable-Keyboard-LK-S250/dp/B07WK7F7BF?ref_=ast_sto_dp&amp;th=1&_encoding=UTF8&tag=sightread-20&linkCode=ur2&linkId=19d0e41a202a32254091e6bafcae1b13&camp=1789&creative=9325">
+          <AboutLink to="https://www.amazon.com/Casio-61-Key-Portable-Keyboard-LK-S250/dp/B07WK7F7BF?ref_=ast_sto_dp&amp;th=1&_encoding=UTF8&tag=sightread-20&linkCode=ur2&linkId=19d0e41a202a32254091e6bafcae1b13&camp=1789&creative=9325">
             Casio Casiotone LK-S250
           </AboutLink>{' '}
           has 66 light-up keys which can aid learning.
         </li>
         <li>
           <b>Intermediate:</b> The{' '}
-          <AboutLink href="https://www.amazon.com/Roland-keys-Digital-Piano-GO-88P/dp/B07M9WFSTK?th=1&_encoding=UTF8&tag=sightread-20&linkCode=ur2&linkId=1318072a32a3ea63d98c4567c2ed3098&camp=1789&creative=9325">
+          <AboutLink to="https://www.amazon.com/Roland-keys-Digital-Piano-GO-88P/dp/B07M9WFSTK?th=1&_encoding=UTF8&tag=sightread-20&linkCode=ur2&linkId=1318072a32a3ea63d98c4567c2ed3098&camp=1789&creative=9325">
             Roland GO:Piano
           </AboutLink>{' '}
           has a full range of 88 keys with both Bluetooth and USB connections. It has excellent
@@ -242,38 +242,42 @@ function AttributionsSection() {
     .slice()
     .sort((a, b) => a.title.localeCompare(b.title))
 
+  function MutedLink({ children, ...props }: PropsWithChildren<LinkProps>) {
+    return (
+      <Link
+        {...props}
+        className="cursor-pointer text-gray-800 underline-offset-4 hover:text-gray-950 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {children}
+      </Link>
+    )
+  }
+
   return (
     <Article header="Attributions">
       <p>
         Some of the sheet music and arrangements featured on this site are based on scores shared
-        through <AboutLink href="https://musescore.com">MuseScore</AboutLink> under Creative Commons
+        through <AboutLink to="https://musescore.com">MuseScore</AboutLink> under Creative Commons
         licenses.
       </p>
-      <p>We gratefully acknowledge the following creators for making their work available:</p>
+      <p>
+        We are grateful to the contributors. Below are links back to MuseScore and their respective
+        copyrights
+      </p>
       <ul className="list-disc pl-6">
         {sortedSongs.map((song) => (
-          <li key={song.id} className="mb-2">
-            <a
-              href={song.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium underline"
-            >
-              {song.title}
-            </a>
-            {song.license && (
-              <>
-                {' : '}
-                <a
-                  href={song.license}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  {LICENSE_LABELS[song.license] || song.license}
-                </a>
-              </>
-            )}
+          <li key={song.id} className="">
+            <div className="mb-2 flex w-full gap-2">
+              {song.title}:
+              <div className="flex gap-2">
+                {song.url && <MutedLink to={song.url}>source</MutedLink>}
+                {song.license && (
+                  <MutedLink to={song.license}>license ({LICENSE_LABELS[song.license]})</MutedLink>
+                )}
+              </div>
+            </div>
           </li>
         ))}
       </ul>
@@ -281,9 +285,9 @@ function AttributionsSection() {
   )
 }
 
-function AboutLink({ href, children }: PropsWithChildren<{ href: string }>) {
+function AboutLink({ children, ...props }: PropsWithChildren<LinkProps>) {
   return (
-    <Link to={href} className="text-purple-primary hover:text-purple-hover">
+    <Link {...props} className="text-purple-primary hover:text-purple-hover">
       {children}
     </Link>
   )
