@@ -14,6 +14,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="author" content="Jake Fried" />
         <meta name="description" content="app for learning piano" />
 
+        {/* Preloads */}
+        <link rel="preload" as="font" type="font/woff2" href="/fonts/inter/InterVariable.woff2" />
+
         {/* Open Graph */}
         <meta property="og:title" content="Sightread" />
         <meta property="og:site_name" content="Sightread" />

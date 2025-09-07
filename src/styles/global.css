@@ -2,6 +2,19 @@
 
 @import './inter.css';
 
+:root {
+  --sightread-font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif;
+}
+
+@supports (font-variation-settings: normal) {
+  :root {
+    --sightread-font-family: 'InterVariable', 'Inter fallback', sans-serif;
+    --font-family: 'InterVariable', sans-serif;
+    font-optical-sizing: auto;
+  }
+}
+
 @theme {
   --breakpoint-*: initial;
   --breakpoint-sm: 650px;
