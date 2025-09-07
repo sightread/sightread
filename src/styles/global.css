@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@import './inter.css';
+
 @theme {
   --breakpoint-*: initial;
   --breakpoint-sm: 650px;

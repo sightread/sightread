@@ -1,6 +1,5 @@
-import '@/styles/global.css'
-import '@/styles/inter.css'
 import { GA_TRACKING_ID } from '@/features/analytics'
+import styles from '@/styles/global.css?inline'
 import { Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { Providers } from './providers'
 
@@ -53,6 +52,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
     });`,
           }}
         />
+
+        {/* Manually inserted styles */}
+        <style dangerouslySetInnerHTML={{ __html: styles }} />
       </head>
       <body>
         {children}

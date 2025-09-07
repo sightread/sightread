@@ -50,7 +50,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "preview": "vite preview --port 8080",
     "check-types": "react-router typegen && tsc",
     "check-fmt": "prettier --check '**/*.{ts,tsx}'",
     "fmt": "prettier --write '**/*.{ts,tsx}'",
