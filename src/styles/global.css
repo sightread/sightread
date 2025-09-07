@@ -1,18 +1,10 @@
 @import 'tailwindcss';
 
-@import './inter.css';
-
 :root {
-  --sightread-font-family: 'Inter', sans-serif;
-  font-family: 'Inter', sans-serif;
-}
-
-@supports (font-variation-settings: normal) {
-  :root {
-    --sightread-font-family: 'InterVariable', 'Inter fallback', sans-serif;
-    --font-family: 'InterVariable', sans-serif;
-    font-optical-sizing: auto;
-  }
+  --sightread-font-family:
+    system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  font-family: var(--sightread-font-family);
 }
 
 @theme {
