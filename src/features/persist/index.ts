@@ -6,4 +6,6 @@ export {
   saveSong,
   setPersistedSongSettings,
   deleteSong,
+  getLocalSong,
+  getAllSongs,
 } from './persistence'

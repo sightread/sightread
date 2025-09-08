@@ -3,7 +3,7 @@ import { fileToUint8 } from '@/utils'
 import { parseMidi } from '../parsers'
 import { LOCAL_STORAGE_SONG_LIST_KEY } from './constants'
 import Storage from './storage'
-import { getLocalSongs } from './folderAccess'
+import { getLocalSongs, getLocalSongFile } from './folderAccess'
 
 export function hasUploadedSong(id: string): Song | null {
   return Storage.get<Song>(id)
@@ -82,10 +82,17 @@ export async function getLocalSong(songMetadata: SongMetadata): Promise<Song | n
   }
 
   try {
-    // For now, we'll return null and implement file loading when the folder picker is used
-    // This will be enhanced when we have active folder handles
-    console.warn('Local song loading not yet implemented for:', songMetadata.title)
-    return null
+    const file = await getLocalSongFile(songMetadata)
+    if (!file) {
+      console.warn('Could not load local song file:', songMetadata.title)
+      return null
+    }
+
+    // Parse the file just like uploaded songs
+    const buffer = await fileToUint8(file)
+    const song = parseMidi(buffer.buffer)
+    
+    return song
   } catch (error) {
     console.error('Error loading local song:', error)
     return null

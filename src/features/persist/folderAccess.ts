@@ -1,3 +1,24 @@
+/**
+ * Folder Access Module for Local Music File Management
+ * 
+ * This module handles the File System Access API integration for allowing users
+ * to select folders containing their music files. Songs remain on the user's
+ * computer and are loaded on-demand.
+ * 
+ * Key Features:
+ * - Folder selection using showDirectoryPicker()
+ * - Automatic scanning for MIDI (.mid) and MusicXML (.xml) files
+ * - Filename-based song titles (no artist information)
+ * - Session-based folder handle caching
+ * 
+ * Browser Support: Chrome, Edge, and other Chromium-based browsers
+ * 
+ * Limitations:
+ * - Folder handles cannot be persisted across browser sessions
+ * - Users may need to re-select folders after browser restart
+ * - File System Access API is not available in all browsers
+ */
+
 import type { SongMetadata } from '@/types'
 import { LOCAL_STORAGE_FOLDER_HANDLES_KEY, LOCAL_STORAGE_LOCAL_SONGS_KEY } from './constants'
 import Storage from './storage'
@@ -29,6 +50,9 @@ interface FolderInfo {
   addedAt: number
 }
 
+// Active folder handles (in memory only)
+const activeFolderHandles = new Map<string, FileSystemDirectoryHandle>()
+
 export async function selectMusicFolder(): Promise<FileSystemDirectoryHandle | null> {
   if (!isFileSystemAccessSupported()) {
     throw new Error('File System Access API is not supported in this browser')
@@ -52,6 +76,9 @@ export async function selectMusicFolder(): Promise<FileSystemDirectoryHandle | n
       folderInfoList.push(folderInfo)
       setFolderInfoList(folderInfoList)
     }
+    
+    // Store in active handles for this session
+    activeFolderHandles.set(dirHandle.name, dirHandle)
     
     return dirHandle
   } catch (error) {
@@ -84,6 +111,19 @@ export async function scanFolderForSongs(dirHandle: FileSystemDirectoryHandle): 
           const songId = await generateSongId(name, dirHandle.name)
           const title = getFileNameWithoutExtension(name)
           
+          // Try to get basic duration information
+          let duration = 0
+          try {
+            if (isMidiFile(file)) {
+              // For MIDI files, we could parse basic info here
+              // For now, we'll leave it as 0 and calculate when loaded
+              duration = 0
+            }
+          } catch {
+            // If we can't get duration, just use 0
+            duration = 0
+          }
+          
           const songMetadata: SongMetadata = {
             id: songId,
             title,
@@ -92,7 +132,7 @@ export async function scanFolderForSongs(dirHandle: FileSystemDirectoryHandle): 
             localPath: name,
             source: 'local',
             difficulty: 0,
-            duration: 0, // Will be calculated when song is loaded
+            duration,
           }
           
           songs.push(songMetadata)
@@ -105,6 +145,13 @@ export async function scanFolderForSongs(dirHandle: FileSystemDirectoryHandle): 
   }
   
   return songs
+}
+
+function isMidiFile(file: File): boolean {
+  return file.type === 'audio/midi' || 
+         file.type === 'audio/mid' ||
+         file.name.endsWith('.mid') ||
+         file.name.endsWith('.midi')
 }
 
 function isMusicFile(file: File): boolean {
@@ -153,4 +200,46 @@ export function addLocalSongs(newSongs: SongMetadata[]): void {
 export function removeLocalSong(songId: string): void {
   const songs = getLocalSongs()
   setLocalSongs(songs.filter(s => s.id !== songId))
+}
+
+/**
+ * Get a File object for a local song. This may require re-requesting folder access
+ * if the folder handle is not in the current session.
+ */
+export async function getLocalSongFile(songMetadata: SongMetadata): Promise<File | null> {
+  if (songMetadata.source !== 'local' || !songMetadata.localPath) {
+    return null
+  }
+
+  const folderName = extractFolderNameFromFile(songMetadata.file)
+  if (!folderName) {
+    console.error('Could not extract folder name from:', songMetadata.file)
+    return null
+  }
+
+  try {
+    // Check if we have the folder handle in memory
+    let folderHandle = activeFolderHandles.get(folderName)
+    
+    if (!folderHandle) {
+      // If not in memory, we need to request access again
+      // This is a limitation of the File System Access API
+      console.warn(`Folder handle for "${folderName}" not in memory. User may need to re-select the folder.`)
+      return null
+    }
+
+    // Get the file handle
+    const fileHandle = await folderHandle.getFileHandle(songMetadata.localPath)
+    return await fileHandle.getFile()
+    
+  } catch (error) {
+    console.error('Error loading local song file:', error)
+    return null
+  }
+}
+
+function extractFolderNameFromFile(filePath: string): string | null {
+  // Expected format: "local/FolderName/filename.mid"
+  const match = filePath.match(/^local\/([^\/]+)\//)
+  return match ? match[1] : null
 }

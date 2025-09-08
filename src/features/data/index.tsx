@@ -1,6 +1,6 @@
 import { parseMidi } from '@/features/parsers'
-import { getUploadedSong } from '@/features/persist'
-import { Song, SongSource } from '@/types'
+import { getUploadedSong, getLocalSong, getAllSongs } from '@/features/persist'
+import { Song, SongSource, SongMetadata } from '@/types'
 import useSWR, { type SWRResponse } from 'swr'
 
 function handleSong(response: Response): Promise<Song> {
@@ -25,6 +25,18 @@ function fetchSong(id: string, source: SongSource): Promise<Song> {
   } else if (source === 'upload') {
     return Promise.resolve(getUploadedSong(id)).then((res) =>
       res === null ? Promise.reject(new Error('Could not find song')) : res,
+    )
+  } else if (source === 'local') {
+    // For local songs, we need to find the song metadata first, then load the file
+    const allSongs = getAllSongs()
+    const songMetadata = allSongs.find(s => s.id === id && s.source === 'local')
+    
+    if (!songMetadata) {
+      return Promise.reject(new Error('Could not find local song metadata'))
+    }
+    
+    return getLocalSong(songMetadata).then((res) =>
+      res === null ? Promise.reject(new Error('Could not load local song file')) : res,
     )
   }
 
