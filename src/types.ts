@@ -76,6 +76,9 @@ export type Song = {
   timeSignature?: { numerator: number; denominator: number }
   keySignature: KEY_SIGNATURE
   items: Array<SongNote | SongMeasure>
+  ppq: number
+  secondsToTicks: (seconds: number) => number
+  ticksToSeconds: (seconds: number) => number
   backing?: HTMLAudioElement
 }
 

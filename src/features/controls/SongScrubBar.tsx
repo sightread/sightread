@@ -85,10 +85,17 @@ export default function SongScrubBar({
     [player, getProgress, onSeek],
   )
 
+  let wasPlaying = useRef(false)
   useEventListener<PointerEvent>('pointerdown', (e) => {
     const target = e.target as HTMLElement
     if (progressBarRef.current?.contains(target) && !isDraggingL.current && !isDraggingR.current) {
       isScrubbing.current = true
+
+      if (player.isPlaying()) {
+        wasPlaying.current = true
+        player.pause()
+      }
+
       seekPlayer(e)
     }
   })
@@ -105,6 +112,11 @@ export default function SongScrubBar({
       isDraggingL.current = false
       isDraggingR.current = false
       isScrubbing.current = false
+
+      if (wasPlaying.current) {
+        wasPlaying.current = false
+        player.play()
+      }
     },
     undefined,
     CAPTURE_OPT,

@@ -6,6 +6,7 @@ import { Song, SongConfig, VisualizationMode } from '@/types'
 import clsx from 'clsx'
 import React, { PropsWithChildren, useCallback, useRef, useState } from 'react'
 import BpmDisplay from './BpmDisplay'
+import Metronome from './Metronome'
 
 type SidebarProps = {
   onChange: (settings: SongConfig) => void
@@ -66,6 +67,9 @@ export default function SettingsPanel(props: SidebarProps) {
       <div className="mx-20 flex grow flex-col flex-wrap items-stretch gap-4 whitespace-nowrap sm:mx-0 sm:flex-row">
         <Section title="Speed" className="flex grow">
           <BpmDisplay />
+        </Section>
+        <Section title="Metronome" className="flex grow flex-col">
+          <Metronome />
         </Section>
         <Section title="Hands" className="flex grow flex-col">
           <div className="flex justify-center gap-2">
