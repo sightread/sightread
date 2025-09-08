@@ -7,7 +7,7 @@ export type TableColumn<T, D extends keyof T = never> = {
 }
 
 export type RowValue = string | number | undefined | React.ReactNode
-export type Row = { [key: string]: RowValue }
+export type Row = { [key: string]: any }
 
 export type TableProps<T extends Row> = {
   columns: TableColumn<T, keyof T>[]

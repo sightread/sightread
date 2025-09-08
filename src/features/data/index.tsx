@@ -1,7 +1,7 @@
 import { parseMidi } from '@/features/parsers'
-import { getUploadedSong } from '@/features/persist'
 import { Song, SongSource } from '@/types'
 import useSWR, { type SWRResponse } from 'swr'
+import { getSongHandle } from '../persist/persistence'
 
 function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then(parseMidi)
@@ -22,10 +22,11 @@ function fetchSong(id: string, source: SongSource): Promise<Song> {
     return fetch(url).then(handleSong)
   } else if (source === 'base64') {
     return Promise.resolve(getBase64Song(id))
-  } else if (source === 'upload') {
-    return Promise.resolve(getUploadedSong(id)).then((res) =>
-      res === null ? Promise.reject(new Error('Could not find song')) : res,
-    )
+  } else if (source === 'local') {
+    return getSongHandle(id)
+      .then((handle) => handle?.getFile())
+      .then((file) => file?.arrayBuffer())
+      .then((buffer) => parseMidi(buffer!))
   }
 
   return Promise.reject(new Error(`Could not get song for ${id}, ${source}`))

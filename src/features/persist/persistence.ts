@@ -1,67 +1,165 @@
 import type { Song, SongConfig, SongMetadata } from '@/types'
-import { fileToUint8 } from '@/utils'
+import * as idb from 'idb-keyval'
+import * as jotai from 'jotai'
 import { parseMidi } from '../parsers'
-import { LOCAL_STORAGE_SONG_LIST_KEY } from './constants'
+import * as storageKeys from './constants'
 import Storage from './storage'
+
+interface LocalDir {
+  id: string
+  addedAt: number
+  handle: FileSystemDirectoryHandle
+}
+
+export const localDirsAtom = jotai.atom<LocalDir[]>([])
+export const localSongsAtom = jotai.atom<Map<FileSystemDirectoryHandle, SongMetadata[]>>(new Map())
+
+const store = jotai.getDefaultStore()
+let initialized = false
+async function initializeFromIdb() {
+  if (initialized) {
+    return Promise.resolve()
+  }
+  try {
+    const dirs: LocalDir[] = (await idb.get(storageKeys.OBSERVED_DIRECTORIES)) ?? []
+    store.set(localDirsAtom, dirs)
+  } catch (e) {
+    console.error('persistence init failed', e)
+  } finally {
+    initialized = true
+  }
+  scanFolders()
+}
+initializeFromIdb()
+
+// Check if File System Access API is supported
+export function isFileSystemAccessSupported(): boolean {
+  return 'showDirectoryPicker' in window
+}
+
+export async function addFolder(): Promise<void> {
+  if (!isFileSystemAccessSupported()) {
+    throw new Error('File System Access API is not supported in this browser')
+  }
+  await initializeFromIdb()
+
+  try {
+    const newHandle = await window.showDirectoryPicker({
+      mode: 'read',
+      startIn: 'music',
+    })
+
+    // Add directory if it isn't already in the set
+    const dirs = store.get(localDirsAtom)
+    const alreadyExists = (
+      await Promise.all(dirs.map((d) => d.handle.isSameEntry(newHandle)))
+    ).find((d) => d)
+    if (!alreadyExists) {
+      dirs.push({ id: crypto.randomUUID(), handle: newHandle, addedAt: Date.now() })
+      store.set(localDirsAtom, dirs)
+      await idb.set(storageKeys.OBSERVED_DIRECTORIES, dirs)
+      await scanFolders()
+    }
+
+    return
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') {
+      return
+    }
+    throw error
+  }
+}
+
+export const isScanningAtom = jotai.atom(false)
+
+export async function scanFolders() {
+  if (store.get(isScanningAtom)) {
+    return
+  }
+  store.set(isScanningAtom, true)
+  try {
+    let songs = new Map()
+    const dirs = store.get(localDirsAtom)
+    for (const dir of dirs) {
+      const dirSongs = await scanFolder(dir)
+      songs.set(dir.handle, dirSongs)
+    }
+    store.set(localSongsAtom, songs)
+  } catch (error) {
+    console.error('Error scanning folders:', error)
+  } finally {
+    store.set(isScanningAtom, false)
+  }
+}
+
+function isMidiFile(file: File): boolean {
+  return (
+    file.type === 'audio/midi' ||
+    file.type === 'audio/mid' ||
+    file.name.endsWith('.mid') ||
+    file.name.endsWith('.midi')
+  )
+}
+
+export async function getSongHandle(id: string): Promise<FileSystemFileHandle | undefined> {
+  const [dirId, basename] = id.split('/')
+
+  const dir = store.get(localDirsAtom).find((d) => d.id === dirId)
+  const localSongs = store.get(localSongsAtom).get(dir?.handle!)
+  return localSongs?.find((s) => s.handle?.name === basename)?.handle
+}
+
+async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
+  const songs: SongMetadata[] = []
+
+  try {
+    for await (const [name, handle] of dir.handle.entries()) {
+      if (handle.kind === 'file') {
+        const fileHandle = handle as FileSystemFileHandle
+        const file = await fileHandle.getFile()
+
+        try {
+          if (isMidiFile(file)) {
+            const title = name
+            const id = title // for now
+
+            let bytes = await file.arrayBuffer()
+            let duration = parseMidi(bytes).duration
+            const songMetadata: SongMetadata = {
+              id: dir.id + '/' + name,
+              title,
+              file: id,
+              artist: '', // Leave blank as specified
+              source: 'local',
+              difficulty: 0,
+              duration,
+              handle: fileHandle,
+            }
+
+            songs.push(songMetadata)
+          }
+        } catch (error) {
+          console.error(`Error parsing MIDI file ${name}:`, error)
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error scanning folder:', error)
+    throw new Error(`Failed to scan folder: ${(error as Error).message}`)
+  }
+
+  return songs
+}
+
+export function removeFolder(id: string) {
+  const dirs = store.get(localDirsAtom).filter((d) => d.id !== id)
+  store.set(localDirsAtom, dirs)
+  idb.set(storageKeys.OBSERVED_DIRECTORIES, dirs)
+  scanFolders()
+}
 
 export function hasUploadedSong(id: string): Song | null {
   return Storage.get<Song>(id)
-}
-
-export function getUploadedSong(id: string): Song | null {
-  return Storage.get<Song>(id)
-}
-
-export function getUploadedLibrary(): SongMetadata[] {
-  if (!Storage.has(LOCAL_STORAGE_SONG_LIST_KEY)) {
-    Storage.set<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY, [])
-  }
-  return Storage.get<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY) ?? []
-}
-
-function setUploadedLibrary(library: SongMetadata[]): void {
-  Storage.set<SongMetadata[]>(LOCAL_STORAGE_SONG_LIST_KEY, library)
-}
-
-/**
- * Song data is stored in localStorage in two places:
- * - Song Library: list of songs and their metadata
- * - Song Data: data keyed by id of the song's notes.
- *
- * This function creates entries in both.
- */
-export async function saveSong(file: File, title: string, artist: string): Promise<SongMetadata> {
-  const buffer = await fileToUint8(file)
-  const song = parseMidi(buffer.buffer)
-  const id = await sha1(buffer)
-  const uploadedSong: SongMetadata = {
-    id,
-    title,
-    artist,
-    duration: song.duration,
-    file: `uploads/${title}/${artist}`,
-    source: 'upload',
-    difficulty: 0,
-  }
-  const library = getUploadedLibrary()
-  if (library.find((s) => s.id === id)) {
-    throw new Error('Cannot upload the same song twice')
-  }
-  setUploadedLibrary(library.concat(uploadedSong))
-  Storage.set(id, song)
-  return uploadedSong
-}
-
-export function deleteSong(id: string) {
-  const songLibrary = getUploadedLibrary()
-  setUploadedLibrary(songLibrary.filter((s) => s.id !== id))
-  Storage.delete(id)
-}
-
-async function sha1(msgUint8: Uint8Array) {
-  const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8.buffer as ArrayBuffer)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 export function getPersistedSongSettings(file: string) {

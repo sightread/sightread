@@ -1,5 +1,5 @@
 import { Sizer } from '@/components'
-import { GitHub, Logo, Menu } from '@/icons'
+import { LucideGithub as GitHub, Logo, Menu } from '@/icons'
 import clsx from 'clsx'
 import { PropsWithChildren } from 'react'
 import { Link, useLocation } from 'react-router'
