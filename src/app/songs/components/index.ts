@@ -1,2 +1,2 @@
-export { default as UploadForm } from './UploadSong/UploadSongForm'
+export { default as FolderSelectorForm } from './FolderSelector/FolderSelectorForm'
 export { Table } from './Table'

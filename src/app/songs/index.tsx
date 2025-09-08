@@ -9,15 +9,15 @@ import { formatTime } from '@/utils'
 import clsx from 'clsx'
 import * as React from 'react'
 import { useState } from 'react'
-import { Table, UploadForm } from './components'
+import { Table, FolderSelectorForm } from './components'
 import { SearchBox } from './components/Table/SearchBox'
 
 type SongMetadataWithActions = SongMetadata & { actions?: React.ReactNode }
 
-// TODO: after an upload, scroll to the newly uploaded song / make it focused.
+// TODO: after adding a folder, scroll to the newly added songs / make them focused.
 export default function SelectSongPage() {
   let songs: SongMetadataWithActions[] = useSongManifest()
-  const [isUploadFormOpen, setUploadForm] = useState<boolean>(false)
+  const [isFolderSelectorOpen, setFolderSelectorOpen] = useState<boolean>(false)
   const [selectedSongId, setSelectedSongId] = useState<any>('')
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
@@ -25,23 +25,23 @@ export default function SelectSongPage() {
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (event.key === 'Escape') {
-      setUploadForm(false)
+      setFolderSelectorOpen(false)
     }
   })
 
   const handleAddNew = (e: any) => {
-    setUploadForm(true)
+    setFolderSelectorOpen(true)
     e.stopPropagation()
   }
 
   const handleCloseAddNew = () => {
-    setUploadForm(false)
+    setFolderSelectorOpen(false)
   }
 
   // Create the actions column and cell values
   songs = songs.map((s) => {
     let actions = <></>
-    if (s.source === 'upload') {
+    if (s.source === 'upload' || s.source === 'local') {
       actions = (
         <Dropdown
           target={
@@ -79,8 +79,8 @@ export default function SelectSongPage() {
           setSelectedSongId(null)
         }}
       />
-      <Modal show={isUploadFormOpen} onClose={handleCloseAddNew}>
-        <UploadForm onClose={handleCloseAddNew} />
+      <Modal show={isFolderSelectorOpen} onClose={handleCloseAddNew}>
+        <FolderSelectorForm onClose={handleCloseAddNew} />
       </Modal>
       <div className="bg-purple-lightest flex min-h-screen w-full flex-col">
         <AppBar />
@@ -100,7 +100,7 @@ export default function SelectSongPage() {
               onClick={handleAddNew}
             >
               <Plus width={20} height={20} />
-              <span>Add New</span>
+              <span>Add Folder</span>
             </button>
           </div>
           <Sizer height={32} />

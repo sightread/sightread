@@ -4,6 +4,7 @@ import { getKey } from '@/utils'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { deleteSong, getUploadedLibrary } from '../persist'
+import { getLocalSongs, removeLocalSong } from '../persist/folderAccess'
 
 const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSongManifest).map(
   (metadata) => {
@@ -13,7 +14,11 @@ const builtinMetadata: Array<[string, SongMetadata]> = Object.values(builtinSong
 )
 
 function getStorageMetadata(): Array<[string, SongMetadata]> {
-  return Object.values(getUploadedLibrary()).map((metadata) => {
+  const uploadedSongs = getUploadedLibrary()
+  const localSongs = getLocalSongs()
+  const allSongs = [...uploadedSongs, ...localSongs]
+  
+  return allSongs.map((metadata) => {
     const key = getKey(metadata.id, metadata.source)
     return [key, metadata as SongMetadata]
   })
@@ -63,7 +68,13 @@ export function useDeleteSong() {
   const refresh = useRefreshStorageMetadata()
   return useCallback(
     (id: string) => {
-      deleteSong(id) // assumes this exists
+      // First try to delete from uploaded songs
+      try {
+        deleteSong(id)
+      } catch {
+        // If not found in uploaded, try local songs
+        removeLocalSong(id)
+      }
       refresh()
     },
     [refresh],

@@ -11,7 +11,7 @@ export type DifficultyLabel =
   // "-" stands for Unknown
   | '-'
 
-export type SongSource = 'upload' | 'builtin' | 'generated' | 'base64'
+export type SongSource = 'upload' | 'builtin' | 'generated' | 'base64' | 'local'
 export type SongMetadata = {
   id: string
   file: string
@@ -22,6 +22,8 @@ export type SongMetadata = {
   source: SongSource
   url?: string
   license?: string
+  // For local files, store the relative path within the folder
+  localPath?: string
 }
 
 export interface Size {

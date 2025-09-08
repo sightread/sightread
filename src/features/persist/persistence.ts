@@ -3,6 +3,7 @@ import { fileToUint8 } from '@/utils'
 import { parseMidi } from '../parsers'
 import { LOCAL_STORAGE_SONG_LIST_KEY } from './constants'
 import Storage from './storage'
+import { getLocalSongs } from './folderAccess'
 
 export function hasUploadedSong(id: string): Song | null {
   return Storage.get<Song>(id)
@@ -70,4 +71,32 @@ export function getPersistedSongSettings(file: string) {
 
 export function setPersistedSongSettings(file: string, config: SongConfig) {
   return Storage.set(`${file}/settings`, config)
+}
+
+/**
+ * Get a local song by loading it from the file system using stored folder handles
+ */
+export async function getLocalSong(songMetadata: SongMetadata): Promise<Song | null> {
+  if (songMetadata.source !== 'local' || !songMetadata.localPath) {
+    return null
+  }
+
+  try {
+    // For now, we'll return null and implement file loading when the folder picker is used
+    // This will be enhanced when we have active folder handles
+    console.warn('Local song loading not yet implemented for:', songMetadata.title)
+    return null
+  } catch (error) {
+    console.error('Error loading local song:', error)
+    return null
+  }
+}
+
+/**
+ * Get all songs including both uploaded and local songs
+ */
+export function getAllSongs(): SongMetadata[] {
+  const uploadedSongs = getUploadedLibrary()
+  const localSongs = getLocalSongs()
+  return [...uploadedSongs, ...localSongs]
 }
