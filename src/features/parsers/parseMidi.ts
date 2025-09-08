@@ -70,5 +70,8 @@ export default function parseMidi(midiData: ArrayBufferLike): Song {
     timeSignature: { numerator: timeSignature[0], denominator: timeSignature[1] },
     keySignature,
     items: sort([...measures, ...notes]),
+    ppq: parsed.header.ppq,
+    secondsToTicks: (n) => parsed.header.secondsToTicks(n),
+    ticksToSeconds: (n) => parsed.header.ticksToSeconds(n),
   }
 }

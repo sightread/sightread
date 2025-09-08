@@ -1,7 +1,7 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { InstrumentName } from '@/features/synth'
+import { getSynthStub, InstrumentName } from '@/features/synth'
 import { MidiStateEvent, Song, SongConfig, SongMeasure, SongNote } from '@/types'
-import { getHands, isBrowser, round } from '@/utils'
+import { getHands, round } from '@/utils'
 import { atom, Atom, getDefaultStore, PrimitiveAtom, useStore } from 'jotai'
 import midi from '../midi'
 import { getSynth, Synth } from '../synth'
@@ -66,6 +66,13 @@ export class Player {
     const currSongBpm = get(this.song)?.bpms[get(this.currentBpmIndex)]?.bpm ?? 120
     return currSongBpm * get(this.bpmModifier)
   })
+
+  metronomeVolume = atom(0)
+  metronomeSpeed = atom(1)
+  metronomeEmphasizeFirst = atom(false)
+  metronomeLastPlayedTick: null | number = null
+  metronomeSynth = getSynthStub('woodblock')
+  metronomeAccentedSynth = getSynthStub('agogo')
 
   currentIndex: number = 0
   lastIntervalFiredTime = 0
@@ -420,6 +427,18 @@ export class Player {
     this.stopNotes(this.playing.filter((n) => !stillPlaying(n)))
     this.playing = this.playing.filter(stillPlaying)
 
+    // Play metronome sounds
+    const latestMetronomeTick = this.getLatestMetronomeTick(time)
+
+    if (this.metronomeLastPlayedTick !== latestMetronomeTick) {
+      this.metronomeLastPlayedTick = latestMetronomeTick
+
+      this.metronomeSynth.playNote(
+        this.isMetronomeTickAccented(latestMetronomeTick) ? 90 : 75,
+        this.store.get(this.metronomeVolume) * 127,
+      )
+    }
+
     // Update scoring details
     this.clearMissedNotes_()
     const heldNotes = this.playing.filter(
@@ -447,6 +466,32 @@ export class Player {
       }
       this.currentIndex++
     }
+  }
+
+  getLatestMetronomeTick(time: number) {
+    const song = this.getSong()
+    if (!song) {
+      return 0
+    }
+
+    const ticksPerBeat = song.ppq * (4 / (song.timeSignature?.denominator ?? 4))
+    const ticksPerMetronome = ticksPerBeat / this.store.get(this.metronomeSpeed)
+    const currentTick = song.secondsToTicks(time)
+
+    return Math.trunc(currentTick / ticksPerMetronome) * ticksPerMetronome
+  }
+
+  isMetronomeTickAccented(tick: number) {
+    const song = this.getSong()
+    if (!song) {
+      return false
+    }
+    const beatsPerMeasure = song.timeSignature?.numerator ?? 4
+    const ticksPerBeat = song.ppq * (4 / (song.timeSignature?.denominator ?? 4))
+
+    return (
+      this.store.get(this.metronomeEmphasizeFirst) && (tick / ticksPerBeat) % beatsPerMeasure === 0
+    )
   }
 
   toggle() {
@@ -527,9 +572,13 @@ export class Player {
     this.playing = song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
     })
-    song.notes.findIndex((note) => note.time >= this.currentSongTime)
     this.currentIndex = song.notes.findIndex((note) => note.time >= this.currentSongTime)
     this.store.set(this.currentBpmIndex, this.getBpmIndexForTime(time))
+
+    this.metronomeLastPlayedTick = this.getLatestMetronomeTick(time)
+    if (this.metronomeLastPlayedTick == song.secondsToTicks(time)) {
+      this.metronomeLastPlayedTick--
+    }
 
     this.missedNotes.clear()
     this.hitNotes.clear()
