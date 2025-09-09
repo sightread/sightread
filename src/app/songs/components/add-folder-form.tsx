@@ -6,6 +6,7 @@ import {
   localDirsAtom,
   localSongsAtom,
   removeFolder,
+  requiresPermissionAtom,
   scanFolders,
 } from '@/features/persist/persistence'
 import { useAtomValue } from 'jotai'
@@ -15,6 +16,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
   const isScanning = useAtomValue<boolean>(isScanningAtom)
   const folders = useAtomValue(localDirsAtom)
   const localSongs = useAtomValue(localSongsAtom)
+  const needsPermission = useAtomValue(requiresPermissionAtom)
 
   if (!isFileSystemAccessSupported()) {
     return (
@@ -26,7 +28,11 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
           <AlertCircle size={20} />
           <div>
             <p className="font-medium">Browser Not Supported</p>
-            <p className="text-sm">Your browser doesn't support the File System Access API.</p>
+            <p className="text-sm">
+              Syncing folders is only supported in Chromium-based browsers like Chrome and Edge due
+              to lack of support for the File System Access API. Please switch to a supported
+              browser.
+            </p>
           </div>
         </div>
 
@@ -69,8 +75,13 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
 
       {/* Folders List */}
       <div className="space-y-2">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex flex-col justify-between gap-1">
           <h3 className="text-sm font-medium text-gray-700">Folders ({folders.length})</h3>
+          {needsPermission && (
+            <p className="text-xs text-red-800">
+              Please rescan folders to grant access to your music files.
+            </p>
+          )}
         </div>
 
         {folders.length === 0 ? (
@@ -91,7 +102,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <Folder className="h-4 w-4 flex-shrink-0 text-gray-400" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-900">
+                      <p className={'truncate text-sm font-medium text-gray-900'}>
                         {folder.handle.name}
                       </p>
                       <div className="mt-1 flex items-center gap-1">
@@ -103,7 +114,10 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
                     </div>
                   </div>
                   <button
-                    onClick={() => removeFolder(folder.id)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      removeFolder(folder.id)
+                    }}
                     className="rounded p-1.5 text-gray-400 opacity-0 transition-colors group-hover:opacity-100 hover:bg-red-50 hover:text-red-500"
                     title="Remove folder"
                   >

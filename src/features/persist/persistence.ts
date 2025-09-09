@@ -12,6 +12,7 @@ interface LocalDir {
 }
 
 export const localDirsAtom = jotai.atom<LocalDir[]>([])
+export const requiresPermissionAtom = jotai.atom<boolean>(false)
 export const localSongsAtom = jotai.atom<Map<FileSystemDirectoryHandle, SongMetadata[]>>(new Map())
 
 const store = jotai.getDefaultStore()
@@ -23,13 +24,24 @@ async function initializeFromIdb() {
   try {
     const dirs: LocalDir[] = (await idb.get(storageKeys.OBSERVED_DIRECTORIES)) ?? []
     store.set(localDirsAtom, dirs)
+    const hasPermission = await Promise.all(dirs.map((dir) => checkPermission(dir.handle)))
+    if (!hasPermission.every((p) => p)) {
+      store.set(requiresPermissionAtom, true)
+      return
+    }
+    scanFolders()
   } catch (e) {
     console.error('persistence init failed', e)
   } finally {
     initialized = true
   }
-  scanFolders()
 }
+
+async function checkPermission(handle: FileSystemDirectoryHandle) {
+  const permission = await handle.queryPermission({ mode: 'read' })
+  return permission === 'granted'
+}
+
 initializeFromIdb()
 
 // Check if File System Access API is supported
@@ -80,6 +92,17 @@ export async function scanFolders() {
   try {
     let songs = new Map()
     const dirs = store.get(localDirsAtom)
+    if (store.get(requiresPermissionAtom)) {
+      for (const dir of dirs) {
+        console.log('Requesting permission for', dir.handle.name)
+        const didGrant = (await dir.handle.requestPermission({ mode: 'read' })) === 'granted'
+        if (!didGrant) {
+          console.warn('Permission not granted for', dir.handle.name)
+          return
+        }
+      }
+      store.set(requiresPermissionAtom, false)
+    }
     for (const dir of dirs) {
       const dirSongs = await scanFolder(dir)
       songs.set(dir.handle, dirSongs)
