@@ -16,7 +16,6 @@ export type SongMetadata = {
   id: string
   file: string
   title: string
-  artist: string
   difficulty: number
   duration: number
   source: SongSource

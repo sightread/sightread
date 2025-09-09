@@ -1,8 +1,7 @@
 [
   {
     "file": "music/songs/arabesques.mid",
-    "title": "Arabesques",
-    "artist": "Claude Debussy",
+    "title": "Arabesques - Claude Debussy",
     "source": "builtin",
     "id": "arabesques.mid",
     "duration": 212,
@@ -11,8 +10,7 @@
   },
   {
     "file": "music/songs/canon-in-d.mid",
-    "title": "Canon in D",
-    "artist": "Johann Pachelbel",
+    "title": "Canon in D - Johann Pachelbel",
     "source": "builtin",
     "id": "canon-in-d.mid",
     "duration": 127,
@@ -21,8 +19,7 @@
   },
   {
     "file": "music/songs/clair-de-lune.mid",
-    "title": "Clair de Lune",
-    "artist": "Claude Debussy",
+    "title": "Clair de Lune - Claude Debussy",
     "source": "builtin",
     "id": "clair-de-lune.mid",
     "duration": 212,
@@ -31,8 +28,7 @@
   },
   {
     "file": "music/songs/fur-elise.mid",
-    "title": "Fur Elise",
-    "artist": "Ludwig van Beethoven",
+    "title": "Fur Elise - Ludwig van Beethoven",
     "source": "builtin",
     "id": "fur-elise.mid",
     "duration": 148,
@@ -41,8 +37,7 @@
   },
   {
     "file": "music/songs/greensleeves.mid",
-    "title": "Greensleeves",
-    "artist": "Unknown",
+    "title": "Greensleeves - Unknown",
     "source": "builtin",
     "id": "greensleeves.mid",
     "duration": 73,
@@ -51,8 +46,7 @@
   },
   {
     "file": "music/songs/gymnopedie-no1.mid",
-    "title": "Gymnopédie No.1",
-    "artist": "Erik Satie",
+    "title": "Gymnopédie No.1 - Erik Satie",
     "source": "builtin",
     "id": "gymnopedie-no1.mid",
     "duration": 184,
@@ -61,8 +55,7 @@
   },
   {
     "file": "music/songs/in-the-hall-of-the-mountain-king.mid",
-    "title": "In the Hall of the Mountain King",
-    "artist": "Edvard Grieg",
+    "title": "In the Hall of the Mountain King - Edvard Grieg",
     "source": "builtin",
     "id": "in-the-hall-of-the-mountain-king.mid",
     "duration": 97,
@@ -71,8 +64,7 @@
   },
   {
     "file": "music/songs/la-cucaracha.mid",
-    "title": "La Cucaracha",
-    "artist": "Unknown",
+    "title": "La Cucaracha - Unknown",
     "source": "builtin",
     "id": "la-cucaracha.mid",
     "duration": 46,
@@ -81,8 +73,7 @@
   },
   {
     "file": "music/songs/march-in-d-major.mid",
-    "title": "March in D Major",
-    "artist": "Johann Sebastian Bach",
+    "title": "March in D Major - Johann Sebastian Bach",
     "source": "builtin",
     "id": "march-in-d-major.mid",
     "duration": 73,
@@ -91,8 +82,7 @@
   },
   {
     "file": "music/songs/minuet-in-g-major.mid",
-    "title": "Minuet in G Major",
-    "artist": "Christian Petzold",
+    "title": "Minuet in G Major - Christian Petzold",
     "source": "builtin",
     "id": "minuet-in-g-major.mid",
     "duration": 91,
@@ -101,8 +91,7 @@
   },
   {
     "file": "music/songs/moonlight-sonata.mid",
-    "title": "Moonlight Sonata",
-    "artist": "Ludwig van Beethoven",
+    "title": "Moonlight Sonata - Ludwig van Beethoven",
     "source": "builtin",
     "id": "moonlight-sonata.mid",
     "duration": 293,
@@ -111,8 +100,7 @@
   },
   {
     "file": "music/songs/ode-to-joy.mid",
-    "title": "Ode to Joy",
-    "artist": "Christian Petzold",
+    "title": "Ode to Joy - Christian Petzold",
     "source": "builtin",
     "id": "ode-to-joy.mid",
     "duration": 48,
@@ -121,8 +109,7 @@
   },
   {
     "file": "music/songs/sonata-no-11.mid",
-    "title": "Piano Sonata No. 11",
-    "artist": "Wolfgang Amadeus Mozart",
+    "title": "Piano Sonata No. 11 - Wolfgang Amadeus Mozart",
     "source": "builtin",
     "id": "sonata-no-11.mid",
     "duration": 53,
@@ -131,8 +118,7 @@
   },
   {
     "file": "music/songs/rondo-alla-turca.mid",
-    "title": "Rondo Alla Turca",
-    "artist": "Wolfgang Amadeus Mozart",
+    "title": "Rondo Alla Turca - Wolfgang Amadeus Mozart",
     "source": "builtin",
     "id": "rondo-alla-turca.mid",
     "duration": 232,
@@ -141,8 +127,7 @@
   },
   {
     "file": "music/songs/swan-lake.mid",
-    "title": "Swan Lake",
-    "artist": "Pyotr Ilyich Tchaikovsky",
+    "title": "Swan Lake - Pyotr Ilyich Tchaikovsky",
     "source": "builtin",
     "id": "swan-lake.mid",
     "duration": 49,
@@ -151,8 +136,7 @@
   },
   {
     "file": "music/songs/the-entertainer.mid",
-    "title": "The Entertainer",
-    "artist": "Scott Joplin",
+    "title": "The Entertainer - Scott Joplin",
     "source": "builtin",
     "id": "the-entertainer.mid",
     "duration": 71,

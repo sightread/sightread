@@ -152,7 +152,6 @@ async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
               id: dir.id + '/' + name,
               title,
               file: id,
-              artist: '', // Leave blank as specified
               source: 'local',
               difficulty: 0,
               duration,

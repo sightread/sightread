@@ -72,8 +72,7 @@ export default function SelectSongPage() {
           <Sizer height={32} />
           <Table
             columns={[
-              { label: 'Title', id: 'title', keep: true },
-              { label: 'Artist', id: 'artist', keep: true },
+              { label: 'Name', id: 'title', keep: true },
               {
                 label: 'Length',
                 id: 'duration',
@@ -82,7 +81,7 @@ export default function SelectSongPage() {
             ]}
             getId={(s: SongMetadata) => s.id}
             rows={songs}
-            filter={['title', 'artist']}
+            filter={['title']}
             onSelectRow={setSelectedSongId}
             search={search}
           />
