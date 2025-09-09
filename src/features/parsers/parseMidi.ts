@@ -40,26 +40,31 @@ export default function parseMidi(midiData: ArrayBufferLike): Song {
   const keySignature = parsed.header.keySignatures[0]?.key as KEY_SIGNATURE
 
   let measureIndex = 1
-  const measures: Array<SongMeasure> = parsed.header.timeSignatures.flatMap((ts, i, arr) => {
-    let startOfTempoTicks = parsed.header.ticksToSeconds(ts.ticks)
-    // Either end of song, or start of next timeSignature.
-    let endOfTempoTicks = arr[i + 1] !== undefined ? arr[i + 1].ticks : parsed.durationTicks
-    let startMeasure = parsed.header.ticksToMeasures(startOfTempoTicks)
-    let endMeasure = parsed.header.ticksToMeasures(endOfTempoTicks)
-    let measureCount = endMeasure - startMeasure
-    let secondsPerMeasure =
-      (parsed.header.ticksToSeconds(endOfTempoTicks) -
-        parsed.header.ticksToSeconds(startOfTempoTicks)) /
-      measureCount
+  const measures: Array<SongMeasure> = parsed.header.timeSignatures.flatMap(
+    (timeSignatureEvent, i, arr) => {
+      let startOfTempoTicks = timeSignatureEvent.ticks
+      // Either end of song, or start of next timeSignature.
+      let endOfTempoTicks = !!arr[i + 1] ? arr[i + 1].ticks : parsed.durationTicks
+      let ticksPerMeasure =
+        (timeSignatureEvent.timeSignature[0] / timeSignatureEvent.timeSignature[1]) *
+        (4 * parsed.header.ppq)
+      let startMeasure = parsed.header.ticksToMeasures(startOfTempoTicks)
+      let endMeasure = parsed.header.ticksToMeasures(endOfTempoTicks)
+      let measureCount = Math.ceil(endMeasure - startMeasure) // If the time signature lasts until the end of the song, it'll be fractional.
+      let secondsPerMeasure =
+        parsed.header.ticksToSeconds(startOfTempoTicks + ticksPerMeasure) -
+        parsed.header.ticksToSeconds(startOfTempoTicks)
 
-    const type = 'measure'
-    const duration = secondsPerMeasure
-    return Array.from({ length: measureCount }).map((_, i) => {
-      let number = measureIndex++
-      const time = startOfTempoTicks + duration * i
-      return { type, number, duration, time }
-    })
-  })
+      const type = 'measure'
+      const duration = secondsPerMeasure
+      return Array.from({ length: measureCount }).map((_, i) => {
+        let number = measureIndex++
+        const tick = startOfTempoTicks + i * ticksPerMeasure
+        const time = parsed.header.ticksToSeconds(tick)
+        return { type, number, duration, time }
+      })
+    },
+  )
 
   return {
     duration: parsed.duration,
