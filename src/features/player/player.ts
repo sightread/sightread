@@ -202,6 +202,7 @@ export class Player {
 
   async setSong(song: Song, songConfig: SongConfig) {
     this.stop()
+    this.resetMetronome()
     this.store.set(this.song, song)
     this.songHands = getHands(songConfig)
     this.store.set(this.state, 'CannotPlay')
@@ -556,6 +557,12 @@ export class Player {
     this.store.set(this.score.pointless, 0)
     this.store.set(this.score.durationHeld, 0)
     this.store.set(this.score.streak, 0)
+  }
+
+  resetMetronome() {
+    this.store.set(this.metronomeVolume, 0)
+    this.store.set(this.metronomeSpeed, 1)
+    this.store.set(this.metronomeEmphasizeFirst, false)
   }
 
   seek(time: number) {
