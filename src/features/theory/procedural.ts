@@ -271,6 +271,9 @@ export async function getGeneratedSong(
     keySignature: 'C',
     items: sort([...measures, ...notes]),
     backing: await backingTrackPromise,
+    ppq: 480, // Standard MIDI resolution
+    ticksToSeconds: (ticks: number) => ticks / 480 / 2, // Assuming 120 bpm
+    secondsToTicks: (seconds: number) => seconds * 480 * 2,
   }
 }
 
@@ -319,6 +322,9 @@ function getRandomSong(level: number, options: { bass: boolean; treble: boolean 
     timeSignature: { numerator: 4, denominator: 4 },
     keySignature: 'C',
     items: sort([...measures, ...notes]),
+    ppq: 480, // Standard MIDI resolution
+    ticksToSeconds: (ticks: number) => ticks / 480 / 2, // Assuming 120 bpm
+    secondsToTicks: (seconds: number) => seconds * 480 * 2,
   }
 }
 

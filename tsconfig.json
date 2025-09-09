@@ -2,7 +2,8 @@
   "compilerOptions": {
     "types": [
       "jest",
-      "vite/client"
+      "vite/client",
+      "@types/wicg-file-system-access"
     ],
     // Enable latest features
     "lib": [

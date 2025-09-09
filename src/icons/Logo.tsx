@@ -1,6 +1,6 @@
-import type { IconProps } from '@/icons'
+import type { LucideProps } from '@/icons'
 
-export default function Logo(props: IconProps) {
+export default function Logo(props: LucideProps) {
   const { width, height, className, style } = props
   return (
     <svg

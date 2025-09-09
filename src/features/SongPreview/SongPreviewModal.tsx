@@ -18,7 +18,7 @@ export default function SongPreviewModal({
   onClose = () => {},
   songMeta = undefined,
 }: ModalProps) {
-  const { title, artist, id, source } = songMeta ?? {}
+  const { title, id, source } = songMeta ?? {}
   const player = usePlayer()
   const playerState = usePlayerState()
 
@@ -44,8 +44,7 @@ export default function SongPreviewModal({
     <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
       <div className="flex flex-col gap-3 p-8">
         <div className="flex w-full flex-col whitespace-nowrap">
-          <span className="text-2xl font-semibold">{title}</span>
-          <span className="overflow-hidden text-base text-gray-500">{artist}</span>
+          <span className="text-xl font-semibold">{title}</span>
         </div>
         <div className="flex grow flex-col overflow-hidden rounded-md">
           <div className="relative">

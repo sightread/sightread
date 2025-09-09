@@ -1,6 +1,6 @@
-import { IconProps } from '@/icons'
+import { LucideProps } from '@/icons'
 
-export function StartRecord(props: IconProps) {
+export function StartRecord(props: LucideProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

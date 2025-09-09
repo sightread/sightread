@@ -2,7 +2,7 @@
 import { getSynthStub, InstrumentName } from '@/features/synth'
 import { MidiStateEvent, Song, SongConfig, SongMeasure, SongNote } from '@/types'
 import { getHands, round } from '@/utils'
-import { atom, Atom, getDefaultStore, PrimitiveAtom, useStore } from 'jotai'
+import { atom, Atom, getDefaultStore, PrimitiveAtom } from 'jotai'
 import midi from '../midi'
 import { getSynth, Synth } from '../synth'
 import { getAudioContext } from '../synth/utils'

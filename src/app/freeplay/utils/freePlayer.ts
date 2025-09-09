@@ -20,6 +20,9 @@ export default class FreePlayer {
       duration: 0,
       items: [],
       keySignature: 'C',
+      ppq: 480,
+      ticksToSeconds: (ticks: number) => ticks / 480 / 2, // Assuming 120 bpm
+      secondsToTicks: (seconds: number) => seconds * 480 * 2,
     }
     this.song.items = this.song.notes // Hack
     if (isBrowser()) {

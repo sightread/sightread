@@ -1,6 +1,6 @@
-import type { IconProps } from '@/icons'
+import type { LucideProps } from '@/icons'
 
-function LeftHand({ width, height, style, className, onClick, fill }: IconProps) {
+function LeftHand({ width, height, style, className, onClick, fill }: LucideProps) {
   return (
     <svg
       width={width}

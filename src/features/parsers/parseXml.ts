@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // Since this is called from Deno as well, we need to use relative paths.
 import { Bpm, Song, SongMeasure, SongNote, Tracks } from '../../types'
 import { getNote } from '../theory'

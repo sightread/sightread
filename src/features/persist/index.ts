@@ -1,9 +1,9 @@
 export { usePersistedState } from './hooks'
 export {
-  getUploadedLibrary,
-  getUploadedSong,
   getPersistedSongSettings,
-  saveSong,
   setPersistedSongSettings,
-  deleteSong,
+  addFolder,
+  removeFolder,
+  localDirsAtom,
+  localSongsAtom,
 } from './persistence'
