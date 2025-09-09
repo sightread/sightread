@@ -1,6 +1,6 @@
-import { IconProps } from '@/icons'
+import { LucideProps } from '@/icons'
 
-export function StopRecord(props: IconProps) {
+export function StopRecord(props: LucideProps) {
   return (
     <svg width={props.size} height={props.size} viewBox="0 0 27 27" {...props}>
       <rect x="3" y="3" width="21" height="21" className="hover:fill-purple-hover fill-red-500" />

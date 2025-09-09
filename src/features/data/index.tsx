@@ -1,10 +1,10 @@
 import { parseMidi } from '@/features/parsers'
-import { getUploadedSong } from '@/features/persist'
 import { Song, SongSource } from '@/types'
 import useSWR, { type SWRResponse } from 'swr'
+import { getSongHandle } from '../persist/persistence'
 
-function handleSong(response: Response): Promise<Song> {
-  return response.arrayBuffer().then(parseMidi)
+async function handleSong(response: Response): Promise<Song> {
+  return response.arrayBuffer().then((buf) => parseMidi(buf))
 }
 
 function getBuiltinSongUrl(id: string) {
@@ -16,16 +16,17 @@ function getBase64Song(data: string): Song {
   return parseMidi(binaryMidi.buffer)
 }
 
-function fetchSong(id: string, source: SongSource): Promise<Song> {
+async function fetchSong(id: string, source: SongSource): Promise<Song> {
   if (source === 'builtin') {
     const url = getBuiltinSongUrl(id)
     return fetch(url).then(handleSong)
   } else if (source === 'base64') {
-    return Promise.resolve(getBase64Song(id))
-  } else if (source === 'upload') {
-    return Promise.resolve(getUploadedSong(id)).then((res) =>
-      res === null ? Promise.reject(new Error('Could not find song')) : res,
-    )
+    return getBase64Song(id)
+  } else if (source === 'local') {
+    return getSongHandle(id)
+      .then((handle) => handle?.getFile())
+      .then((file) => file?.arrayBuffer())
+      .then((buffer) => parseMidi(buffer!))
   }
 
   return Promise.reject(new Error(`Could not get song for ${id}, ${source}`))

@@ -9,8 +9,8 @@ A free and open-source webapp for learning to play Piano. Play music without nee
 To start the app
 
 ```
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 ## Testing
@@ -20,5 +20,5 @@ We use bun for testing
 > To install, follow https://bun.sh/docs/installation
 
 ```
-npm run test
+bun run test
 ```

@@ -3,13 +3,12 @@ import { Player, usePlayer } from '@/features/player'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { useOnUnmount } from '@/hooks'
-import { LeftHand, Play, RightHand, Volume2, VolumeX } from '@/icons'
+import { LeftHand, Pause, Play, RefreshCcw, RightHand, Volume2, VolumeX } from '@/icons'
 import { Song, SongConfig, TrackSetting } from '@/types'
 import { formatInstrumentName } from '@/utils'
 import clsx from 'clsx'
 import { getDefaultStore, useAtomValue } from 'jotai'
 import React, { useState } from 'react'
-import { Pause, RefreshCcw } from 'react-feather'
 
 type InstrumentSettingsProps = {
   config: SongConfig
