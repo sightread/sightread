@@ -11,6 +11,13 @@ interface LocalDir {
   handle: FileSystemDirectoryHandle
 }
 
+// Clean up deprecated localStorage keys
+if (globalThis.localStorage?.length > 0) {
+  for (const key of storageKeys.DEPRECATED_LOCAL_STORAGE_KEYS) {
+    localStorage.removeItem(key)
+  }
+}
+
 export const localDirsAtom = jotai.atom<LocalDir[]>([])
 export const requiresPermissionAtom = jotai.atom<boolean>(false)
 export const localSongsAtom = jotai.atom<Map<FileSystemDirectoryHandle, SongMetadata[]>>(new Map())
@@ -94,7 +101,6 @@ export async function scanFolders() {
     const dirs = store.get(localDirsAtom)
     if (store.get(requiresPermissionAtom)) {
       for (const dir of dirs) {
-        console.log('Requesting permission for', dir.handle.name)
         const didGrant = (await dir.handle.requestPermission({ mode: 'read' })) === 'granted'
         if (!didGrant) {
           console.warn('Permission not granted for', dir.handle.name)
