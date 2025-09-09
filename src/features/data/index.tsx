@@ -4,7 +4,7 @@ import useSWR, { type SWRResponse } from 'swr'
 import { getSongHandle } from '../persist/persistence'
 
 async function handleSong(response: Response): Promise<Song> {
-  return response.arrayBuffer().then((buf) => parseMidi(buf, true))
+  return response.arrayBuffer().then((buf) => parseMidi(buf))
 }
 
 function getBuiltinSongUrl(id: string) {
