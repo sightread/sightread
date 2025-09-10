@@ -4,7 +4,7 @@ import { useSize } from '@/hooks'
 import { Hand, Song, SongConfig } from '@/types'
 import { LegacyRef, useEffect, useMemo, useRef } from 'react'
 import { usePlayer } from '../player'
-import { GivenState, render } from './canvasRenderer'
+import { GivenState, render } from './canvas-renderer'
 import { waitForImages } from './images'
 import { PIXELS_PER_SECOND as pps } from './utils'
 

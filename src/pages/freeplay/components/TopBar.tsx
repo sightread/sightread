@@ -1,7 +1,7 @@
-import { ButtonWithTooltip } from '@/app/play/components/TopBar'
 import { Select } from '@/components'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { ArrowLeft, Midi, StartRecord, StopRecord } from '@/icons'
+import { ButtonWithTooltip } from '@/pages/play/components/TopBar'
 import { formatInstrumentName } from '@/utils'
 import React, { MouseEvent } from 'react'
 import { Link } from 'react-router'

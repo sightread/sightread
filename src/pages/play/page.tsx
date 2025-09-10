@@ -16,16 +16,12 @@ import {
 import { MidiStateEvent, SongSource } from '@/types'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
-import React, { Suspense, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { SettingsPanel, TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
 
-// This function exists as hack to stop the CSR deopt warning.
-// To do this the "next app router" way would require boxing up the bits
-// that depend on search params in a Suspense boundary.
-// See https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
-function PlaySongLegacy() {
+export default function PlaySongPage() {
   const [searchParams, _setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const player = usePlayer()
@@ -198,13 +194,5 @@ function PlaySongLegacy() {
         </div>
       </div>
     </>
-  )
-}
-
-export default function PlayPage() {
-  return (
-    <Suspense>
-      <PlaySongLegacy />
-    </Suspense>
   )
 }

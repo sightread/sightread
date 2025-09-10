@@ -4,7 +4,7 @@ import { Hand, Song, SongConfig, SongMeasure, SongNote, Track, TrackSetting } fr
 import { clamp, mapValues } from '@/utils'
 import { parserInferHands } from '../parsers'
 import { isBlack } from '../theory'
-import { GivenState } from './canvasRenderer'
+import { GivenState } from './canvas-renderer'
 
 // TODO: Precompute and cache optimal font sizes and widths for the small, fixed set of note‐label strings (e.g. “A”–“G” or “Do”–“Ti”) outside of the per‐note render loop.
 //  - Build a tiny lookup (label → { fontPx, measuredWidth }), with a cache-bust on window size

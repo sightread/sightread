@@ -9,7 +9,7 @@ import clsx from 'clsx'
 import * as React from 'react'
 import { useState } from 'react'
 import { Table } from './components'
-import ManageFoldersForm from './components/add-folder-form'
+import ManageFoldersForm from './components/AddFolderForm'
 import { SearchBox } from './components/Table/SearchBox'
 
 // TODO: after an upload, scroll to the newly uploaded song / make it focused.

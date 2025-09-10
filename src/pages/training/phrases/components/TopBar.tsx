@@ -1,8 +1,8 @@
-import { ButtonWithTooltip } from '@/app/play/components/TopBar'
 import { VolumeSliderButton } from '@/features/controls'
 import { ArrowLeft, Midi } from '@/icons'
+import { ButtonWithTooltip } from '@/pages/play/components/TopBar'
 import { isMobile } from '@/utils'
-import React, { MouseEvent } from 'react'
+import { MouseEvent } from 'react'
 import { Link } from 'react-router'
 
 type TopBarProps = {

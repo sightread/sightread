@@ -4,21 +4,4 @@ A free and open-source webapp for learning to play Piano. Play music without nee
 
 <img alt="app screenshot" src="./public/images/mode_sheet_hero_readme.png" style="max-width: 100%"/>
 
-## Contributing
-
-To start the app
-
-```
-bun install
-bun run dev
-```
-
-## Testing
-
-We use bun for testing
-
-> To install, follow https://bun.sh/docs/installation
-
-```
-bun run test
-```
+Please read `CONTRIBUTING.md` if you'd like to contribute.

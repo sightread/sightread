@@ -21,7 +21,7 @@ import {
 import midiState from '../midi'
 import { isHitNote, isMissedNote } from '../player'
 import { getFixedDoNoteFromKey, getKey, getKeyDetails, getNote, glyphs } from '../theory'
-import { GivenState } from './canvasRenderer'
+import { GivenState } from './canvas-renderer'
 import { CanvasItem, getItemsInView, Viewport } from './utils'
 
 const TEXT_FONT = 'Arial'

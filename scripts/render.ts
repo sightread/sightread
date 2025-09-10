@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { PassThrough } from 'stream'
 import { parseMidi, parserInferHands } from '@/features/parsers'
-import { render } from '@/features/SongVisualization/canvasRenderer'
+import { render } from '@/features/SongVisualization/canvas-renderer'
 import { ImageLoader, setImageLoader, waitForImages } from '@/features/SongVisualization/images'
 import { PIXELS_PER_SECOND as pps } from '@/features/SongVisualization/utils'
 import type { Song } from '@/types'

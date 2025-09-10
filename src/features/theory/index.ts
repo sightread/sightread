@@ -1,4 +1,4 @@
-export * from './keySignature'
+export * from './key-signature'
 export { default as glyphs } from './glyphs'
 
 const blackIndices = new Set([1, 3, 6, 8, 10])
