@@ -1,10 +1,10 @@
-import { Toggle } from '@/components'
+import { Select, Switch } from '@/components'
+import { SelectItem } from '@/components/Select'
 import { AdjustInstruments } from '@/features/controls'
 import { getKeySignatures, KEY_SIGNATURE, NOTE_LABELS } from '@/features/theory'
-import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import clsx from 'clsx'
-import React, { PropsWithChildren, useCallback, useRef, useState } from 'react'
+import { PropsWithChildren, useState } from 'react'
 import BpmDisplay from './BpmDisplay'
 import Metronome from './Metronome'
 
@@ -15,6 +15,8 @@ type SidebarProps = {
   onClose?: () => void
   isLooping: boolean
   onLoopToggled: (b: boolean) => void
+  panelProps: any
+  panelRef: any
 }
 
 export default function SettingsPanel(props: SidebarProps) {
@@ -22,16 +24,6 @@ export default function SettingsPanel(props: SidebarProps) {
     props.config
   const { onClose, onLoopToggled, isLooping } = props
   const [showTrackConfig, setShowTrackConfig] = useState(false)
-
-  const sidebarRef = useRef<HTMLDivElement>(null)
-
-  const clickedOutsideHandler = useCallback(() => onClose?.(), [onClose])
-  useWhenClickedOutside(clickedOutsideHandler, sidebarRef)
-  useEventListener<KeyboardEvent>('keydown', (e) => {
-    if (e.key === 'Escape') {
-      onClose?.()
-    }
-  })
 
   const handleHand = (selected: 'left' | 'right') => {
     if (selected === 'left') {
@@ -61,7 +53,8 @@ export default function SettingsPanel(props: SidebarProps) {
   return (
     <div
       className="relative flex max-h-[calc(100vh-300px)] w-full flex-col gap-4 overflow-auto bg-gray-100 p-4 sm:flex-row"
-      ref={sidebarRef}
+      {...props.panelProps}
+      ref={props.panelRef}
     >
       <h3 className="text-purple-primary text-center text-2xl">Settings</h3>
       <div className="mx-20 flex grow flex-col flex-wrap items-stretch gap-4 whitespace-nowrap sm:mx-0 sm:flex-row">
@@ -73,12 +66,14 @@ export default function SettingsPanel(props: SidebarProps) {
         </Section>
         <Section title="Hands" className="flex grow flex-col">
           <div className="flex justify-center gap-2">
-            <span className="w-10">Left</span>
-            <Toggle className="self-center" checked={left} onChange={() => handleHand('left')} />
+            <Switch className="self-center" isSelected={left} onChange={() => handleHand('left')}>
+              <span className="w-10">Left</span>
+            </Switch>
           </div>
           <div className="flex justify-center gap-2">
-            <span className="w-10">Right</span>
-            <Toggle checked={right} onChange={() => handleHand('right')} />
+            <Switch isSelected={right} onChange={() => handleHand('right')}>
+              <span className="w-10">Right</span>
+            </Switch>
           </div>
         </Section>
         <Section title="Visualization" className="grow">
@@ -105,35 +100,33 @@ export default function SettingsPanel(props: SidebarProps) {
         <div className="flex grow flex-col gap-4 sm:flex-row">
           <Section title="Additional settings" className="grow justify-center">
             <div className="flex justify-center">
-              <span className="min-w-[18ch]">Wait mode</span>
-              <div className="flex w-[120px]">
-                <Toggle checked={waiting} onChange={handleWaiting} />
+              <div className="w-[120px]">
+                <span className="min-w-[18ch]">Wait mode</span>
+                <Switch
+                  aria-labelledby="wait-modd-label"
+                  isSelected={waiting}
+                  onChange={handleWaiting}
+                  className={'flex w-full justify-between'}
+                ></Switch>
               </div>
             </div>
             <div className="flex justify-center">
-              <span className="min-w-[18ch]">Colored notes</span>
-              <div className="flex w-[120px]">
-                <Toggle checked={coloredNotes} onChange={handleColoredNotes} />
-              </div>
+              <Switch isSelected={coloredNotes} onChange={handleColoredNotes}>
+                <span className="min-w-[18ch]">Colored notes</span>
+              </Switch>
             </div>
             <div className="flex justify-center">
               <span className="min-w-[18ch]">Note Labels</span>
-              <select
+              <Select
                 name="noteLabels"
-                className="w-[120px] border bg-white"
-                value={noteLabels}
-                onChange={(e) => handleNoteLabels(e.target.value as NOTE_LABELS)}
+                className="h-[28px] w-[120px]"
+                selectedKey={noteLabels}
+                onSelectionChange={(val) => handleNoteLabels(val as NOTE_LABELS)}
               >
-                <option key={`id-none`} value="none">
-                  None
-                </option>
-                <option key={`id-alphabetical`} value={'alphabetical'}>
-                  Alphabetical
-                </option>
-                <option key={`id-fixed-do`} value={'fixed-do'}>
-                  Fixed-Do
-                </option>
-              </select>
+                <SelectItem id="none">None</SelectItem>
+                <SelectItem id="alphabetical">Alphabetical</SelectItem>
+                <SelectItem id="fixed-do">Fixed Do</SelectItem>
+              </Select>
             </div>
             <div className="flex justify-center">
               <span className="min-w-[18ch]">Key signature</span>
@@ -158,7 +151,9 @@ export default function SettingsPanel(props: SidebarProps) {
           <div className="flex grow flex-col justify-between gap-4">
             <Section title="Practice loop">
               <div className="flex justify-center">
-                <Toggle checked={isLooping} onChange={onLoopToggled} />
+                <Switch isSelected={isLooping} onChange={onLoopToggled}>
+                  {''}
+                </Switch>
               </div>
             </Section>
             <Section

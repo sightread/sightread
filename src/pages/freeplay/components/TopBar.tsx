@@ -1,4 +1,4 @@
-import { Select } from '@/components'
+import { ComboBox, ComboBoxItem } from '@/components/ComboBox'
 import { gmInstruments, InstrumentName } from '@/features/synth'
 import { ArrowLeft, Midi, StartRecord, StopRecord } from '@/icons'
 import { ButtonWithTooltip } from '@/pages/play/components/TopBar'
@@ -40,16 +40,26 @@ export default function TopBar({
       <ButtonWithTooltip tooltip="Choose a MIDI device" onClick={onClickMidi}>
         <Midi size={24} />
       </ButtonWithTooltip>
-      <Select
-        className="h-3/4 max-w-fit text-base text-black"
-        loading={isLoading}
-        error={isError}
-        value={value}
-        onChange={onChange}
-        options={gmInstruments as any}
-        format={formatInstrumentName as any}
-        display={formatInstrumentName as any}
-      />
+      <SelectInstrument isLoading={isLoading} isError={isError} value={value} onChange={onChange} />
     </div>
+  )
+}
+
+function SelectInstrument(props: any) {
+  return (
+    <ComboBox
+      className="h-3/4 max-w-fit text-base text-black"
+      isLoading={props.isLoading}
+      errorMessage={props.isError ? 'Error loading instruments' : undefined}
+      selectedKey={props.value}
+      onSelectionChange={props.onChange as any}
+      items={gmInstruments.map((instrument) => ({
+        id: instrument,
+        name: formatInstrumentName(instrument),
+      }))}
+      aria-label="Select instrument"
+    >
+      {(item) => <ComboBoxItem>{item.name}</ComboBoxItem>}
+    </ComboBox>
   )
 }

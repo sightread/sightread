@@ -1,4 +1,5 @@
-import { Select } from '@/components'
+import { ComboBox } from '@/components/ComboBox'
+import { SelectItem } from '@/components/Select'
 import { Player, usePlayer } from '@/features/player'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils.ts'
 import { gmInstruments, InstrumentName } from '@/features/synth'
@@ -192,15 +193,19 @@ function InstrumentSelect({
   onSelect: (val: any) => void
 }) {
   return (
-    <Select
-      error={error}
-      loading={loading}
-      value={value}
-      onChange={onSelect}
-      options={gmInstruments as any}
-      format={formatInstrumentName as any}
-      display={formatInstrumentName as any}
-    />
+    <ComboBox
+      errorMessage={error ? 'Error loading instruments' : undefined}
+      isLoading={loading}
+      selectedKey={value}
+      onSelectionChange={onSelect}
+      items={gmInstruments.map((instrument) => ({
+        id: instrument,
+        name: formatInstrumentName(instrument),
+      }))}
+      aria-label="Select instrument"
+    >
+      {(item) => <SelectItem>{item.name}</SelectItem>}
+    </ComboBox>
   )
 }
 

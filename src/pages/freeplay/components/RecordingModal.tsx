@@ -54,7 +54,7 @@ export default function SongPreviewModal({
   }
 
   return (
-    <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
+    <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100vw,600px)]">
       <div className="flex flex-col gap-3 p-8">
         <div className="flex w-full flex-col whitespace-nowrap">
           <span className="text-2xl font-semibold">Preview your recording</span>

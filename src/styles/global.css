@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@plugin "tailwindcss-react-aria-components";
+@plugin "tailwindcss-animate";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 :root {
   --sightread-font-family:

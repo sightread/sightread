@@ -3,6 +3,7 @@ import { useEventListener, usePlayerState } from '@/hooks'
 import { SongMetadata } from '@/types'
 import * as React from 'react'
 import { createSearchParams, Link } from 'react-router'
+import { Heading } from 'react-aria-components'
 import { SongScrubBar } from '../controls'
 import { usePlayer } from '../player'
 import PreviewIcon from './PreviewIcon'
@@ -15,7 +16,7 @@ type ModalProps = {
 }
 export default function SongPreviewModal({
   show = true,
-  onClose = () => {},
+  onClose = () => { },
   songMeta = undefined,
 }: ModalProps) {
   const { title, id, source } = songMeta ?? {}
@@ -43,11 +44,9 @@ export default function SongPreviewModal({
   const playSongSearch = createSearchParams({ id, source }).toString()
 
   return (
-    <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
-      <div className="flex flex-col gap-3 p-8">
-        <div className="flex w-full flex-col whitespace-nowrap">
-          <span className="text-xl font-semibold">{title}</span>
-        </div>
+    <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100vw,600px)]">
+      <div className="flex flex-col gap-3">
+        <Heading className="truncate text-xl font-semibold whitespace-nowrap">{title}</Heading>
         <div className="flex grow flex-col overflow-hidden rounded-md">
           <div className="relative">
             <div className="pointer-events-none absolute z-20 h-full w-full rounded-md" />
@@ -77,7 +76,7 @@ export default function SongPreviewModal({
           <Sizer height={16} />
           <Link
             to={{ pathname: '/play', search: `?${playSongSearch}` }}
-            className="bg-purple-primary hover:bg-purple-hover flex h-10 w-full items-center justify-center rounded-md border-none text-xl text-white transition"
+            className="flex h-10 w-full items-center justify-center rounded-md border-none bg-violet-600 text-xl text-white transition hover:bg-violet-500 active:bg-violet-700"
           >
             Play Now
           </Link>

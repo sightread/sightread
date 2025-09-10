@@ -46,7 +46,7 @@ export default function SelectSongPage() {
           setSelectedSongId(null)
         }}
       />
-      <Modal show={isUploadFormOpen} onClose={handleCloseAddNew}>
+      <Modal show={isUploadFormOpen} onClose={handleCloseAddNew} className="w-[min(100vw,500px)]">
         <ManageFoldersForm onClose={handleCloseAddNew} />
       </Modal>
       <div className="bg-purple-lightest flex min-h-screen w-full flex-col">
@@ -64,14 +64,14 @@ export default function SelectSongPage() {
             />
             <button
               className={clsx(
-                'hidden flex-nowrap whitespace-nowrap sm:flex',
+                'hidden cursor-pointer flex-nowrap whitespace-nowrap sm:flex',
                 'items-center gap-1 rounded-md px-4 py-2',
-                'bg-purple-dark hover:bg-purple-hover text-white transition',
+                'bg-violet-600 text-white transition hover:bg-violet-500 active:bg-violet-700',
               )}
               onClick={handleAddNew}
             >
               <Plus width={20} height={20} />
-              <span>Manage Folders</span>
+              Manage Folders
             </button>
           </div>
           <Sizer height={32} />

@@ -1,9 +1,11 @@
-import { Tooltip } from '@/components'
+import { Popover, Tooltip } from '@/components'
 import { VolumeSliderButton } from '@/features/controls'
 import { ArrowLeft, BarChart2, Midi, Settings, SkipBack } from '@/icons'
 import { isMobile } from '@/utils'
 import clsx from 'clsx'
 import React, { MouseEvent, PropsWithChildren } from 'react'
+import { Dialog, DialogTrigger, Pressable, TooltipTrigger } from 'react-aria-components'
+import SettingsPanel from './SettingsPanel'
 import StatusIcon from './StatusIcon'
 
 type TopBarProps = {
@@ -11,27 +13,25 @@ type TopBarProps = {
   isPlaying: boolean
   title?: string
   onTogglePlaying: () => void
-  onClickSettings: (e: MouseEvent<any>) => void
   onClickBack: () => void
   onClickRestart: () => void
   onClickMidi: (e: MouseEvent<any>) => void
   onClickStats: (e: MouseEvent<any>) => void
-  settingsOpen: boolean
   statsVisible: boolean
+  settingsProps: any
 }
 
 export default function TopBar({
   isPlaying,
   isLoading,
   onTogglePlaying,
-  onClickSettings,
   onClickBack,
   onClickRestart,
-  settingsOpen,
   title,
   onClickMidi,
-  onClickStats,
+  settingsProps,
   statsVisible,
+  onClickStats,
 }: TopBarProps) {
   return (
     <div className="align-center relative z-10 flex h-[50px] min-h-[50px] w-screen justify-center gap-8 bg-[#292929] px-1">
@@ -54,9 +54,16 @@ export default function TopBar({
         <ButtonWithTooltip tooltip="Choose a MIDI device">
           <Midi size={24} onClick={onClickMidi} />
         </ButtonWithTooltip>
-        <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
-          <Settings size={24} onClick={onClickSettings} />
-        </ButtonWithTooltip>
+        <DialogTrigger>
+          <ButtonWithTooltip tooltip="Settings">
+            <Settings size={24} />
+          </ButtonWithTooltip>
+          <Popover containerPadding={0} className={'w-screen border-0'}>
+            <Dialog>
+              <SettingsPanel {...settingsProps} />
+            </Dialog>
+          </Popover>
+        </DialogTrigger>
         {!isMobile() && <VolumeSliderButton />}
         {
           <ButtonWithTooltip tooltip={statsVisible ? 'Hide Stats' : 'Show Stats'}>
@@ -88,17 +95,21 @@ export function ButtonWithTooltip({
   ...rest
 }: ButtonWithTooltipProps) {
   return (
-    <Tooltip label={tooltip}>
-      <button
-        {...rest}
-        className={clsx(
-          className,
-          isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
-          'hover:fill-purple-hover hover:text-purple-hover',
-        )}
-      >
-        {children}
-      </button>
-    </Tooltip>
+    <TooltipTrigger delay={0}>
+      <Pressable>
+        <button
+          {...rest}
+          role="button"
+          className={clsx(
+            className,
+            isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
+            'hover:fill-purple-hover hover:text-purple-hover',
+          )}
+        >
+          {children}
+        </button>
+      </Pressable>
+      <Tooltip> {tooltip} </Tooltip>
+    </TooltipTrigger>
   )
 }

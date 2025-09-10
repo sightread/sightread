@@ -1,4 +1,5 @@
 import { Select, Sizer } from '@/components'
+import { SelectItem } from '@/components/Select.tsx'
 import midiState from '@/features/midi'
 import { usePlayer } from '@/features/player'
 import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
@@ -19,7 +20,7 @@ import { playFailSound } from '../sound-effects'
 import TopBar from './components/TopBar.tsx'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
-type Level = 0 | 1 | 2 | 3
+type Level = '0' | '1' | '2' | '3'
 export type GeneratedSongSettings = SongConfig & { generator: Generator }
 
 function useGeneratedSong(
@@ -56,7 +57,7 @@ export default function Phrases() {
   const generatorType = searchParamsObj.generator as Generator
   const [song, forceNewSong] = useGeneratedSong(
     generatorType,
-    +searchParamsObj.level as Level,
+    searchParamsObj.level as Level,
     clefType,
   )
 
@@ -131,39 +132,40 @@ export default function Phrases() {
           </div>
           <Select
             className="max-w-fit"
-            options={['random', 'eMinor', 'dMajor']}
-            value={generatorType}
-            onChange={(generator) => setSearchParams({ ...searchParamsObj, generator })}
-            display={(v) =>
-              ({
-                random: 'Random',
-                eMinor: 'Irish Folk in E Minor',
-                dMajor: 'Irish Folk in D Major',
-              })[v]
+            selectedKey={generatorType}
+            onSelectionChange={(generator: any) =>
+              setSearchParams({ ...searchParamsObj, generator: generator! })
             }
-            format={(v) =>
-              ({
-                random: 'Random',
-                eMinor: 'Irish Folk in E Minor',
-                dMajor: 'Irish Folk in D Major',
-              })[v]
-            }
-          />
+            items={[
+              { id: 'random', name: 'Random' },
+              { id: 'eMinor', name: 'Irish Folk in E Minor' },
+              { id: 'dMajor', name: 'Irish Folk in D Major' },
+            ]}
+          >
+            {(item) => <SelectItem>{item.name}</SelectItem>}
+          </Select>
           <Select
             className="max-w-fit"
-            options={['0', '1', '2', '3']}
-            value={searchParamsObj.level}
-            onChange={(level) => setSearchParams({ ...searchParams, level })}
-            display={(lvl) => `Level: ${lvl}`}
-          />
+            selectedKey={searchParamsObj.level}
+            onSelectionChange={(level: any) => {
+              console.log('HELLOO')
+              console.log(level, typeof level)
+              setSearchParams({ ...searchParams, level })
+            }}
+            label={'Level'}
+            items={['0', '1', '2', '3'].map((lvl) => ({ id: lvl, name: lvl }))}
+          >
+            {(item) => <SelectItem>{item.name}</SelectItem>}
+          </Select>
           <Select
             className="max-w-fit"
-            options={['treble', 'bass', 'grand']}
-            value={clefType}
-            onChange={(clef) => setSearchParams({ ...searchParams, clef })}
-            display={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' })[v]}
-            format={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' })[v]}
-          />
+            selectedKey={clefType}
+            onSelectionChange={(clef: any) => setSearchParams({ ...searchParams, clef })}
+          >
+            <SelectItem id="treble">Treble</SelectItem>
+            <SelectItem id="bass">Bass</SelectItem>
+            <SelectItem id="grabd">Grand</SelectItem>
+          </Select>
         </div>
         <Sizer height={24} />
         <div className="flex h-[100px] w-full items-center justify-center gap-8">
