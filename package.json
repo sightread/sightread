@@ -28,7 +28,7 @@
     "swr": "2.3.6",
     "tailwindcss": "4.1.13",
     "typescript": "5.9.2",
-    "vite": "7.1.4",
+    "vite": "npm:rolldown-vite@latest",
     "vite-plugin-devtools-json": "1.0.0",
     "vite-tsconfig-paths": "5.1.4"
   },
