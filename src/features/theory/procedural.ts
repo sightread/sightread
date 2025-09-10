@@ -1,7 +1,7 @@
 import { Clef, Song, SongMeasure, SongNote } from '@/types'
 import { Deferred } from '@/utils'
 import { parseMidi } from '../parsers'
-import { getRandomNote } from './keySignature'
+import { getRandomNote } from './key-signature'
 
 const dMajorChordProgression: Chord[] = [
   // First act

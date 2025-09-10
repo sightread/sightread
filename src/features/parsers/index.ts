@@ -1,3 +1,3 @@
-export { default as parseMidi } from './parseMidi'
-export { default as parseMusicXml } from './parseXml'
+export { default as parseMidi } from './parse-midi'
+export { default as parseMusicXml } from './parse-xml'
 export { isPiano, parserInferHands, getPitch } from './utils'

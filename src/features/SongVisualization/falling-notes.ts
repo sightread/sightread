@@ -11,7 +11,7 @@ import type { SongMeasure, SongNote } from '@/types'
 import { clamp } from '@/utils'
 import midiState from '../midi'
 import { getRelativePointerCoordinates } from '../pointer'
-import { GivenState } from './canvasRenderer'
+import { GivenState } from './canvas-renderer'
 import {
   CanvasItem,
   getFontSize,
