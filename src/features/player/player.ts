@@ -1,5 +1,5 @@
 // TODO: handle when users don't have an AudioContext supporting browser
-import { getSynthStub, InstrumentName } from '@/features/synth'
+import { getSynthStub, getMetronomeSynth, InstrumentName } from '@/features/synth'
 import { MidiStateEvent, Song, SongConfig, SongMeasure, SongNote } from '@/types'
 import { getHands, round } from '@/utils'
 import { atom, Atom, getDefaultStore, PrimitiveAtom } from 'jotai'
@@ -71,8 +71,8 @@ export class Player {
   metronomeSpeed = atom(1)
   metronomeEmphasizeFirst = atom(false)
   metronomeLastPlayedTick: null | number = null
-  metronomeSynth = getSynthStub('woodblock')
-  metronomeAccentedSynth = getSynthStub('agogo')
+  metronomeSynth = getMetronomeSynth('woodblock')
+  metronomeAccentedSynth = getMetronomeSynth('agogo')
 
   currentIndex: number = 0
   lastIntervalFiredTime = 0
