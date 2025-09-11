@@ -13,7 +13,7 @@ function increment(x: number) {
 
 type JotaiStore = ReturnType<typeof getDefaultStore>
 const GOOD_RANGE = 300
-const PERFECT_RANGE = 150
+const PERFECT_RANGE = 50
 
 interface Score {
   perfect: PrimitiveAtom<number>
@@ -162,7 +162,7 @@ export class Player {
     }
 
     // Now handle if the note is upcoming, aka it was hit early
-    const nextNote = this.getNextNotes()?.find((note) => note.midiNote === midiNote)
+    const nextNote = this.getUpcomingNotes()?.find((note) => note.midiNote === midiNote)
     if (nextNote && !isHitNote(this, nextNote)) {
       const diff = this.calcDiff(nextNote.time, this.currentSongTime)
       if (diff < GOOD_RANGE) {
@@ -186,14 +186,21 @@ export class Player {
   }
 
   /* Return all notes that are valid to hit */
-  getNextNotes() {
+  getUpcomingNotes() {
     const song = this.getSong()
-    const nextNote = song?.notes[this.currentIndex]
-    if (!nextNote) {
-      return
+    const upcomingNotes: SongNote[] = []
+    const firstUpcomingNote = song?.notes[this.currentIndex]
+    if (!firstUpcomingNote) return upcomingNotes
+
+    for (
+      let i = this.currentIndex;
+      i < song.notes.length && song.notes[i].time === firstUpcomingNote.time;
+      i++
+    ) {
+      upcomingNotes.push(song.notes[i])
     }
 
-    return song.notes.filter((n, i) => i >= this.currentIndex && n.time === nextNote.time)
+    return upcomingNotes
   }
 
   setWait(wait: boolean) {

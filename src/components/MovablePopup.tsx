@@ -1,14 +1,14 @@
 'use client'
 
 import { ChevronDown, ChevronUp } from '@/icons'
-import * as React from 'react'
+import React, { ReactNode, useEffect, useRef, useState } from 'react'
 
 type PercentOrPx = number | `${number}%`
 
 type MovablePopupProps = {
   initialPosition?: { x: PercentOrPx; y: PercentOrPx }
-  header: React.ReactNode
-  children: React.ReactNode
+  header: ReactNode
+  children: ReactNode
 }
 
 function resolvePosition(value: PercentOrPx, axis: 'x' | 'y', popupW: number, popupH: number) {
@@ -23,14 +23,14 @@ export default function MovablePopup({
   header,
   children,
 }: MovablePopupProps) {
-  const [expanded, setExpanded] = React.useState(false)
-  const [position, setPosition] = React.useState({ x: 0, y: 0 })
+  const [expanded, setExpanded] = useState(false)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
 
-  const popupRef = React.useRef<HTMLDivElement>(null)
-  const dragging = React.useRef(false)
-  const offset = React.useRef({ x: 0, y: 0 })
+  const popupRef = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+  const offset = useRef({ x: 0, y: 0 })
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!popupRef.current) return
     const popupW = popupRef.current.offsetWidth
     const popupH = popupRef.current.offsetHeight
@@ -40,7 +40,7 @@ export default function MovablePopup({
     })
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     function enforceBounds() {
       if (!popupRef.current) return
       const popupW = popupRef.current.offsetWidth
