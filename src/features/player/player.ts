@@ -190,7 +190,7 @@ export class Player {
     const song = this.getSong()
     const firstUpcomingNote = song?.notes[this.currentIndex]
     if (!firstUpcomingNote) return []
-   
+
     const upcomingNotes: SongNote[] = []
     for (
       let i = this.currentIndex;

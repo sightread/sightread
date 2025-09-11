@@ -156,7 +156,6 @@ export default function PlaySongPage() {
                 setSettingsPanel(!settingsOpen)
               }}
               onClickStats={(e) => {
-                e.stopPropagation()
                 setStatsVisible(!statsVisible)
               }}
               settingsOpen={settingsOpen}
