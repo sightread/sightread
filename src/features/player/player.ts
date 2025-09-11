@@ -13,14 +13,14 @@ function increment(x: number) {
 
 type JotaiStore = ReturnType<typeof getDefaultStore>
 const GOOD_RANGE = 300
-const PERFECT_RANGE = 150
+const PERFECT_RANGE = 50
 
 interface Score {
   perfect: PrimitiveAtom<number>
   good: PrimitiveAtom<number>
-  miss: PrimitiveAtom<number>
+  missed: PrimitiveAtom<number>
   durationHeld: PrimitiveAtom<number>
-  pointless: PrimitiveAtom<number>
+  error: PrimitiveAtom<number>
   combined: Atom<number>
   accuracy: Atom<number>
   streak: PrimitiveAtom<number>
@@ -29,22 +29,25 @@ interface Score {
 function getInitialScore(): Score {
   const perfect = atom(0)
   const good = atom(0)
-  const miss = atom(0)
-  const pointless = atom(0)
+  const missed = atom(0)
+  const error = atom(0)
   const durationHeld = atom(0)
   const streak = atom(0)
   const combined = atom(
-    (get) => get(perfect) * 100 + get(good) * 50 - get(pointless) * 25 + get(durationHeld),
+    (get) => get(perfect) * 100 + get(good) * 50 - get(error) * 25 + get(durationHeld),
   )
 
   const accuracy = atom((get) => {
-    if (get(perfect) + get(good) + get(miss) === 0) {
-      return 100
-    }
-    return round((100 * (get(perfect) + get(good))) / (get(perfect) + get(good) + get(miss)))
+    const total = get(hit) + get(missed) + get(error)
+
+    return total === 0 ? 100 : Math.round((100 * get(hit)) / total)
   })
 
-  return { perfect, good, miss, pointless, durationHeld, combined, accuracy, streak }
+  const hit = atom((get) => {
+    return get(perfect) + get(good)
+  })
+
+  return { perfect, good, missed, error, durationHeld, combined, accuracy, streak }
 }
 
 export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
@@ -112,7 +115,7 @@ export class Player {
     if (missedNotes > 0) {
       this.store.set(this.score.streak, 0)
     }
-    this.store.set(this.score.miss, (count) => count + missedNotes)
+    this.store.set(this.score.missed, (count) => count + missedNotes)
   }
 
   processMidiEvent(midiEvent: MidiStateEvent) {
@@ -129,6 +132,12 @@ export class Player {
       this.midiPressedNotes.add(midiNote)
     }
 
+    if (this.isPlaying()) {
+      this.processScoreData(midiNote)
+    }
+  }
+
+  processScoreData(midiNote: number) {
     // First check if the note already passed.
     this.clearMissedNotes_()
     const lateNote = this.lateNotes.get(midiNote)
@@ -153,20 +162,21 @@ export class Player {
     }
 
     // Now handle if the note is upcoming, aka it was hit early
-    const nextNote = this.getNextNotes()?.find((note) => note.midiNote === midiNote)
+    const nextNote = this.getUpcomingNotes()?.find((note) => note.midiNote === midiNote)
     if (nextNote && !isHitNote(this, nextNote)) {
       const diff = this.calcDiff(nextNote.time, this.currentSongTime)
-      if (diff < PERFECT_RANGE) {
-        this.store.set(this.score.perfect, increment)
-      } else if (diff < GOOD_RANGE) {
-        this.store.set(this.score.good, increment)
+      if (diff < GOOD_RANGE) {
+        diff < PERFECT_RANGE
+          ? this.store.set(this.score.perfect, increment)
+          : this.store.set(this.score.good, increment)
+
+        this.store.set(this.score.streak, increment)
+        this.hitNotes.add(nextNote)
+        return
       }
-      this.store.set(this.score.streak, increment)
-      this.hitNotes.add(nextNote)
-      return
     }
 
-    this.store.set(this.score.pointless, increment)
+    this.store.set(this.score.error, increment)
     this.store.set(this.score.streak, 0)
   }
 
@@ -176,20 +186,21 @@ export class Player {
   }
 
   /* Return all notes that are valid to hit */
-  getNextNotes() {
-    const song = !!this.song ? this.store.get(this.song) : null
-    const nextNote = song?.notes[this.currentIndex]
-    if (!nextNote) {
-      return
+  getUpcomingNotes() {
+    const song = this.getSong()
+    const firstUpcomingNote = song?.notes[this.currentIndex]
+    if (!firstUpcomingNote) return []
+
+    const upcomingNotes: SongNote[] = []
+    for (
+      let i = this.currentIndex;
+      i < song.notes.length && song.notes[i].time === firstUpcomingNote.time;
+      i++
+    ) {
+      upcomingNotes.push(song.notes[i])
     }
 
-    let notes = []
-    const isWithinRange = (note: SongNote) =>
-      note && this.calcDiff(note.time, nextNote.time) <= GOOD_RANGE
-    for (let i = this.currentIndex; isWithinRange(song.notes[i]); i++) {
-      notes.push(song.notes[i])
-    }
-    return notes
+    return upcomingNotes
   }
 
   setWait(wait: boolean) {
@@ -552,9 +563,9 @@ export class Player {
     this.hitNotes.clear()
     this.missedNotes.clear()
     this.store.set(this.score.good, 0)
-    this.store.set(this.score.miss, 0)
+    this.store.set(this.score.missed, 0)
     this.store.set(this.score.perfect, 0)
-    this.store.set(this.score.pointless, 0)
+    this.store.set(this.score.error, 0)
     this.store.set(this.score.durationHeld, 0)
     this.store.set(this.score.streak, 0)
   }

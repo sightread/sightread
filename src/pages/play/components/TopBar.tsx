@@ -1,6 +1,6 @@
 import { Tooltip } from '@/components'
 import { VolumeSliderButton } from '@/features/controls'
-import { ArrowLeft, Midi, Settings, SkipBack } from '@/icons'
+import { ArrowLeft, BarChart2, Midi, Settings, SkipBack } from '@/icons'
 import { isMobile } from '@/utils'
 import clsx from 'clsx'
 import React, { MouseEvent, PropsWithChildren } from 'react'
@@ -15,7 +15,9 @@ type TopBarProps = {
   onClickBack: () => void
   onClickRestart: () => void
   onClickMidi: (e: MouseEvent<any>) => void
+  onClickStats: (e: MouseEvent<any>) => void
   settingsOpen: boolean
+  statsVisible: boolean
 }
 
 export default function TopBar({
@@ -28,6 +30,8 @@ export default function TopBar({
   settingsOpen,
   title,
   onClickMidi,
+  onClickStats,
+  statsVisible,
 }: TopBarProps) {
   return (
     <div className="align-center relative z-10 flex h-[50px] min-h-[50px] w-screen justify-center gap-8 bg-[#292929] px-1">
@@ -54,6 +58,15 @@ export default function TopBar({
           <Settings size={24} onClick={onClickSettings} />
         </ButtonWithTooltip>
         {!isMobile() && <VolumeSliderButton />}
+        {
+          <ButtonWithTooltip tooltip={statsVisible ? 'Hide Stats' : 'Show Stats'}>
+            <BarChart2
+              onClick={onClickStats}
+              size={24}
+              className={statsVisible ? 'text-white' : 'text-gray-400'}
+            />
+          </ButtonWithTooltip>
+        }
       </div>
     </div>
   )

@@ -20,6 +20,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { SettingsPanel, TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
+import { StatsPopup } from './components/StatsPopup'
 
 export default function PlaySongPage() {
   const [searchParams, _setSearchParams] = useSearchParams()
@@ -30,6 +31,7 @@ export default function PlaySongPage() {
 
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
+  const [statsVisible, setStatsVisible] = useState(true)
   const playerState = usePlayerState()
   const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   let { data: song } = useSong(id, source)
@@ -153,7 +155,11 @@ export default function PlaySongPage() {
                 e.stopPropagation()
                 setSettingsPanel(!settingsOpen)
               }}
+              onClickStats={(e) => {
+                setStatsVisible(!statsVisible)
+              }}
               settingsOpen={settingsOpen}
+              statsVisible={statsVisible}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
             {settingsOpen && (
@@ -173,6 +179,7 @@ export default function PlaySongPage() {
                 height={40}
               />
             </div>
+            {statsVisible && <StatsPopup />}
           </>
         )}
         <div
