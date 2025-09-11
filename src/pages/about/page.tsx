@@ -6,11 +6,6 @@ import type { SongMetadata } from './../../types'
 import { Article, CaptionedImage } from './components'
 import { slugify } from './utils'
 
-const LICENSE_LABELS: Record<string, string> = {
-  'https://creativecommons.org/licenses/by/4.0/': 'CC BY 4.0',
-  'https://creativecommons.org/publicdomain/mark/1.0/': 'Public Domain Mark 1.0',
-}
-
 function SidebarLink({ children }: PropsWithChildren<{ children: string }>) {
   return (
     <a className="hover:text-purple-hover" href={`#${slugify(children)}`}>
@@ -265,19 +260,15 @@ function AttributionsSection() {
       </p>
       <p>
         We are grateful to the contributors. Below are links back to MuseScore and their respective
-        copyrights
+        copyrights. No modifications were made to the original arrangements.
       </p>
       <ul className="list-disc pl-6">
         {sortedSongs.map((song) => (
-          <li key={song.id} className="">
-            <div className="mb-2 flex w-full gap-2">
-              {song.title}:
-              <div className="flex gap-2">
-                {song.url && <MutedLink to={song.url}>source</MutedLink>}
-                {song.license && (
-                  <MutedLink to={song.license}>license ({LICENSE_LABELS[song.license]})</MutedLink>
-                )}
-              </div>
+          <li key={song.id} className="mb-2">
+            <div className="font-semibold">{song.title}:</div>
+            <div className="ml-2 flex flex-wrap gap-2">
+              {song.url && <MutedLink to={song.url}>[source]</MutedLink>}
+              {song.license && <MutedLink to={song.license}>[license]</MutedLink>}
             </div>
           </li>
         ))}
