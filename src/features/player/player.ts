@@ -188,10 +188,10 @@ export class Player {
   /* Return all notes that are valid to hit */
   getUpcomingNotes() {
     const song = this.getSong()
-    const upcomingNotes: SongNote[] = []
     const firstUpcomingNote = song?.notes[this.currentIndex]
-    if (!firstUpcomingNote) return upcomingNotes
-
+    if (!firstUpcomingNote) return []
+   
+    const upcomingNotes: SongNote[] = []
     for (
       let i = this.currentIndex;
       i < song.notes.length && song.notes[i].time === firstUpcomingNote.time;
