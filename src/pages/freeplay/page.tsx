@@ -4,11 +4,11 @@ import { InstrumentName, useSynth } from '@/features/synth'
 import { useLazyStableRef } from '@/hooks'
 import { MidiModal } from '@/pages/play/components/MidiModal'
 import { MidiStateEvent, SongConfig } from '@/types'
+import { bytesToBase64 } from '@/utils'
 import { useCallback, useEffect, useState } from 'react'
 import RecordingModal from './components/RecordingModal'
 import TopBar from './components/TopBar'
 import FreePlayer from './utils/free-player'
-import { bytesToBase64 } from '@/utils'
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')

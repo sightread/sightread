@@ -29,7 +29,7 @@ type ModalProps = {
 }
 export default function SongPreviewModal({
   show = true,
-  onClose = () => { },
+  onClose = () => {},
   songMeta = undefined,
 }: ModalProps) {
   const { id, source } = songMeta ?? {}

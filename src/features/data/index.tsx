@@ -1,9 +1,9 @@
 import { parseMidi } from '@/features/parsers'
 import { Song, SongSource } from '@/types'
+import { base64ToBytes } from '@/utils'
 import type { SWRResponse } from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import { getSongHandle } from '../persist/persistence'
-import { base64ToBytes } from '@/utils'
 
 async function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then((buf) => parseMidi(new Uint8Array(buf)))
