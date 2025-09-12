@@ -198,7 +198,7 @@ async function getMeasuresForChord(
   }
 
   return fetch(filename)
-    .then((r) => r.arrayBuffer())
+    .then((r) => r.bytes())
     .then((buffer) => parseMidi(buffer))
     .then(splitMeasures)
     .catch((e) => {

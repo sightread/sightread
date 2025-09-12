@@ -7,8 +7,8 @@ function sort<T extends { time: number }>(arr: T[]): T[] {
   return arr.sort((i1, i2) => i1.time - i2.time)
 }
 
-export default function parseMidi(midiData: ArrayBufferLike): Song {
-  const parsed = new tonejs.Midi(midiData as ArrayBuffer)
+export default function parseMidi(midiData: Uint8Array<ArrayBuffer>): Song {
+  const parsed = new tonejs.Midi(midiData)
   const bpms: Array<Bpm> = parsed.header.tempos.map((tempo) => {
     return { time: parsed.header.ticksToSeconds(tempo.ticks), bpm: tempo.bpm }
   })

@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react'
 import RecordingModal from './components/RecordingModal'
 import TopBar from './components/TopBar'
 import FreePlayer from './utils/free-player'
+import { bytesToBase64 } from '@/utils'
 
 export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
@@ -67,7 +68,7 @@ export default function FreePlay() {
             } else {
               const midiBytes = stopRecording()
               if (midiBytes !== null) {
-                const base64MidiData = Buffer.from(midiBytes).toString('base64')
+                const base64MidiData = bytesToBase64(midiBytes)
                 setRecordingPreview(base64MidiData)
               }
             }

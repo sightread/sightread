@@ -234,3 +234,25 @@ export function isNumber(x: any): x is number {
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+export function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
+  // Decode base64 to raw binary string
+  const binaryString = atob(base64);
+
+  // Create a typed array buffer
+  const length = binaryString.length;
+  const bytes = new Uint8Array(length);
+  for (let i = 0; i < length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+
+  return bytes
+}
+
+export function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}

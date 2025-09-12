@@ -6,7 +6,7 @@ import { SongPreview } from '@/features/SongPreview/SongPreview'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { Download, Share } from '@/icons'
 import { SongSource } from '@/types'
-import * as React from 'react'
+import { base64ToBytes } from '@/utils'
 
 // A function to copy a string to the clipboard
 function copyToClipboard(text: string) {
@@ -14,8 +14,8 @@ function copyToClipboard(text: string) {
 }
 
 function downloadBase64Midi(midiBase64: string) {
-  const midiBytes = Buffer.from(midiBase64, 'base64')
-  const midiBlob = new Blob([midiBytes], { type: 'audio/midi' })
+  const midiBytes: Uint8Array = base64ToBytes(midiBase64)
+  const midiBlob = new Blob([midiBytes as BlobPart], { type: 'audio/midi' })
   const downloadLink = document.createElement('a')
   downloadLink.href = URL.createObjectURL(midiBlob)
   downloadLink.download = 'recording.mid'
@@ -29,7 +29,7 @@ type ModalProps = {
 }
 export default function SongPreviewModal({
   show = true,
-  onClose = () => {},
+  onClose = () => { },
   songMeta = undefined,
 }: ModalProps) {
   const { id, source } = songMeta ?? {}
@@ -92,7 +92,7 @@ export default function SongPreviewModal({
               className="border-purple-primary hover:bg-purple-primary flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border bg-white px-1 text-xl text-black transition hover:text-white"
               onClick={() => {
                 const origin = window.location.origin
-                const url = `${origin}/play/?source=base64&id=${id}`
+                const url = `${origin}/play/?source=base64&id=${encodeURIComponent(id)}`
                 copyToClipboard(url)
               }}
             >
