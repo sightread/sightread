@@ -236,6 +236,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
+  if ('fromBase64' in Uint8Array) {
+    return (Uint8Array as any).fromBase64(base64)
+  }
   // Decode base64 to raw binary string
   const binaryString = atob(base64)
 
@@ -250,6 +253,9 @@ export function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
 }
 
 export function bytesToBase64(bytes: Uint8Array): string {
+  if ('toBase64' in Uint8Array) {
+    return (Uint8Array as any).toBase64(bytes)
+  }
   let binary = ''
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i])
