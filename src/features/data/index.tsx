@@ -31,9 +31,9 @@ async function fetchSong(id: string, source: SongSource): Promise<Song> {
         if (!file) {
           throw new Error(`Could not get song for ${id}, ${source}`)
         }
-        return file.bytes()
+        return file.arrayBuffer()
       })
-      .then((bytes: Uint8Array<ArrayBuffer>) => parseMidi(bytes))
+      .then((buffer: ArrayBuffer) => parseMidi(new Uint8Array(buffer)))
   }
 
   return Promise.reject(new Error(`Could not get song for ${id}, ${source}`))
