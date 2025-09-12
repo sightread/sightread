@@ -21,10 +21,6 @@ export default function SelectSongPage() {
   const selectedSongMeta = songs.find((s) => s.id === selectedSongId)
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    initialize()
-  }, [])
-
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (event.key === 'Escape') {
       setUploadForm(false)
