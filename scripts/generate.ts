@@ -29,8 +29,8 @@ const parsedMusic: ParsedMusicFile[] = musicFiles
     const path = pathJoin(baseDir, musicFile.file)
     if (path.toLowerCase().endsWith('mid')) {
       try {
-        const u8Array: Uint8Array = new Uint8Array(fs.readFileSync(path))
-        return { ...musicFile, parsedSong: parseMidi(u8Array.buffer), id: hash(u8Array) }
+        const u8Array: Uint8Array<ArrayBuffer> = new Uint8Array(fs.readFileSync(path))
+        return { ...musicFile, parsedSong: parseMidi(u8Array), id: hash(u8Array) }
       } catch (err) {
         console.error(`Error parsing file: ${path}` + err)
       }

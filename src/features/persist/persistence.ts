@@ -152,7 +152,7 @@ async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
             const title = name
             const id = title // for now
 
-            let bytes = await file.arrayBuffer()
+            let bytes = await file.bytes()
             let duration = parseMidi(bytes).duration
             const songMetadata: SongMetadata = {
               id: dir.id + '/' + name,

@@ -70,7 +70,7 @@ export default function Phrases() {
   player.setHand(hand)
 
   atomEffect((get) => {
-    const pointlessHitsCount = get(player.score.pointless)
+    const pointlessHitsCount = get(player.score.error)
     if (pointlessHitsCount !== 0) {
       playFailSound()
     }
