@@ -15,10 +15,7 @@ function getBuiltinSongUrl(id: string) {
 
 function getBase64Song(data: string): Song {
   const binaryMidi = base64ToBytes(decodeURIComponent(data))
-  console.log({ binaryMidi })
-  const song = parseMidi(binaryMidi)
-  console.log({ binaryMidi, song })
-  return song
+  return parseMidi(binaryMidi)
 }
 
 async function fetchSong(id: string, source: SongSource): Promise<Song> {
