@@ -198,8 +198,8 @@ async function getMeasuresForChord(
   }
 
   return fetch(filename)
-    .then((r) => r.bytes())
-    .then((buffer) => parseMidi(buffer))
+    .then((r) => r.arrayBuffer())
+    .then((buffer) => parseMidi(new Uint8Array(buffer)))
     .then(splitMeasures)
     .catch((e) => {
       console.error(e)

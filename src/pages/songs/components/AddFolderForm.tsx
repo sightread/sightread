@@ -13,7 +13,7 @@ import { useAtomValue } from 'jotai'
 import { AlertCircle, Folder, Music, Plus, RefreshCw, Trash2 } from 'lucide-react'
 
 export default function ManageFoldersForm({ onClose }: { onClose: () => void }) {
-  const isScanning = useAtomValue<boolean>(isScanningAtom)
+  const isScanning = useAtomValue<boolean | Promise<void>>(isScanningAtom)
   const folders = useAtomValue(localDirsAtom)
   const localSongs = useAtomValue(localSongsAtom)
   const needsPermission = useAtomValue(requiresPermissionAtom)
@@ -56,7 +56,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
       <div className="flex gap-4">
         <button
           onClick={scanFolders}
-          disabled={isScanning}
+          disabled={isScanning !== false}
           className="flex items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${isScanning ? 'animate-spin' : ''}`} />
@@ -93,7 +93,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
         ) : (
           <div className="space-y-1">
             {folders.map((folder, i) => {
-              const songCount = localSongs.get(folder.handle)?.length || 0
+              const songCount = localSongs.get(folder.id)?.length || 0
               return (
                 <div
                   key={i}
@@ -134,7 +134,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
         <div className="mt-6 border-t border-gray-200 pt-4">
           <p className="text-center text-xs text-gray-500">
             Total:{' '}
-            {folders.reduce((sum, folder) => sum + (localSongs.get(folder.handle)?.length ?? 0), 0)}{' '}
+            {folders.reduce((sum, folder) => sum + (localSongs.get(folder.id)?.length ?? 0), 0)}{' '}
             songs across {folders.length} folders
           </p>
         </div>
