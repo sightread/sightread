@@ -4,6 +4,7 @@ import { InstrumentName, useSynth } from '@/features/synth'
 import { useLazyStableRef } from '@/hooks'
 import { MidiModal } from '@/pages/play/components/MidiModal'
 import { MidiStateEvent, SongConfig } from '@/types'
+import { bytesToBase64 } from '@/utils'
 import { useCallback, useEffect, useState } from 'react'
 import RecordingModal from './components/RecordingModal'
 import TopBar from './components/TopBar'
@@ -67,7 +68,7 @@ export default function FreePlay() {
             } else {
               const midiBytes = stopRecording()
               if (midiBytes !== null) {
-                const base64MidiData = Buffer.from(midiBytes).toString('base64')
+                const base64MidiData = bytesToBase64(midiBytes)
                 setRecordingPreview(base64MidiData)
               }
             }

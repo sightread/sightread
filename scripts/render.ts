@@ -20,7 +20,7 @@ const maxSeconds = Infinity
  * Parse the MIDI file at the given path into a {@link Song}.
  */
 async function parse(path: string): Promise<Song> {
-  var buf = new Uint8Array(fs.readFileSync(path)).buffer
+  const buf: Uint8Array<ArrayBuffer> = new Uint8Array(fs.readFileSync(path))
   return parseMidi(buf)
 }
 

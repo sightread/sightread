@@ -14,7 +14,7 @@ function trackNotEmpty(song: Song, trackId: number) {
 
 export function parseFile(path: string): Song {
   if (path.toLowerCase().endsWith('mid')) {
-    var buf = new Uint8Array(fs.readFileSync(path)).buffer
+    var buf = new Uint8Array(fs.readFileSync(path))
     return parseMidi(buf)
   }
 
