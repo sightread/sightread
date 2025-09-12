@@ -18,14 +18,17 @@ if (globalThis.localStorage?.length > 0) {
   }
 }
 
+type LocalDirKey = string
+
 export const localDirsAtom = jotai.atom<LocalDir[]>([])
 export const requiresPermissionAtom = jotai.atom<boolean>(false)
-export const localSongsAtom = jotai.atom<Map<FileSystemDirectoryHandle, SongMetadata[]>>(new Map())
+export const localSongsAtom = jotai.atom<Map<string, SongMetadata[]>>(new Map())
+export const isInitializedAtom = jotai.atom<boolean>(false)
 
 const store = jotai.getDefaultStore()
-let initialized = false
-async function initializeFromIdb() {
-  if (initialized) {
+
+export async function initialize() {
+  if (store.get(isInitializedAtom)) {
     return Promise.resolve()
   }
   try {
@@ -36,11 +39,11 @@ async function initializeFromIdb() {
       store.set(requiresPermissionAtom, true)
       return
     }
-    scanFolders()
+    await scanFolders()
   } catch (e) {
     console.error('persistence init failed', e)
   } finally {
-    initialized = true
+    store.set(isInitializedAtom, true)
   }
 }
 
@@ -48,8 +51,6 @@ async function checkPermission(handle: FileSystemDirectoryHandle) {
   const permission = await handle.queryPermission({ mode: 'read' })
   return permission === 'granted'
 }
-
-initializeFromIdb()
 
 // Check if File System Access API is supported
 export function isFileSystemAccessSupported(): boolean {
@@ -60,7 +61,7 @@ export async function addFolder(): Promise<void> {
   if (!isFileSystemAccessSupported()) {
     throw new Error('File System Access API is not supported in this browser')
   }
-  await initializeFromIdb()
+  await initialize()
 
   try {
     const newHandle = await window.showDirectoryPicker({
@@ -89,13 +90,16 @@ export async function addFolder(): Promise<void> {
   }
 }
 
-export const isScanningAtom = jotai.atom(false)
+export const isScanningAtom = jotai.atom<false | Promise<void>>(false)
 
 export async function scanFolders() {
-  if (store.get(isScanningAtom)) {
+  const inProgressScan = store.get(isScanningAtom)
+  if (inProgressScan !== false) {
+    await inProgressScan
     return
   }
-  store.set(isScanningAtom, true)
+  const { resolve, reject, promise } = Promise.withResolvers()
+  store.set(isScanningAtom, promise as Promise<void>)
   try {
     let songs = new Map()
     const dirs = store.get(localDirsAtom)
@@ -111,11 +115,12 @@ export async function scanFolders() {
     }
     for (const dir of dirs) {
       const dirSongs = await scanFolder(dir)
-      songs.set(dir.handle, dirSongs)
+      songs.set(dir.id, dirSongs)
     }
     store.set(localSongsAtom, songs)
+    resolve(undefined)
   } catch (error) {
-    console.error('Error scanning folders:', error)
+    reject(new Error('Error scanning folders:', { cause: error }))
   } finally {
     store.set(isScanningAtom, false)
   }
@@ -131,12 +136,20 @@ function isMidiFile(file: File): boolean {
 }
 
 export async function getSongHandle(id: string): Promise<FileSystemFileHandle | undefined> {
+  await initialize()
   const [dirId, basename] = id.split('/')
 
   const dir = store.get(localDirsAtom).find((d) => d.id === dirId)
-  const localSongs = store.get(localSongsAtom).get(dir?.handle!)
-  return localSongs?.find((s) => s.handle?.name === basename)?.handle
+  if (!dir) {
+    console.error('Missing expected directory handle')
+    return
+  }
+
+  const localSongs = store.get(localSongsAtom)
+  const dirSongs = localSongs.get(dir?.id)
+  return dirSongs?.find((s) => s.handle?.name === basename)?.handle
 }
+initialize()
 
 async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
   const songs: SongMetadata[] = []
@@ -152,7 +165,8 @@ async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
             const title = name
             const id = title // for now
 
-            let bytes = await file.bytes()
+            let buffer = await file.arrayBuffer()
+            let bytes = new Uint8Array(buffer)
             let duration = parseMidi(bytes).duration
             const songMetadata: SongMetadata = {
               id: dir.id + '/' + name,
