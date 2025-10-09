@@ -57,7 +57,7 @@ export default function SelectSongPage() {
           <h3 className="text-base"> Select a song, choose your settings, and begin learning</h3>
           <Sizer height={24} />
           <div className="flex gap-4">
-            <SearchBox placeholder={'Search Songs by Title or Artist'} onSearch={setSearch} />
+            <SearchBox placeholder={'Search Songs by Title or Artist'} onSearch={setSearch} autoFocus={true}/>
             <button
               className={clsx(
                 'hidden flex-nowrap whitespace-nowrap sm:flex',
