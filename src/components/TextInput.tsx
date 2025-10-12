@@ -7,9 +7,10 @@ type TextInputProps = {
   className?: string
   error?: boolean
   placeholder?: string
+  autoFocus?: boolean
 }
 export function TextInput(props: TextInputProps) {
-  const { onChange, name, className, error, type, placeholder } = props
+  const { onChange, name, className, error, type, placeholder, autoFocus } = props
   return (
     <input
       type={type}
@@ -21,6 +22,7 @@ export function TextInput(props: TextInputProps) {
         error && 'outline outline-red-600',
       )}
       placeholder={placeholder}
+      autoFocus={autoFocus}
     />
   )
 }
