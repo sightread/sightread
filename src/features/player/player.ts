@@ -621,8 +621,25 @@ export class Player {
     const { start, end } = range
     this.store.set(this.range, [Math.min(start, end), Math.max(start, end)])
   }
+
   getRange() {
     return this.range
+  }
+
+  jumpToPreviousMeasure() {
+    const currMeasure = this.getMeasureForTime(this.getTime())
+    if (currMeasure.number > 1) {
+      if (currMeasure.time === this.getTime()) {
+        // This assumes the measures are always in sorted order by time
+        const currMeasureIdx = currMeasure.number - 1
+        const prevMeasure = this.getSong()?.measures[currMeasureIdx - 1]
+        if (prevMeasure) {
+          this.seek(prevMeasure.time)
+        }
+      } else {
+        this.seek(currMeasure.time)
+      }
+    }
   }
 }
 
