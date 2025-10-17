@@ -641,6 +641,20 @@ export class Player {
       }
     }
   }
+
+  jumpToNextMeasure() {
+    const song = this.getSong()
+    if (!song) {
+      return
+    }
+
+    const currMeasure = this.getMeasureForTime(this.getTime())
+    const currMeasureIdx = currMeasure.number - 1
+    if (currMeasureIdx < song.measures.length - 1) {
+      const nextMeasure = song.measures[currMeasureIdx + 1]
+      this.seek(nextMeasure.time)
+    }
+  }
 }
 
 export function isHitNote(player: Player, note?: SongNote) {

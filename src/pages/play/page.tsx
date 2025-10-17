@@ -162,7 +162,9 @@ export default function PlaySongPage() {
       evt.preventDefault()
       player.toggle()
     } else if (evt.shiftKey && evt.code === 'Comma') {
-      player.jumpToPreviousMeasure();
+      player.jumpToPreviousMeasure()
+    } else if (evt.shiftKey && evt.code === 'Period') {
+      player.jumpToNextMeasure()
     } else if (evt.code === 'Comma') {
       player.seek(player.currentSongTime - 16 / 1000)
     } else if (evt.code === 'Period') {
