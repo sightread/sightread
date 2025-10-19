@@ -626,7 +626,12 @@ export class Player {
     return this.range
   }
 
-  jumpToPreviousMeasure() {
+  /**
+   * Seeks to previous measure:
+   * - If in the middle of a measure, seek to the start of the current measure.
+   * - If at the start of a measure, seek to the previous one
+   */
+  seekToPreviousMeasure() {
     const currMeasure = this.getMeasureForTime(this.getTime())
     if (currMeasure.number > 1) {
       if (currMeasure.time === this.getTime()) {
@@ -642,7 +647,10 @@ export class Player {
     }
   }
 
-  jumpToNextMeasure() {
+  /**
+   * Seeks to the next measure's start if not at the last measure.
+   */
+  seekToNextMeasure() {
     const song = this.getSong()
     if (!song) {
       return
