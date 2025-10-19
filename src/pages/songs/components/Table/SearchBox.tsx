@@ -1,8 +1,8 @@
 import { TextInput } from '@/components/TextInput'
 import { Search } from '@/icons'
 
-export type SearchBoxProps = { 
-  onSearch: (val: string) => void;
+export type SearchBoxProps = {
+  onSearch: (val: string) => void
   placeholder: string
   autoFocus?: boolean
 }

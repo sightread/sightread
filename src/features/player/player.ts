@@ -621,8 +621,47 @@ export class Player {
     const { start, end } = range
     this.store.set(this.range, [Math.min(start, end), Math.max(start, end)])
   }
+
   getRange() {
     return this.range
+  }
+
+  /**
+   * Seeks to previous measure:
+   * - If in the middle of a measure, seek to the start of the current measure.
+   * - If at the start of a measure, seek to the previous one
+   */
+  seekToPreviousMeasure() {
+    const currMeasure = this.getMeasureForTime(this.getTime())
+    if (currMeasure.number > 1) {
+      if (currMeasure.time === this.getTime()) {
+        // This assumes the measures are always in sorted order by time
+        const currMeasureIdx = currMeasure.number - 1
+        const prevMeasure = this.getSong()?.measures[currMeasureIdx - 1]
+        if (prevMeasure) {
+          this.seek(prevMeasure.time)
+        }
+      } else {
+        this.seek(currMeasure.time)
+      }
+    }
+  }
+
+  /**
+   * Seeks to the next measure's start if not at the last measure.
+   */
+  seekToNextMeasure() {
+    const song = this.getSong()
+    if (!song) {
+      return
+    }
+
+    const currMeasure = this.getMeasureForTime(this.getTime())
+    const currMeasureIdx = currMeasure.number - 1
+    if (currMeasureIdx < song.measures.length - 1) {
+      const nextMeasure = song.measures[currMeasureIdx + 1]
+      this.seek(nextMeasure.time)
+    }
   }
 }
 

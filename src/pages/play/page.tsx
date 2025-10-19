@@ -161,6 +161,10 @@ export default function PlaySongPage() {
     if (evt.code === 'Space') {
       evt.preventDefault()
       player.toggle()
+    } else if (evt.shiftKey && evt.code === 'Comma') {
+      player.seekToPreviousMeasure()
+    } else if (evt.shiftKey && evt.code === 'Period') {
+      player.seekToNextMeasure()
     } else if (evt.code === 'Comma') {
       player.seek(player.currentSongTime - 16 / 1000)
     } else if (evt.code === 'Period') {
