@@ -169,6 +169,68 @@ export default function PlaySongPage() {
       player.seek(player.currentSongTime - 16 / 1000)
     } else if (evt.code === 'Period') {
       player.seek(player.currentSongTime + 16 / 1000)
+    } else if (evt.ctrlKey && evt.code === 'Slash') {
+      setStatsVisible(!statsVisible)
+    } else if (evt.code === 'Equal') {
+      player.increaseBpm()
+    } else if (evt.code === 'Minus') {
+      player.decreaseBpm()
+    } else if (evt.code === 'Semicolon') {
+      setSongConfig({ ...songConfig, waiting: !waiting })
+    } else if (evt.code === 'KeyP') {
+      if (isLooping) {
+        handleLoopingToggle(false)
+      } else {
+        handleLoopingToggle(true)
+      }
+    } else if (evt.altKey && evt.code === 'Digit9') {
+      if (!range) return
+      const newTime = player.getPreviousMeasureTime(range[0])
+      if (newTime === undefined) return
+      player.setRange({
+        start: newTime,
+        end: range[1],
+      })
+    } else if (evt.altKey && evt.code === 'Digit0') {
+      if (!range) return
+      const newTime = player.getNextMeasureTime(range[0])
+      if (newTime === undefined) return
+      player.setRange({
+        start: newTime,
+        end: range[1],
+      })
+    } else if (evt.ctrlKey && evt.code === 'Digit9') {
+      if (!range) return
+      const newTime = player.getPreviousMeasureTime(range[1])
+      if (newTime === undefined) return
+      player.setRange({
+        start: range[0],
+        end: newTime,
+      })
+    } else if (evt.ctrlKey && evt.code === 'Digit0') {
+      if (!range) return
+      const newTime = player.getNextMeasureTime(range[1])
+      if (newTime === undefined) return
+      player.setRange({
+        start: range[0],
+        end: newTime,
+      })
+    } else if (evt.code === 'BracketLeft') {
+      setSongConfig({ ...songConfig, left: !songConfig.left })
+    } else if (evt.code === 'BracketRight') {
+      setSongConfig({ ...songConfig, right: !songConfig.right })
+    } else if (evt.shiftKey && evt.code === 'Quote') {
+      if (songConfig.visualization === 'falling-notes') {
+        setSongConfig({ ...songConfig, visualization: 'sheet' })
+      } else {
+        setSongConfig({ ...songConfig, visualization: 'falling-notes' })
+      }
+    } else if (evt.code === 'Digit0') {
+      player.seek(0)
+    } else if (evt.code === 'KeyO') {
+      if (isLooping) {
+        player.seek(range[0])
+      }
     }
   })
 
