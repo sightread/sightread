@@ -1,11 +1,14 @@
 import { PlayerProvider } from '@/features/player'
+import * as RadixToast from '@radix-ui/react-toast'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { PropsWithChildren } from 'react'
 
 export function Providers({ children }: PropsWithChildren<{}>) {
   return (
     <PlayerProvider>
-      <TooltipProvider>{children}</TooltipProvider>
+      <RadixToast.ToastProvider swipeDirection="right" duration={2000}>
+        <TooltipProvider>{children}</TooltipProvider>
+      </RadixToast.ToastProvider>
     </PlayerProvider>
   )
 }
