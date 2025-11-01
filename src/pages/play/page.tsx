@@ -16,6 +16,7 @@ import {
   useWakeLock,
 } from '@/hooks'
 import { MidiStateEvent, SongSource } from '@/types'
+import { round } from '@/utils'
 import * as RadixToast from '@radix-ui/react-toast'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
@@ -201,10 +202,13 @@ export default function PlaySongPage() {
       setStatsVisible(!statsVisible)
     } else if (evt.code === 'Equal') {
       player.increaseBpm()
+      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
     } else if (evt.code === 'Minus') {
       player.decreaseBpm()
+      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
     } else if (evt.code === 'Semicolon') {
       setSongConfig({ ...songConfig, waiting: !waiting })
+      showToast(`Waiting mode ${waiting ? 'off' : 'on'}`)
     } else if (evt.code === 'KeyP') {
       if (isLooping) {
         handleLoopingToggle(false)
@@ -215,6 +219,7 @@ export default function PlaySongPage() {
       if (!range) return
       const newTime = player.getPreviousMeasureTime(range[0])
       if (newTime === undefined) return
+      showToast(`Loop start from measure: ${player.getMeasureForTime(newTime).number}`)
       player.setRange({
         start: newTime,
         end: range[1],
@@ -223,6 +228,7 @@ export default function PlaySongPage() {
       if (!range) return
       const newTime = player.getNextMeasureTime(range[0])
       if (newTime === undefined) return
+      showToast(`Loop start from measure: ${player.getMeasureForTime(newTime).number}`)
       player.setRange({
         start: newTime,
         end: range[1],
@@ -231,6 +237,7 @@ export default function PlaySongPage() {
       if (!range) return
       const newTime = player.getPreviousMeasureTime(range[1])
       if (newTime === undefined) return
+      showToast(`Loop end at measure: ${player.getMeasureForTime(newTime).number}`)
       player.setRange({
         start: range[0],
         end: newTime,
@@ -239,6 +246,7 @@ export default function PlaySongPage() {
       if (!range) return
       const newTime = player.getNextMeasureTime(range[1])
       if (newTime === undefined) return
+      showToast(`Loop end at measure: ${player.getMeasureForTime(newTime).number}`)
       player.setRange({
         start: range[0],
         end: newTime,
@@ -258,6 +266,7 @@ export default function PlaySongPage() {
     } else if (evt.code === 'KeyO') {
       if (isLooping) {
         player.seek(range[0])
+        showToast('Practice loop reset')
       }
     }
   })

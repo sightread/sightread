@@ -323,6 +323,10 @@ export class Player {
     return this.bpmModifier
   }
 
+  getBpmModifierValue() {
+    return this.store.get(this.bpmModifier)
+  }
+
   setHand(hand: any) {
     this.hand = hand
   }
