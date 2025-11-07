@@ -214,6 +214,24 @@ export default function PlaySongPage() {
         player.seek(range[0])
         showToast('Practice loop reset')
       }
+    } else if (evt.ctrlKey && evt.code === 'ArrowLeft') {
+      if (!range) return
+      const newTime = player.getPreviousMeasureTime(range[1])
+      if (newTime === undefined) return
+      showToast(`Loop end at measure: ${player.getMeasureForTime(newTime).number}`)
+      player.setRange({
+        start: range[0],
+        end: newTime,
+      })
+    } else if (evt.ctrlKey && evt.code === 'ArrowRight') {
+      if (!range) return
+      const newTime = player.getNextMeasureTime(range[1])
+      if (newTime === undefined) return
+      showToast(`Loop end at measure: ${player.getMeasureForTime(newTime).number}`)
+      player.setRange({
+        start: range[0],
+        end: newTime,
+      })
     } else if (evt.code === 'ArrowLeft') {
       if (!range) return
       const newTime = player.getPreviousMeasureTime(range[0])
@@ -231,24 +249,6 @@ export default function PlaySongPage() {
       player.setRange({
         start: newTime,
         end: range[1],
-      })
-    } else if (evt.code === 'ArrowDown') {
-      if (!range) return
-      const newTime = player.getPreviousMeasureTime(range[1])
-      if (newTime === undefined) return
-      showToast(`Loop end at measure: ${player.getMeasureForTime(newTime).number}`)
-      player.setRange({
-        start: range[0],
-        end: newTime,
-      })
-    } else if (evt.code === 'ArrowUp') {
-      if (!range) return
-      const newTime = player.getNextMeasureTime(range[1])
-      if (newTime === undefined) return
-      showToast(`Loop end at measure: ${player.getMeasureForTime(newTime).number}`)
-      player.setRange({
-        start: range[0],
-        end: newTime,
       })
     } else if (evt.code === 'Equal') {
       player.increaseBpm()
