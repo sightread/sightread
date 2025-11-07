@@ -124,9 +124,9 @@ export default function PlaySongPage() {
   )
   const isLooping = !!range
   const requiresPermission = useAtomValue(requiresPermissionAtom)
-  const [toastMsg, setToastMsg] = useState<string | null>("");
+  const [toastMsg, setToastMsg] = useState<string | null>('')
   const [toastKey, setToastKey] = useState<string>('')
-  const toastKeyRef = useRef(toastKey);
+  const toastKeyRef = useRef(toastKey)
 
   const [songConfig, setSongConfig] = useSongSettings(id)
   const isRecording = !!recording
@@ -165,9 +165,9 @@ export default function PlaySongPage() {
 
   function showToast(msg: string) {
     const newKey = Date.now().toString()
-    setToastMsg(msg);
-    setToastKey(newKey);
-    toastKeyRef.current = newKey;
+    setToastMsg(msg)
+    setToastKey(newKey)
+    toastKeyRef.current = newKey
   }
 
   function hideToast(open: boolean) {
@@ -180,10 +180,10 @@ export default function PlaySongPage() {
        * toastKeyRef.current ie the latest key
        */
       if (toastKeyRef.current === toastKey) {
-        return '';
+        return ''
       }
-      return msg;
-    });
+      return msg
+    })
   }
 
   useEventListener<KeyboardEvent>('keydown', (evt: KeyboardEvent) => {
@@ -198,14 +198,8 @@ export default function PlaySongPage() {
       player.seek(player.currentSongTime - 16 / 1000)
     } else if (evt.code === 'Period') {
       player.seek(player.currentSongTime + 16 / 1000)
-    } else if (evt.ctrlKey && evt.code === 'Slash') {
+    } else if (evt.code === 'Slash') {
       setStatsVisible(!statsVisible)
-    } else if (evt.code === 'Equal') {
-      player.increaseBpm()
-      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
-    } else if (evt.code === 'Minus') {
-      player.decreaseBpm()
-      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
     } else if (evt.code === 'Semicolon') {
       setSongConfig({ ...songConfig, waiting: !waiting })
       showToast(`Waiting mode ${waiting ? 'off' : 'on'}`)
@@ -215,7 +209,12 @@ export default function PlaySongPage() {
       } else {
         handleLoopingToggle(true)
       }
-    } else if (evt.altKey && evt.code === 'Digit9') {
+    } else if (evt.code === 'KeyO') {
+      if (isLooping) {
+        player.seek(range[0])
+        showToast('Practice loop reset')
+      }
+    } else if (evt.code === 'ArrowLeft') {
       if (!range) return
       const newTime = player.getPreviousMeasureTime(range[0])
       if (newTime === undefined) return
@@ -224,7 +223,7 @@ export default function PlaySongPage() {
         start: newTime,
         end: range[1],
       })
-    } else if (evt.altKey && evt.code === 'Digit0') {
+    } else if (evt.code === 'ArrowRight') {
       if (!range) return
       const newTime = player.getNextMeasureTime(range[0])
       if (newTime === undefined) return
@@ -233,7 +232,7 @@ export default function PlaySongPage() {
         start: newTime,
         end: range[1],
       })
-    } else if (evt.ctrlKey && evt.code === 'Digit9') {
+    } else if (evt.code === 'ArrowDown') {
       if (!range) return
       const newTime = player.getPreviousMeasureTime(range[1])
       if (newTime === undefined) return
@@ -242,7 +241,7 @@ export default function PlaySongPage() {
         start: range[0],
         end: newTime,
       })
-    } else if (evt.ctrlKey && evt.code === 'Digit0') {
+    } else if (evt.code === 'ArrowUp') {
       if (!range) return
       const newTime = player.getNextMeasureTime(range[1])
       if (newTime === undefined) return
@@ -251,6 +250,12 @@ export default function PlaySongPage() {
         start: range[0],
         end: newTime,
       })
+    } else if (evt.code === 'Equal') {
+      player.increaseBpm()
+      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
+    } else if (evt.code === 'Minus') {
+      player.decreaseBpm()
+      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
     } else if (evt.code === 'BracketLeft') {
       setSongConfig({ ...songConfig, left: !songConfig.left })
     } else if (evt.code === 'BracketRight') {
@@ -263,11 +268,6 @@ export default function PlaySongPage() {
       }
     } else if (evt.code === 'Digit0') {
       player.seek(0)
-    } else if (evt.code === 'KeyO') {
-      if (isLooping) {
-        player.seek(range[0])
-        showToast('Practice loop reset')
-      }
     }
   })
 
@@ -389,7 +389,7 @@ export default function PlaySongPage() {
             <Toast
               open={!!toastMsg}
               onOpenChange={hideToast}
-              title={toastMsg ? toastMsg : ""}
+              title={toastMsg ? toastMsg : ''}
               toastKey={toastKey}
             />
             <RadixToast.Viewport className="fixed right-4 bottom-4 z-50 flex w-80 max-w-[100vw] flex-col-reverse gap-3 p-4" />

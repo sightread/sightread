@@ -8,7 +8,7 @@ interface props {
   onOpenChange: (open: boolean) => void
 }
 
-export default function Toast({ open, description, title, toastKey, onOpenChange}: props) {
+export default function Toast({ open, description, title, toastKey, onOpenChange }: props) {
   return (
     <RadixToast.Root
       open={open}

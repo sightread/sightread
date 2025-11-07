@@ -657,7 +657,7 @@ export class Player {
     if (currMeasureIdx < song.measures.length - 1) {
       const nextMeasure = song.measures[currMeasureIdx + 1]
       return nextMeasure.time
-    } else if(currMeasure.time < song.duration) {
+    } else if (currMeasure.time < song.duration) {
       return song.duration
     }
   }
