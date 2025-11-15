@@ -48,12 +48,12 @@ const keyToNotes: { [sig in KEY_SIGNATURE]: string[] } = {
 
   // Flats
   F: ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B', 'B♮'],
-  Bb: ['C', 'D♭', 'D', 'E', 'E♮', 'F', 'G♭', 'G', 'A♭', 'A', 'B', 'B♮'],
-  Eb: ['C', 'D♭', 'D', 'E', 'E♮', 'F', 'G♭', 'G', 'A', 'A♮', 'B', 'B♮'],
-  Ab: ['C', 'D', 'D♮', 'E', 'E♮', 'F', 'G♭', 'G', 'A', 'A♮', 'B', 'B♮'],
-  Db: ['C', 'D', 'D♮', 'E', 'E♮', 'F', 'G', 'G♮', 'A', 'A♮', 'B', 'B♮'],
-  Gb: ['C♮', 'D', 'D♮', 'E', 'E♮', 'F', 'G', 'G♮', 'A', 'A♮', 'B', 'C'],
-  Cb: ['C♮', 'D', 'D♮', 'E', 'E', 'F♮', 'G', 'G♮', 'A', 'A♮', 'B', 'C'],
+  Bb: ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'],
+  Eb: ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'],
+  Ab: ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'],
+  Db: ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'],
+  Gb: ['C♭', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'],
+  Cb: ['C♭', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'],
 }
 
 let keyDetailsMap: KeyAlterationMap = getKeyDetailsMap()

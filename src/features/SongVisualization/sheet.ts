@@ -312,9 +312,9 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
     }
 
     const staffTopY = staff === 'bass' ? getBassStaffTopY(state) : getTrebleStaffTopY(state)
-    const canvasY = getNoteY(note, staff, staffTopY)
+    const canvasY = getNoteY(note, staff, staffTopY, state.keySignature)
     let canvasX = getPlayNotesLineX(state) - 2
-    const key = getKey(note)
+    const key = getKey(note, state.keySignature)
     drawMusicNote(
       ctx,
       canvasX,
@@ -322,12 +322,13 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
       state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'red',
     )
 
-    // is sharp
+    // Draw accidental (sharp or flat)
     if (key.length === 2) {
       const symbolColor = state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'black'
+      const accidental = key[1] === '#' ? glyphs.accidentalSharp : glyphs.accidentalFlat
       drawSymbol(
         ctx,
-        glyphs.accidentalSharp,
+        accidental,
         canvasX - 24,
         canvasY,
         STAFF_FIVE_LINES_HEIGHT * 0.6,
