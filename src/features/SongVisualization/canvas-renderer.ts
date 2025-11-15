@@ -1,5 +1,5 @@
 import { KEY_SIGNATURE, NOTE_LABELS } from '@/features/theory'
-import { Hand, HandSettings } from '@/types'
+import { ColoredNotesMode, Hand, HandSettings } from '@/types'
 import { Player } from '../player'
 import { renderFallingVis } from './falling-notes'
 import { renderSheetVis } from './sheet'
@@ -8,7 +8,7 @@ import { CanvasItem } from './utils'
 export type GivenState = {
   time: number
   noteLabels: NOTE_LABELS
-  coloredNotes: boolean
+  coloredNotes: ColoredNotesMode
   visualization: 'falling-notes' | 'sheet'
   windowWidth: number
   height: number
