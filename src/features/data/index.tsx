@@ -1,12 +1,21 @@
 import { parseMidi } from '@/features/parsers'
+import { loadSongMetadata } from '@/features/metadata'
 import { Song, SongSource } from '@/types'
 import { base64ToBytes, peek } from '@/utils'
 import type { SWRResponse } from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import * as persistence from '../persist/persistence'
 
-async function handleSong(response: Response): Promise<Song> {
-  return response.arrayBuffer().then((buf) => parseMidi(new Uint8Array(buf)))
+async function handleSong(response: Response, songId: string): Promise<Song> {
+  const song = await response.arrayBuffer().then((buf) => parseMidi(new Uint8Array(buf)))
+
+  // Try to load metadata file
+  const metadata = await loadSongMetadata(songId)
+  if (metadata) {
+    song.handFingerMetadata = metadata
+  }
+
+  return song
 }
 
 function getBuiltinSongUrl(id: string) {
@@ -21,7 +30,7 @@ function getBase64Song(data: string): Song {
 async function fetchSong(id: string, source: SongSource): Promise<Song> {
   if (source === 'builtin') {
     const url = getBuiltinSongUrl(id)
-    return fetch(url).then(handleSong)
+    return fetch(url).then((response) => handleSong(response, id))
   } else if (source === 'base64') {
     return getBase64Song(id)
   } else if (source === 'local') {

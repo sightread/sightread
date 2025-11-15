@@ -5,6 +5,7 @@ import {
   handlePianoRollMousePress,
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
+import { findNoteMetadata, formatNoteMetadata } from '@/features/metadata'
 import { getFixedDoNoteFromKey, getKey, isBlack } from '@/features/theory'
 import { palette } from '@/styles/common'
 import type { SongMeasure, SongNote } from '@/types'
@@ -34,6 +35,16 @@ const colors = {
   measure: 'rgb(60,60,60)',
   octaveLine: 'rgb(90,90,90)',
   rangeSelectionFill: '#44b22e',
+}
+
+const coloredNotesMap: { [step: string]: string } = {
+  C: 'rgb(240,32,80)',
+  D: 'rgb(252,137,63)',
+  E: 'rgb(218,205,70)',
+  F: 'rgb(126,222,80)',
+  G: 'rgb(3,226,254)',
+  A: 'rgb(0,0,255)',
+  B: 'rgb(120,1,234)',
 }
 
 /**
@@ -168,6 +179,14 @@ export function renderFallingVis(givenState: GivenState): void {
 }
 
 function getNoteColor(state: State, note: SongNote): string {
+  // If colored notes mode is enabled, use rainbow colors based on note name
+  if (state.coloredNotes) {
+    const key = getKey(note.midiNote, state.keySignature)
+    const noteLetter = key[0] // Get just the letter (C, D, E, F, G, A, or B)
+    return coloredNotesMap[noteLetter] || 'rgb(255,255,255)' // Default to white if not found
+  }
+
+  // Otherwise, use the original hand-based coloring
   const hand = state.hands[note.track]?.hand ?? 'both'
   const keyType = isBlack(note.midiNote) ? 'black' : 'white'
 
@@ -252,6 +271,26 @@ export function renderFallingNote(note: SongNote, state: State): void {
     return
   }
 
+  // Determine if this is a single-track MIDI (only one track) or multi-track
+  const numTracks = state.hands ? Object.keys(state.hands).length : 0
+  const isSingleTrack = numTracks === 1
+
+  // For single-track MIDI with metadata: filter by metadata hand assignments
+  if (isSingleTrack && state.handFingerMetadata) {
+    const noteMetadata = findNoteMetadata(state.handFingerMetadata, note.time, note.midiNote)
+
+    if (noteMetadata && noteMetadata.hand !== ' ') {
+      const metadataHand = noteMetadata.hand.toUpperCase()
+
+      if (state.hand === 'left' && metadataHand !== 'L') {
+        return
+      }
+      if (state.hand === 'right' && metadataHand !== 'R') {
+        return
+      }
+    }
+  }
+
   const { ctx, pps, noteLabels } = state
   const lane = state.pianoMeasurements.lanes[note.midiNote]
   const posY = getItemStartEnd(note, state).end - (state.height - state.noteHitY)
@@ -283,6 +322,23 @@ export function renderFallingNote(note: SongNote, state: State): void {
       maxWidth,
     )
     ctx.font = `${fontPx}px ${TEXT_FONT}`
+
+    // Get hand/finger metadata if available
+    const noteMetadata = findNoteMetadata(state.handFingerMetadata, note.time, note.midiNote)
+    const handFingerText = formatNoteMetadata(noteMetadata)
+
+    // If we have metadata, render hand/finger text above the note label
+    if (handFingerText.trim()) {
+      const handFingerFontPx = Math.max(fontPx * 0.7, 8) // Smaller font for hand/finger
+      ctx.font = `${handFingerFontPx}px ${TEXT_FONT}`
+      const handFingerWidth = ctx.measureText(handFingerText).width
+      ctx.fillText(handFingerText, posX + width / 2 - handFingerWidth / 2, posY + length - fontPx - 6)
+
+      // Reset font for note label
+      ctx.font = `${fontPx}px ${TEXT_FONT}`
+    }
+
+    // Render the note label
     ctx.fillText(noteText, posX + width / 2 - textWidth / 2, posY + length - 4)
   }
 
@@ -317,4 +373,32 @@ let lastState: State | null = null
 export function intersectsWithPiano(y: number): boolean {
   if (!lastState) return false
   return y >= lastState.pianoTopY
+}
+
+export function getNoteAtPosition(x: number, y: number): SongNote | null {
+  if (!lastState) return null
+
+  const items = getFallingNoteItemsInView(lastState)
+  const notes = items.filter((i) => i.type === 'note') as SongNote[]
+
+  for (let note of notes) {
+    if (!(note.midiNote in lastState.pianoMeasurements.lanes)) {
+      continue
+    }
+
+    const lane = lastState.pianoMeasurements.lanes[note.midiNote]
+    const posY = getItemStartEnd(note, lastState).end - (lastState.height - lastState.noteHitY)
+    const posX = Math.floor(lane.left + 1)
+    const width = lane.width - 2
+    const actualLength = note.duration * lastState.pps
+    const minLengthToDisplayLetter = getFontSize(lastState.ctx, '', (width * 2) / 3).height + 15
+    const length = Math.floor(Math.max(actualLength, minLengthToDisplayLetter))
+
+    // Check if point is within note bounds
+    if (x >= posX && x <= posX + width && y >= posY && y <= posY + length) {
+      return note
+    }
+  }
+
+  return null
 }

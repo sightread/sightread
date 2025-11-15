@@ -9,6 +9,7 @@ import {
   drawTimeSignature,
   STAFF_SPACE,
 } from '@/features/drawing'
+import { findNoteMetadata } from '@/features/metadata'
 import { Clef, SongMeasure, SongNote } from '@/types'
 import { pickHex } from '@/utils'
 import {
@@ -153,13 +154,13 @@ const colorMap = {
 }
 
 const coloredNotesMap: { [step: string]: string } = {
-  A: '12,23,141',
-  B: '75,32,139',
-  C: '217,59,38',
-  D: '238,151,56',
-  E: '253,229,65',
-  F: '62,139,38',
-  G: '139,210,250',
+  C: '240,32,80',
+  D: '252,137,63',
+  E: '218,205,70',
+  F: '126,222,80',
+  G: '3,226,254',
+  A: '0,0,255',
+  B: '120,1,234',
 }
 
 function getGameColorPrefix(state: State, note: SongNote, canvasX: number) {
@@ -225,6 +226,40 @@ function renderLedgerLines(state: State, note: SongNote): void {
 
 function renderSheetNote(state: State, note: SongNote): void {
   const { ctx, pps, keySignature } = state
+
+  // Determine if this is a single-track MIDI (only one track) or multi-track
+  const numTracks = state.hands ? Object.keys(state.hands).length : 0
+  const isSingleTrack = numTracks === 1
+
+  // For single-track MIDI with metadata: filter by metadata hand assignments
+  // For multi-track MIDI: filter by track-based hand assignments
+  if (isSingleTrack && state.handFingerMetadata) {
+    // Single-track MIDI: use metadata.json hand assignments
+    const noteMetadata = findNoteMetadata(state.handFingerMetadata, note.time, note.midiNote)
+
+    if (noteMetadata && noteMetadata.hand !== ' ') {
+      const metadataHand = noteMetadata.hand.toUpperCase()
+
+      if (state.hand === 'left' && metadataHand !== 'L') {
+        return
+      }
+      if (state.hand === 'right' && metadataHand !== 'R') {
+        return
+      }
+    }
+  } else if (!isSingleTrack && state.hands) {
+    // Multi-track MIDI: use track-based hand assignments
+    const trackHand = state.hands[note.track]?.hand
+    if (trackHand) {
+      if (state.hand === 'left' && trackHand !== 'left') {
+        return
+      }
+      if (state.hand === 'right' && trackHand !== 'right') {
+        return
+      }
+    }
+  }
+
   ctx.save()
   const length = Math.round(pps * note.duration)
   const posX = getItemStartEnd(state, note).start
@@ -307,14 +342,10 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
       staff = state.hands?.[inRangeNote.track].hand === 'right' ? 'treble' : 'bass'
     }
 
-    if (state.game && isHitNote(state.player, inRangeNote)) {
-      return
-    }
-
     const staffTopY = staff === 'bass' ? getBassStaffTopY(state) : getTrebleStaffTopY(state)
-    const canvasY = getNoteY(note, staff, staffTopY)
+    const canvasY = getNoteY(note, staff, staffTopY, state.keySignature)
     let canvasX = getPlayNotesLineX(state) - 2
-    const key = getKey(note)
+    const key = getKey(note, state.keySignature)
     drawMusicNote(
       ctx,
       canvasX,
@@ -322,12 +353,13 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
       state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'red',
     )
 
-    // is sharp
+    // Draw accidental (sharp or flat)
     if (key.length === 2) {
       const symbolColor = state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'black'
+      const accidental = key[1] === '#' ? glyphs.accidentalSharp : glyphs.accidentalFlat
       drawSymbol(
         ctx,
-        glyphs.accidentalSharp,
+        accidental,
         canvasX - 24,
         canvasY,
         STAFF_FIVE_LINES_HEIGHT * 0.6,
