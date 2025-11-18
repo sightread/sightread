@@ -102,6 +102,13 @@ function parseMidiMessage(event: MIDIMessageEvent): MidiEvent | null {
 
   let status = data[0]
   let command = status >>> 4
+
+  // 0x8 = Note Off, 0x9 = Note On, 0xA = Polyphonic Aftertouch
+  // Only process note on/off messages, ignore aftertouch and other messages
+  if (command !== 0x8 && command !== 0x9) {
+    return null
+  }
+
   return {
     type: command === 0x9 ? 'on' : 'off',
     note: data[1],
