@@ -212,7 +212,6 @@ export default function PlaySongPage() {
     } else if (evt.code === 'KeyO') {
       if (isLooping) {
         player.seek(range[0])
-        showToast('Practice loop reset')
       }
     } else if (evt.ctrlKey && evt.code === 'ArrowLeft') {
       if (!range) return
