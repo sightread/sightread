@@ -1,5 +1,3 @@
-'use client'
-
 import { ChevronDown, ChevronUp } from '@/icons'
 import React, { ReactNode, useEffect, useRef, useState } from 'react'
 
@@ -11,9 +9,22 @@ type MovablePopupProps = {
   children: ReactNode
 }
 
+function getViewportSize(axis: 'x' | 'y'): number {
+  if (typeof window === 'undefined') {
+    return 0
+  }
+  return axis === 'x' ? window.innerWidth : window.innerHeight
+}
+
 function resolvePosition(value: PercentOrPx, axis: 'x' | 'y', popupW: number, popupH: number) {
-  const size = axis === 'x' ? window.innerWidth : window.innerHeight
+  const size = getViewportSize(axis)
   const popupSize = axis === 'x' ? popupW : popupH
+
+  if (size === 0) {
+    // Non-DOM environment (tests, server, etc.) – just fall back to the raw value.
+    return typeof value === 'number' ? value : 0
+  }
+
   const pos = typeof value === 'number' ? value : size * (parseFloat(value) / 100) - popupSize
   return Math.max(0, Math.min(pos, size - popupSize))
 }
@@ -32,15 +43,19 @@ export default function MovablePopup({
 
   useEffect(() => {
     if (!popupRef.current) return
+
     const popupW = popupRef.current.offsetWidth
     const popupH = popupRef.current.offsetHeight
+
     setPosition({
       x: resolvePosition(initialPosition.x, 'x', popupW, popupH),
       y: resolvePosition(initialPosition.y, 'y', popupW, popupH),
     })
-  }, [])
+  }, [initialPosition.x, initialPosition.y])
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     function enforceBounds() {
       if (!popupRef.current) return
       const popupW = popupRef.current.offsetWidth
@@ -50,42 +65,46 @@ export default function MovablePopup({
         y: Math.max(0, Math.min(prev.y, window.innerHeight - popupH)),
       }))
     }
+
     window.addEventListener('resize', enforceBounds)
     return () => window.removeEventListener('resize', enforceBounds)
   }, [])
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!popupRef.current) return
-    dragging.current = true
-    const rect = popupRef.current.getBoundingClientRect()
-    offset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-  }
-
   const handleMouseMove = (e: MouseEvent) => {
-    if (!dragging.current || !popupRef.current) return
+    if (!dragging.current || !popupRef.current || typeof window === 'undefined') return
+
     const popup = popupRef.current
-    const newX = Math.max(
-      0,
-      Math.min(e.clientX - offset.current.x, window.innerWidth - popup.offsetWidth),
-    )
-    const newY = Math.max(
-      0,
-      Math.min(e.clientY - offset.current.y, window.innerHeight - popup.offsetHeight),
-    )
+    const maxX = window.innerWidth - popup.offsetWidth
+    const maxY = window.innerHeight - popup.offsetHeight
+
+    const newX = Math.max(0, Math.min(e.clientX - offset.current.x, maxX))
+    const newY = Math.max(0, Math.min(e.clientY - offset.current.y, maxY))
+
     popup.style.transform = `translate(${newX}px, ${newY}px)`
   }
 
   const handleMouseUp = () => {
     if (!dragging.current || !popupRef.current) return
     dragging.current = false
+
     const rect = popupRef.current.getBoundingClientRect()
     setPosition({ x: rect.left, y: rect.top })
 
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!popupRef.current || typeof document === 'undefined') return
+
+    dragging.current = true
+    const rect = popupRef.current.getBoundingClientRect()
+    offset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
   }
 
   return (
