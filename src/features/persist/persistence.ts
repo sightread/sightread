@@ -27,12 +27,55 @@ export const isInitializedAtom = jotai.atom<boolean>(false)
 
 const store = jotai.getDefaultStore()
 
+// Native File System Access (Chrome / Edge)
+function hasNativeFileSystemAccess(): boolean {
+  return typeof window !== 'undefined' && 'showDirectoryPicker' in window
+}
+
+// Fallback via <input type="file" webkitdirectory>
+function hasDirectoryInputSupport(): boolean {
+  if (typeof document === 'undefined') return false
+  const input = document.createElement('input')
+  input.type = 'file'
+  return 'webkitdirectory' in (input as any)
+}
+
+// Either native FSA or a directory input fallback
+export function isFileSystemAccessSupported(): boolean {
+  if (typeof window === 'undefined') return false
+  if (hasNativeFileSystemAccess()) return true
+  return hasDirectoryInputSupport()
+}
+
+// Use native picker when available; otherwise ponyfill (lazy-loaded)
+async function pickMusicDirectory(): Promise<FileSystemDirectoryHandle> {
+  if (hasNativeFileSystemAccess()) {
+    return window.showDirectoryPicker({
+      mode: 'read',
+      startIn: 'music' as any,
+    })
+  }
+
+  const mod = await import('native-file-system-adapter')
+  const handle = (await mod.showDirectoryPicker({
+    _preferPolyfill: true,
+  })) as unknown as FileSystemDirectoryHandle
+
+  return handle
+}
+
 export async function initialize() {
   if (store.get(isInitializedAtom)) {
     return Promise.resolve()
   }
   try {
-    const dirs: LocalDir[] = (await idb.get(storageKeys.OBSERVED_DIRECTORIES)) ?? []
+    let dirs: LocalDir[] = []
+
+    // Only restore persisted handles when native FSA is available.
+    if (hasNativeFileSystemAccess()) {
+      dirs = (await idb.get(storageKeys.OBSERVED_DIRECTORIES)) ?? []
+    }
+
     store.set(localDirsAtom, dirs)
     const hasPermission = await Promise.all(dirs.map((dir) => checkPermission(dir.handle)))
     if (!hasPermission.every((p) => p)) {
@@ -52,11 +95,6 @@ async function checkPermission(handle: FileSystemDirectoryHandle) {
   return permission === 'granted'
 }
 
-// Check if File System Access API is supported
-export function isFileSystemAccessSupported(): boolean {
-  return 'showDirectoryPicker' in window
-}
-
 export async function addFolder(): Promise<void> {
   if (!isFileSystemAccessSupported()) {
     throw new Error('File System Access API is not supported in this browser')
@@ -64,10 +102,7 @@ export async function addFolder(): Promise<void> {
   await initialize()
 
   try {
-    const newHandle = await window.showDirectoryPicker({
-      mode: 'read',
-      startIn: 'music',
-    })
+    const newHandle = await pickMusicDirectory()
 
     // Add directory if it isn't already in the set
     const dirs = store.get(localDirsAtom)
@@ -77,7 +112,12 @@ export async function addFolder(): Promise<void> {
     if (!alreadyExists) {
       dirs.push({ id: crypto.randomUUID(), handle: newHandle, addedAt: Date.now() })
       store.set(localDirsAtom, dirs)
-      await idb.set(storageKeys.OBSERVED_DIRECTORIES, dirs)
+
+      // Only persist handles when native FSA is available.
+      if (hasNativeFileSystemAccess()) {
+        await idb.set(storageKeys.OBSERVED_DIRECTORIES, dirs)
+      }
+
       await scanFolders()
     }
 
@@ -98,10 +138,10 @@ export async function scanFolders() {
     await inProgressScan
     return
   }
-  const { resolve, reject, promise } = Promise.withResolvers()
+  const { resolve, reject, promise } = Promise.withResolvers<void>()
   store.set(isScanningAtom, promise as Promise<void>)
   try {
-    let songs = new Map()
+    let songs = new Map<LocalDirKey, SongMetadata[]>()
     const dirs = store.get(localDirsAtom)
     if (store.get(requiresPermissionAtom)) {
       for (const dir of dirs) {
@@ -120,7 +160,7 @@ export async function scanFolders() {
     store.set(localSongsAtom, songs)
     resolve(undefined)
   } catch (error) {
-    reject(new Error('Error scanning folders:', { cause: error }))
+    reject(new Error('Error scanning folders:', { cause: error as Error }))
   } finally {
     store.set(isScanningAtom, false)
   }
@@ -165,9 +205,9 @@ async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
             const title = name
             const id = title // for now
 
-            let buffer = await file.arrayBuffer()
-            let bytes = new Uint8Array(buffer)
-            let duration = parseMidi(bytes).duration
+            const buffer = await file.arrayBuffer()
+            const bytes = new Uint8Array(buffer)
+            const duration = parseMidi(bytes).duration
             const songMetadata: SongMetadata = {
               id: dir.id + '/' + name,
               title,
@@ -187,6 +227,13 @@ async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
     }
   } catch (error) {
     console.error('Error scanning folder:', error)
+    if ((error as any).name === 'NotFoundError') {
+      console.warn(
+        'Directory handle is no longer valid, skipping folder:',
+        (dir.handle as any)?.name,
+      )
+      return songs
+    }
     throw new Error(`Failed to scan folder: ${(error as Error).message}`)
   }
 
@@ -196,7 +243,12 @@ async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
 export function removeFolder(id: string) {
   const dirs = store.get(localDirsAtom).filter((d) => d.id !== id)
   store.set(localDirsAtom, dirs)
-  idb.set(storageKeys.OBSERVED_DIRECTORIES, dirs)
+
+  // Same rule as addFolder: only persist when using native handles.
+  if (hasNativeFileSystemAccess()) {
+    idb.set(storageKeys.OBSERVED_DIRECTORIES, dirs)
+  }
+
   scanFolders()
 }
 
