@@ -2,7 +2,7 @@ import { useWhenClickedOutside } from '@/hooks'
 import { ChevronDown, Loader } from '@/icons'
 import clsx from 'clsx'
 import * as React from 'react'
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 
 type SelectProps = {
   value: any
@@ -13,7 +13,10 @@ type SelectProps = {
   loading?: boolean
   error?: boolean
   className?: string
+  name?: string
+  id?: string
 }
+
 
 export default function Select({
   value,
@@ -24,8 +27,13 @@ export default function Select({
   className,
   format = (value) => value,
   display = (value) => value,
+  name,
+  id,
 }: SelectProps) {
   const [openMenu, setOpenMenu] = useState(false)
+  const autoId = useId()
+  const inputId = id ?? name ?? autoId
+  const inputName = name ?? inputId
   const menuRef = useRef<HTMLDivElement | null>(null)
   const toggleMenu = () => {
     setOpenMenu(!openMenu)
@@ -47,6 +55,8 @@ export default function Select({
       )}
     >
       <input
+        id={inputId}
+        name={inputName}
         value={!loading ? display(value) : ''}
         type="text"
         className={clsx(
