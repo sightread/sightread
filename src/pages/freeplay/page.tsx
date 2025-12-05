@@ -2,10 +2,11 @@ import midiState, { useRecordMidi } from '@/features/midi'
 import { SongVisualizer } from '@/features/SongVisualization'
 import { InstrumentName, useSynth } from '@/features/synth'
 import { useLazyStableRef } from '@/hooks'
-import { MidiModal } from '@/pages/play/components/MidiModal'
 import { MidiStateEvent, SongConfig } from '@/types'
 import { bytesToBase64 } from '@/utils'
 import { useCallback, useEffect, useState } from 'react'
+import { useAtom } from 'jotai'
+import { midiModalOpenAtom } from '@/features/modals/state'
 import RecordingModal from './components/RecordingModal'
 import TopBar from './components/TopBar'
 import FreePlayer from './utils/free-player'
@@ -14,7 +15,7 @@ export default function FreePlay() {
   const [instrumentName, setInstrumentName] = useState<InstrumentName>('acoustic_grand_piano')
   const synthState = useSynth(instrumentName)
   const freePlayer = useLazyStableRef(() => new FreePlayer())
-  const [isMidiModalOpen, setMidiModal] = useState(false)
+  const [isMidiModalOpen, setMidiModalOpen] = useAtom(midiModalOpenAtom)
   const { isRecording, startRecording, stopRecording } = useRecordMidi(midiState)
   const [recordingPreview, setRecordingPreview] = useState('')
 
@@ -59,7 +60,7 @@ export default function FreePlay() {
         <TopBar
           onClickMidi={(e) => {
             e.stopPropagation()
-            setMidiModal(!isMidiModalOpen)
+            setMidiModalOpen(!isMidiModalOpen)
           }}
           onClickRecord={(e) => {
             e.stopPropagation()
@@ -79,7 +80,6 @@ export default function FreePlay() {
           value={instrumentName}
           onChange={(name) => setInstrumentName(name)}
         />
-        <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
         <RecordingModal
           show={recordingPreview.length > 0}
           onClose={() => setRecordingPreview('')}

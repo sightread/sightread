@@ -3,6 +3,7 @@ import { assetUrl } from '@/utils/assets'
 import styles from '@/styles/global.css?inline'
 import { Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { Providers } from './providers'
+import { GlobalModals } from '@/features/modals/GlobalModals'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const ogImageUrl = assetUrl('images/mode_falling_notes_screenshot.png')
@@ -74,6 +75,7 @@ export default function App() {
   return (
     <Providers>
       <Outlet />
+      <GlobalModals />
     </Providers>
   )
 }

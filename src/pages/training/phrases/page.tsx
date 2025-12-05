@@ -6,17 +6,17 @@ import { getDefaultSongSettings } from '@/features/SongVisualization/utils'
 import { getGeneratedSong } from '@/features/theory/procedural'
 import { useOnUnmount, useRAFLoop, useWakeLock } from '@/hooks'
 import { ChevronDown, ChevronUp } from '@/icons'
-import { MidiModal } from '@/pages/play/components/MidiModal'
 import { ButtonWithTooltip } from '@/pages/play/components/TopBar'
 import { Hand, Song, SongConfig } from '@/types'
 import { round } from '@/utils'
 import clsx from 'clsx'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { atomEffect } from 'jotai-effect'
 import React, { PropsWithChildren, useEffect, useReducer, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { playFailSound } from '../sound-effects'
 import TopBar from './components/TopBar.tsx'
+import { midiModalOpenAtom } from '@/features/modals/state'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
 type Level = 0 | 1 | 2 | 3
@@ -45,7 +45,7 @@ type PhraseClefType = 'treble' | 'bass' | 'grand'
 export default function Phrases() {
   const [songConfig, setSongConfig] = useState(getDefaultSongSettings())
   const player = usePlayer()
-  const [isMidiModalOpen, setMidiModal] = useState(false)
+  const [isMidiModalOpen, setMidiModalOpen] = useAtom(midiModalOpenAtom)
   const [searchParams, setSearchParams] = useSearchParams({
     level: '0',
     clef: 'treble',
@@ -107,7 +107,6 @@ export default function Phrases() {
   return (
     <>
       <title>Phrase Training</title>
-      <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
       <div
         className={clsx('flex h-screen flex-col outline-none', 'h-[100dvh]')}
         autoFocus
@@ -116,7 +115,7 @@ export default function Phrases() {
         <TopBar
           onClickMidi={(e) => {
             e.stopPropagation()
-            setMidiModal(!isMidiModalOpen)
+            setMidiModalOpen(!isMidiModalOpen)
           }}
         />
         <div className="relative flex w-full justify-center gap-4 bg-gray-200 px-8 py-4">
