@@ -2,6 +2,7 @@ import { GA_TRACKING_ID } from '@/features/analytics'
 import styles from '@/styles/global.css?inline'
 import { Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { Providers } from './providers'
+import { GlobalModals } from '@/features/modals/GlobalModals'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -69,6 +70,7 @@ export default function App() {
   return (
     <Providers>
       <Outlet />
+      <GlobalModals />
     </Providers>
   )
 }

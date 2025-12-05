@@ -16,13 +16,16 @@ import {
 } from '@/hooks'
 import { MidiStateEvent, SongSource } from '@/types'
 import clsx from 'clsx'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { SettingsPanel, TopBar } from './components'
-import { MidiModal } from './components/MidiModal'
 import { StatsPopup } from './components/StatsPopup'
+import {
+  midiModalOpenAtom,
+  modalInputBlockAtom,
+} from '@/features/modals/state'
 
 function RequiresPermissionPrompt({
   onGrantPermission,
@@ -94,8 +97,9 @@ function SongNotFound({ songTitle, onGoBack }: { songTitle?: string; onGoBack: (
 }
 
 export default function PlaySongPage() {
-  const [searchParams, _setSearchParams] = useSearchParams()
+  const player = usePlayer()
   const navigate = useNavigate()
+  const [searchParams, _setSearchParams] = useSearchParams()
   let { source, id, recording }: { source: SongSource; id: string; recording?: string } =
     Object.fromEntries(searchParams) as any
 
@@ -106,15 +110,15 @@ export default function PlaySongPage() {
   }
   id = decodeURIComponent(id)
 
-  const player = usePlayer()
+  const [isMidiModalOpen, setMidiModalOpen] = useAtom(midiModalOpenAtom)
   const [settingsOpen, setSettingsPanel] = useState(false)
-  const [isMidiModalOpen, setMidiModal] = useState(false)
   const [statsVisible, setStatsVisible] = useState(true)
   const playerState = usePlayerState()
   const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error, isLoading, mutate } = useSong(id, source)
   let songMeta = useSongMetadata(id, source)
   const range = useAtomValue(player.getRange())
+  const modalsBlockingInput = useAtomValue(modalInputBlockAtom)
   const selectedRange = useMemo(
     () => (range ? { start: range[0], end: range[1] } : undefined),
     [range],
@@ -147,7 +151,9 @@ export default function PlaySongPage() {
     }
   }, [waiting, left, right, player])
 
-  useOnUnmount(() => player.stop())
+  useOnUnmount(() => {
+    player.stop()
+  })
 
   useEffect(() => {
     if (!song) return
@@ -158,6 +164,9 @@ export default function PlaySongPage() {
   }, [song, setSongConfig, id, player])
 
   useEventListener<KeyboardEvent>('keydown', (evt: KeyboardEvent) => {
+    if (modalsBlockingInput) {
+      return
+    }
     if (evt.code === 'Space') {
       evt.preventDefault()
       player.toggle()
@@ -256,7 +265,7 @@ export default function PlaySongPage() {
               }}
               onClickMidi={(e) => {
                 e.stopPropagation()
-                setMidiModal(!isMidiModalOpen)
+                setMidiModalOpen(!isMidiModalOpen)
               }}
               onClickSettings={(e) => {
                 e.stopPropagation()
@@ -268,7 +277,6 @@ export default function PlaySongPage() {
               settingsOpen={settingsOpen}
               statsVisible={statsVisible}
             />
-            <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
             {settingsOpen && (
               <SettingsPanel
                 onClose={() => setSettingsPanel(false)}
