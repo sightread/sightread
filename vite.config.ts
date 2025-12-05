@@ -4,6 +4,15 @@ import { defineConfig } from 'vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
+const assetBase = process.env.VITE_PUBLIC_ASSET_BASE || '/'
+const routerBasename = process.env.VITE_PUBLIC_ROUTER_BASENAME || '/'
+
 export default defineConfig({
-  plugins: [devtoolsJson(), tailwindcss(), reactRouter(), tsconfigPaths()],
+  base: assetBase,
+  plugins: [
+    devtoolsJson(),
+    tailwindcss(),
+    reactRouter(),
+    tsconfigPaths()
+  ],
 })
