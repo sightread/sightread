@@ -1,8 +1,12 @@
+import { assetUrl } from '@/utils/assets'
+
 export type ImageLoader = (src: string) => Promise<HTMLImageElement>
 
 let loadImage: ImageLoader = (src: string) => {
   const img = new Image()
-  img.src = src
+  // Map relative paths like "images/black-key-raised.png"
+  // to the correct asset base (e.g. /sightread/images/...)
+  img.src = assetUrl(src)
   return new Promise((resolve, reject) => {
     img.onload = () => resolve(img)
     img.onerror = () => reject(img)
@@ -27,8 +31,8 @@ export function waitForImages(): Promise<void> {
   if (!imagesReadyPromise) {
     imagesReadyPromise = (async () => {
       const [blackKeyRaised, blackKeyPressed] = await Promise.all([
-        loadImage('/images/black-key-raised.png'),
-        loadImage('/images/black-key-pressed.png'),
+        loadImage('images/black-key-raised.png'),
+        loadImage('images/black-key-pressed.png'),
       ])
       images = { blackKeyRaised, blackKeyPressed }
     })()
