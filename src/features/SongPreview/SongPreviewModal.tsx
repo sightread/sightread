@@ -2,7 +2,7 @@ import { Modal, Sizer } from '@/components'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { SongMetadata } from '@/types'
 import * as React from 'react'
-import { Link } from 'react-router'
+import { Link, createSearchParams } from 'react-router'
 import { SongScrubBar } from '../controls'
 import { usePlayer } from '../player'
 import PreviewIcon from './PreviewIcon'
@@ -40,6 +40,8 @@ export default function SongPreviewModal({
     return null
   }
 
+  const playSongSearch = createSearchParams({ id, source }).toString()
+
   return (
     <Modal show={show && !!id} onClose={handleClose} className="min-w-[min(100%,600px)]">
       <div className="flex flex-col gap-3 p-8">
@@ -74,7 +76,7 @@ export default function SongPreviewModal({
           </div>
           <Sizer height={16} />
           <Link
-            to={`/play?id=${id}&source=${source}`}
+            to={{ pathname: '/play', search: `?${playSongSearch}` }}
             className="bg-purple-primary hover:bg-purple-hover flex h-10 w-full items-center justify-center rounded-md border-none text-xl text-white transition"
           >
             Play Now
