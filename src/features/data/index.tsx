@@ -4,13 +4,14 @@ import { base64ToBytes, peek } from '@/utils'
 import type { SWRResponse } from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import * as persistence from '../persist/persistence'
+import { assetUrl } from '@/utils/assets'
 
 async function handleSong(response: Response): Promise<Song> {
   return response.arrayBuffer().then((buf) => parseMidi(new Uint8Array(buf)))
 }
 
 function getBuiltinSongUrl(id: string) {
-  return `/music/songs/${id}`
+  return assetUrl(`music/songs/${id}`)
 }
 
 function getBase64Song(data: string): Song {

@@ -1,4 +1,5 @@
 import { AppBar, MarketingFooter, Sizer } from '@/components'
+import { assetUrl } from '@/utils/assets'
 import React, { PropsWithChildren } from 'react'
 import { Link, LinkProps } from 'react-router'
 import manifest from './../../manifest.json'
@@ -85,7 +86,7 @@ function WhatSection() {
       </p>
       <Sizer height={8} />
       <CaptionedImage
-        src="/images/mode_falling_notes_screenshot.png"
+        src={assetUrl('images/mode_falling_notes_screenshot.png')}
         caption="Falling Notes with note labels"
         height={1628}
         width={1636}
@@ -103,7 +104,7 @@ function WhatSection() {
       </p>
       <Sizer height={8} />
       <CaptionedImage
-        src="/images/mode_sheet_hero_screenshot.png"
+        src={assetUrl('images/mode_sheet_hero_screenshot.png')}
         width={1980}
         height={1148}
         caption="Sheet Hero (beta) with note labels"

@@ -1,9 +1,13 @@
 import { GA_TRACKING_ID } from '@/features/analytics'
+import { assetUrl } from '@/utils/assets'
 import styles from '@/styles/global.css?inline'
 import { Outlet, Scripts, ScrollRestoration } from 'react-router'
 import { Providers } from './providers'
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const ogImageUrl = assetUrl('images/mode_falling_notes_screenshot.png')
+  const faviconUrl = assetUrl('favicon.ico')
+
   return (
     <html lang="en">
       <head>
@@ -18,7 +22,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta property="og:title" content="Sightread" />
         <meta property="og:site_name" content="Sightread" />
         <meta property="og:description" content="app for learning piano" />
-        <meta property="og:image" content="/images/mode_falling_notes_screenshot.png" />
+        <meta property="og:image" content={ogImageUrl} />
         <meta
           property="og:image:alt"
           content="Sightread demo displaying falling notes visualization"
@@ -28,6 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:image"
+          // Keep the public, absolute URL for social sharing
           content="https://sightread.dev/images/mode_falling_notes_screenshot.png"
         />
         <meta
@@ -36,8 +41,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
 
         {/* Favicons */}
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <link rel="icon" href={faviconUrl} />
+        <link rel="apple-touch-icon" href={faviconUrl} />
 
         {/* Global Site Tag (gtag.js) - Google Analytics */}
         <script defer src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`} />

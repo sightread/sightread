@@ -15,13 +15,23 @@ bun install
 2. Run the development server
 
 ```
-bun run dev
+export VITE_PUBLIC_GA_ID=stub
+bun run dev --host
 ```
 
 3. Run the production build preview
 
 ```
 bun run build && bun run preview
+```
+
+Building for alternative paths (example)
+
+```
+VITE_PUBLIC_GA_ID=stub \
+VITE_PUBLIC_ASSET_BASE=/api/sightread/ \
+VITE_PUBLIC_ROUTER_BASENAME=/api/sightread \
+bun run build
 ```
 
 ## File & Folder Structure
