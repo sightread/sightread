@@ -7,7 +7,7 @@ import {
 } from '@/features/drawing/piano'
 import { getFixedDoNoteFromKey, getKey, isBlack } from '@/features/theory'
 import { palette } from '@/styles/common'
-import type { SongMeasure, SongNote } from '@/types'
+import type { ColoredNotesMode, SongMeasure, SongNote } from '@/types'
 import { clamp } from '@/utils'
 import midiState from '../midi'
 import { getRelativePointerCoordinates } from '../pointer'
@@ -34,6 +34,26 @@ const colors = {
   measure: 'rgb(60,60,60)',
   octaveLine: 'rgb(90,90,90)',
   rangeSelectionFill: '#44b22e',
+}
+
+const originalColoredNotesMap: { [step: string]: string } = {
+  A: 'rgb(12,23,141)',
+  B: 'rgb(75,32,139)',
+  C: 'rgb(217,59,38)',
+  D: 'rgb(238,151,56)',
+  E: 'rgb(253,229,65)',
+  F: 'rgb(62,139,38)',
+  G: 'rgb(139,210,250)',
+}
+
+const materialColoredNotesMap: { [step: string]: string } = {
+  C: 'rgb(244,67,54)',
+  D: 'rgb(255,152,0)',
+  E: 'rgb(255,235,59)',
+  F: 'rgb(76,175,80)',
+  G: 'rgb(0,188,212)',
+  A: 'rgb(33,150,243)',
+  B: 'rgb(156,39,176)',
 }
 
 /**
@@ -168,6 +188,16 @@ export function renderFallingVis(givenState: GivenState): void {
 }
 
 function getNoteColor(state: State, note: SongNote): string {
+  if (state.coloredNotes !== 'off') {
+    const key = getKey(note.midiNote, state.keySignature)
+    const step = key[0]
+    if (state.coloredNotes === 'original') {
+      return originalColoredNotesMap[step] || colors.right.white
+    } else {
+      return materialColoredNotesMap[step] || colors.right.white
+    }
+  }
+
   const hand = state.hands[note.track]?.hand ?? 'both'
   const keyType = isBlack(note.midiNote) ? 'black' : 'white'
 

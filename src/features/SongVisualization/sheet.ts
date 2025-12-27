@@ -9,7 +9,7 @@ import {
   drawTimeSignature,
   STAFF_SPACE,
 } from '@/features/drawing'
-import { Clef, SongMeasure, SongNote } from '@/types'
+import { Clef, ColoredNotesMode, SongMeasure, SongNote } from '@/types'
 import { pickHex } from '@/utils'
 import {
   drawLedgerLines,
@@ -152,7 +152,7 @@ const colorMap = {
   black: '0,0,0',
 }
 
-const coloredNotesMap: { [step: string]: string } = {
+const originalColoredNotesMap: { [step: string]: string } = {
   A: '12,23,141',
   B: '75,32,139',
   C: '217,59,38',
@@ -160,6 +160,16 @@ const coloredNotesMap: { [step: string]: string } = {
   E: '253,229,65',
   F: '62,139,38',
   G: '139,210,250',
+}
+
+const materialColoredNotesMap: { [step: string]: string } = {
+  C: '244,67,54',
+  D: '255,152,0',
+  E: '255,235,59',
+  F: '76,175,80',
+  G: '0,188,212',
+  A: '33,150,243',
+  B: '156,39,176',
 }
 
 function getGameColorPrefix(state: State, note: SongNote, canvasX: number) {
@@ -345,6 +355,12 @@ function fadeColorToWhite(color: string, gradient: any) {
   gradient.addColorStop(1, `rgba(${color},1)`)
 }
 
-function getNoteColor(coloredNotes: boolean, step: string): string {
-  return coloredNotes ? coloredNotesMap[step] : colorMap.black
+function getNoteColor(coloredNotes: ColoredNotesMode, step: string): string {
+  if (coloredNotes === 'off') {
+    return colorMap.black
+  } else if (coloredNotes === 'original') {
+    return originalColoredNotesMap[step] || colorMap.black
+  } else {
+    return materialColoredNotesMap[step] || colorMap.black
+  }
 }

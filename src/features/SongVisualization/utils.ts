@@ -64,7 +64,7 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     right: true,
     waiting: false,
     noteLabels: 'none',
-    coloredNotes: false,
+    coloredNotes: 'off',
     skipMissedNotes: false,
     visualization: 'falling-notes',
     tracks: {},

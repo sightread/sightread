@@ -85,13 +85,14 @@ export type Song = {
 export type Clef = 'bass' | 'treble'
 export type VisualizationMode = 'falling-notes' | 'sheet'
 export type Hand = 'both' | 'left' | 'right' | 'none'
+export type ColoredNotesMode = 'off' | 'original' | 'material'
 export type SongConfig = {
   left: boolean
   right: boolean
   waiting: boolean
   visualization: VisualizationMode
   noteLabels: NOTE_LABELS
-  coloredNotes: boolean
+  coloredNotes: ColoredNotesMode
   skipMissedNotes: boolean
   keySignature?: KEY_SIGNATURE
   tracks: {

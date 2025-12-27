@@ -2,7 +2,7 @@ import { Toggle } from '@/components'
 import { AdjustInstruments } from '@/features/controls'
 import { getKeySignatures, KEY_SIGNATURE, NOTE_LABELS } from '@/features/theory'
 import { useEventListener, useWhenClickedOutside } from '@/hooks'
-import { Song, SongConfig, VisualizationMode } from '@/types'
+import { ColoredNotesMode, Song, SongConfig, VisualizationMode } from '@/types'
 import clsx from 'clsx'
 import React, { PropsWithChildren, useCallback, useRef, useState } from 'react'
 import BpmDisplay from './BpmDisplay'
@@ -51,8 +51,8 @@ export default function SettingsPanel(props: SidebarProps) {
   function handleNoteLabels(noteLabels: NOTE_LABELS) {
     props.onChange({ ...props.config, noteLabels })
   }
-  function handleColoredNotes() {
-    props.onChange({ ...props.config, coloredNotes: !coloredNotes })
+  function handleColoredNotes(coloredNotes: ColoredNotesMode) {
+    props.onChange({ ...props.config, coloredNotes })
   }
   function handleKeySignature(keySignature: KEY_SIGNATURE) {
     props.onChange({ ...props.config, keySignature })
@@ -112,9 +112,16 @@ export default function SettingsPanel(props: SidebarProps) {
             </div>
             <div className="flex justify-center">
               <span className="min-w-[18ch]">Colored notes</span>
-              <div className="flex w-[120px]">
-                <Toggle checked={coloredNotes} onChange={handleColoredNotes} />
-              </div>
+              <select
+                name="coloredNotes"
+                className="w-[120px] border bg-white"
+                value={coloredNotes}
+                onChange={(e) => handleColoredNotes(e.target.value as ColoredNotesMode)}
+              >
+                <option value="off">Off</option>
+                <option value="original">Original</option>
+                <option value="material">Material</option>
+              </select>
             </div>
             <div className="flex justify-center">
               <span className="min-w-[18ch]">Note Labels</span>
