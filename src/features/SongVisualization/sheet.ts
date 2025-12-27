@@ -326,14 +326,7 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
     if (key.length === 2) {
       const symbolColor = state.coloredNotes ? `rgba(${getNoteColor(true, key[0])},1)` : 'black'
       const accidental = key[1] === '#' ? glyphs.accidentalSharp : glyphs.accidentalFlat
-      drawSymbol(
-        ctx,
-        accidental,
-        canvasX - 24,
-        canvasY,
-        STAFF_FIVE_LINES_HEIGHT * 0.6,
-        symbolColor,
-      )
+      drawSymbol(ctx, accidental, canvasX - 24, canvasY, STAFF_FIVE_LINES_HEIGHT * 0.6, symbolColor)
     }
     if (state.noteLabels !== 'none') {
       ctx.font = `9px ${TEXT_FONT}`
