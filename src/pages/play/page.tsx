@@ -1,3 +1,4 @@
+import Toast from '@/components/Toast'
 import { SongScrubBar } from '@/features/controls'
 import { useSong } from '@/features/data'
 import { useSongMetadata } from '@/features/data/library'
@@ -15,10 +16,12 @@ import {
   useWakeLock,
 } from '@/hooks'
 import { MidiStateEvent, SongSource } from '@/types'
+import { round } from '@/utils'
+import * as RadixToast from '@radix-ui/react-toast'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { SettingsPanel, TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
@@ -121,6 +124,9 @@ export default function PlaySongPage() {
   )
   const isLooping = !!range
   const requiresPermission = useAtomValue(requiresPermissionAtom)
+  const [toastMsg, setToastMsg] = useState<string | null>('')
+  const [toastKey, setToastKey] = useState<string>('')
+  const toastKeyRef = useRef(toastKey)
 
   const [songConfig, setSongConfig] = useSongSettings(id)
   const isRecording = !!recording
@@ -157,6 +163,29 @@ export default function PlaySongPage() {
     player.setSong(song, config)
   }, [song, setSongConfig, id, player])
 
+  function showToast(msg: string) {
+    const newKey = Date.now().toString()
+    setToastMsg(msg)
+    setToastKey(newKey)
+    toastKeyRef.current = newKey
+  }
+
+  function hideToast(open: boolean) {
+    if (open) return
+    setToastMsg((msg) => {
+      /*
+       * This check prevents a race condition where an old toast's
+       * timer clears a new toast's message.
+       * This is done by comparing toastKey (from closure) with
+       * toastKeyRef.current ie the latest key
+       */
+      if (toastKeyRef.current === toastKey) {
+        return ''
+      }
+      return msg
+    })
+  }
+
   useEventListener<KeyboardEvent>('keydown', (evt: KeyboardEvent) => {
     if (evt.code === 'Space') {
       evt.preventDefault()
@@ -169,6 +198,75 @@ export default function PlaySongPage() {
       player.seek(player.currentSongTime - 16 / 1000)
     } else if (evt.code === 'Period') {
       player.seek(player.currentSongTime + 16 / 1000)
+    } else if (evt.code === 'Slash') {
+      setStatsVisible(!statsVisible)
+    } else if (evt.code === 'Semicolon') {
+      setSongConfig({ ...songConfig, waiting: !waiting })
+      showToast(`Waiting mode ${waiting ? 'off' : 'on'}`)
+    } else if (evt.code === 'KeyP') {
+      if (isLooping) {
+        handleLoopingToggle(false)
+      } else {
+        handleLoopingToggle(true)
+      }
+    } else if (evt.code === 'KeyO') {
+      if (isLooping) {
+        player.seek(range[0])
+      }
+    } else if (evt.ctrlKey && evt.code === 'ArrowLeft') {
+      if (!range) return
+      const newTime = player.getPreviousMeasureTime(range[1])
+      if (newTime === undefined) return
+      showToast(`Loop end at measure: ${player.getMeasureForTime(newTime).number}`)
+      player.setRange({
+        start: range[0],
+        end: newTime,
+      })
+    } else if (evt.ctrlKey && evt.code === 'ArrowRight') {
+      if (!range) return
+      const newTime = player.getNextMeasureTime(range[1])
+      if (newTime === undefined) return
+      showToast(`Loop end at measure: ${player.getMeasureForTime(newTime).number}`)
+      player.setRange({
+        start: range[0],
+        end: newTime,
+      })
+    } else if (evt.code === 'ArrowLeft') {
+      if (!range) return
+      const newTime = player.getPreviousMeasureTime(range[0])
+      if (newTime === undefined) return
+      showToast(`Loop start from measure: ${player.getMeasureForTime(newTime).number}`)
+      player.setRange({
+        start: newTime,
+        end: range[1],
+      })
+    } else if (evt.code === 'ArrowRight') {
+      if (!range) return
+      const newTime = player.getNextMeasureTime(range[0])
+      if (newTime === undefined) return
+      showToast(`Loop start from measure: ${player.getMeasureForTime(newTime).number}`)
+      player.setRange({
+        start: newTime,
+        end: range[1],
+      })
+    } else if (evt.code === 'Equal') {
+      player.increaseBpm()
+      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
+    } else if (evt.code === 'Minus') {
+      player.decreaseBpm()
+      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
+    } else if (evt.code === 'BracketLeft') {
+      setSongConfig({ ...songConfig, left: !songConfig.left })
+    } else if (evt.code === 'BracketRight') {
+      setSongConfig({ ...songConfig, right: !songConfig.right })
+    } else if (evt.shiftKey && evt.code === 'Quote') {
+      if (songConfig.visualization === 'falling-notes') {
+        setSongConfig({ ...songConfig, visualization: 'sheet' })
+      } else {
+        setSongConfig({ ...songConfig, visualization: 'falling-notes' })
+      }
+    } else if (evt.code === 'Digit0') {
+      player.seek(0)
     }
   })
 
@@ -287,6 +385,13 @@ export default function PlaySongPage() {
               />
             </div>
             {statsVisible && <StatsPopup />}
+            <Toast
+              open={!!toastMsg}
+              onOpenChange={hideToast}
+              title={toastMsg ? toastMsg : ''}
+              toastKey={toastKey}
+            />
+            <RadixToast.Viewport className="fixed right-4 bottom-4 z-50 flex w-80 max-w-[100vw] flex-col-reverse gap-3 p-4" />
           </>
         )}
         <div
