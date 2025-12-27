@@ -60,11 +60,11 @@ function getInstrument(track: Track): InstrumentName {
 
 export function getDefaultSongSettings(song?: Song): SongConfig {
   const songConfig: SongConfig = {
-    left: true,
+    left: false,
     right: true,
-    waiting: false,
-    noteLabels: 'none',
-    coloredNotes: false,
+    waiting: true,
+    noteLabels: 'alphabetical',
+    coloredNotes: true,
     skipMissedNotes: false,
     visualization: 'falling-notes',
     tracks: {},
@@ -144,6 +144,17 @@ function isMatchingHand(item: CanvasItem, state: GivenState) {
     case 'measure':
       return state.visualization === 'falling-notes'
     case 'note':
+      // Check if this is single-track MIDI with metadata
+      const numTracks = hands ? Object.keys(hands).length : 0
+      const isSingleTrack = numTracks === 1
+
+      if (isSingleTrack && state.handFingerMetadata) {
+        // For single-track MIDI: always return true here, let renderSheetNote do the filtering
+        // based on metadata
+        return true
+      }
+
+      // For multi-track MIDI: use track-based hand assignments
       const showLeft = hand === 'both' || hand === 'left'
       if (showLeft && hands[item.track]?.hand === 'left') {
         return true

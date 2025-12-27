@@ -298,6 +298,7 @@ export default function PlaySongPage() {
         >
           <SongVisualizer
             song={song}
+            songId={id}
             config={songConfig}
             hand={hand}
             handSettings={getHandSettings(songConfig)}

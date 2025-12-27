@@ -80,6 +80,7 @@ export type Song = {
   secondsToTicks: (seconds: number) => number
   ticksToSeconds: (seconds: number) => number
   backing?: HTMLAudioElement
+  handFingerMetadata?: any // HandFingerMetadata from features/metadata
 }
 
 export type Clef = 'bass' | 'treble'

@@ -25,6 +25,7 @@ export type GivenState = {
   selectedRange?: { start: number; end: number }
   game: boolean
   player: Player
+  handFingerMetadata?: any // HandFingerMetadata from features/metadata
 }
 
 export function render(state: Readonly<GivenState>) {
