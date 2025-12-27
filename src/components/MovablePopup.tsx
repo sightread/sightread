@@ -1,5 +1,3 @@
-'use client'
-
 import { ChevronDown, ChevronUp } from '@/icons'
 import React, { ReactNode, useEffect, useRef, useState } from 'react'
 
