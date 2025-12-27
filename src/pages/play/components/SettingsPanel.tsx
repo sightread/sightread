@@ -87,6 +87,7 @@ export default function SettingsPanel(props: SidebarProps) {
             onClick={() => handleVisualization('falling-notes')}
           >
             <input
+              name="visualization"
               type="radio"
               className="w-5"
               checked={visualization === 'falling-notes'}
@@ -98,7 +99,13 @@ export default function SettingsPanel(props: SidebarProps) {
             className="flex items-center justify-center gap-1"
             onClick={() => handleVisualization('sheet')}
           >
-            <input className="w-5" type="radio" checked={visualization === 'sheet'} readOnly />
+            <input
+              className="w-5"
+              type="radio"
+              name="visualization"
+              checked={visualization === 'sheet'}
+              readOnly
+            />
             <span className="block w-[120px] text-left"> Sheet hero (beta)</span>
           </button>
         </Section>

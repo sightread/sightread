@@ -72,6 +72,8 @@ export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
         </button>
         <div className="absolute top-1/2 right-5 -translate-y-1/2 text-white">
           <select
+            name="featured-song"
+            id="featured-song"
             style={{
               padding: 6,
               backgroundColor: '#2e2e2e',
