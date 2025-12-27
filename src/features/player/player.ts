@@ -323,6 +323,10 @@ export class Player {
     return this.bpmModifier
   }
 
+  getBpmModifierValue() {
+    return this.store.get(this.bpmModifier)
+  }
+
   setHand(hand: any) {
     this.hand = hand
   }
@@ -626,24 +630,47 @@ export class Player {
     return this.range
   }
 
+  getPreviousMeasureTime(time: number) {
+    const currMeasure = this.getMeasureForTime(time)
+    if (currMeasure.number > 1) {
+      if (currMeasure.time === time) {
+        // This assumes the measures are always in sorted order by time
+        const currMeasureIdx = currMeasure.number - 1
+        const prevMeasure = this.getSong()?.measures[currMeasureIdx - 1]
+        if (prevMeasure) {
+          return prevMeasure.time
+        }
+      } else {
+        return currMeasure.time
+      }
+    }
+  }
+
+  getNextMeasureTime(time: number) {
+    const song = this.getSong()
+    if (!song) {
+      return
+    }
+
+    const currMeasure = this.getMeasureForTime(time)
+    const currMeasureIdx = currMeasure.number - 1
+    if (currMeasureIdx < song.measures.length - 1) {
+      const nextMeasure = song.measures[currMeasureIdx + 1]
+      return nextMeasure.time
+    } else if (currMeasure.time < song.duration) {
+      return song.duration
+    }
+  }
+
   /**
    * Seeks to previous measure:
    * - If in the middle of a measure, seek to the start of the current measure.
    * - If at the start of a measure, seek to the previous one
    */
   seekToPreviousMeasure() {
-    const currMeasure = this.getMeasureForTime(this.getTime())
-    if (currMeasure.number > 1) {
-      if (currMeasure.time === this.getTime()) {
-        // This assumes the measures are always in sorted order by time
-        const currMeasureIdx = currMeasure.number - 1
-        const prevMeasure = this.getSong()?.measures[currMeasureIdx - 1]
-        if (prevMeasure) {
-          this.seek(prevMeasure.time)
-        }
-      } else {
-        this.seek(currMeasure.time)
-      }
+    const prevMeasureTime = this.getPreviousMeasureTime(this.getTime())
+    if (prevMeasureTime !== undefined) {
+      this.seek(prevMeasureTime)
     }
   }
 
@@ -651,16 +678,9 @@ export class Player {
    * Seeks to the next measure's start if not at the last measure.
    */
   seekToNextMeasure() {
-    const song = this.getSong()
-    if (!song) {
-      return
-    }
-
-    const currMeasure = this.getMeasureForTime(this.getTime())
-    const currMeasureIdx = currMeasure.number - 1
-    if (currMeasureIdx < song.measures.length - 1) {
-      const nextMeasure = song.measures[currMeasureIdx + 1]
-      this.seek(nextMeasure.time)
+    const nextMeasureTime = this.getNextMeasureTime(this.getTime())
+    if (nextMeasureTime !== undefined) {
+      this.seek(nextMeasureTime)
     }
   }
 }
