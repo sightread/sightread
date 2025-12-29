@@ -4,38 +4,39 @@ import { Link } from 'react-router'
 import { FeaturedSongsPreview } from './FeaturedSongsPreview'
 
 export default function Home() {
-  const overlappingHeight = 190
   return (
     <>
-      <div className="relative flex min-h-[800px,100vh] w-full flex-col text-white">
+      <div className="relative flex min-h-screen w-full flex-col text-white">
         <AppBar />
-        <div className="bg-purple-primary flex flex-col items-center p-6 text-center">
-          <h1 className="text-responsive-xxl font-bold">Your Piano Journey Begins Here</h1>
-          <Sizer height={6} />
-          <h3 className="text-responsive-xl">
-            Plug in your keyboard and learn, right in your browser
-          </h3>
-          <Sizer height={overlappingHeight} />
-        </div>
-        <FeaturedSongsPreview marginTop={-overlappingHeight} />
-        <div className="bg-background mt-auto flex min-h-[180px] flex-col items-center gap-4 pt-6">
-          <h3 className="text-black" style={{ fontSize: 'clamp(1rem, 1rem + 0.8vw, 1.6rem)' }}>
-            Start learning
-          </h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link to={'/songs'}>
-              <Button className="bg-purple-primary hover:bg-purple-hover text-white">
-                Learn a song
-              </Button>
-            </Link>
-            <Link to={'/freeplay'}>
-              <Button className="border-purple-primary text-purple-primary hover:bg-purple-light border bg-white">
-                Free play
-              </Button>
-            </Link>
+        <div className="bg-violet-600">
+          <div className="mx-auto w-full max-w-(--breakpoint-lg) px-6 py-10">
+            <div className="grid items-center gap-8 md:grid-cols-[1.1fr_0.9fr]">
+              <div className="flex flex-col gap-4 text-center md:text-left">
+                <h1 className="text-responsive-xxl font-bold">Your Piano Journey Begins Here</h1>
+                <h3 className="text-responsive-xl text-white/85">
+                  Plug in your keyboard and learn, right in your browser
+                </h3>
+                <div className="flex flex-wrap justify-center gap-3 md:justify-start">
+                  <Link to={'/songs'}>
+                    <Button className="bg-white text-gray-900 hover:bg-gray-100 active:bg-gray-200">
+                      Learn a song
+                    </Button>
+                  </Link>
+                  <Link to={'/freeplay'}>
+                    <Button className="border border-white/50 text-white hover:bg-white/10">
+                      Free play
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="flex justify-center md:justify-end">
+                <div className="w-full rounded-2xl shadow-[0_18px_40px_rgba(17,24,39,0.35)]">
+                  <FeaturedSongsPreview className="w-full" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <Sizer height={16} />
         <MarketingFooter />
       </div>
     </>
@@ -57,10 +58,10 @@ function Button({
       style={{
         transition: 'background-color 150ms',
         cursor: 'pointer',
-        fontSize: 'clamp(0.875rem, 0.875rem + 0.4vw, 1.1rem)',
-        padding: '8px 14px',
-        borderRadius: 12,
-        fontWeight: 700,
+        fontSize: 'clamp(0.875rem, 0.875rem + 0.35vw, 1.05rem)',
+        padding: '8px 16px',
+        borderRadius: 10,
+        fontWeight: 500,
         minWidth: 'max-content',
         ...style,
       }}

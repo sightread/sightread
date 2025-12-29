@@ -13,7 +13,13 @@ const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
   canon: { source: 'builtin', id: 'canon-in-d.mid' },
 }
 
-export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
+export function FeaturedSongsPreview({
+  marginTop = 0,
+  className,
+}: {
+  marginTop?: number
+  className?: string
+}) {
   const playerState = usePlayerState()
   const [currentSong, setCurrentSong] = useState<keyof typeof FEATURED_SONGS>('ode')
   const { id: songId, source } = FEATURED_SONGS[currentSong]
@@ -35,11 +41,11 @@ export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
   return (
     <div
       className={clsx(
-        'relative h-[400px] w-3/4 max-w-[760px] self-center',
-        'bg-gray-[#2e2e2e] overflow-hidden rounded-lg',
-        'shadow-xl',
+        'relative h-[360px] w-full max-w-[640px] overflow-hidden rounded-lg shadow-xl',
+        'bg-gray-[#2e2e2e]',
+        className,
       )}
-      style={{ minWidth: 'min(100vw - 40px, 400px)', marginTop }}
+      style={{ minWidth: 'min(100vw - 40px, 360px)', marginTop }}
     >
       <SongPreview songId={songId} source={source} />
       {showPlaceholder && (
@@ -49,37 +55,22 @@ export function FeaturedSongsPreview({ marginTop }: { marginTop: number }) {
           )}
         </div>
       )}
-      <div className="absolute top-0 flex h-[50px] w-full items-center justify-center bg-black/80">
-        <button
-          className={clsx(
-            'items-center gap-1 text-white hover:text-gray-300',
-            'absolute left-5 flex sm:static',
-            !playerState.canPlay && 'cursor-progress',
-          )}
-          onClick={() => player.toggle()}
-        >
-          {playerState.playing ? (
-            <>
-              <Pause size={24} />
-              Pause
-            </>
-          ) : (
-            <>
-              <Play size={24} />
-              Play
-            </>
-          )}
-        </button>
-        <div className="absolute top-1/2 right-5 -translate-y-1/2 text-white">
+      <div className="absolute top-0 left-0 right-0 z-20 flex h-14 items-center justify-between border-b border-gray-700 bg-gray-800 px-4">
+        <div className="flex items-center gap-3">
+          <button
+            className={clsx(
+              'flex h-8 w-8 items-center justify-center rounded-full bg-purple-primary text-white transition hover:bg-purple-hover',
+              !playerState.canPlay && 'cursor-progress',
+            )}
+            onClick={() => player.toggle()}
+          >
+            {playerState.playing ? <Pause size={18} /> : <Play size={18} />}
+          </button>
+          <span className="text-sm font-mono text-gray-400">Preview</span>
+        </div>
+        <div className="text-white">
           <select
-            style={{
-              padding: 6,
-              backgroundColor: '#2e2e2e',
-              color: 'white',
-              fontSize: 14,
-              fontWeight: 700,
-              border: 'none',
-            }}
+            className="rounded bg-gray-700 px-3 py-1.5 text-sm font-medium text-gray-200 transition hover:bg-gray-600"
             onChange={(e) => {
               setCurrentSong(e.target.value as any)
             }}
