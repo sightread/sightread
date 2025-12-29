@@ -3,7 +3,7 @@ import { useSongManifest } from '@/features/data/library'
 import { initialize } from '@/features/persist/persistence'
 import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
-import { Plus } from '@/icons'
+import { ChevronDown, FolderOpen } from '@/icons'
 import { SongMetadata } from '@/types'
 import { formatTime } from '@/utils'
 import clsx from 'clsx'
@@ -56,22 +56,25 @@ export default function SelectSongPage() {
           <Sizer height={8} />
           <h3 className="text-base"> Select a song, choose your settings, and begin learning</h3>
           <Sizer height={24} />
-          <div className="flex gap-4">
-            <SearchBox
-              placeholder={'Search Songs by Title or Artist'}
-              onSearch={setSearch}
-              autoFocus={true}
-            />
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <SearchBox
+                placeholder={'Search Songs by Title or Artist'}
+                onSearch={setSearch}
+                autoFocus={true}
+              />
+            </div>
             <button
               className={clsx(
-                'hidden cursor-pointer flex-nowrap whitespace-nowrap sm:flex',
-                'items-center gap-1 rounded-md px-4 py-2',
-                'bg-violet-600 text-white transition hover:bg-violet-500 active:bg-violet-700',
+                'cursor-pointer flex-nowrap whitespace-nowrap',
+                'inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm',
+                'hover:bg-gray-50 transition-colors',
               )}
               onClick={handleAddNew}
             >
-              <Plus width={20} height={20} />
-              Manage Folders
+              <FolderOpen width={16} height={16} />
+              Folders
+              <ChevronDown width={16} height={16} />
             </button>
           </div>
           <Sizer height={32} />

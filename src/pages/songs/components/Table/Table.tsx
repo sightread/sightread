@@ -1,5 +1,6 @@
 import { useWindowWidth } from '@/hooks'
 import { breakpoints } from '@/utils'
+import clsx from 'clsx'
 import * as React from 'react'
 import { useState } from 'react'
 import { TableHead } from './TableHead'
@@ -48,8 +49,8 @@ export default function Table<T extends Row>({
   const gridTemplateColumns = `repeat(${columns.length}, 1fr)`
 
   return (
-    <>
-      <div className="grid" style={{ gridTemplateColumns }}>
+    <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="grid bg-gray-50" style={{ gridTemplateColumns }}>
         <TableHead
           columns={columns}
           sortCol={sortCol}
@@ -57,9 +58,9 @@ export default function Table<T extends Row>({
           rowHeight={rowHeight}
         />
       </div>
-      <div className="relative flex min-h-64 grow">
+      <div className="relative flex min-h-64 flex-1">
         <div
-          className="absolute grid h-full w-full content-start overflow-y-scroll rounded-md bg-white shadow-md"
+          className="absolute inset-0 grid content-start overflow-y-auto"
           style={{ gridTemplateColumns }}
         >
           {sorted.length === 0 && <h2 className="p-5 text-2xl">No results</h2>}
@@ -76,9 +77,14 @@ export default function Table<T extends Row>({
                 {columns.map((col, j) => {
                   let cellValue = !!col.format ? col.format(row[col.id]) : row[col.id]
                   const paddingLeft = j === 0 ? 20 : 0
+                  const isDuration = col.id === 'duration'
                   return (
                     <span
-                      className="relative flex shrink-0 items-center px-3 text-sm group-even:bg-gray-100 group-hover:bg-violet-200"
+                      className={clsx(
+                        'relative flex shrink-0 items-center px-3 text-sm',
+                        'group-even:bg-gray-50/50 group-hover:bg-gray-50',
+                        isDuration && 'justify-end font-mono text-gray-500',
+                      )}
                       key={`row-${i}-col-${j}`}
                       style={{ paddingLeft, height: rowHeight }}
                     >
@@ -91,6 +97,9 @@ export default function Table<T extends Row>({
           })}
         </div>
       </div>
-    </>
+      <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+        <span>Showing {sorted.length} songs</span>
+      </div>
+    </div>
   )
 }

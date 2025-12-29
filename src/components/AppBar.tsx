@@ -17,7 +17,7 @@ const navItems: NavItem[] = [
 export default function AppBar() {
   return (
     <div
-      className="bg-purple-dark relative flex h-[50px] min-h-[50px] flex-col justify-center"
+      className="relative flex h-[50px] min-h-[50px] flex-col justify-center bg-violet-600"
       style={{
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
