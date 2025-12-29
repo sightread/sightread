@@ -54,7 +54,7 @@ export default function Modal({
         }
       }}
     >
-      <RACModal className={modalStyles({ className: modalClassName })}>
+      <RACModal className={modalStyles({ className: modalClassName })} isDismissable>
         <Dialog
           className={twMerge('relative rounded-md bg-white', className)}
           aria-label="Modal"

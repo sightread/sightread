@@ -4,7 +4,7 @@ import { ArrowLeft, BarChart2, Midi, Settings, SkipBack } from '@/icons'
 import { isMobile } from '@/utils'
 import clsx from 'clsx'
 import React, { MouseEvent, PropsWithChildren } from 'react'
-import { Dialog, DialogTrigger, Pressable, TooltipTrigger } from 'react-aria-components'
+import { Button, Dialog, DialogTrigger, TooltipTrigger } from 'react-aria-components'
 import SettingsPanel from './SettingsPanel'
 import StatusIcon from './StatusIcon'
 
@@ -89,12 +89,8 @@ export default function TopBar({
   )
 }
 
-type ButtonProps = React.DetailedHTMLProps<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  HTMLButtonElement
->
 type ButtonWithTooltipProps = PropsWithChildren<
-  ButtonProps & { tooltip: string; isActive?: boolean }
+  React.ComponentProps<typeof Button> & { tooltip: string; isActive?: boolean }
 >
 
 export function ButtonWithTooltip({
@@ -106,19 +102,16 @@ export function ButtonWithTooltip({
 }: ButtonWithTooltipProps) {
   return (
     <TooltipTrigger delay={0}>
-      <Pressable>
-        <button
-          {...rest}
-          role="button"
-          className={clsx(
-            className,
-            isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
-            'hover:fill-purple-hover hover:text-purple-hover',
-          )}
-        >
-          {children}
-        </button>
-      </Pressable>
+      <Button
+        {...rest}
+        className={clsx(
+          className,
+          isActive ? 'fill-purple-primary text-purple-primary' : 'fill-white text-white',
+          'hover:fill-purple-hover hover:text-purple-hover',
+        )}
+      >
+        {children}
+      </Button>
       <Tooltip> {tooltip} </Tooltip>
     </TooltipTrigger>
   )
