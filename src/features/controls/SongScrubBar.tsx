@@ -14,13 +14,16 @@ export default function SongScrubBar({
   onSeek = () => {},
   onClick = () => {},
   rangeSelection,
+  variant = 'default',
 }: {
   rangeSelection?: undefined | { start: number; end: number }
   setRange?: any
   onSeek?: any
   height: number
   onClick?: any
+  variant?: 'default' | 'compact'
 }) {
+  const isCompact = variant === 'compact'
   const [pointerOver, setPointerOver] = useState(false)
   const divRef = useRef<HTMLDivElement>(null)
   const progressBarLeftOffsetMeasure = useRef<HTMLDivElement>(null)
@@ -139,7 +142,10 @@ export default function SongScrubBar({
 
   return (
     <div
-      className="relative flex w-full touch-none border-b border-b-black bg-gray-300 select-none"
+      className={clsx(
+        'relative flex w-full touch-none select-none',
+        isCompact ? 'flex-col gap-1 bg-transparent' : 'border-b border-b-black bg-gray-300',
+      )}
       onClick={onClick}
       style={{ height }}
       ref={wrapperRef}
@@ -165,40 +171,61 @@ export default function SongScrubBar({
         timeSpanRef.current.innerText = formatTime(player.getRealTimeDuration(0, songTime))
       }}
     >
-      <div
-        className={clsx(
-          pointerOver ? 'flex' : 'hidden',
-          'absolute z-30 min-w-max items-center justify-between gap-8',
-          '-top-1 rounded-lg bg-black/90 px-4 py-2',
-          '-translate-y-full',
-        )}
-        ref={toolTipRef}
-      >
-        <span className="text-gray-300">
-          Time: <span className="text-purple-hover text-sm" ref={timeSpanRef} />
-        </span>
-        <span className="text-gray-300">
-          Measure: <span className="text-purple-hover text-sm" ref={measureSpanRef} />
-        </span>
-      </div>
-      <span ref={currentTimeRef} className="min-w-[80px] self-center px-4 py-2 text-black" />
+      {!isCompact && (
+        <div
+          className={clsx(
+            pointerOver ? 'flex' : 'hidden',
+            'absolute z-30 min-w-max items-center justify-between gap-8',
+            '-top-1 rounded-lg bg-black/90 px-4 py-2',
+            '-translate-y-full',
+          )}
+          ref={toolTipRef}
+        >
+          <span className="text-gray-300">
+            Time: <span className="text-purple-hover text-sm" ref={timeSpanRef} />
+          </span>
+          <span className="text-gray-300">
+            Measure: <span className="text-purple-hover text-sm" ref={measureSpanRef} />
+          </span>
+        </div>
+      )}
+      {!isCompact && (
+        <span ref={currentTimeRef} className="min-w-[80px] self-center px-4 py-2 text-black" />
+      )}
       <div
         ref={progressBarRef}
-        className="relative h-4 grow self-center overflow-hidden rounded-full"
+        className={clsx(
+          'relative self-center overflow-hidden rounded-full',
+          isCompact ? 'h-2 w-full bg-gray-200' : 'h-4 grow',
+        )}
         onPointerOver={() => setPointerOver(true)}
         onPointerOut={() => setPointerOver(false)}
       >
         <div ref={progressBarLeftOffsetMeasure} className="absolute" />
-        <div ref={measureRef} className={`absolute h-full w-full bg-gray-400`} />
+        <div
+          ref={measureRef}
+          className={clsx('absolute h-full w-full', isCompact ? 'bg-gray-200' : 'bg-gray-400')}
+        />
         <div
           ref={divRef}
-          className={`bg-purple-primary pointer-events-none absolute h-full w-full`}
+          className={clsx(
+            'pointer-events-none absolute h-full w-full',
+            isCompact ? 'bg-violet-600' : 'bg-purple-primary',
+          )}
           style={{ left: -width }}
         />
       </div>
-      <span className="min-w-[80px] self-center px-4 py-2 text-black">
-        {song ? formatTime(player.getRealTimeDuration(0, song.duration)) : '00:00'}
-      </span>
+      {!isCompact && (
+        <span className="min-w-[80px] self-center px-4 py-2 text-black">
+          {song ? formatTime(player.getRealTimeDuration(0, song.duration)) : '00:00'}
+        </span>
+      )}
+      {isCompact && (
+        <div className="flex w-full items-center justify-between text-[10px] font-mono text-gray-500">
+          <span ref={currentTimeRef}>00:00</span>
+          <span>{song ? formatTime(player.getRealTimeDuration(0, song.duration)) : '00:00'}</span>
+        </div>
+      )}
       {rangeSelection && (
         <div ref={rangeRef} className="pointer-events-none absolute flex h-full items-center">
           <div className="bg-purple-dark/40 absolute h-4 w-[calc(100%-10px)]" />

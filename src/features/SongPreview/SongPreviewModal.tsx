@@ -3,7 +3,6 @@ import { useEventListener, usePlayerState } from '@/hooks'
 import { SongMetadata } from '@/types'
 import { Pause, Play } from 'lucide-react'
 import { useAtomValue } from 'jotai'
-import * as React from 'react'
 import { Button, Heading, Text } from 'react-aria-components'
 import { createSearchParams, useNavigate } from 'react-router'
 import { SongScrubBar } from '../controls'
@@ -28,6 +27,7 @@ export default function SongPreviewModal({
   const song = useAtomValue(player.song)
   const trackCount = song ? Object.keys(song.tracks).length : undefined
   const noteCount = song?.notes.length
+  const playSongSearch = id && source ? createSearchParams({ id, source }).toString() : ''
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (!show) return
@@ -35,6 +35,12 @@ export default function SongPreviewModal({
     if (event.key === ' ') {
       event.preventDefault()
       player.toggle()
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      if (playSongSearch) {
+        navigate({ pathname: '/play', search: `?${playSongSearch}` })
+      }
     }
   })
 
@@ -47,7 +53,6 @@ export default function SongPreviewModal({
     return null
   }
 
-  const playSongSearch = createSearchParams({ id, source }).toString()
   const trackCountLabel = trackCount === undefined ? '--' : String(trackCount).padStart(2, '0')
   const noteCountLabel = noteCount === undefined ? '--' : noteCount.toLocaleString()
 
@@ -55,22 +60,24 @@ export default function SongPreviewModal({
     <Modal
       show={show && !!id}
       onClose={handleClose}
-      className="p-0"
+      className="overflow-hidden rounded-2xl p-0"
       modalClassName="max-w-[1100px] w-[min(96vw,1100px)]"
     >
-      <div className="flex h-[min(90vh,700px)] w-full overflow-hidden rounded-xl bg-white text-left">
+      <div className="flex h-[min(90vh,700px)] w-full bg-white text-left">
         <div
           className="relative flex-1 overflow-hidden bg-[#21242b]"
           onClick={() => player.toggle()}
         >
-          <PreviewIcon
-            isLoading={!playerState.canPlay}
-            isPlaying={playerState.playing}
-            onPlay={(e) => {
-              e.stopPropagation()
-              player.play()
-            }}
-          />
+          {!playerState.canPlay && (
+            <PreviewIcon
+              isLoading={!playerState.canPlay}
+              isPlaying={playerState.playing}
+              onPlay={(e) => {
+                e.stopPropagation()
+                player.play()
+              }}
+            />
+          )}
           {id && source && <SongPreview songId={id} source={source} />}
         </div>
         <div className="flex w-[420px] flex-col border-l border-gray-200 bg-white">
@@ -90,8 +97,8 @@ export default function SongPreviewModal({
                 >
                   {playerState.playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 </Button>
-                <div className="flex-1 overflow-hidden rounded-md border border-gray-200">
-                  <SongScrubBar height={22} />
+                <div className="flex-1 overflow-hidden rounded-md border border-gray-200 px-3 py-2">
+                  <SongScrubBar height={32} variant="compact" />
                 </div>
               </div>
             </div>
@@ -122,7 +129,7 @@ export default function SongPreviewModal({
             <div className="mt-3 text-center text-xs text-gray-400">
               Press{' '}
               <kbd className="rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono text-gray-500">
-                Space
+                Enter
               </kbd>{' '}
               to start
             </div>
