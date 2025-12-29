@@ -34,46 +34,53 @@ export default function TopBar({
   onClickStats,
 }: TopBarProps) {
   return (
-    <div className="align-center relative z-10 flex h-[50px] min-h-[50px] w-screen justify-center gap-8 bg-[#292929] px-1">
-      <ButtonWithTooltip tooltip="Back" className="absolute! top-1/2 left-3 -translate-y-1/2">
-        <ArrowLeft size={24} onClick={onClickBack} />
-      </ButtonWithTooltip>
-      <div
-        className={clsx(
-          'flex h-full items-center gap-8',
-          'sm:absolute sm:left-1/2 sm:-translate-x-3/4',
-        )}
-      >
-        <ButtonWithTooltip tooltip="Restart">
-          <SkipBack size={24} onClick={onClickRestart} />
-        </ButtonWithTooltip>
-        <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
-      </div>
-      <div className="hidden h-full items-center text-white sm:ml-auto sm:flex">{title}</div>
-      <div className="mr-[20px] flex h-full items-center gap-8">
-        <ButtonWithTooltip tooltip="Choose a MIDI device">
-          <Midi size={24} onClick={onClickMidi} />
-        </ButtonWithTooltip>
-        <DialogTrigger>
-          <ButtonWithTooltip tooltip="Settings">
-            <Settings size={24} />
+    <div className="align-center relative z-10 h-[50px] min-h-[50px] w-screen bg-[#292929] px-3">
+      <div className="grid h-full grid-cols-[1fr_auto_1fr] items-center">
+        <div className="flex items-center justify-start">
+          <ButtonWithTooltip tooltip="Back">
+            <ArrowLeft size={24} onClick={onClickBack} />
           </ButtonWithTooltip>
-          <Popover containerPadding={0} className={'w-screen border-0'}>
-            <Dialog>
-              <SettingsPanel {...settingsProps} />
-            </Dialog>
-          </Popover>
-        </DialogTrigger>
-        {!isMobile() && <VolumeSliderButton />}
-        {
-          <ButtonWithTooltip tooltip={statsVisible ? 'Hide Stats' : 'Show Stats'}>
-            <BarChart2
-              onClick={onClickStats}
-              size={24}
-              className={statsVisible ? 'text-white' : 'text-gray-400'}
-            />
+        </div>
+        <div className="flex items-center justify-center gap-6">
+          <ButtonWithTooltip tooltip="Restart">
+            <SkipBack size={24} onClick={onClickRestart} />
           </ButtonWithTooltip>
-        }
+          <StatusIcon
+            isPlaying={isPlaying}
+            isLoading={isLoading}
+            onTogglePlaying={onTogglePlaying}
+          />
+        </div>
+        <div className="flex items-center justify-end gap-6">
+          {title && (
+            <span className="max-w-[min(30vw,320px)] truncate text-white" title={title}>
+              {title}
+            </span>
+          )}
+          <ButtonWithTooltip tooltip="Choose a MIDI device">
+            <Midi size={24} onClick={onClickMidi} />
+          </ButtonWithTooltip>
+          <DialogTrigger>
+            <ButtonWithTooltip tooltip="Settings">
+              <Settings size={24} />
+            </ButtonWithTooltip>
+            <Popover containerPadding={0} className={'w-screen border-0'}>
+              <Dialog>
+                <SettingsPanel {...settingsProps} />
+              </Dialog>
+            </Popover>
+          </DialogTrigger>
+          {!isMobile() && <VolumeSliderButton />}
+          {
+            <ButtonWithTooltip tooltip={statsVisible ? 'Hide Stats' : 'Show Stats'}>
+              <BarChart2
+                onClick={onClickStats}
+                size={24}
+                className={statsVisible ? 'text-white' : 'text-gray-400'}
+              />
+            </ButtonWithTooltip>
+          }
+        </div>
       </div>
     </div>
   )
