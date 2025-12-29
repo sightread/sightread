@@ -46,7 +46,9 @@ export default function Table<T extends Row>({
     sortCol < 0,
     filtered,
   )
-  const gridTemplateColumns = `repeat(${columns.length}, 1fr)`
+  const gridTemplateColumns = columns
+    .map((col) => (col.id === 'duration' ? 'auto' : '1fr'))
+    .join(' ')
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -81,14 +83,14 @@ export default function Table<T extends Row>({
                   return (
                     <span
                       className={clsx(
-                        'relative flex shrink-0 items-center border-b border-gray-200 px-3 text-sm',
+                        'relative flex min-w-0 items-center border-b border-gray-200 px-3 text-sm',
                         'group-hover:bg-violet-50',
                         isDuration && 'justify-end font-mono text-gray-500',
                       )}
                       key={`row-${i}-col-${j}`}
                       style={{ paddingLeft, height: rowHeight }}
                     >
-                      {cellValue}
+                      <span className="min-w-0 truncate whitespace-nowrap">{cellValue}</span>
                     </span>
                   )
                 })}

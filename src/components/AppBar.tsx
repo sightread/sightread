@@ -73,7 +73,6 @@ function SmallWindowNav() {
       <Popover className="w-[min(90vw,360px)] rounded-2xl border border-white/10 bg-violet-900/95 p-2 shadow-xl backdrop-blur">
         <RacMenu className="outline-none">
           {navItems.map((nav) => {
-            const isActive = currentRoute === nav.route
             return (
               <MenuItem
                 key={nav.label}
@@ -81,7 +80,6 @@ function SmallWindowNav() {
                 className={clsx(
                   'flex w-full items-center rounded-xl px-3 py-2 text-base font-medium text-white/90 outline-none transition',
                   'data-[focused]:bg-white/15 data-[pressed]:bg-white/10',
-                  isActive && 'bg-white/15 text-white',
                 )}
               >
                 {nav.label}
