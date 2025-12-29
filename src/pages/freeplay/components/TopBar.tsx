@@ -52,7 +52,9 @@ function SelectInstrument(props: any) {
       isLoading={props.isLoading}
       errorMessage={props.isError ? 'Error loading instruments' : undefined}
       selectedKey={props.value}
+      menuTrigger="focus"
       onSelectionChange={props.onChange as any}
+      onFocus={(event) => event.currentTarget.select()}
       items={gmInstruments.map((instrument) => ({
         id: instrument,
         name: formatInstrumentName(instrument),
