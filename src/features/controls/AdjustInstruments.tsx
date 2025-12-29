@@ -197,7 +197,9 @@ function InstrumentSelect({
       errorMessage={error ? 'Error loading instruments' : undefined}
       isLoading={loading}
       selectedKey={value}
+      menuTrigger="focus"
       onSelectionChange={onSelect}
+      onFocus={(event) => event.currentTarget.select()}
       items={gmInstruments.map((instrument) => ({
         id: instrument,
         name: formatInstrumentName(instrument),
