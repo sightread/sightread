@@ -52,10 +52,12 @@ export default function SelectSongPage() {
       <div className="bg-purple-lightest flex min-h-screen w-full flex-col">
         <AppBar />
         <div className="mx-auto flex w-full max-w-(--breakpoint-lg) grow flex-col p-6">
-          <h2 className="text-3xl">Learn a song</h2>
-          <Sizer height={8} />
-          <h3 className="text-base"> Select a song, choose your settings, and begin learning</h3>
-          <Sizer height={24} />
+          <h2 className="text-2xl font-semibold text-gray-900">Learn a song</h2>
+          <Sizer height={4} />
+          <h3 className="text-sm text-gray-600">
+            Select a song, choose your settings, and begin learning
+          </h3>
+          <Sizer height={16} />
           <div className="flex items-center gap-4">
             <div className="flex-1">
               <SearchBox
@@ -77,7 +79,7 @@ export default function SelectSongPage() {
               <ChevronDown width={16} height={16} />
             </button>
           </div>
-          <Sizer height={32} />
+          <Sizer height={20} />
           <Table
             columns={[
               { label: 'Name', id: 'title', keep: true },
