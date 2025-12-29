@@ -218,12 +218,54 @@ class MidiState {
     this.pressedNotes.set(note, { time, vel: velocity })
     this.notify({ note, velocity, type: 'down', time })
   }
-  pressOutput(note: number, volume: number) {
-    for (const output of enabledOutputDevices) {
-      const midiNoteOnCh1 = 144
-      const velocity = volume * 127
-      var data = [midiNoteOnCh1, note, velocity]
-      output[1]?.send(data)
+  pressOutput(
+    note: number,
+    volume: number,
+    options?: {
+      deviceId?: string | null
+      channel?: number | null
+    },
+  ) {
+    const channel = Math.max(0, Math.min(15, options?.channel ?? 0))
+    const midiNoteOn = 0x90 + channel
+    const normalizedVolume = Math.max(0, Math.min(1, volume))
+    if (normalizedVolume <= 0) {
+      return
+    }
+    const velocity = Math.round(normalizedVolume * 127)
+    const data = [midiNoteOn, note, velocity]
+
+    const physicalOutputs = options?.deviceId
+      ? [enabledOutputDevices.get(options.deviceId)].filter((output): output is MIDIOutput =>
+          Boolean(output),
+        )
+      : Array.from(enabledOutputDevices.values())
+
+    for (const output of physicalOutputs) {
+      output?.send(data)
+    }
+  }
+
+  sendProgramChange(
+    program: number,
+    options?: {
+      deviceId?: string | null
+      channel?: number | null
+    },
+  ) {
+    const safeProgram = Math.max(0, Math.min(127, program))
+    const channel = Math.max(0, Math.min(15, options?.channel ?? 0))
+    const status = 0xc0 + channel
+    const data = [status, safeProgram]
+
+    const physicalOutputs = options?.deviceId
+      ? [enabledOutputDevices.get(options.deviceId)].filter((output): output is MIDIOutput =>
+          Boolean(output),
+        )
+      : Array.from(enabledOutputDevices.values())
+
+    for (const output of physicalOutputs) {
+      output?.send(data)
     }
   }
 
@@ -232,11 +274,25 @@ class MidiState {
     this.notify({ note, type: 'up', time: Date.now() })
   }
 
-  releaseOutput(note: number) {
-    const midiNoteOffCh1 = 128
-    for (const output of enabledOutputDevices) {
-      var data = [midiNoteOffCh1, note, 127]
-      output[1]?.send(data)
+  releaseOutput(
+    note: number,
+    options?: {
+      deviceId?: string | null
+      channel?: number | null
+    },
+  ) {
+    const channel = Math.max(0, Math.min(15, options?.channel ?? 0))
+    const midiNoteOff = 0x80 + channel
+    const data = [midiNoteOff, note, 127]
+
+    const physicalOutputs = options?.deviceId
+      ? [enabledOutputDevices.get(options.deviceId)].filter((output): output is MIDIOutput =>
+          Boolean(output),
+        )
+      : Array.from(enabledOutputDevices.values())
+
+    for (const output of physicalOutputs) {
+      output?.send(data)
     }
   }
 

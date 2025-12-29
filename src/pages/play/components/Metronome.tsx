@@ -1,9 +1,11 @@
 import { Slider } from '@/components'
 import Toggle from '@/components/Toggle'
+import { enableOutputMidiDevice, isOutputMidiDeviceEnabled } from '@/features/midi'
 import { usePlayer } from '@/features/player'
+import useMidiOutputs from '@/hooks/useMidiOutputs'
 import { ChevronDown, ChevronUp } from '@/icons'
 import clsx from 'clsx'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 
 const MULTIPLIERS = [0.25, 0.5, 1, 2, 4]
 const fractionDisplay = (val: number) => (val < 1 ? `1/${1 / val}×` : `${val}×`)
@@ -14,9 +16,33 @@ export default function MetronomeSettings() {
   const [emphasizeFirst, setEmphasizeFirst] = useAtom(player.metronomeEmphasizeFirst)
   const [metronomeSpeed, setMetronomeSpeed] = useAtom(player.metronomeSpeed)
   const [volume, setVolume] = useAtom(player.metronomeVolume)
+  const metronomeOutputId = useAtomValue(player.metronomeOutputDeviceId)
+  const usePercussionChannel = useAtomValue(player.metronomeUsePercussionChannel)
+  const { outputs } = useMidiOutputs()
 
   const speedIndex = MULTIPLIERS.findIndex((m) => m === metronomeSpeed)
   const isDisabled = volume === 0
+  const midiOptions = outputs ? Array.from(outputs.values()) : []
+  const availableOutputs = midiOptions.map((output) => ({
+    id: output.id,
+    label: output.name ?? output.id,
+    device: output,
+  }))
+  const hasSelectedOutput =
+    Boolean(metronomeOutputId) && availableOutputs.some((option) => option.id === metronomeOutputId)
+
+  const handleOutputChange = (nextValue: string | null) => {
+    if (nextValue) {
+      const option = availableOutputs.find((opt) => opt.id === nextValue)
+      if (option) {
+        const device = option.device
+        if (!isOutputMidiDeviceEnabled(device as any)) {
+          enableOutputMidiDevice(device as any)
+        }
+      }
+    }
+    player.setMetronomeOutputDevice(nextValue)
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -69,6 +95,54 @@ export default function MetronomeSettings() {
         <span>Emphasize 1st Beat</span>
         <Toggle checked={emphasizeFirst} onChange={setEmphasizeFirst} />
       </div>
+
+      <div
+        className={clsx(
+          'flex w-full items-center justify-between',
+          (isDisabled || availableOutputs.length === 0) && 'pointer-events-none opacity-50',
+        )}
+      >
+        <span>Output</span>
+        {availableOutputs.length > 0 ? (
+          <select
+            className="w-[200px] border bg-white px-2 py-1"
+            disabled={isDisabled}
+            value={metronomeOutputId ?? ''}
+            onChange={(event) => {
+              const nextValue = event.target.value || null
+              handleOutputChange(nextValue)
+            }}
+          >
+            <option value="">This Device</option>
+            {availableOutputs.map((output) => (
+              <option key={output.id} value={output.id}>
+                {output.label}
+              </option>
+            ))}
+            {metronomeOutputId && !hasSelectedOutput && (
+              <option value={metronomeOutputId}>{`${metronomeOutputId} (Unavailable)`}</option>
+            )}
+          </select>
+        ) : (
+          <span className="text-sm text-gray-500">This Device</span>
+        )}
+      </div>
+
+      {availableOutputs.length > 0 && metronomeOutputId && (
+        <div
+          className={clsx(
+            'flex w-full items-center justify-between',
+            (isDisabled || !metronomeOutputId) && 'pointer-events-none opacity-50',
+          )}
+          title="Enable this if your device doesn't support channel 10 (percussion); the metronome will use channel 1 (piano voice) instead."
+        >
+          <span>Use piano channel</span>
+          <Toggle
+            checked={!usePercussionChannel}
+            onChange={(next) => player.setMetronomePercussionEnabled(!next)}
+          />
+        </div>
+      )}
     </div>
   )
 }
