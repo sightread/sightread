@@ -44,7 +44,7 @@ export function MarketingFooter() {
       <MaxWidthWrapper className="mx-auto w-full">
         <Sizer height={8} />
         <div className="grid w-full gap-6 sm:grid-cols-[auto_1fr_auto] sm:items-start">
-          <div className="order-2 justify-self-start text-left text-muted-foreground text-xs sm:order-none">
+          <div className="order-2 justify-self-center text-center text-muted-foreground text-xs sm:order-none sm:justify-self-start sm:text-left">
             © 2025 Sightread Studio, LLC. All rights reserved.
           </div>
           <div className="order-1 justify-self-center sm:order-none">

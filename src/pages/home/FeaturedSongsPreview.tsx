@@ -41,11 +41,11 @@ export function FeaturedSongsPreview({
   return (
     <div
       className={clsx(
-        'relative h-[360px] w-full max-w-[640px] overflow-hidden rounded-lg shadow-xl',
+        'relative h-[360px] w-full overflow-hidden rounded-lg shadow-xl',
         'bg-gray-[#2e2e2e]',
         className,
       )}
-      style={{ minWidth: 'min(100vw - 40px, 360px)', marginTop }}
+      style={{ marginTop }}
     >
       <SongPreview songId={songId} source={source} />
       {showPlaceholder && (

@@ -48,7 +48,7 @@ export default function AppBar() {
           })}
           <NavLink
             to={'https://github.com/sightread/sightread'}
-            className="hover:text-purple-hover lgminus:pr-0 ml-auto flex items-center gap-2 pr-8 text-white"
+            className="hover:text-purple-hover lg:pr-0 ml-auto flex items-center gap-2 pr-8 text-white"
           >
             <GitHub size={16} className="t-[2px] relative" />
             GitHub

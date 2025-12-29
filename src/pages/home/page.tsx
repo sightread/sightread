@@ -18,7 +18,7 @@ export default function Home() {
                 </h3>
                 <div className="flex flex-wrap justify-center gap-3 md:justify-start">
                   <Link to={'/songs'}>
-                    <Button className="bg-white text-gray-900 hover:bg-gray-100 active:bg-gray-200">
+                    <Button className="bg-white text-gray-900 shadow-sm hover:bg-gray-200 active:bg-gray-300 active:shadow-inner">
                       Learn a song
                     </Button>
                   </Link>

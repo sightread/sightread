@@ -1,6 +1,6 @@
 @import 'tailwindcss';
-@plugin "tailwindcss-react-aria-components";
-@plugin "tailwindcss-animate";
+@plugin 'tailwindcss-react-aria-components';
+@plugin 'tailwindcss-animate';
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 :root {
@@ -12,12 +12,12 @@
 
 @theme {
   --breakpoint-*: initial;
-  --breakpoint-sm: 650px;
-  --breakpoint-md: 800px;
-  --breakpoint-lg: 1100px;
-  --breakpoint-lgminus: 1130px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-lgminus: 1024px;
 
-  --text-responsive-xxl: clamp(1.7rem, 1rem + 3vw, 4rem);
+  --text-responsive-xxl: clamp(1.7rem, 1rem + 3vw, 3rem);
   --text-responsive-xl: clamp(1rem, 1rem + 1vw, 1.2rem);
 
   --color-purple-lightest: #f7f4fe;
@@ -83,7 +83,10 @@
 }
 
 .glint-card {
-  transition: box-shadow 150ms ease, border-color 150ms ease, transform 150ms ease;
+  transition:
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
 }
 
 .glint-card:hover {
@@ -91,7 +94,6 @@
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
   transform: translateY(-2px);
 }
-
 
 @layer utilities {
   /* Music font stuff */
