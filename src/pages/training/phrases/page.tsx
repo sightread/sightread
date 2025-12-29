@@ -58,11 +58,7 @@ export default function Phrases() {
   const levelParam = searchParamsObj.level as LevelParam
   const parsedLevel = Number(levelParam)
   const level: PhraseLevel = [0, 1, 2, 3].includes(parsedLevel) ? (parsedLevel as PhraseLevel) : 0
-  const [song, forceNewSong] = useGeneratedSong(
-    generatorType,
-    level,
-    clefType,
-  )
+  const [song, forceNewSong] = useGeneratedSong(generatorType, level, clefType)
 
   const accuracy = useAtomValue(player.score.accuracy)
   const score = useAtomValue(player.score.combined)

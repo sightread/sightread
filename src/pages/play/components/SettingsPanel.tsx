@@ -99,52 +99,52 @@ export default function SettingsPanel(props: SidebarProps) {
         </Section>
         <div className="flex grow flex-col gap-4 sm:flex-row">
           <Section title="Additional settings" className="grow justify-center">
-            <div className="flex justify-center">
-              <div className="w-[120px]">
-                <span className="min-w-[18ch]">Wait mode</span>
+            <div className="flex justify-center text-sm text-gray-800">
+              <div className="inline-grid grid-cols-[fit-content(16ch)_auto] items-center gap-x-4 gap-y-3">
+                <span id="wait-mode-label">Wait mode</span>
                 <Switch
-                  aria-labelledby="wait-modd-label"
+                  aria-labelledby="wait-mode-label"
                   isSelected={waiting}
                   onChange={handleWaiting}
-                  className={'flex w-full justify-between'}
-                ></Switch>
-              </div>
-            </div>
-            <div className="flex justify-center">
-              <Switch isSelected={coloredNotes} onChange={handleColoredNotes}>
-                <span className="min-w-[18ch]">Colored notes</span>
-              </Switch>
-            </div>
-            <div className="flex justify-center">
-              <span className="min-w-[18ch]">Note Labels</span>
-              <Select
-                name="noteLabels"
-                className="h-[28px] w-[120px]"
-                selectedKey={noteLabels}
-                onSelectionChange={(val) => handleNoteLabels(val as NOTE_LABELS)}
-              >
-                <SelectItem id="none">None</SelectItem>
-                <SelectItem id="alphabetical">Alphabetical</SelectItem>
-                <SelectItem id="fixed-do">Fixed Do</SelectItem>
-              </Select>
-            </div>
-            <div className="flex justify-center">
-              <span className="min-w-[18ch]">Key signature</span>
-              <div className="flex w-[120px]">
-                <select
-                  name="keySignature"
-                  className="w-[50px] border bg-white"
-                  value={keySignature ?? props.song?.keySignature}
-                  onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
                 >
-                  {getKeySignatures().map((keySig) => {
-                    return (
-                      <option key={`id-${keySig}`} value={keySig}>
-                        {keySig}
-                      </option>
-                    )
-                  })}
-                </select>
+                  <span className="sr-only">Wait mode</span>
+                </Switch>
+                <span id="colored-notes-label">Colored notes</span>
+                <Switch
+                  aria-labelledby="colored-notes-label"
+                  isSelected={coloredNotes}
+                  onChange={handleColoredNotes}
+                >
+                  <span className="sr-only">Colored notes</span>
+                </Switch>
+                <span>Note Labels</span>
+                <Select
+                  name="noteLabels"
+                  className="h-[28px] w-[120px]"
+                  selectedKey={noteLabels}
+                  onSelectionChange={(val) => handleNoteLabels(val as NOTE_LABELS)}
+                >
+                  <SelectItem id="none">None</SelectItem>
+                  <SelectItem id="alphabetical">Alphabetical</SelectItem>
+                  <SelectItem id="fixed-do">Fixed Do</SelectItem>
+                </Select>
+                <span>Key signature</span>
+                <div className="flex w-[120px]">
+                  <select
+                    name="keySignature"
+                    className="w-[50px] border bg-white text-sm"
+                    value={keySignature ?? props.song?.keySignature}
+                    onChange={(e) => handleKeySignature(e.target.value as KEY_SIGNATURE)}
+                  >
+                    {getKeySignatures().map((keySig) => {
+                      return (
+                        <option key={`id-${keySig}`} value={keySig}>
+                          {keySig}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
               </div>
             </div>
           </Section>

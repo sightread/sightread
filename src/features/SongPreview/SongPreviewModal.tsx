@@ -2,8 +2,8 @@ import { Modal, Sizer } from '@/components'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { SongMetadata } from '@/types'
 import * as React from 'react'
-import { createSearchParams, Link } from 'react-router'
 import { Heading } from 'react-aria-components'
+import { createSearchParams, Link } from 'react-router'
 import { SongScrubBar } from '../controls'
 import { usePlayer } from '../player'
 import PreviewIcon from './PreviewIcon'
@@ -16,7 +16,7 @@ type ModalProps = {
 }
 export default function SongPreviewModal({
   show = true,
-  onClose = () => { },
+  onClose = () => {},
   songMeta = undefined,
 }: ModalProps) {
   const { title, id, source } = songMeta ?? {}
