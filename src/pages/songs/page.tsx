@@ -5,7 +5,6 @@ import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
 import { ChevronDown, FolderOpen } from '@/icons'
 import { SongMetadata } from '@/types'
-import { formatTime } from '@/utils'
 import clsx from 'clsx'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
@@ -80,21 +79,7 @@ export default function SelectSongPage() {
             </button>
           </div>
           <Sizer height={20} />
-          <Table
-            columns={[
-              { label: 'Title', id: 'title', keep: true },
-              {
-                label: 'Length',
-                id: 'duration',
-                format: (n) => formatTime(Number(n)),
-              },
-            ]}
-            getId={(s: SongMetadata) => s.id}
-            rows={songs}
-            filter={['title']}
-            onSelectRow={setSelectedSongId}
-            search={search}
-          />
+          <Table rows={songs} search={search} onSelectRow={setSelectedSongId} />
         </div>
         <Sizer height={32} />
       </div>
