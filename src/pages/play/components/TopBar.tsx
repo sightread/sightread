@@ -67,7 +67,12 @@ export default function TopBar({
             <ButtonWithTooltip tooltip="Settings">
               <Settings size={24} />
             </ButtonWithTooltip>
-            <Popover containerPadding={0} className={'w-screen border-0'} isNonModal>
+            <Popover
+              containerPadding={0}
+              className={'w-screen border-0'}
+              isNonModal
+              ignoreTriggerOnInteractOutside
+            >
               <Dialog>
                 <SettingsPanel {...settingsProps} />
               </Dialog>

@@ -10,6 +10,7 @@ import { tv } from 'tailwind-variants'
 
 export interface PopoverProps extends Omit<AriaPopoverProps, 'children'> {
   showArrow?: boolean
+  ignoreTriggerOnInteractOutside?: boolean
   children: React.ReactNode
 }
 
@@ -25,15 +26,35 @@ const styles = tv({
   },
 })
 
-export function Popover({ children, showArrow, className, ...props }: PopoverProps) {
+export function Popover({
+  children,
+  showArrow,
+  className,
+  ignoreTriggerOnInteractOutside,
+  shouldCloseOnInteractOutside: shouldCloseOnInteractOutsideProp,
+  ...props
+}: PopoverProps) {
   let popoverContext = useSlottedContext(PopoverContext)!
   let isSubmenu = popoverContext?.trigger === 'SubmenuTrigger'
+  let triggerRef = popoverContext?.triggerRef
   let offset = showArrow ? 12 : 8
   offset = isSubmenu ? offset - 6 : offset
+  let shouldCloseOnInteractOutside = shouldCloseOnInteractOutsideProp
+  if (ignoreTriggerOnInteractOutside && triggerRef) {
+    shouldCloseOnInteractOutside = (element) => {
+      if (triggerRef.current?.contains(element)) {
+        return false
+      }
+      return shouldCloseOnInteractOutsideProp
+        ? shouldCloseOnInteractOutsideProp(element)
+        : true
+    }
+  }
   return (
     <AriaPopover
       offset={offset}
       {...props}
+      shouldCloseOnInteractOutside={shouldCloseOnInteractOutside}
       className={composeRenderProps(className, (className, renderProps) =>
         styles({ ...renderProps, className }),
       )}
