@@ -38,22 +38,53 @@ export default function Home() {
           </div>
         </div>
         <div className="bg-background">
-          <div className="mx-auto w-full max-w-(--breakpoint-lg) px-6 py-10">
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="mx-auto w-full max-w-(--breakpoint-lg) px-6 py-16">
+            <h3 className="text-lg font-semibold text-gray-900">Why Sightread</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              A few reasons players keep coming back.
+            </p>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <div
+                className="glint-card rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                onMouseMove={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const x = event.clientX - rect.left
+                  const y = event.clientY - rect.top
+                  event.currentTarget.style.setProperty('--glint-x', `${x}px`)
+                  event.currentTarget.style.setProperty('--glint-y', `${y}px`)
+                }}
+              >
                 <h3 className="text-base font-semibold text-gray-900">Your Own Music</h3>
                 <p className="mt-2 text-sm text-gray-600">
                   Works with any MIDI file. We'll automatically detect which track is for which
                   hand.
                 </p>
               </div>
-              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+              <div
+                className="glint-card rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                onMouseMove={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const x = event.clientX - rect.left
+                  const y = event.clientY - rect.top
+                  event.currentTarget.style.setProperty('--glint-x', `${x}px`)
+                  event.currentTarget.style.setProperty('--glint-y', `${y}px`)
+                }}
+              >
                 <h3 className="text-base font-semibold text-gray-900">Learn at Your Own Pace</h3>
                 <p className="mt-2 text-sm text-gray-600">
                   Tempo controls and Wait Mode let you slow down and focus on accuracy.
                 </p>
               </div>
-              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+              <div
+                className="glint-card rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                onMouseMove={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const x = event.clientX - rect.left
+                  const y = event.clientY - rect.top
+                  event.currentTarget.style.setProperty('--glint-x', `${x}px`)
+                  event.currentTarget.style.setProperty('--glint-y', `${y}px`)
+                }}
+              >
                 <h3 className="text-base font-semibold text-gray-900">Multiple Modes</h3>
                 <p className="mt-2 text-sm text-gray-600">
                   Falling Notes or Sheet Hero. Switch views to match how you learn.

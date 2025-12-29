@@ -82,6 +82,17 @@
   }
 }
 
+.glint-card {
+  transition: box-shadow 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.glint-card:hover {
+  border-color: rgba(129, 71, 235, 0.35);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+
 @layer utilities {
   /* Music font stuff */
   @font-face {
