@@ -81,8 +81,8 @@ export default function Table<T extends Row>({
                   return (
                     <span
                       className={clsx(
-                        'relative flex shrink-0 items-center px-3 text-sm',
-                        'group-even:bg-gray-100 group-hover:bg-violet-50',
+                        'relative flex shrink-0 items-center border-b border-gray-200 px-3 text-sm',
+                        'group-hover:bg-violet-50',
                         isDuration && 'justify-end font-mono text-gray-500',
                       )}
                       key={`row-${i}-col-${j}`}

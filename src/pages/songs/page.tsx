@@ -49,7 +49,7 @@ export default function SelectSongPage() {
       <Modal show={isUploadFormOpen} onClose={handleCloseAddNew} className="w-[min(100vw,500px)]">
         <ManageFoldersForm onClose={handleCloseAddNew} />
       </Modal>
-      <div className="bg-purple-lightest flex min-h-screen w-full flex-col">
+      <div className="flex min-h-screen w-full flex-col bg-gray-50">
         <AppBar />
         <div className="mx-auto flex w-full max-w-(--breakpoint-lg) grow flex-col p-6">
           <h2 className="text-2xl font-semibold text-gray-900">Learn a song</h2>
