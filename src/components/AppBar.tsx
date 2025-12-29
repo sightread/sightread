@@ -38,10 +38,11 @@ export default function AppBar() {
           {navItems.map((nav) => {
             return (
               <NavLink
-                className="hover:text-purple-hover text-white"
+                className="text-white hover:bg-violet-700/90 active:bg-violet-800/90 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
                 to={nav.route}
                 key={nav.label}
                 label={nav.label}
+                activeClassName="bg-violet-700/90 text-white"
               />
             )
           })}
@@ -81,7 +82,13 @@ function SmallWindowNav() {
 }
 
 function NavLink(
-  props: PropsWithChildren<{ to: string; className?: string; style?: any; label?: string }>,
+  props: PropsWithChildren<{
+    to: string
+    className?: string
+    style?: any
+    label?: string
+    activeClassName?: string
+  }>,
 ) {
   const currentRoute = useLocation().pathname
   return (
@@ -90,7 +97,7 @@ function NavLink(
       className={clsx(
         props.className,
         'transition',
-        currentRoute === props.to && 'font-bold',
+        currentRoute === props.to && (props.activeClassName || 'font-bold'),
         props.label &&
           'after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:text-transparent after:content-[attr(label)]',
       )}
