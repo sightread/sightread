@@ -61,7 +61,7 @@ export default function SelectSongPage() {
           <div className="flex items-center gap-4">
             <div className="flex-1">
               <SearchBox
-                placeholder={'Search Songs by Title or Artist'}
+                placeholder={'Search Titles'}
                 onSearch={setSearch}
                 autoFocus={true}
               />
@@ -82,7 +82,7 @@ export default function SelectSongPage() {
           <Sizer height={20} />
           <Table
             columns={[
-              { label: 'Name', id: 'title', keep: true },
+              { label: 'Title', id: 'title', keep: true },
               {
                 label: 'Length',
                 id: 'duration',
