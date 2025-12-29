@@ -2,8 +2,9 @@ import { Sizer } from '@/components'
 import { LucideGithub as GitHub, Logo, Menu } from '@/icons'
 import clsx from 'clsx'
 import { PropsWithChildren } from 'react'
-import { Link, useLocation } from 'react-router'
-import { Dropdown } from './Dropdown'
+import { Link, useLocation, useNavigate } from 'react-router'
+import { Menu as RacMenu, MenuItem, MenuTrigger, Pressable, Separator } from 'react-aria-components'
+import { Popover } from './Popover'
 
 type NavItem = { route: string; label: string }
 const navItems: NavItem[] = [
@@ -60,35 +61,45 @@ export default function AppBar() {
 }
 
 function SmallWindowNav() {
+  const navigate = useNavigate()
+  const currentRoute = useLocation().pathname
   return (
-    <Dropdown target={<Menu height={24} width={24} className="block text-white" />}>
-      <div className="w-[min(90vw,360px)] rounded-2xl border border-white/10 bg-violet-900/95 p-2 shadow-xl backdrop-blur">
-        {navItems.map((nav, i) => {
-          return (
-            <div className="px-2 py-1" key={i}>
-              <NavLink
-                to={nav.route}
+    <MenuTrigger>
+      <Pressable>
+        <button aria-label="Open menu">
+          <Menu height={24} width={24} className="block text-white" />
+        </button>
+      </Pressable>
+      <Popover className="w-[min(90vw,360px)] rounded-2xl border border-white/10 bg-violet-900/95 p-2 shadow-xl backdrop-blur">
+        <RacMenu className="outline-none">
+          {navItems.map((nav) => {
+            const isActive = currentRoute === nav.route
+            return (
+              <MenuItem
+                key={nav.label}
+                onAction={() => navigate(nav.route)}
                 className={clsx(
-                  'flex w-full items-center rounded-xl px-3 py-2 text-base font-medium text-white/90 transition',
-                  'hover:bg-white/10 active:bg-white/15',
+                  'flex w-full items-center rounded-xl px-3 py-2 text-base font-medium text-white/90 outline-none transition',
+                  'data-[focused]:bg-white/15 data-[pressed]:bg-white/10',
+                  isActive && 'bg-white/15 text-white',
                 )}
-                activeClassName="bg-white/15 text-white"
-                label={nav.label}
-              />
-            </div>
-          )
-        })}
-        <div className="mt-2 border-t border-white/10 px-2 pt-2">
-          <NavLink
-            to={'https://github.com/sightread/sightread'}
-            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 active:bg-white/15"
+              >
+                {nav.label}
+              </MenuItem>
+            )
+          })}
+          <Separator className="mx-2 my-1 border-t border-white/10" />
+          <MenuItem
+            href="https://github.com/sightread/sightread"
+            target="_blank"
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/80 outline-none transition data-[focused]:bg-white/15 data-[pressed]:bg-white/10"
           >
             <GitHub size={16} className="t-[2px] relative" />
             GitHub
-          </NavLink>
-        </div>
-      </div>
-    </Dropdown>
+          </MenuItem>
+        </RacMenu>
+      </Popover>
+    </MenuTrigger>
   )
 }
 
