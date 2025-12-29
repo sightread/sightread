@@ -4,7 +4,7 @@ import midiState from '@/features/midi'
 import { usePlayer } from '@/features/player'
 import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils'
-import { getGeneratedSong } from '@/features/theory/procedural'
+import { getGeneratedSong, Level as PhraseLevel } from '@/features/theory/procedural'
 import { useOnUnmount, useRAFLoop, useWakeLock } from '@/hooks'
 import { ChevronDown, ChevronUp } from '@/icons'
 import { MidiModal } from '@/pages/play/components/MidiModal'
@@ -20,12 +20,12 @@ import { playFailSound } from '../sound-effects'
 import TopBar from './components/TopBar.tsx'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
-type Level = '0' | '1' | '2' | '3'
+type LevelParam = '0' | '1' | '2' | '3'
 export type GeneratedSongSettings = SongConfig & { generator: Generator }
 
 function useGeneratedSong(
   type: Generator,
-  level: Level,
+  level: PhraseLevel,
   clef: PhraseClefType,
 ): [Song | undefined, () => void] {
   const [song, setSong] = useState<Song>()
@@ -33,7 +33,7 @@ function useGeneratedSong(
   const hasBass = clef === 'grand' || clef === 'bass'
   const hasTreble = clef === 'grand' || clef === 'treble'
   useEffect(() => {
-    getGeneratedSong(type, level as any, { bass: hasBass, treble: hasTreble })
+    getGeneratedSong(type, level, { bass: hasBass, treble: hasTreble })
       .then((s) => setSong(s))
       .catch((e) => console.error(e))
   }, [type, level, counter, clef, hasBass, hasTreble])
@@ -55,9 +55,12 @@ export default function Phrases() {
   let searchParamsObj = Object.fromEntries(searchParams)
   const clefType = searchParamsObj.clef as PhraseClefType
   const generatorType = searchParamsObj.generator as Generator
+  const levelParam = searchParamsObj.level as LevelParam
+  const parsedLevel = Number(levelParam)
+  const level: PhraseLevel = [0, 1, 2, 3].includes(parsedLevel) ? (parsedLevel as PhraseLevel) : 0
   const [song, forceNewSong] = useGeneratedSong(
     generatorType,
-    searchParamsObj.level as Level,
+    level,
     clefType,
   )
 
@@ -146,10 +149,8 @@ export default function Phrases() {
           </Select>
           <Select
             className="max-w-fit"
-            selectedKey={searchParamsObj.level}
+            selectedKey={levelParam}
             onSelectionChange={(level: any) => {
-              console.log('HELLOO')
-              console.log(level, typeof level)
               setSearchParams({ ...searchParams, level })
             }}
             label={'Level'}
@@ -164,7 +165,7 @@ export default function Phrases() {
           >
             <SelectItem id="treble">Treble</SelectItem>
             <SelectItem id="bass">Bass</SelectItem>
-            <SelectItem id="grabd">Grand</SelectItem>
+            <SelectItem id="grand">Grand</SelectItem>
           </Select>
         </div>
         <Sizer height={24} />
