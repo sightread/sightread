@@ -6,7 +6,7 @@ import { FeaturedSongsPreview } from './FeaturedSongsPreview'
 export default function Home() {
   return (
     <>
-      <div className="relative flex min-h-screen w-full flex-col text-white">
+      <div className="relative flex min-h-screen w-full flex-col bg-background text-white">
         <AppBar />
         <div className="bg-violet-600">
           <div className="mx-auto w-full max-w-(--breakpoint-lg) px-6 py-10">
@@ -37,7 +37,34 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <MarketingFooter />
+        <div className="bg-background">
+          <div className="mx-auto w-full max-w-(--breakpoint-lg) px-6 py-10">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <h3 className="text-base font-semibold text-gray-900">Your Own Music</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Works with any MIDI file. We'll automatically detect which track is for which
+                  hand.
+                </p>
+              </div>
+              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <h3 className="text-base font-semibold text-gray-900">Learn at Your Own Pace</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Tempo controls and Wait Mode let you slow down and focus on accuracy.
+                </p>
+              </div>
+              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <h3 className="text-base font-semibold text-gray-900">Multiple Modes</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Falling Notes or Sheet Hero. Switch views to match how you learn.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-auto">
+          <MarketingFooter />
+        </div>
       </div>
     </>
   )

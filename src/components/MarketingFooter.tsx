@@ -34,16 +34,16 @@ function MaxWidthWrapper(props: PropsWithChildren<{ as?: any; className?: string
 export function MarketingFooter() {
   return (
     <footer
-      className="border-border bg-foreground/[0.02] dark:bg-foreground/[0.01] w-full border-t"
+      className="w-full border-t border-gray-200 bg-foreground/[0.02] dark:border-gray-800 dark:bg-foreground/[0.01]"
       aria-labelledby="footer-heading"
     >
-      <Sizer height={24} />
+      <Sizer height={12} />
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
       <MaxWidthWrapper className="mx-auto flex h-full max-w-prose flex-col items-center">
-        <Sizer height={16} />
-        <div className="grid auto-cols-max grid-cols-2 items-center gap-8 sm:gap-16 md:gap-32">
+        <Sizer height={8} />
+        <div className="grid auto-cols-max grid-cols-2 items-center gap-6 sm:gap-12 md:gap-20">
           <FooterCol>
             <FooterHeader>sightread</FooterHeader>
             <FooterLink href="/songs">learn</FooterLink>
@@ -58,12 +58,12 @@ export function MarketingFooter() {
             <FooterLink href="https://github.com/sightread/sightread">github</FooterLink>
           </FooterCol>
         </div>
-        <Sizer height={32} />
+        <Sizer height={16} />
         <span className="text-muted-foreground text-xs">
           © 2025 Sightread Studio, LLC. All rights reserved.
         </span>
 
-        <Sizer height={24} />
+        <Sizer height={12} />
       </MaxWidthWrapper>
     </footer>
   )
