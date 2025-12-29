@@ -5,14 +5,14 @@ import Sizer from './Sizer'
 
 function FooterHeader({ children }: any) {
   return (
-    <h3 className="fontleading-6 text-foreground flex gap-2 text-base font-medium whitespace-nowrap">
+    <h3 className="fontleading-6 text-gray-500 flex gap-2 text-sm font-medium whitespace-nowrap">
       {children}
     </h3>
   )
 }
 
 function FooterCol({ children, className }: any) {
-  return <div className={cn('flex h-full shrink-0 flex-col gap-4', className)}>{children}</div>
+  return <div className={cn('flex h-full shrink-0 flex-col gap-2', className)}>{children}</div>
 }
 
 function FooterLink({ href, children }: any) {
@@ -37,33 +37,36 @@ export function MarketingFooter() {
       className="w-full border-t border-gray-200 bg-foreground/[0.02] dark:border-gray-800 dark:bg-foreground/[0.01]"
       aria-labelledby="footer-heading"
     >
-      <Sizer height={12} />
+      <Sizer height={8} />
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
-      <MaxWidthWrapper className="mx-auto flex h-full max-w-prose flex-col items-center">
+      <MaxWidthWrapper className="mx-auto w-full">
         <Sizer height={8} />
-        <div className="grid auto-cols-max grid-cols-2 items-center gap-6 sm:gap-12 md:gap-20">
-          <FooterCol>
-            <FooterHeader>sightread</FooterHeader>
-            <FooterLink href="/songs">learn</FooterLink>
-            <FooterLink href="/freeplay">free play</FooterLink>
-            <FooterLink href="/about">about</FooterLink>
-          </FooterCol>
-          <FooterCol>
-            <FooterHeader>external links</FooterHeader>
-            <FooterLink href="https://www.youtube.com/channel/UCGf2AlCRD3ZCc8ahkqBMtqA">
-              youtube
-            </FooterLink>
-            <FooterLink href="https://github.com/sightread/sightread">github</FooterLink>
-          </FooterCol>
+        <div className="grid w-full gap-6 sm:grid-cols-[auto_1fr_auto] sm:items-start">
+          <div className="order-2 justify-self-start text-left text-muted-foreground text-xs sm:order-none">
+            © 2025 Sightread Studio, LLC. All rights reserved.
+          </div>
+          <div className="order-1 justify-self-center sm:order-none">
+            <div className="grid auto-cols-max grid-cols-2 items-center gap-4 sm:gap-10 md:gap-16">
+              <FooterCol>
+                <FooterHeader>sightread</FooterHeader>
+                <FooterLink href="/songs">learn</FooterLink>
+                <FooterLink href="/freeplay">free play</FooterLink>
+                <FooterLink href="/about">about</FooterLink>
+              </FooterCol>
+              <FooterCol>
+                <FooterHeader>external links</FooterHeader>
+                <FooterLink href="https://www.youtube.com/channel/UCGf2AlCRD3ZCc8ahkqBMtqA">
+                  youtube
+                </FooterLink>
+                <FooterLink href="https://github.com/sightread/sightread">github</FooterLink>
+              </FooterCol>
+            </div>
+          </div>
+          <div className="hidden sm:block" />
         </div>
-        <Sizer height={16} />
-        <span className="text-muted-foreground text-xs">
-          © 2025 Sightread Studio, LLC. All rights reserved.
-        </span>
-
-        <Sizer height={12} />
+        <Sizer height={8} />
       </MaxWidthWrapper>
     </footer>
   )
