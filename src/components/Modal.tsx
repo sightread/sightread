@@ -1,7 +1,7 @@
 import { X as XMark } from '@/icons'
 import clsx from 'clsx'
 import { PropsWithChildren, useEffect, useRef } from 'react'
-import { Heading, ModalOverlay, Modal as RACModal } from 'react-aria-components'
+import { Button, ModalOverlay, Modal as RACModal } from 'react-aria-components'
 import { tv } from 'tailwind-variants'
 import { Dialog } from './Dialog'
 
@@ -9,6 +9,7 @@ type ModalProps = {
   show: boolean
   onClose: () => void
   className?: string
+  modalClassName?: string
 }
 
 const overlayStyles = tv({
@@ -40,6 +41,7 @@ export default function Modal({
   children,
   onClose,
   className,
+  modalClassName,
 }: PropsWithChildren<ModalProps>) {
   return (
     <ModalOverlay
@@ -52,14 +54,14 @@ export default function Modal({
         }
       }}
     >
-      <RACModal className={modalStyles}>
+      <RACModal className={modalStyles({ className: modalClassName })}>
         <Dialog className={clsx(className, 'relative rounded-md bg-white')} aria-label="Modal">
-          <button
+          <Button
             className="absolute top-6 right-5 z-10 cursor-pointer text-violet-600 hover:text-violet-500 active:text-violet-700"
-            onClick={onClose}
+            onPress={onClose}
           >
             <XMark height={24} width={24} />
-          </button>
+          </Button>
           {children}
         </Dialog>
       </RACModal>
