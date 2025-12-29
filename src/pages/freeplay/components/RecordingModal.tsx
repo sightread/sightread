@@ -1,5 +1,5 @@
 import { Modal, Sizer } from '@/components'
-import { SongScrubBar } from '@/features/controls'
+import { SongScrubBar, useSongScrubTimes } from '@/features/controls'
 import { usePlayer } from '@/features/player'
 import PreviewIcon from '@/features/SongPreview/PreviewIcon'
 import { SongPreview } from '@/features/SongPreview/SongPreview'
@@ -35,6 +35,7 @@ export default function SongPreviewModal({
   const { id, source } = songMeta ?? {}
   const player = usePlayer()
   const playerState = usePlayerState()
+  const { currentTime, duration } = useSongScrubTimes()
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (!show) return
@@ -61,9 +62,10 @@ export default function SongPreviewModal({
           {/* <span className="overflow-hidden text-base text-gray-500"></span> */}
         </div>
         <div className="flex grow flex-col overflow-hidden rounded-md">
-          <div className="relative">
-            <div className="pointer-events-none absolute z-20 h-full w-full rounded-md" />
-            <SongScrubBar height={30} />
+          <div className="flex items-center border-b border-b-black bg-gray-300 px-4 py-2">
+            <span className="min-w-[72px] text-sm text-black">{currentTime}</span>
+            <SongScrubBar height={10} className="mx-3 flex-1" trackClassName="bg-gray-400" />
+            <span className="min-w-[72px] text-sm text-black">{duration}</span>
           </div>
           <div
             style={{

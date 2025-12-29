@@ -5,7 +5,7 @@ import { Pause, Play } from 'lucide-react'
 import { useAtomValue } from 'jotai'
 import { Button, Heading, Text } from 'react-aria-components'
 import { createSearchParams, useNavigate } from 'react-router'
-import { SongScrubBar } from '../controls'
+import { SongScrubBar, useSongScrubTimes } from '../controls'
 import { usePlayer } from '../player'
 import PreviewIcon from './PreviewIcon'
 import { SongPreview } from './SongPreview'
@@ -28,6 +28,7 @@ export default function SongPreviewModal({
   const trackCount = song ? Object.keys(song.tracks).length : undefined
   const noteCount = song?.notes.length
   const playSongSearch = id && source ? createSearchParams({ id, source }).toString() : ''
+  const { currentTime, duration } = useSongScrubTimes()
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (!show) return
@@ -60,7 +61,7 @@ export default function SongPreviewModal({
     <Modal
       show={show && !!id}
       onClose={handleClose}
-      className="overflow-hidden rounded-2xl p-0"
+      className="overflow-hidden rounded-2xl bg-transparent p-0"
       modalClassName="max-w-[1100px] w-[min(96vw,1100px)]"
     >
       <div className="flex h-[min(90vh,700px)] w-full bg-white text-left">
@@ -89,16 +90,21 @@ export default function SongPreviewModal({
           </div>
           <div className="px-6 pb-6">
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-              <div className="flex items-center gap-3">
+              <div className="grid grid-cols-[auto_1fr_1fr] grid-rows-[8px_auto_auto] items-center gap-x-3">
+                <div className="col-span-3 row-start-1" />
                 <Button
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-200/60 hover:text-violet-600"
+                  className="col-start-1 row-start-2 flex h-8 w-8 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-200/60 hover:text-violet-600"
                   onPress={() => player.toggle()}
                   aria-label={playerState.playing ? 'Pause preview' : 'Play preview'}
                 >
                   {playerState.playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 </Button>
-                <div className="flex-1 overflow-hidden rounded-md border border-gray-200 px-3 py-2">
-                  <SongScrubBar height={32} variant="compact" />
+                <div className="col-start-2 col-span-2 row-start-2 flex h-8 items-center">
+                  <SongScrubBar height={8} className="w-full" trackClassName="bg-gray-200" />
+                </div>
+                <div className="col-start-2 col-span-2 row-start-3 flex items-center justify-between text-[10px] font-mono text-gray-500">
+                  <span>{currentTime}</span>
+                  <span>{duration}</span>
                 </div>
               </div>
             </div>

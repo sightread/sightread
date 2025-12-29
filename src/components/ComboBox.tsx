@@ -1,5 +1,3 @@
-'use client'
-
 import { ChevronDown, LoaderCircle } from 'lucide-react'
 import React from 'react'
 import {
