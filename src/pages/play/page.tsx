@@ -112,7 +112,7 @@ export default function PlaySongPage() {
   const player = usePlayer()
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
-  const [statsVisible, setStatsVisible] = useState(true)
+  const [statsVisible, setStatsVisible] = useState(false)
   const playerState = usePlayerState()
   const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error, isLoading, mutate } = useSong(id, source)

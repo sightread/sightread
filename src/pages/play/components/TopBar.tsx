@@ -53,7 +53,10 @@ export default function TopBar({
         </div>
         <div className="flex items-center justify-end gap-6">
           {title && (
-            <span className="max-w-[min(30vw,320px)] truncate text-white" title={title}>
+            <span
+              className="hidden max-w-[min(30vw,320px)] truncate text-white md:block"
+              title={title}
+            >
               {title}
             </span>
           )}
