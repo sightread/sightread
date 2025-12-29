@@ -62,20 +62,31 @@ export default function AppBar() {
 function SmallWindowNav() {
   return (
     <Dropdown target={<Menu height={24} width={24} className="block text-white" />}>
-      <div className="flex flex-col bg-white">
+      <div className="w-[min(90vw,360px)] rounded-2xl border border-white/10 bg-violet-900/95 p-2 shadow-xl backdrop-blur">
         {navItems.map((nav, i) => {
           return (
-            <div className="items-enter flex flex-col gap-4 px-3 py-3" key={i}>
+            <div className="px-2 py-1" key={i}>
               <NavLink
                 to={nav.route}
                 className={clsx(
-                  'text-purple-dark hover:text-purple-hover inline-block w-fit cursor-pointer px-6 text-2xl transition',
+                  'flex w-full items-center rounded-xl px-3 py-2 text-base font-medium text-white/90 transition',
+                  'hover:bg-white/10 active:bg-white/15',
                 )}
+                activeClassName="bg-white/15 text-white"
                 label={nav.label}
               />
             </div>
           )
         })}
+        <div className="mt-2 border-t border-white/10 px-2 pt-2">
+          <NavLink
+            to={'https://github.com/sightread/sightread'}
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 active:bg-white/15"
+          >
+            <GitHub size={16} className="t-[2px] relative" />
+            GitHub
+          </NavLink>
+        </div>
       </div>
     </Dropdown>
   )

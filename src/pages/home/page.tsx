@@ -6,7 +6,7 @@ import { FeaturedSongsPreview } from './FeaturedSongsPreview'
 export default function Home() {
   return (
     <>
-      <div className="relative flex min-h-screen w-full flex-col bg-background text-white">
+      <div className="bg-background relative flex min-h-screen w-full flex-col text-white">
         <AppBar />
         <div className="bg-violet-600">
           <div className="mx-auto w-full max-w-(--breakpoint-lg) px-6 py-10">
@@ -18,7 +18,7 @@ export default function Home() {
                 </h3>
                 <div className="flex flex-wrap justify-center gap-3 md:justify-start">
                   <Link to={'/songs'}>
-                    <Button className="bg-white text-gray-900 shadow-sm hover:bg-gray-200 active:bg-gray-300 active:shadow-inner">
+                    <Button className="bg-white text-gray-900 shadow-sm hover:bg-violet-100 active:bg-violet-200 active:shadow-inner">
                       Learn a song
                     </Button>
                   </Link>
@@ -40,9 +40,7 @@ export default function Home() {
         <div className="bg-background">
           <div className="mx-auto w-full max-w-(--breakpoint-lg) px-6 py-16">
             <h3 className="text-lg font-semibold text-gray-900">Why Sightread</h3>
-            <p className="mt-2 text-sm text-gray-600">
-              A few reasons players keep coming back.
-            </p>
+            <p className="mt-2 text-sm text-gray-600">A few reasons players keep coming back.</p>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               <div
                 className="glint-card rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
