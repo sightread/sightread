@@ -13,7 +13,7 @@ export function SearchBox({ onSearch, placeholder, autoFocus }: SearchBoxProps) 
       <TextInput
         type="search"
         onChange={(e: any) => onSearch(e.target.value)}
-        className="absolute h-full w-full rounded-md border border-gray-200 bg-white pl-9 pr-3 text-sm placeholder:font-mono placeholder:text-gray-500"
+        className="absolute h-full w-full rounded-md border border-gray-200 bg-white pr-3 pl-9 text-sm placeholder:font-mono placeholder:text-gray-500"
         placeholder={placeholder}
         autoFocus={autoFocus}
       />

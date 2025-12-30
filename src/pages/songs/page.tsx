@@ -59,17 +59,13 @@ export default function SelectSongPage() {
           <Sizer height={16} />
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <SearchBox
-                placeholder={'Search Titles'}
-                onSearch={setSearch}
-                autoFocus={true}
-              />
+              <SearchBox placeholder={'Search Titles'} onSearch={setSearch} autoFocus={true} />
             </div>
             <button
               className={clsx(
                 'cursor-pointer flex-nowrap whitespace-nowrap',
                 'inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm',
-                'hover:bg-gray-50 transition-colors',
+                'transition-colors hover:bg-gray-50',
               )}
               onClick={handleAddNew}
             >

@@ -73,10 +73,7 @@ export default function Table({ rows, search, onSelectRow }: SongsTableProps) {
                   <span className="flex h-4 w-4 items-center justify-center">
                     {sortDirection && (
                       <ChevronDown
-                        className={clsx(
-                          'h-4 w-4',
-                          sortDirection === 'descending' && 'rotate-180',
-                        )}
+                        className={clsx('h-4 w-4', sortDirection === 'descending' && 'rotate-180')}
                       />
                     )}
                   </span>
@@ -94,10 +91,7 @@ export default function Table({ rows, search, onSelectRow }: SongsTableProps) {
                   <span className="flex h-4 w-4 items-center justify-center">
                     {sortDirection && (
                       <ChevronDown
-                        className={clsx(
-                          'h-4 w-4',
-                          sortDirection === 'descending' && 'rotate-180',
-                        )}
+                        className={clsx('h-4 w-4', sortDirection === 'descending' && 'rotate-180')}
                       />
                     )}
                   </span>

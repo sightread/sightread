@@ -35,7 +35,7 @@ export default function TopBar({
 }: TopBarProps) {
   return (
     <div className="align-center relative z-10 h-[50px] min-h-[50px] w-screen bg-[#292929] px-3">
-      <div className="grid h-full grid-cols-[auto_auto_auto] sm:grid-cols-[1fr_auto_1fr] items-center">
+      <div className="grid h-full grid-cols-[auto_auto_auto] items-center sm:grid-cols-[1fr_auto_1fr]">
         <div className="flex items-center justify-start">
           <ButtonWithTooltip tooltip="Back">
             <ArrowLeft size={24} onClick={onClickBack} />
@@ -53,10 +53,7 @@ export default function TopBar({
         </div>
         <div className="flex items-center justify-end gap-6">
           {title && (
-            <span
-              className="hidden max-w-[125px] truncate text-white md:block"
-              title={title}
-            >
+            <span className="hidden max-w-[125px] truncate text-white md:block" title={title}>
               {title}
             </span>
           )}

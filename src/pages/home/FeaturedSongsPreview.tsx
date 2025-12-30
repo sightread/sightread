@@ -55,18 +55,18 @@ export function FeaturedSongsPreview({
           )}
         </div>
       )}
-      <div className="absolute top-0 left-0 right-0 z-20 flex h-14 items-center justify-between border-b border-gray-700 bg-gray-800 px-4">
+      <div className="absolute top-0 right-0 left-0 z-20 flex h-14 items-center justify-between border-b border-gray-700 bg-gray-800 px-4">
         <div className="flex items-center gap-3">
           <button
             className={clsx(
-              'flex h-8 w-8 items-center justify-center rounded-full bg-purple-primary text-white transition hover:bg-purple-hover',
+              'bg-purple-primary hover:bg-purple-hover flex h-8 w-8 items-center justify-center rounded-full text-white transition',
               !playerState.canPlay && 'cursor-progress',
             )}
             onClick={() => player.toggle()}
           >
             {playerState.playing ? <Pause size={18} /> : <Play size={18} />}
           </button>
-          <span className="text-sm font-mono text-gray-400">Preview</span>
+          <span className="font-mono text-sm text-gray-400">Preview</span>
         </div>
         <div className="text-white">
           <select

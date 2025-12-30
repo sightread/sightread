@@ -1,8 +1,8 @@
 import { Modal } from '@/components'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { SongMetadata } from '@/types'
-import { Pause, Play } from 'lucide-react'
 import { useAtomValue } from 'jotai'
+import { Pause, Play } from 'lucide-react'
 import { Button, Heading, Text } from 'react-aria-components'
 import { createSearchParams, useNavigate } from 'react-router'
 import { SongScrubBar, useSongScrubTimes } from '../controls'
@@ -83,7 +83,10 @@ export default function SongPreviewModal({
         </div>
         <div className="flex w-[420px] flex-col border-l border-gray-200 bg-white">
           <div className="px-6 pt-6 pb-3">
-            <Heading className="truncate text-xl font-semibold leading-tight text-gray-900" title={title}>
+            <Heading
+              className="truncate text-xl leading-tight font-semibold text-gray-900"
+              title={title}
+            >
               {title}
             </Heading>
             <Text className="mt-2 text-sm font-medium text-gray-500">MIDI Preview</Text>
@@ -97,12 +100,16 @@ export default function SongPreviewModal({
                   onPress={() => player.toggle()}
                   aria-label={playerState.playing ? 'Pause preview' : 'Play preview'}
                 >
-                  {playerState.playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  {playerState.playing ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
                 </Button>
-                <div className="col-start-2 col-span-2 row-start-2 flex h-8 items-center">
+                <div className="col-span-2 col-start-2 row-start-2 flex h-8 items-center">
                   <SongScrubBar height={8} className="w-full" trackClassName="bg-gray-200" />
                 </div>
-                <div className="col-start-2 col-span-2 row-start-3 flex items-center justify-between text-[10px] font-mono text-gray-500">
+                <div className="col-span-2 col-start-2 row-start-3 flex items-center justify-between font-mono text-[10px] text-gray-500">
                   <span>{currentTime}</span>
                   <span>{duration}</span>
                 </div>
@@ -112,13 +119,13 @@ export default function SongPreviewModal({
           <div className="flex-1 overflow-y-auto px-6">
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 shadow-sm">
-                <Text className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                <Text className="text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
                   Tracks
                 </Text>
                 <Text className="text-sm font-semibold text-gray-900">{trackCountLabel}</Text>
               </div>
               <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 shadow-sm">
-                <Text className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                <Text className="text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
                   Total Notes
                 </Text>
                 <Text className="text-sm font-semibold text-gray-900">{noteCountLabel}</Text>

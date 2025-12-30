@@ -69,7 +69,10 @@ export default function SongPreviewModal({
       modalClassName="max-w-[1100px] w-[min(96vw,1100px)]"
     >
       <div className="flex h-[min(90vh,700px)] w-full bg-white text-left">
-        <div className="relative flex-1 overflow-hidden bg-[#21242b]" onClick={() => player.toggle()}>
+        <div
+          className="relative flex-1 overflow-hidden bg-[#21242b]"
+          onClick={() => player.toggle()}
+        >
           {!playerState.canPlay && (
             <div className="absolute inset-0 z-10 grid place-items-center bg-black/40">
               <Loader width={48} height={48} className="animate-spin text-white" />
@@ -96,10 +99,10 @@ export default function SongPreviewModal({
                     <Play className="h-4 w-4" />
                   )}
                 </Button>
-                <div className="col-start-2 col-span-2 row-start-2 flex h-8 items-center">
+                <div className="col-span-2 col-start-2 row-start-2 flex h-8 items-center">
                   <SongScrubBar height={8} className="w-full" trackClassName="bg-gray-200" />
                 </div>
-                <div className="col-start-2 col-span-2 row-start-3 flex items-center justify-between text-[10px] font-mono text-gray-500">
+                <div className="col-span-2 col-start-2 row-start-3 flex items-center justify-between font-mono text-[10px] text-gray-500">
                   <span>{currentTime}</span>
                   <span>{duration}</span>
                 </div>
@@ -109,13 +112,13 @@ export default function SongPreviewModal({
           <div className="flex-1 px-6">
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 shadow-sm">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                <span className="text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
                   Total Notes
                 </span>
                 <span className="text-sm font-semibold text-gray-900">{noteCountLabel}</span>
               </div>
               <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 shadow-sm">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                <span className="text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
                   Instrument
                 </span>
                 <span className="text-sm font-semibold text-gray-900">{instrumentLabel}</span>

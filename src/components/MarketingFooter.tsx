@@ -5,7 +5,7 @@ import Sizer from './Sizer'
 
 function FooterHeader({ children }: any) {
   return (
-    <h3 className="fontleading-6 text-gray-500 flex gap-2 text-sm font-medium whitespace-nowrap">
+    <h3 className="fontleading-6 flex gap-2 text-sm font-medium whitespace-nowrap text-gray-500">
       {children}
     </h3>
   )
@@ -34,7 +34,7 @@ function MaxWidthWrapper(props: PropsWithChildren<{ as?: any; className?: string
 export function MarketingFooter() {
   return (
     <footer
-      className="w-full border-t border-gray-200 bg-foreground/[0.02] dark:border-gray-800 dark:bg-foreground/[0.01]"
+      className="bg-foreground/[0.02] dark:bg-foreground/[0.01] w-full border-t border-gray-200 dark:border-gray-800"
       aria-labelledby="footer-heading"
     >
       <Sizer height={8} />
@@ -44,7 +44,7 @@ export function MarketingFooter() {
       <MaxWidthWrapper className="mx-auto w-full">
         <Sizer height={8} />
         <div className="grid w-full gap-6 sm:grid-cols-[auto_1fr_auto] sm:items-start">
-          <div className="order-2 justify-self-center text-center text-muted-foreground text-xs sm:order-none sm:justify-self-start sm:text-left">
+          <div className="text-muted-foreground order-2 justify-self-center text-center text-xs sm:order-none sm:justify-self-start sm:text-left">
             © 2025 Sightread Studio, LLC. All rights reserved.
           </div>
           <div className="order-1 justify-self-center sm:order-none">

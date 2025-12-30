@@ -2,8 +2,8 @@ import { Sizer } from '@/components'
 import { LucideGithub as GitHub, Logo, Menu } from '@/icons'
 import clsx from 'clsx'
 import { PropsWithChildren } from 'react'
+import { MenuItem, MenuTrigger, Pressable, Menu as RacMenu, Separator } from 'react-aria-components'
 import { Link, useLocation, useNavigate } from 'react-router'
-import { Menu as RacMenu, MenuItem, MenuTrigger, Pressable, Separator } from 'react-aria-components'
 import { Popover } from './Popover'
 
 type NavItem = { route: string; label: string }
@@ -39,7 +39,7 @@ export default function AppBar() {
           {navItems.map((nav) => {
             return (
               <NavLink
-                className="text-white hover:bg-violet-700/90 active:bg-violet-800/90 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-violet-700/90 active:bg-violet-800/90"
                 to={nav.route}
                 key={nav.label}
                 label={nav.label}
@@ -49,7 +49,7 @@ export default function AppBar() {
           })}
           <NavLink
             to={'https://github.com/sightread/sightread'}
-            className="hover:text-purple-hover lg:pr-0 ml-auto flex items-center gap-2 pr-8 text-white"
+            className="hover:text-purple-hover ml-auto flex items-center gap-2 pr-8 text-white lg:pr-0"
           >
             <GitHub size={16} className="t-[2px] relative" />
             GitHub
@@ -78,7 +78,7 @@ function SmallWindowNav() {
                 key={nav.label}
                 onAction={() => navigate(nav.route)}
                 className={clsx(
-                  'flex w-full items-center rounded-xl px-3 py-2 text-base font-medium text-white/90 outline-none transition',
+                  'flex w-full items-center rounded-xl px-3 py-2 text-base font-medium text-white/90 transition outline-none',
                   'data-[focused]:bg-white/15 data-[pressed]:bg-white/10',
                 )}
               >
@@ -90,7 +90,7 @@ function SmallWindowNav() {
           <MenuItem
             href="https://github.com/sightread/sightread"
             target="_blank"
-            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/80 outline-none transition data-[focused]:bg-white/15 data-[pressed]:bg-white/10"
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/80 transition outline-none data-[focused]:bg-white/15 data-[pressed]:bg-white/10"
           >
             <GitHub size={16} className="t-[2px] relative" />
             GitHub

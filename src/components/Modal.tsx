@@ -1,9 +1,9 @@
 import { X as XMark } from '@/icons'
 import { PropsWithChildren, useEffect, useRef } from 'react'
 import { Button, ModalOverlay, Modal as RACModal } from 'react-aria-components'
+import { twMerge } from 'tailwind-merge'
 import { tv } from 'tailwind-variants'
 import { Dialog } from './Dialog'
-import { twMerge } from 'tailwind-merge'
 
 type ModalProps = {
   show: boolean
@@ -55,10 +55,7 @@ export default function Modal({
       }}
     >
       <RACModal className={modalStyles({ className: modalClassName })} isDismissable>
-        <Dialog
-          className={twMerge('relative rounded-md bg-white', className)}
-          aria-label="Modal"
-        >
+        <Dialog className={twMerge('relative rounded-md bg-white', className)} aria-label="Modal">
           <Button
             className="absolute top-6 right-5 z-10 cursor-pointer text-violet-600 hover:text-violet-500 active:text-violet-700"
             onPress={onClose}

@@ -45,9 +45,7 @@ export function Popover({
       if (triggerRef.current?.contains(element)) {
         return false
       }
-      return shouldCloseOnInteractOutsideProp
-        ? shouldCloseOnInteractOutsideProp(element)
-        : true
+      return shouldCloseOnInteractOutsideProp ? shouldCloseOnInteractOutsideProp(element) : true
     }
   }
   return (
