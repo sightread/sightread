@@ -21,7 +21,7 @@ export default function PreviewIcon({ isPlaying, isLoading, onPlay }: PreviewIco
       )}
       onClick={onPlay}
     >
-      <Play height={36} width={36} className="relative left-1" />
+      <Play height={36} width={36} />
     </div>
   )
   return (

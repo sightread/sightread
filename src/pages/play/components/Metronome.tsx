@@ -1,5 +1,4 @@
-import { Slider } from '@/components'
-import Toggle from '@/components/Toggle'
+import { Slider, Switch } from '@/components'
 import { usePlayer } from '@/features/player'
 import { ChevronDown, ChevronUp } from '@/icons'
 import clsx from 'clsx'
@@ -66,8 +65,9 @@ export default function MetronomeSettings() {
           isDisabled && 'pointer-events-none opacity-50',
         )}
       >
-        <span>Emphasize 1st Beat</span>
-        <Toggle checked={emphasizeFirst} onChange={setEmphasizeFirst} />
+        <Switch isSelected={emphasizeFirst} onChange={setEmphasizeFirst}>
+          Emphasize 1st Beat
+        </Switch>
       </div>
     </div>
   )

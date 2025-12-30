@@ -3,9 +3,8 @@ import { useSongManifest } from '@/features/data/library'
 import { initialize } from '@/features/persist/persistence'
 import { SongPreviewModal } from '@/features/SongPreview'
 import { useEventListener } from '@/hooks'
-import { Plus } from '@/icons'
+import { ChevronDown, FolderOpen } from '@/icons'
 import { SongMetadata } from '@/types'
-import { formatTime } from '@/utils'
 import clsx from 'clsx'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
@@ -46,50 +45,37 @@ export default function SelectSongPage() {
           setSelectedSongId(null)
         }}
       />
-      <Modal show={isUploadFormOpen} onClose={handleCloseAddNew}>
+      <Modal show={isUploadFormOpen} onClose={handleCloseAddNew} className="w-[min(100vw,500px)]">
         <ManageFoldersForm onClose={handleCloseAddNew} />
       </Modal>
-      <div className="bg-purple-lightest flex min-h-screen w-full flex-col">
+      <div className="flex min-h-screen w-full flex-col bg-gray-50">
         <AppBar />
         <div className="mx-auto flex w-full max-w-(--breakpoint-lg) grow flex-col p-6">
-          <h2 className="text-3xl">Learn a song</h2>
-          <Sizer height={8} />
-          <h3 className="text-base"> Select a song, choose your settings, and begin learning</h3>
-          <Sizer height={24} />
-          <div className="flex gap-4">
-            <SearchBox
-              placeholder={'Search Songs by Title or Artist'}
-              onSearch={setSearch}
-              autoFocus={true}
-            />
+          <h2 className="text-2xl font-semibold text-gray-900">Learn a song</h2>
+          <Sizer height={4} />
+          <h3 className="text-sm text-gray-600">
+            Select a song, choose your settings, and begin learning
+          </h3>
+          <Sizer height={16} />
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <SearchBox placeholder={'Search Titles'} onSearch={setSearch} autoFocus={true} />
+            </div>
             <button
               className={clsx(
-                'hidden flex-nowrap whitespace-nowrap sm:flex',
-                'items-center gap-1 rounded-md px-4 py-2',
-                'bg-purple-dark hover:bg-purple-hover text-white transition',
+                'cursor-pointer flex-nowrap whitespace-nowrap',
+                'inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm',
+                'transition-colors hover:bg-gray-50',
               )}
               onClick={handleAddNew}
             >
-              <Plus width={20} height={20} />
-              <span>Manage Folders</span>
+              <FolderOpen width={16} height={16} />
+              Folders
+              <ChevronDown width={16} height={16} />
             </button>
           </div>
-          <Sizer height={32} />
-          <Table
-            columns={[
-              { label: 'Name', id: 'title', keep: true },
-              {
-                label: 'Length',
-                id: 'duration',
-                format: (n) => formatTime(Number(n)),
-              },
-            ]}
-            getId={(s: SongMetadata) => s.id}
-            rows={songs}
-            filter={['title']}
-            onSelectRow={setSelectedSongId}
-            search={search}
-          />
+          <Sizer height={20} />
+          <Table rows={songs} search={search} onSelectRow={setSelectedSongId} />
         </div>
         <Sizer height={32} />
       </div>

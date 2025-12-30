@@ -1,107 +1,83 @@
-import { useWhenClickedOutside } from '@/hooks'
-import { ChevronDown, Loader } from '@/icons'
-import clsx from 'clsx'
-import * as React from 'react'
-import { useRef, useState } from 'react'
+import { ChevronDown, LoaderCircle } from 'lucide-react'
+import React from 'react'
+import {
+  Select as AriaSelect,
+  SelectProps as AriaSelectProps,
+  Button,
+  ListBox,
+  ListBoxItemProps,
+  SelectValue,
+  ValidationResult,
+} from 'react-aria-components'
+import { tv } from 'tailwind-variants'
+import { Description, FieldError, Label } from './Field'
+import { DropdownItem, DropdownSection, DropdownSectionProps } from './ListBox'
+import { Popover } from './Popover'
+import { composeTailwindRenderProps, Expand, focusRing } from './utils'
 
-type SelectProps = {
-  value: any
-  options: any[]
-  onChange: (value: any) => void
-  format?: (value: string) => string | undefined
-  display?: (value: string) => string | number | undefined
-  loading?: boolean
-  error?: boolean
-  className?: string
+const styles = tv({
+  extend: focusRing,
+  base: 'flex items-center text-start gap-4 w-full cursor-default border border-black/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] rounded-lg pl-3 pr-2 py-2 transition bg-gray-50 max-h-full max-w-full',
+  variants: {
+    isDisabled: {
+      false: 'text-gray-800  hover:bg-gray-100 pressed:bg-gray-200 group-invalid:border-red-600',
+      true: 'text-gray-200',
+    },
+  },
+})
+
+export interface SelectProps_<T extends object> extends Omit<AriaSelectProps<T>, 'children'> {
+  label?: string
+  description?: string
+  errorMessage?: string | ((validation: ValidationResult) => string)
+  isLoading?: boolean
+  items?: Iterable<T>
+  children: React.ReactNode | ((item: T) => React.ReactNode)
+}
+type SelectProps<T extends object> = Expand<SelectProps_<T>>
+
+export function Select<T extends object>({
+  label,
+  description,
+  errorMessage,
+  children,
+  items,
+  isLoading = false,
+  ...props
+}: SelectProps<T>) {
+  return (
+    <AriaSelect
+      {...props}
+      className={composeTailwindRenderProps(props.className, 'group relative flex flex-col gap-1')}
+      isDisabled={props.isDisabled || isLoading}
+    >
+      {label && <Label>{label}</Label>}
+      <Button className={styles}>
+        <SelectValue className="flex-1 text-sm placeholder-shown:italic" />
+        {isLoading ? (
+          <LoaderCircle className="animate-spin" />
+        ) : (
+          <ChevronDown aria-hidden className="h-4 w-4 text-gray-600 group-disabled:text-gray-200" />
+        )}
+      </Button>
+      {description && <Description>{description}</Description>}
+      <FieldError>{errorMessage}</FieldError>
+      <Popover className="min-w-(--trigger-width)">
+        <ListBox
+          items={items}
+          className="max-h-[inherit] overflow-auto p-1 outline-hidden [clip-path:inset(0_0_0_0_round_.75rem)]"
+        >
+          {children}
+        </ListBox>
+      </Popover>
+    </AriaSelect>
+  )
 }
 
-export default function Select({
-  value,
-  options,
-  onChange,
-  loading,
-  error,
-  className,
-  format = (value) => value,
-  display = (value) => value,
-}: SelectProps) {
-  const [openMenu, setOpenMenu] = useState(false)
-  const menuRef = useRef<HTMLDivElement | null>(null)
-  const toggleMenu = () => {
-    setOpenMenu(!openMenu)
-  }
+export function SelectItem(props: ListBoxItemProps) {
+  return <DropdownItem {...props} />
+}
 
-  const handleSelect = (val: any) => {
-    onChange(val)
-    toggleMenu()
-  }
-
-  useWhenClickedOutside(() => setOpenMenu(false), menuRef)
-
-  return (
-    <div
-      className={clsx(
-        className,
-        'relative inline-block w-full text-black',
-        error && 'border border-red-600',
-      )}
-    >
-      <input
-        value={!loading ? display(value) : ''}
-        type="text"
-        className={clsx(
-          'max-h-full w-full cursor-pointer rounded-md border border-gray-200 bg-white p-2',
-          'hover:border-purple-primary focus:border-purple-primary hover:border focus:outline-hidden',
-        )}
-        onClick={(e) => {
-          e.stopPropagation()
-          toggleMenu()
-        }}
-        readOnly
-      />
-      <ChevronDown
-        width={15}
-        height={15}
-        className={clsx(
-          'absolute top-1/2 right-1 -translate-y-1/2 cursor-pointer transition',
-          openMenu && 'rotate-180',
-        )}
-        onClick={(e) => {
-          e.stopPropagation()
-          toggleMenu()
-        }}
-      />
-      {loading && (
-        <div className="pointer-events-none absolute top-0 grid h-full w-full place-items-center">
-          <Loader size={24} height={24} className="text-purple-primary animate-spin" />
-        </div>
-      )}
-      <div className="relative">
-        <div className="absolute top-0 z-10 w-full">
-          <div
-            ref={menuRef}
-            className={clsx(
-              'border-purple-primary h-full max-h-[250px] w-full overflow-y-auto rounded-md border bg-white transition',
-              openMenu ? '' : 'hidden',
-            )}
-          >
-            {options.map((option) => {
-              return (
-                <div
-                  key={option}
-                  className={clsx('hover:bg-purple-light cursor-pointer p-1')}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleSelect(option)
-                  }}
-                >
-                  {format(option)}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+export function SelectSection<T extends object>(props: DropdownSectionProps<T>) {
+  return <DropdownSection {...props} />
 }

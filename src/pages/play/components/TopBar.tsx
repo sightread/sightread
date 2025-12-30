@@ -1,9 +1,11 @@
-import { Tooltip } from '@/components'
+import { Popover, Tooltip } from '@/components'
 import { VolumeSliderButton } from '@/features/controls'
 import { ArrowLeft, BarChart2, Midi, Settings, SkipBack } from '@/icons'
 import { isMobile } from '@/utils'
 import clsx from 'clsx'
 import React, { MouseEvent, PropsWithChildren } from 'react'
+import { Button, Dialog, DialogTrigger, TooltipTrigger } from 'react-aria-components'
+import SettingsPanel from './SettingsPanel'
 import StatusIcon from './StatusIcon'
 
 type TopBarProps = {
@@ -11,73 +13,86 @@ type TopBarProps = {
   isPlaying: boolean
   title?: string
   onTogglePlaying: () => void
-  onClickSettings: (e: MouseEvent<any>) => void
   onClickBack: () => void
   onClickRestart: () => void
   onClickMidi: (e: MouseEvent<any>) => void
   onClickStats: (e: MouseEvent<any>) => void
-  settingsOpen: boolean
   statsVisible: boolean
+  settingsProps: any
 }
 
 export default function TopBar({
   isPlaying,
   isLoading,
   onTogglePlaying,
-  onClickSettings,
   onClickBack,
   onClickRestart,
-  settingsOpen,
   title,
   onClickMidi,
-  onClickStats,
+  settingsProps,
   statsVisible,
+  onClickStats,
 }: TopBarProps) {
   return (
-    <div className="align-center relative z-10 flex h-[50px] min-h-[50px] w-screen justify-center gap-8 bg-[#292929] px-1">
-      <ButtonWithTooltip tooltip="Back" className="absolute! top-1/2 left-3 -translate-y-1/2">
-        <ArrowLeft size={24} onClick={onClickBack} />
-      </ButtonWithTooltip>
-      <div
-        className={clsx(
-          'flex h-full items-center gap-8',
-          'sm:absolute sm:left-1/2 sm:-translate-x-3/4',
-        )}
-      >
-        <ButtonWithTooltip tooltip="Restart">
-          <SkipBack size={24} onClick={onClickRestart} />
-        </ButtonWithTooltip>
-        <StatusIcon isPlaying={isPlaying} isLoading={isLoading} onTogglePlaying={onTogglePlaying} />
-      </div>
-      <div className="hidden h-full items-center text-white sm:ml-auto sm:flex">{title}</div>
-      <div className="mr-[20px] flex h-full items-center gap-8">
-        <ButtonWithTooltip tooltip="Choose a MIDI device">
-          <Midi size={24} onClick={onClickMidi} />
-        </ButtonWithTooltip>
-        <ButtonWithTooltip tooltip="Settings" isActive={settingsOpen}>
-          <Settings size={24} onClick={onClickSettings} />
-        </ButtonWithTooltip>
-        {!isMobile() && <VolumeSliderButton />}
-        {
-          <ButtonWithTooltip tooltip={statsVisible ? 'Hide Stats' : 'Show Stats'}>
-            <BarChart2
-              onClick={onClickStats}
-              size={24}
-              className={statsVisible ? 'text-white' : 'text-gray-400'}
-            />
+    <div className="align-center relative z-10 h-[50px] min-h-[50px] w-screen bg-[#292929] px-3">
+      <div className="grid h-full grid-cols-[auto_auto_auto] items-center sm:grid-cols-[1fr_auto_1fr]">
+        <div className="flex items-center justify-start">
+          <ButtonWithTooltip tooltip="Back">
+            <ArrowLeft size={24} onClick={onClickBack} />
           </ButtonWithTooltip>
-        }
+        </div>
+        <div className="flex items-center justify-center gap-6">
+          <ButtonWithTooltip tooltip="Restart">
+            <SkipBack size={24} onClick={onClickRestart} />
+          </ButtonWithTooltip>
+          <StatusIcon
+            isPlaying={isPlaying}
+            isLoading={isLoading}
+            onTogglePlaying={onTogglePlaying}
+          />
+        </div>
+        <div className="flex items-center justify-end gap-6">
+          {title && (
+            <span className="hidden max-w-[125px] truncate text-white md:block" title={title}>
+              {title}
+            </span>
+          )}
+          <ButtonWithTooltip tooltip="Choose a MIDI device">
+            <Midi size={24} onClick={onClickMidi} />
+          </ButtonWithTooltip>
+          <DialogTrigger>
+            <ButtonWithTooltip tooltip="Settings">
+              <Settings size={24} />
+            </ButtonWithTooltip>
+            <Popover
+              containerPadding={0}
+              className={'w-screen border-0'}
+              isNonModal
+              ignoreTriggerOnInteractOutside
+            >
+              <Dialog>
+                <SettingsPanel {...settingsProps} />
+              </Dialog>
+            </Popover>
+          </DialogTrigger>
+          {!isMobile() && <VolumeSliderButton />}
+          {
+            <ButtonWithTooltip tooltip={statsVisible ? 'Hide Stats' : 'Show Stats'}>
+              <BarChart2
+                onClick={onClickStats}
+                size={24}
+                className={statsVisible ? 'text-white' : 'text-gray-400'}
+              />
+            </ButtonWithTooltip>
+          }
+        </div>
       </div>
     </div>
   )
 }
 
-type ButtonProps = React.DetailedHTMLProps<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  HTMLButtonElement
->
 type ButtonWithTooltipProps = PropsWithChildren<
-  ButtonProps & { tooltip: string; isActive?: boolean }
+  React.ComponentProps<typeof Button> & { tooltip: string; isActive?: boolean }
 >
 
 export function ButtonWithTooltip({
@@ -88,8 +103,8 @@ export function ButtonWithTooltip({
   ...rest
 }: ButtonWithTooltipProps) {
   return (
-    <Tooltip label={tooltip}>
-      <button
+    <TooltipTrigger delay={0}>
+      <Button
         {...rest}
         className={clsx(
           className,
@@ -98,7 +113,8 @@ export function ButtonWithTooltip({
         )}
       >
         {children}
-      </button>
-    </Tooltip>
+      </Button>
+      <Tooltip> {tooltip} </Tooltip>
+    </TooltipTrigger>
   )
 }

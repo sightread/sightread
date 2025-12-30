@@ -37,8 +37,8 @@ export function MidiModal(props: MidiModalProps) {
   const audioContextEnabled = useAtomValue(audioContextEnabledAtom)
 
   return (
-    <Modal show={isOpen} onClose={onClose}>
-      <div className="relative flex w-[min(100vw,500px)] flex-col p-8 text-base">
+    <Modal show={isOpen} onClose={onClose} className="w-[min(100vw,500px)]">
+      <div className="relative flex flex-col p-8 text-base">
         <h1 className="text-3xl font-bold">Connect Your Piano</h1>
         <Sizer height={32} />
         <div className="flex gap-3">

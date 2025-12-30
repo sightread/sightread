@@ -1,3 +1,4 @@
+import { handlePointerCancel, handlePointerDown, handlePointerUp } from '@/features/pointer'
 import { useRAFLoop, useSize } from '@/hooks'
 import { ForwardedRef, forwardRef, ForwardRefRenderFunction, Ref, useCallback, useRef } from 'react'
 
@@ -51,7 +52,24 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
     })
 
     return (
-      <div className="relative h-full w-full" ref={measureRef}>
+      <div
+        className="relative h-full w-full"
+        ref={measureRef}
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId)
+          handlePointerDown(event.nativeEvent)
+        }}
+        onPointerUp={(event) => {
+          handlePointerUp(event.nativeEvent)
+          event.currentTarget.releasePointerCapture(event.pointerId)
+        }}
+        onPointerCancel={() => {
+          handlePointerCancel()
+        }}
+        onPointerLeave={() => {
+          handlePointerCancel()
+        }}
+      >
         <canvas ref={setupCanvas} width={width} height={height} />
       </div>
     )

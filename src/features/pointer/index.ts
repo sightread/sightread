@@ -6,15 +6,16 @@ type Velocity = { x: number; y: number }
 let isPointerDown_ = false
 let pointerCoordinates: Point = { x: Infinity, y: Infinity }
 let pointerVelocity: Velocity = { x: 0, y: 0 }
-function setPointerDown(e: PointerEvent) {
-  isPointerDown_ = true
-  setPointerLocation(e)
-}
-function setPointerUp(e: PointerEvent) {
+
+function resetPointer() {
   isPointerDown_ = false
-  setPointerLocation(e)
+  pointerCoordinates = { x: Infinity, y: Infinity }
+  pointerVelocity = { x: 0, y: 0 }
 }
-const setPointerLocation = (e: PointerEvent) => {
+
+type PointerLikeEvent = { clientX: number; clientY: number }
+
+const setPointerLocation = (e: PointerLikeEvent) => {
   const { clientX: x, clientY: y } = e
   if (isPointerDown_) {
     pointerVelocity = { x: x - pointerCoordinates.x, y: y - pointerCoordinates.y }
@@ -25,9 +26,21 @@ const setPointerLocation = (e: PointerEvent) => {
 }
 
 if (isBrowser()) {
-  window.addEventListener('pointerdown', setPointerDown, { passive: true, capture: true })
-  window.addEventListener('pointerup', setPointerUp, { passive: true, capture: true })
   window.addEventListener('pointermove', setPointerLocation, { passive: true, capture: true })
+}
+
+export function handlePointerDown(e: PointerLikeEvent) {
+  isPointerDown_ = true
+  setPointerLocation(e)
+}
+
+export function handlePointerUp(e: PointerLikeEvent) {
+  isPointerDown_ = false
+  setPointerLocation(e)
+}
+
+export function handlePointerCancel() {
+  resetPointer()
 }
 
 export function isPointerDown(): boolean {

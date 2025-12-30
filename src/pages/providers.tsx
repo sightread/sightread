@@ -7,7 +7,7 @@ export function Providers({ children }: PropsWithChildren<{}>) {
   return (
     <PlayerProvider>
       <RadixToast.ToastProvider swipeDirection="right" duration={2000}>
-        <TooltipProvider>{children}</TooltipProvider>
+        {children}
       </RadixToast.ToastProvider>
     </PlayerProvider>
   )

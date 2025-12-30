@@ -2,8 +2,9 @@ import { Sizer } from '@/components'
 import { LucideGithub as GitHub, Logo, Menu } from '@/icons'
 import clsx from 'clsx'
 import { PropsWithChildren } from 'react'
-import { Link, useLocation } from 'react-router'
-import { Dropdown } from './Dropdown'
+import { MenuItem, MenuTrigger, Pressable, Menu as RacMenu, Separator } from 'react-aria-components'
+import { Link, useLocation, useNavigate } from 'react-router'
+import { Popover } from './Popover'
 
 type NavItem = { route: string; label: string }
 const navItems: NavItem[] = [
@@ -17,7 +18,7 @@ const navItems: NavItem[] = [
 export default function AppBar() {
   return (
     <div
-      className="bg-purple-dark relative flex h-[50px] min-h-[50px] flex-col justify-center"
+      className="relative flex h-[50px] min-h-[50px] flex-col justify-center bg-violet-600 shadow-sm"
       style={{
         // This is a hack that accounts for the sometimes present scrollbar.
         // The 100vw includes scrollbar and the 100% does not, so we padLeft the difference.
@@ -38,16 +39,17 @@ export default function AppBar() {
           {navItems.map((nav) => {
             return (
               <NavLink
-                className="hover:text-purple-hover text-white"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-violet-700/90 active:bg-violet-800/90"
                 to={nav.route}
                 key={nav.label}
                 label={nav.label}
+                activeClassName="bg-violet-700/90 text-white"
               />
             )
           })}
           <NavLink
             to={'https://github.com/sightread/sightread'}
-            className="hover:text-purple-hover lgminus:pr-0 ml-auto flex items-center gap-2 pr-8 text-white"
+            className="hover:text-purple-hover ml-auto flex items-center gap-2 pr-8 text-white lg:pr-0"
           >
             <GitHub size={16} className="t-[2px] relative" />
             GitHub
@@ -59,29 +61,54 @@ export default function AppBar() {
 }
 
 function SmallWindowNav() {
+  const navigate = useNavigate()
+  const currentRoute = useLocation().pathname
   return (
-    <Dropdown target={<Menu height={24} width={24} className="block text-white" />}>
-      <div className="flex flex-col bg-white">
-        {navItems.map((nav, i) => {
-          return (
-            <div className="items-enter flex flex-col gap-4 px-3 py-3" key={i}>
-              <NavLink
-                to={nav.route}
+    <MenuTrigger>
+      <Pressable>
+        <button aria-label="Open menu">
+          <Menu height={24} width={24} className="block text-white" />
+        </button>
+      </Pressable>
+      <Popover className="w-[min(90vw,360px)] rounded-2xl border border-white/10 bg-violet-900/95 p-2 shadow-xl backdrop-blur">
+        <RacMenu className="outline-none">
+          {navItems.map((nav) => {
+            return (
+              <MenuItem
+                key={nav.label}
+                onAction={() => navigate(nav.route)}
                 className={clsx(
-                  'text-purple-dark hover:text-purple-hover inline-block w-fit cursor-pointer px-6 text-2xl transition',
+                  'flex w-full items-center rounded-xl px-3 py-2 text-base font-medium text-white/90 transition outline-none',
+                  'data-[focused]:bg-white/15 data-[pressed]:bg-white/10',
                 )}
-                label={nav.label}
-              />
-            </div>
-          )
-        })}
-      </div>
-    </Dropdown>
+              >
+                {nav.label}
+              </MenuItem>
+            )
+          })}
+          <Separator className="mx-2 my-1 border-t border-white/10" />
+          <MenuItem
+            href="https://github.com/sightread/sightread"
+            target="_blank"
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/80 transition outline-none data-[focused]:bg-white/15 data-[pressed]:bg-white/10"
+          >
+            <GitHub size={16} className="t-[2px] relative" />
+            GitHub
+          </MenuItem>
+        </RacMenu>
+      </Popover>
+    </MenuTrigger>
   )
 }
 
 function NavLink(
-  props: PropsWithChildren<{ to: string; className?: string; style?: any; label?: string }>,
+  props: PropsWithChildren<{
+    to: string
+    className?: string
+    style?: any
+    label?: string
+    activeClassName?: string
+  }>,
 ) {
   const currentRoute = useLocation().pathname
   return (
@@ -90,7 +117,7 @@ function NavLink(
       className={clsx(
         props.className,
         'transition',
-        currentRoute === props.to && 'font-bold',
+        currentRoute === props.to && (props.activeClassName || 'font-bold'),
         props.label &&
           'after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:text-transparent after:content-[attr(label)]',
       )}

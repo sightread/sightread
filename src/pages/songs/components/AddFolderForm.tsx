@@ -20,7 +20,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
 
   if (!isFileSystemAccessSupported()) {
     return (
-      <div className="relative flex w-[min(100vw,500px)] flex-col gap-5 p-8 text-base">
+      <div className="relative flex flex-col gap-5 p-8 text-base">
         <h1 className="text-3xl font-bold">Add Music Folder</h1>
         <Sizer height={0} />
 
@@ -47,7 +47,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
   }
 
   return (
-    <div className="mx-auto w-[min(100vw,500px)] bg-white p-4">
+    <div className="mx-auto bg-white p-4">
       <div className="mb-6 border-b border-gray-200 pb-4">
         <h2 className="mb-1 text-lg font-medium text-gray-900">Folder Management</h2>
         <p className="text-sm text-gray-500">Organize your music collection</p>
@@ -64,7 +64,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
         </button>
         <button
           onClick={addFolder}
-          className="flex flex-4 items-center justify-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+          className="flex flex-4 cursor-pointer items-center justify-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
         >
           <Plus className="h-4 w-4" />
           Add Folder
