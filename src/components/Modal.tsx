@@ -1,67 +1,70 @@
-import { useEventListener, useWhenClickedOutside } from '@/hooks'
 import { X as XMark } from '@/icons'
-import clsx from 'clsx'
 import { PropsWithChildren, useEffect, useRef } from 'react'
+import { Button, ModalOverlay, Modal as RACModal } from 'react-aria-components'
+import { twMerge } from 'tailwind-merge'
+import { tv } from 'tailwind-variants'
+import { Dialog } from './Dialog'
 
 type ModalProps = {
   show: boolean
   onClose: () => void
   className?: string
+  modalClassName?: string
 }
 
-function enableScrolling() {
-  document.body.style.overflow = 'initial'
-}
-function disableScrolling() {
-  document.body.style.overflow = 'hidden'
-}
+const overlayStyles = tv({
+  base: 'fixed top-0 left-0 w-full h-(--visual-viewport-height) isolate z-20 bg-gray-400/60 flex items-center justify-center p-4 text-center',
+  variants: {
+    isEntering: {
+      true: 'animate-in fade-in duration-100 ease-out',
+    },
+    isExiting: {
+      true: 'animate-out fade-out duration-100 ease-in',
+    },
+  },
+})
+
+const modalStyles = tv({
+  base: 'w-full max-w-md max-h-full rounded-2xl bg-white text-left align-middle text-slate-700 shadow-2xl bg-clip-padding border border-black/10',
+  variants: {
+    isEntering: {
+      true: 'animate-in zoom-in-105 ease-out duration-100',
+    },
+    isExiting: {
+      true: 'animate-out zoom-out-95 ease-in duration-100',
+    },
+  },
+})
 
 export default function Modal({
   show,
   children,
   onClose,
   className,
+  modalClassName,
 }: PropsWithChildren<ModalProps>) {
-  const modalRef = useRef<HTMLDivElement>(null)
-
-  useWhenClickedOutside(() => onClose?.(), modalRef)
-  useEventListener<KeyboardEvent>('keydown', (event) => {
-    if (show && event.key === 'Escape') {
-      onClose?.()
-    }
-  })
-
-  // Stop background from scrolling while modal is open.
-  useEffect(() => {
-    if (show) {
-      disableScrolling()
-    } else {
-      enableScrolling()
-    }
-    return enableScrolling
-  }, [show])
-
-  if (!show) {
-    return null
-  }
-
   return (
-    <div className="fixed top-0 left-0 z-20 flex h-full w-full items-center justify-center overflow-auto bg-gray-400/60 md:p-10">
-      <div
-        ref={modalRef}
-        className={clsx(
-          className,
-          'relative z-10 m-auto max-w-(--breakpoint-lg) overflow-hidden rounded-md bg-white',
-        )}
-      >
-        <button
-          className="text-purple-primary hover:text-purple-hover absolute top-5 right-5 z-10"
-          onClick={onClose}
-        >
-          <XMark height={24} width={24} />
-        </button>
-        {children}
-      </div>
-    </div>
+    <ModalOverlay
+      className={overlayStyles}
+      isOpen={show}
+      isDismissable
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          onClose()
+        }
+      }}
+    >
+      <RACModal className={modalStyles({ className: modalClassName })} isDismissable>
+        <Dialog className={twMerge('relative rounded-md bg-white', className)} aria-label="Modal">
+          <Button
+            className="absolute top-6 right-5 z-10 cursor-pointer text-violet-600 hover:text-violet-500 active:text-violet-700"
+            onPress={onClose}
+          >
+            <XMark height={24} width={24} />
+          </Button>
+          {children}
+        </Dialog>
+      </RACModal>
+    </ModalOverlay>
   )
 }

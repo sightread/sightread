@@ -1,5 +1,5 @@
 import Toast from '@/components/Toast'
-import { SongScrubBar } from '@/features/controls'
+import { SongScrubBar, SongScrubTooltip, useSongScrubTimes } from '@/features/controls'
 import { useSong } from '@/features/data'
 import { useSongMetadata } from '@/features/data/library'
 import midiState from '@/features/midi'
@@ -23,7 +23,7 @@ import { useAtomValue } from 'jotai'
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import { SettingsPanel, TopBar } from './components'
+import { TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
 import { StatsPopup } from './components/StatsPopup'
 
@@ -112,8 +112,9 @@ export default function PlaySongPage() {
   const player = usePlayer()
   const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
-  const [statsVisible, setStatsVisible] = useState(true)
+  const [statsVisible, setStatsVisible] = useState(false)
   const playerState = usePlayerState()
+  const { currentTime, duration } = useSongScrubTimes()
   const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error, isLoading, mutate } = useSong(id, source)
   let songMeta = useSongMetadata(id, source)
@@ -131,7 +132,6 @@ export default function PlaySongPage() {
   const [songConfig, setSongConfig] = useSongSettings(id)
   const isRecording = !!recording
   useWakeLock()
-
   const hand =
     songConfig.left && songConfig.right
       ? 'both'
@@ -356,33 +356,31 @@ export default function PlaySongPage() {
                 e.stopPropagation()
                 setMidiModal(!isMidiModalOpen)
               }}
-              onClickSettings={(e) => {
-                e.stopPropagation()
-                setSettingsPanel(!settingsOpen)
+              settingsProps={{
+                onChange: setSongConfig,
+                config: songConfig,
+                song: song,
+                onLoopToggled: handleLoopingToggle,
+                isLooping: isLooping,
               }}
-              onClickStats={(e) => {
-                setStatsVisible(!statsVisible)
-              }}
-              settingsOpen={settingsOpen}
+              onClickStats={() => setStatsVisible(!statsVisible)}
               statsVisible={statsVisible}
             />
             <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
-            {settingsOpen && (
-              <SettingsPanel
-                onClose={() => setSettingsPanel(false)}
-                onChange={setSongConfig}
-                config={songConfig}
-                song={song}
-                onLoopToggled={handleLoopingToggle}
-                isLooping={isLooping}
-              />
-            )}
             <div className="relative min-w-full">
-              <SongScrubBar
-                rangeSelection={selectedRange}
-                setRange={(range: any) => player.setRange(range)}
-                height={40}
-              />
+              <div className="flex h-10 items-center border-b border-b-black bg-gray-300 px-4">
+                <span className="min-w-[80px] self-center text-black">{currentTime}</span>
+                <SongScrubBar
+                  rangeSelection={selectedRange}
+                  setRange={(range: any) => player.setRange(range)}
+                  height={12}
+                  className="mx-4 flex-1"
+                  trackClassName="bg-gray-400"
+                >
+                  <SongScrubTooltip />
+                </SongScrubBar>
+                <span className="min-w-[80px] self-center text-black">{duration}</span>
+              </div>
             </div>
             {statsVisible && <StatsPopup />}
             <Toast

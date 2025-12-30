@@ -72,7 +72,7 @@ export class Player {
 
   metronomeVolume = atom(0)
   metronomeSpeed = atom(1)
-  metronomeEmphasizeFirst = atom(false)
+  metronomeEmphasizeFirst = atom(true)
   metronomeLastPlayedTick: null | number = null
   metronomeSynth = getSynthStub('woodblock')
   metronomeAccentedSynth = getSynthStub('agogo')
@@ -577,7 +577,7 @@ export class Player {
   resetMetronome() {
     this.store.set(this.metronomeVolume, 0)
     this.store.set(this.metronomeSpeed, 1)
-    this.store.set(this.metronomeEmphasizeFirst, false)
+    this.store.set(this.metronomeEmphasizeFirst, true)
   }
 
   seek(time: number) {

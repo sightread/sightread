@@ -1,4 +1,4 @@
-import { Sizer, Toggle } from '@/components'
+import { Sizer, Switch } from '@/components'
 import { palette as colors } from '@/styles/common'
 import { Clef } from '@/types'
 import React from 'react'
@@ -75,12 +75,11 @@ export default function SettingsSidebar(props: SidebarProps) {
           </div>
         </div>
         <Sizer height={36} />
-        <div
-          style={{ display: 'flex', fontSize: 18, flexDirection: 'column', alignItems: 'center' }}
-        >
-          Display Note Letter
+        <div className="flex flex-col items-center text-xl">
           <Sizer height={8} />
-          <Toggle checked={displayLetter} onChange={handleDisplayLetter} />
+          <Switch isSelected={displayLetter} onChange={handleDisplayLetter}>
+            Display Note Letter
+          </Switch>
         </div>
       </div>
     </div>

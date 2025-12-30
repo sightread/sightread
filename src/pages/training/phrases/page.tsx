@@ -1,9 +1,10 @@
 import { Select, Sizer } from '@/components'
+import { SelectItem } from '@/components/Select.tsx'
 import midiState from '@/features/midi'
 import { usePlayer } from '@/features/player'
 import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
 import { getDefaultSongSettings } from '@/features/SongVisualization/utils'
-import { getGeneratedSong } from '@/features/theory/procedural'
+import { getGeneratedSong, Level as PhraseLevel } from '@/features/theory/procedural'
 import { useOnUnmount, useRAFLoop, useWakeLock } from '@/hooks'
 import { ChevronDown, ChevronUp } from '@/icons'
 import { MidiModal } from '@/pages/play/components/MidiModal'
@@ -19,12 +20,12 @@ import { playFailSound } from '../sound-effects'
 import TopBar from './components/TopBar.tsx'
 
 type Generator = 'eMinor' | 'dMajor' | 'random'
-type Level = 0 | 1 | 2 | 3
+type LevelParam = '0' | '1' | '2' | '3'
 export type GeneratedSongSettings = SongConfig & { generator: Generator }
 
 function useGeneratedSong(
   type: Generator,
-  level: Level,
+  level: PhraseLevel,
   clef: PhraseClefType,
 ): [Song | undefined, () => void] {
   const [song, setSong] = useState<Song>()
@@ -32,7 +33,7 @@ function useGeneratedSong(
   const hasBass = clef === 'grand' || clef === 'bass'
   const hasTreble = clef === 'grand' || clef === 'treble'
   useEffect(() => {
-    getGeneratedSong(type, level as any, { bass: hasBass, treble: hasTreble })
+    getGeneratedSong(type, level, { bass: hasBass, treble: hasTreble })
       .then((s) => setSong(s))
       .catch((e) => console.error(e))
   }, [type, level, counter, clef, hasBass, hasTreble])
@@ -54,11 +55,10 @@ export default function Phrases() {
   let searchParamsObj = Object.fromEntries(searchParams)
   const clefType = searchParamsObj.clef as PhraseClefType
   const generatorType = searchParamsObj.generator as Generator
-  const [song, forceNewSong] = useGeneratedSong(
-    generatorType,
-    +searchParamsObj.level as Level,
-    clefType,
-  )
+  const levelParam = searchParamsObj.level as LevelParam
+  const parsedLevel = Number(levelParam)
+  const level: PhraseLevel = [0, 1, 2, 3].includes(parsedLevel) ? (parsedLevel as PhraseLevel) : 0
+  const [song, forceNewSong] = useGeneratedSong(generatorType, level, clefType)
 
   const accuracy = useAtomValue(player.score.accuracy)
   const score = useAtomValue(player.score.combined)
@@ -131,39 +131,38 @@ export default function Phrases() {
           </div>
           <Select
             className="max-w-fit"
-            options={['random', 'eMinor', 'dMajor']}
-            value={generatorType}
-            onChange={(generator) => setSearchParams({ ...searchParamsObj, generator })}
-            display={(v) =>
-              ({
-                random: 'Random',
-                eMinor: 'Irish Folk in E Minor',
-                dMajor: 'Irish Folk in D Major',
-              })[v]
+            selectedKey={generatorType}
+            onSelectionChange={(generator: any) =>
+              setSearchParams({ ...searchParamsObj, generator: generator! })
             }
-            format={(v) =>
-              ({
-                random: 'Random',
-                eMinor: 'Irish Folk in E Minor',
-                dMajor: 'Irish Folk in D Major',
-              })[v]
-            }
-          />
+            items={[
+              { id: 'random', name: 'Random' },
+              { id: 'eMinor', name: 'Irish Folk in E Minor' },
+              { id: 'dMajor', name: 'Irish Folk in D Major' },
+            ]}
+          >
+            {(item) => <SelectItem>{item.name}</SelectItem>}
+          </Select>
           <Select
             className="max-w-fit"
-            options={['0', '1', '2', '3']}
-            value={searchParamsObj.level}
-            onChange={(level) => setSearchParams({ ...searchParams, level })}
-            display={(lvl) => `Level: ${lvl}`}
-          />
+            selectedKey={levelParam}
+            onSelectionChange={(level: any) => {
+              setSearchParams({ ...searchParams, level })
+            }}
+            label={'Level'}
+            items={['0', '1', '2', '3'].map((lvl) => ({ id: lvl, name: lvl }))}
+          >
+            {(item) => <SelectItem>{item.name}</SelectItem>}
+          </Select>
           <Select
             className="max-w-fit"
-            options={['treble', 'bass', 'grand']}
-            value={clefType}
-            onChange={(clef) => setSearchParams({ ...searchParams, clef })}
-            display={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' })[v]}
-            format={(v) => ({ treble: 'Treble', bass: 'Bass', grand: 'Grand' })[v]}
-          />
+            selectedKey={clefType}
+            onSelectionChange={(clef: any) => setSearchParams({ ...searchParams, clef })}
+          >
+            <SelectItem id="treble">Treble</SelectItem>
+            <SelectItem id="bass">Bass</SelectItem>
+            <SelectItem id="grand">Grand</SelectItem>
+          </Select>
         </div>
         <Sizer height={24} />
         <div className="flex h-[100px] w-full items-center justify-center gap-8">

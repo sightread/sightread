@@ -9,15 +9,15 @@ export type SearchBoxProps = {
 
 export function SearchBox({ onSearch, placeholder, autoFocus }: SearchBoxProps) {
   return (
-    <div className="relative h-[40px] w-80">
+    <div className="relative h-9 w-full">
       <TextInput
         type="search"
         onChange={(e: any) => onSearch(e.target.value)}
-        className="absolute h-full w-full rounded-md bg-gray-100 pl-10 placeholder-gray-700 placeholder:text-base"
+        className="absolute h-full w-full rounded-md border border-gray-200 bg-white pr-3 pl-9 text-sm placeholder:font-mono placeholder:text-gray-500"
         placeholder={placeholder}
         autoFocus={autoFocus}
       />
-      <Search size={20} className="absolute top-1/2 left-3 -translate-y-1/2" />
+      <Search size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
     </div>
   )
 }

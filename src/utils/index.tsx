@@ -54,9 +54,9 @@ export function formatTime(seconds: number) {
 }
 
 export const breakpoints = {
-  sm: 650,
-  md: 800,
-  lg: 1100,
+  sm: 640,
+  md: 768,
+  lg: 1024,
 }
 
 export class Deferred<T> {
