@@ -53,9 +53,15 @@ export function getHandSettings(config: SongConfig | undefined) {
 }
 
 function getInstrument(track: Track): InstrumentName {
-  return track.program && track.program >= 0
-    ? gmInstruments[track.program]
-    : (((track.instrument || track.name) as InstrumentName) ?? gmInstruments[0])
+  const program = track.program
+  if (program != null && program >= 0) {
+    return gmInstruments[program]
+  }
+  return ((track.instrument || track.name) as InstrumentName) ?? gmInstruments[0]
+}
+
+function isValidInstrumentName(instrument: string | undefined): instrument is InstrumentName {
+  return !!instrument && gmInstruments.includes(instrument as InstrumentName)
 }
 
 export function getDefaultSongSettings(song?: Song): SongConfig {
@@ -92,11 +98,35 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
 export function getSongSettings(file: string, song: Song): SongConfig {
   let persisted = getPersistedSongSettings(file)
   if (persisted) {
-    return persisted
+    const normalized = normalizeSongConfig(song, persisted)
+    if (normalized !== persisted) {
+      setPersistedSongSettings(file, normalized)
+    }
+    return normalized
   }
   const songSettings = getDefaultSongSettings(song)
   setPersistedSongSettings(file, songSettings)
   return songSettings
+}
+
+function normalizeSongConfig(song: Song, config: SongConfig): SongConfig {
+  let changed = false
+  const tracks: SongConfig['tracks'] = { ...config.tracks }
+
+  for (const [trackId, trackSetting] of Object.entries(config.tracks)) {
+    if (isValidInstrumentName(trackSetting.instrument)) {
+      continue
+    }
+    const track = song.tracks[trackId] ?? trackSetting.track
+    const instrument = track ? getInstrument(track) : gmInstruments[0]
+    if (trackSetting.instrument === instrument) {
+      continue
+    }
+    tracks[trackId] = { ...trackSetting, instrument }
+    changed = true
+  }
+
+  return changed ? { ...config, tracks } : config
 }
 
 function inferHands(song: Song): { left?: number; right?: number } {
