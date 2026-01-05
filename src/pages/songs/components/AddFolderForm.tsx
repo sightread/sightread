@@ -11,17 +11,38 @@ import {
 } from '@/features/persist/persistence'
 import { useAtomValue } from 'jotai'
 import { AlertCircle, Folder, Music, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ManageFoldersForm({ onClose }: { onClose: () => void }) {
   const isScanning = useAtomValue<boolean | Promise<void>>(isScanningAtom)
   const folders = useAtomValue(localDirsAtom)
   const localSongs = useAtomValue(localSongsAtom)
   const needsPermission = useAtomValue(requiresPermissionAtom)
+  const [scanState, setScanState] = useState<'idle' | 'scanning'>('idle')
+
+  const handleScanFolders = async () => {
+    if (scanState === 'scanning') {
+      return
+    }
+    setScanState('scanning')
+    await new Promise(requestAnimationFrame)
+    const start = performance.now()
+    try {
+      await scanFolders()
+    } finally {
+      const elapsed = performance.now() - start
+      const remaining = Math.max(0, 1000 - elapsed)
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining))
+      }
+      setScanState('idle')
+    }
+  }
 
   if (!isFileSystemAccessSupported()) {
     return (
-      <div className="relative flex flex-col gap-5 p-8 text-base">
-        <h1 className="text-3xl font-bold">Add Music Folder</h1>
+      <div className="relative flex flex-col gap-5 px-6 pt-6 pb-6 text-base">
+        <h1 className="text-2xl font-semibold text-gray-900">Add Music Folder</h1>
         <Sizer height={0} />
 
         <div className="flex items-center gap-3 rounded-md border border-red-300 bg-red-50 p-4 text-red-700">
@@ -38,7 +59,7 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
 
         <button
           onClick={onClose}
-          className="w-full cursor-pointer rounded-md bg-gray-500 py-2 text-white transition hover:bg-gray-600"
+          className="w-full cursor-pointer rounded-md bg-violet-600 py-2 text-white transition hover:bg-violet-700"
         >
           Close
         </button>
@@ -47,42 +68,44 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
   }
 
   return (
-    <div className="mx-auto bg-white p-4">
+    <div className="mx-auto bg-white px-6 pt-6 pb-6">
       <div className="mb-6 border-b border-gray-200 pb-4">
-        <h2 className="mb-1 text-lg font-medium text-gray-900">Folder Management</h2>
+        <h2 className="mb-1 text-xl font-semibold text-gray-900">Folder Management</h2>
         <p className="text-sm text-gray-500">Organize your music collection</p>
       </div>
 
-      <div className="flex gap-4">
-        <button
-          onClick={scanFolders}
-          disabled={isScanning !== false}
-          className="flex items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <RefreshCw className={`h-4 w-4 ${isScanning ? 'animate-spin' : ''}`} />
-          Scan Folders
-        </button>
-        <button
-          onClick={addFolder}
-          className="flex flex-4 cursor-pointer items-center justify-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
-        >
-          <Plus className="h-4 w-4" />
-          Add Folder
-        </button>
+      <div className="flex items-center justify-between gap-4">
+        <div className="text-[11px] font-semibold tracking-wider text-gray-500 uppercase">
+          Folders ({folders.length})
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={handleScanFolders}
+            disabled={scanState === 'scanning'}
+            className="flex items-center justify-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${scanState === 'scanning' ? 'animate-spin' : ''}`} />
+            Scan Folders
+          </button>
+          <button
+            onClick={addFolder}
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-md bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-700"
+          >
+            <Plus className="h-4 w-4" />
+            Add Folder
+          </button>
+        </div>
       </div>
 
       <Sizer height={24} />
 
       {/* Folders List */}
       <div className="space-y-2">
-        <div className="mb-3 flex flex-col justify-between gap-1">
-          <h3 className="text-sm font-medium text-gray-700">Folders ({folders.length})</h3>
-          {needsPermission && (
-            <p className="text-xs text-red-800">
-              Please rescan folders to grant access to your music files.
-            </p>
-          )}
-        </div>
+        {needsPermission && (
+          <p className="text-xs text-red-800">
+            Please rescan folders to grant access to your music files.
+          </p>
+        )}
 
         {folders.length === 0 ? (
           <div className="py-8 text-center">
