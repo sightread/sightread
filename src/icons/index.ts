@@ -1,6 +1,7 @@
 export { default as LeftHand } from './LeftHand'
 export { default as RightHand } from './RightHand'
 export { default as Logo } from './Logo'
+export { Metronome } from './Metronome'
 export { Midi } from './Midi'
 export { StartRecord } from './StartRecord'
 export { StopRecord } from './StopRecord'

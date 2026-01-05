@@ -10,6 +10,7 @@ type ModalProps = {
   onClose: () => void
   className?: string
   modalClassName?: string
+  overlayClassName?: string
 }
 
 const overlayStyles = tv({
@@ -42,10 +43,11 @@ export default function Modal({
   onClose,
   className,
   modalClassName,
+  overlayClassName,
 }: PropsWithChildren<ModalProps>) {
   return (
     <ModalOverlay
-      className={overlayStyles}
+      className={overlayStyles({ className: overlayClassName })}
       isOpen={show}
       isDismissable
       onOpenChange={(isOpen) => {

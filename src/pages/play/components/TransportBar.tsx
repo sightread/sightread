@@ -1,0 +1,187 @@
+import { Popover, Slider } from '@/components'
+import { usePlayer } from '@/features/player'
+import { useSongScrubTimes } from '@/features/controls'
+import { Check, Pause, Play, Repeat, SkipBack, Metronome, Gauge, Volume2 } from '@/icons'
+import { round } from '@/utils'
+import clsx from 'clsx'
+import { useAtom, useAtomValue } from 'jotai'
+import { Button, Menu, MenuItem, MenuTrigger, Pressable } from 'react-aria-components'
+import { getSpeedPresetOptions } from './speedPresets'
+
+type TransportBarProps = {
+  isPlaying: boolean
+  isLoading: boolean
+  onTogglePlaying: () => void
+  onClickRestart: () => void
+  isLooping: boolean
+  onToggleLoop: () => void
+}
+
+export default function TransportBar({
+  isPlaying,
+  isLoading,
+  onTogglePlaying,
+  onClickRestart,
+  isLooping,
+  onToggleLoop,
+}: TransportBarProps) {
+  const player = usePlayer()
+  const { currentTime, duration } = useSongScrubTimes()
+  const bpmModifier = useAtomValue(player.getBpmModifier())
+  const [metronomeVolume, setMetronomeVolume] = useAtom(player.metronomeVolume)
+  const volume = useAtomValue(player.volume)
+  const measure = player.getMeasureForTime(player.getTime())?.number ?? 1
+  const isMetronomeOn = metronomeVolume > 0
+  const isBpmModified = Math.abs(bpmModifier - 1) > 0.001
+
+  const speedOptions = getSpeedPresetOptions(bpmModifier)
+
+  return (
+    <div className="flex h-12 items-center justify-between border-t border-[#23242b] bg-[#141419] px-4 text-gray-200">
+      <div className="flex items-center gap-3">
+        <Button
+          className="text-gray-400 transition hover:text-white"
+          onPress={onClickRestart}
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          <SkipBack className="h-5 w-5" />
+        </Button>
+        <Button
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-white shadow-[0_0_12px_rgba(139,92,246,0.35)] transition hover:bg-violet-500 active:scale-95"
+          onPress={onTogglePlaying}
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          {isLoading ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent" />
+          ) : isPlaying ? (
+            <Pause className="h-5 w-5" />
+          ) : (
+            <Play className="h-5 w-5" />
+          )}
+        </Button>
+        <div className="flex items-center gap-2 pl-2">
+          <Volume2 className="h-4 w-4 text-gray-400" />
+          <div className="w-24">
+            <Slider
+              orientation="horizontal"
+              min={0}
+              max={1}
+              step={0.01}
+              value={[volume]}
+              onValueChange={(val) => player.setVolume(val[0])}
+              className="h-2 w-full"
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col items-end select-none">
+          <div className="flex items-baseline gap-1 font-mono select-none">
+            <span className="text-sm font-semibold text-white select-none">{currentTime}</span>
+            <span className="text-[11px] text-gray-500 select-none">/ {duration}</span>
+          </div>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-violet-400 select-none">
+            Measure {measure}
+          </span>
+        </div>
+        <div className="hidden h-6 w-px bg-[#2a2b32] md:block" />
+        <div className="hidden items-center gap-2 md:flex">
+          <Button
+            className={`flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition ${
+              isMetronomeOn
+                ? 'border border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20'
+                : 'border border-transparent bg-[#1e2028] text-gray-300 hover:bg-[#232633]'
+            }`}
+            onPress={() => setMetronomeVolume(isMetronomeOn ? 0 : 0.6)}
+            onMouseDown={(event) => event.preventDefault()}
+          >
+            <Metronome className={isMetronomeOn ? 'h-3.5 w-3.5 text-violet-200' : 'h-3.5 w-3.5 text-gray-400'} />
+            <span className="relative inline-flex min-w-[28px] justify-center">
+              <span className="invisible">OFF</span>
+              <span
+                className={clsx(
+                  'absolute inset-0 flex items-center justify-center transition-opacity',
+                  isMetronomeOn ? 'opacity-100' : 'opacity-0',
+                )}
+              >
+                ON
+              </span>
+              <span
+                className={clsx(
+                  'absolute inset-0 flex items-center justify-center transition-opacity',
+                  isMetronomeOn ? 'opacity-0' : 'opacity-100',
+                )}
+              >
+                OFF
+              </span>
+            </span>
+          </Button>
+          <MenuTrigger>
+            <Pressable>
+              <button
+                className={`flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs font-medium transition ${
+                  isBpmModified
+                    ? 'border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20'
+                    : 'border-[#1e2028] bg-[#1e2028] text-gray-300 hover:bg-[#232633]'
+                }`}
+              >
+                <Gauge
+                  className={
+                    isBpmModified ? 'h-3.5 w-3.5 text-violet-200' : 'h-3.5 w-3.5 text-gray-400'
+                  }
+                />
+                {round(bpmModifier * 100)}%
+              </button>
+            </Pressable>
+            <Popover
+              placement="bottom"
+              className="min-w-[96px] rounded-xl border border-white/10 bg-[#1f1c24] p-0.5 text-sm text-white shadow-xl"
+            >
+              <Menu
+                className="outline-none"
+                onAction={(key) => {
+                  const option = speedOptions.find((entry) => entry.id === key)
+                  if (!option) {
+                    return
+                  }
+                  player.setBpmModifier(option.value)
+                }}
+              >
+                {speedOptions.map((option) => {
+                  const isSelected = Math.abs(option.value - bpmModifier) < 0.001
+                  return (
+                    <MenuItem
+                      id={option.id}
+                      key={option.id}
+                      className={clsx(
+                        'flex items-center justify-between rounded-lg px-2.5 py-1.5 font-medium text-white/80 outline-none transition',
+                        'data-[focused]:bg-white/10 data-[pressed]:bg-white/10',
+                        isSelected && 'text-white',
+                      )}
+                    >
+                      {option.label}
+                      {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
+                    </MenuItem>
+                  )
+                })}
+              </Menu>
+            </Popover>
+          </MenuTrigger>
+        </div>
+        <div className="h-6 w-px bg-[#2a2b32]" />
+        <Button
+          className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+            isLooping
+              ? 'border-violet-500/40 bg-violet-500/20 text-violet-200 hover:bg-violet-500/30'
+              : 'border-[#2a2b32] bg-[#1e2028] text-gray-300 hover:bg-[#232633]'
+          }`}
+          onPress={onToggleLoop}
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          <Repeat className="h-3.5 w-3.5" />
+          Loop
+        </Button>
+      </div>
+    </div>
+  )
+}

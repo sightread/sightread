@@ -21,7 +21,7 @@ export function ListBox<T extends object>({ children, ...props }: ListBoxProps<T
       {...props}
       className={composeTailwindRenderProps(
         props.className,
-        'rounded-md bg-gray-800 p-1 outline-1 -outline-offset-1 outline-white/10',
+        'rounded-md border border-zinc-700 bg-zinc-900 p-1 text-zinc-200 shadow-xl outline-1 -outline-offset-1 outline-white/10',
       )}
     >
       {children}
@@ -59,21 +59,21 @@ export function ListBoxItem(props: ListBoxItemProps) {
 }
 
 export const dropdownItemStyles = tv({
-  base: 'group flex items-center gap-4 cursor-default select-none py-2 pl-3 pr-1 rounded-lg text-sm',
+  base: 'group flex items-center gap-2 cursor-default select-none rounded-md py-1.5 pl-2 pr-1 text-xs',
   variants: {
     isDisabled: {
-      false: 'text-gray-900',
-      true: 'text-gray-300',
+      false: 'text-zinc-200',
+      true: 'text-zinc-500',
     },
     isFocused: {
-      true: 'bg-indigo-600 text-white',
+      true: 'bg-zinc-700 text-white',
     },
   },
   compoundVariants: [
     {
       isFocused: false,
       isOpen: true,
-      className: 'bg-gray-100',
+      className: 'bg-zinc-800',
     },
   ],
 })
@@ -105,7 +105,7 @@ export interface DropdownSectionProps<T> extends SectionProps<T> {
 export function DropdownSection<T extends object>(props: DropdownSectionProps<T>) {
   return (
     <ListBoxSection className="after:block after:h-[5px] after:content-[''] first:-mt-[5px]">
-      <Header className="sticky -top-[5px] z-10 -mx-1 -mt-px truncate border-y border-y-gray-200 bg-gray-100/60 px-4 py-1 text-sm font-semibold text-gray-500 backdrop-blur-md supports-[-moz-appearance:none]:bg-gray-100">
+      <Header className="sticky -top-[5px] z-10 -mx-1 -mt-px truncate border-y border-y-zinc-700 bg-zinc-900/80 px-4 py-1 text-sm font-semibold text-zinc-400 backdrop-blur-md supports-[-moz-appearance:none]:bg-zinc-900">
         {props.title}
       </Header>
       <Collection items={props.items}>{props.children}</Collection>
