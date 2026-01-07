@@ -119,11 +119,12 @@ export default function TransportBar({
           <MenuTrigger>
             <Pressable>
               <button
-                className={`flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs font-medium transition ${
+                className={clsx(
+                  'flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs font-medium transition',
                   isBpmModified
                     ? 'border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20'
-                    : 'border-[#1e2028] bg-[#1e2028] text-gray-300 hover:bg-[#232633]'
-                }`}
+                    : 'border-transparent bg-[#1e2028] text-gray-300 hover:bg-[#232633]',
+                )}
               >
                 <Gauge
                   className={
@@ -135,7 +136,7 @@ export default function TransportBar({
             </Pressable>
             <Popover
               placement="bottom"
-              className="min-w-[96px] rounded-xl border border-white/10 bg-[#1f1c24] p-0.5 text-sm text-white shadow-xl"
+              className="min-w-[96px] p-0.5 text-sm"
             >
               <Menu
                 className="outline-none"
@@ -154,9 +155,9 @@ export default function TransportBar({
                       id={option.id}
                       key={option.id}
                       className={clsx(
-                        'flex items-center justify-between rounded-lg px-2.5 py-1.5 font-medium text-white/80 outline-none transition',
-                        'data-[focused]:bg-white/10 data-[pressed]:bg-white/10',
-                        isSelected && 'text-white',
+                        'flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs font-medium text-zinc-200 outline-none transition',
+                        'data-[focused]:bg-zinc-700 data-[pressed]:bg-zinc-700',
+                        isSelected && 'bg-zinc-800 text-white',
                       )}
                     >
                       {option.label}
