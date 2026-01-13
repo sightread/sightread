@@ -99,7 +99,7 @@ function RecordPillButton({ isRecording, tooltip, onClick, className }: RecordPi
 type PillActionButtonProps = {
   tooltip: string
   onClick: (e: MouseEvent<any>) => void
-  icon: React.ReactElement
+  icon: React.ReactElement<{ className?: string }>
   children: React.ReactNode
   className?: string
 }

@@ -1,5 +1,6 @@
 type MeasureFormat = {
   step: number
+  tickEvery?: number
 }
 
 type TimelineMeasureMarks = {
