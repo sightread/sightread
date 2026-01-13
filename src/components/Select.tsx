@@ -17,12 +17,20 @@ import { composeTailwindRenderProps, Expand, focusRing } from './utils'
 
 const styles = tv({
   extend: focusRing,
-  base: 'flex items-center text-start gap-4 w-full cursor-default border border-black/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] rounded-lg pl-3 pr-2 py-2 transition bg-gray-50 max-h-full max-w-full',
+  base: 'relative flex w-full items-center rounded-md border border-zinc-700 bg-zinc-900/70 text-start text-zinc-200 transition hover:bg-zinc-900/80 max-w-full',
   variants: {
-    isDisabled: {
-      false: 'text-gray-800  hover:bg-gray-100 pressed:bg-gray-200 group-invalid:border-red-600',
-      true: 'text-gray-200',
+    size: {
+      sm: 'h-6 pl-2 pr-7 text-[10px] font-semibold',
+      md: 'h-7 pl-2 pr-7 text-[11px] font-medium',
+      lg: 'h-8 pl-3 pr-8 text-xs font-medium',
     },
+    isDisabled: {
+      false: 'cursor-pointer',
+      true: 'cursor-not-allowed text-gray-500',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
   },
 })
 
@@ -31,6 +39,7 @@ export interface SelectProps_<T extends object> extends Omit<AriaSelectProps<T>,
   description?: string
   errorMessage?: string | ((validation: ValidationResult) => string)
   isLoading?: boolean
+  size?: 'sm' | 'md' | 'lg'
   items?: Iterable<T>
   children: React.ReactNode | ((item: T) => React.ReactNode)
 }
@@ -43,6 +52,7 @@ export function Select<T extends object>({
   children,
   items,
   isLoading = false,
+  size = 'md',
   ...props
 }: SelectProps<T>) {
   return (
@@ -52,12 +62,15 @@ export function Select<T extends object>({
       isDisabled={props.isDisabled || isLoading}
     >
       {label && <Label>{label}</Label>}
-      <Button className={styles}>
-        <SelectValue className="flex-1 text-sm placeholder-shown:italic" />
+      <Button className={(renderProps) => styles({ ...renderProps, size })}>
+        <SelectValue className="min-w-0 flex-1 truncate text-zinc-200" />
         {isLoading ? (
-          <LoaderCircle className="animate-spin" />
+          <LoaderCircle className="absolute top-1/2 right-2 h-3 w-3 -translate-y-1/2 animate-spin text-zinc-400" />
         ) : (
-          <ChevronDown aria-hidden className="h-4 w-4 text-gray-600 group-disabled:text-gray-200" />
+          <ChevronDown
+            aria-hidden
+            className="absolute top-1/2 right-2 h-2.5 w-2.5 -translate-y-1/2 text-zinc-400 group-disabled:text-zinc-500"
+          />
         )}
       </Button>
       {description && <Description>{description}</Description>}

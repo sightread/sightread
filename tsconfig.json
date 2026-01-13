@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["jest", "vite/client", "@types/wicg-file-system-access"],
+    "types": ["jest", "vite/client", "@types/wicg-file-system-access", "bun-types"],
     // Enable latest features
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",

@@ -327,6 +327,14 @@ export class Player {
     return this.store.get(this.bpmModifier)
   }
 
+  setBpmModifier(value: number) {
+    this.store.set(this.bpmModifier, round(value, 2))
+    const backingTrack = this.getSong()?.backing
+    if (backingTrack) {
+      backingTrack.playbackRate = this.store.get(this.bpmModifier)
+    }
+  }
+
   setHand(hand: any) {
     this.hand = hand
   }

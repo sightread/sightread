@@ -1,12 +1,11 @@
 import { ChevronDown, LoaderCircle } from 'lucide-react'
-import React from 'react'
+import React, { forwardRef } from 'react'
 import {
   ComboBox as AriaComboBox,
   ComboBoxProps as AriaComboBoxProps,
   Button,
   ListBox,
   ListBoxItemProps,
-  Pressable,
   ValidationResult,
 } from 'react-aria-components'
 import { Description, FieldError, FieldGroup, Input, Label } from './Field'
@@ -19,27 +18,46 @@ export interface ComboBoxProps<T extends object> extends Omit<AriaComboBoxProps<
   description?: string | null
   isLoading?: boolean
   errorMessage?: string | ((validation: ValidationResult) => string)
+  fieldGroupClassName?: string
+  inputClassName?: string
+  buttonClassName?: string
   children: React.ReactNode | ((item: T) => React.ReactNode)
 }
 
-export function ComboBox<T extends object>({
-  label,
-  description,
-  errorMessage,
-  children,
-  items,
-  isLoading,
-  ...props
-}: ComboBoxProps<T>) {
+const ComboBoxInner = <T extends object>(
+  {
+    label,
+    description,
+    errorMessage,
+    children,
+    items,
+    isLoading,
+    fieldGroupClassName,
+    inputClassName,
+    buttonClassName,
+    ...props
+  }: ComboBoxProps<T>,
+  ref: React.ForwardedRef<HTMLDivElement>,
+) => {
+  const ariaLabelProp = props['aria-label']
+  const ariaLabelledByProp = props['aria-labelledby']
+  const ariaLabel = ariaLabelledByProp || ariaLabelProp ? ariaLabelProp : (ariaLabelProp ?? label)
   return (
     <AriaComboBox
       {...props}
+      ref={ref}
+      aria-label={ariaLabel}
       className={composeTailwindRenderProps(props.className, 'group flex flex-col gap-1')}
     >
-      <Label>{label}</Label>
-      <FieldGroup>
-        <Input />
-        <Button className="mr-1 flex w-6 items-center justify-center rounded-xs outline-offset-0">
+      {label ? <Label>{label}</Label> : null}
+      <FieldGroup className={fieldGroupClassName}>
+        <Input className={inputClassName} />
+        <Button
+          className={composeTailwindRenderProps(
+            buttonClassName,
+            'mr-1 flex w-6 items-center justify-center rounded-xs outline-offset-0',
+          )}
+        >
           {isLoading ? (
             <LoaderCircle className="animate-spin" />
           ) : (
@@ -63,6 +81,10 @@ export function ComboBox<T extends object>({
     </AriaComboBox>
   )
 }
+
+export const ComboBox = forwardRef(ComboBoxInner) as <T extends object>(
+  props: ComboBoxProps<T> & React.RefAttributes<HTMLDivElement>,
+) => React.ReactElement
 
 export function ComboBoxItem(props: ListBoxItemProps) {
   return <DropdownItem {...props} />

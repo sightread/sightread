@@ -2,6 +2,7 @@ import { getNote } from '@/features/theory'
 import { MidiStateEvent } from '@/types'
 import { isBrowser } from '@/utils'
 import * as tonejs from '@tonejs/midi'
+import { atom, getDefaultStore } from 'jotai'
 import { useRef, useState } from 'react'
 
 export async function getMidiInputs(): Promise<MIDIInputMap> {
@@ -32,8 +33,28 @@ export async function getMidiOutputs(): Promise<MIDIOutputMap> {
   }
 }
 
+type JotaiStore = ReturnType<typeof getDefaultStore>
+const store: JotaiStore = getDefaultStore()
+
 const enabledInputDevices: Map<string, MIDIInput> = new Map()
 const enabledOutputDevices: Map<string, MIDIOutput> = new Map()
+
+export const enabledInputIdsAtom = atom<Set<string>>(new Set<string>())
+export const enabledOutputIdsAtom = atom<Set<string>>(new Set<string>())
+
+function setEnabledIds(
+  atomRef: typeof enabledInputIdsAtom | typeof enabledOutputIdsAtom,
+  id: string,
+  enabled: boolean,
+) {
+  const next = new Set(store.get(atomRef))
+  if (enabled) {
+    next.add(id)
+  } else {
+    next.delete(id)
+  }
+  store.set(atomRef, next)
+}
 
 export function isInputMidiDeviceEnabled(device: MIDIInput) {
   return enabledInputDevices.has(device.id)
@@ -46,10 +67,12 @@ export function enableInputMidiDevice(device: MIDIInput) {
   device.open()
   device.addEventListener('midimessage', onMidiMessage)
   enabledInputDevices.set(device.id, device)
+  setEnabledIds(enabledInputIdsAtom, device.id, true)
 }
 export function enableOutputMidiDevice(device: MIDIOutput) {
   device.open()
   enabledOutputDevices.set(device.id, device)
+  setEnabledIds(enabledOutputIdsAtom, device.id, true)
 }
 
 export function disableInputMidiDevice(deviceParam: MIDIInput) {
@@ -60,6 +83,7 @@ export function disableInputMidiDevice(deviceParam: MIDIInput) {
   device.removeEventListener('midimessage', onMidiMessage as any)
   device.close()
   enabledInputDevices.delete(device.id)
+  setEnabledIds(enabledInputIdsAtom, device.id, false)
 }
 
 export function disableOutputMidiDevice(deviceParam: MIDIOutput) {
@@ -70,6 +94,7 @@ export function disableOutputMidiDevice(deviceParam: MIDIOutput) {
   device.removeEventListener('midimessage', onMidiMessage as any)
   device.close()
   enabledOutputDevices.delete(device.id)
+  setEnabledIds(enabledOutputIdsAtom, device.id, false)
 }
 
 setupMidiDeviceListeners()

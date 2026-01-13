@@ -1,5 +1,5 @@
 import { VolumeSliderButton } from '@/features/controls'
-import { ArrowLeft, Midi } from '@/icons'
+import { ArrowLeft, KeyboardMusic } from '@/icons'
 import { ButtonWithTooltip } from '@/pages/play/components/TopBar'
 import { isMobile } from '@/utils'
 import { MouseEvent } from 'react'
@@ -19,7 +19,7 @@ export default function TopBar({ onClickMidi }: TopBarProps) {
       </ButtonWithTooltip>
       <span className="absolute left-1/2 -translate-x-1/2">Training</span>
       <ButtonWithTooltip tooltip="Choose a MIDI device" className="ml-auto" onClick={onClickMidi}>
-        <Midi size={24} />
+        <KeyboardMusic size={24} />
       </ButtonWithTooltip>
       {!isMobile() && <VolumeSliderButton />}
     </div>

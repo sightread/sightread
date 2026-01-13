@@ -1,8 +1,8 @@
 import { Sizer } from '@/components'
-import { LucideGithub as GitHub, Logo, Menu } from '@/icons'
+import { LucideGithub as GitHub, Logo, Menu, Youtube } from '@/icons'
 import clsx from 'clsx'
 import { PropsWithChildren } from 'react'
-import { MenuItem, MenuTrigger, Pressable, Menu as RacMenu, Separator } from 'react-aria-components'
+import { Button, MenuItem, MenuTrigger, Menu as RacMenu, Separator } from 'react-aria-components'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { Popover } from './Popover'
 
@@ -30,16 +30,15 @@ export default function AppBar() {
         <div className="absolute top-1/2 right-5 left-5 z-10 -translate-y-1/2 md:hidden">
           <SmallWindowNav />
         </div>
-        <NavLink to={'/'} className="hover:text-purple-hover flex items-baseline text-white">
+        <Link to={'/'} className="hover:text-purple-hover flex items-baseline text-white">
           <Logo height={24} width={24} className="relative top-[3px]" />
           <Sizer width={8} />
           <span className="text-2xl font-extralight"> SIGHTREAD</span>
-        </NavLink>
+        </Link>
         <div className="hidden grow justify-evenly gap-6 pl-16 align-baseline whitespace-nowrap md:flex">
           {navItems.map((nav) => {
             return (
-              <NavLink
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-violet-700/90 active:bg-violet-800/90"
+              <NavItem
                 to={nav.route}
                 key={nav.label}
                 label={nav.label}
@@ -47,13 +46,22 @@ export default function AppBar() {
               />
             )
           })}
-          <NavLink
-            to={'https://github.com/sightread/sightread'}
-            className="hover:text-purple-hover ml-auto flex items-center gap-2 pr-8 text-white lg:pr-0"
-          >
-            <GitHub size={16} className="t-[2px] relative" />
-            GitHub
-          </NavLink>
+          <div className="ml-auto flex items-center gap-3 pr-8 lg:pr-0">
+            <NavIconButton
+              to={'https://www.youtube.com/channel/UCGf2AlCRD3ZCc8ahkqBMtqA'}
+              label="YouTube"
+              title="YouTube"
+            >
+              <Youtube size={20} />
+            </NavIconButton>
+            <NavIconButton
+              to={'https://github.com/sightread/sightread'}
+              label="GitHub"
+              title="GitHub"
+            >
+              <GitHub size={20} />
+            </NavIconButton>
+          </div>
         </div>
       </div>
     </div>
@@ -65,11 +73,9 @@ function SmallWindowNav() {
   const currentRoute = useLocation().pathname
   return (
     <MenuTrigger>
-      <Pressable>
-        <button aria-label="Open menu">
-          <Menu height={24} width={24} className="block text-white" />
-        </button>
-      </Pressable>
+      <Button aria-label="Open menu" className="inline-flex">
+        <Menu height={24} width={24} className="block text-white" />
+      </Button>
       <Popover className="w-[min(90vw,360px)] rounded-2xl border border-white/10 bg-violet-900/95 p-2 shadow-xl backdrop-blur">
         <RacMenu className="outline-none">
           {navItems.map((nav) => {
@@ -91,9 +97,19 @@ function SmallWindowNav() {
             href="https://github.com/sightread/sightread"
             target="_blank"
             className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/80 transition outline-none data-[focused]:bg-white/15 data-[pressed]:bg-white/10"
+            aria-label="GitHub"
           >
-            <GitHub size={16} className="t-[2px] relative" />
-            GitHub
+            <GitHub size={18} className="t-[2px] relative" />
+            <span className="sr-only">GitHub</span>
+          </MenuItem>
+          <MenuItem
+            href="https://www.youtube.com/channel/UCGf2AlCRD3ZCc8ahkqBMtqA"
+            target="_blank"
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-white/80 transition outline-none data-[focused]:bg-white/15 data-[pressed]:bg-white/10"
+            aria-label="YouTube"
+          >
+            <Youtube size={18} />
+            <span className="sr-only">YouTube</span>
           </MenuItem>
         </RacMenu>
       </Popover>
@@ -101,29 +117,44 @@ function SmallWindowNav() {
   )
 }
 
-function NavLink(
+function NavItem(
   props: PropsWithChildren<{
     to: string
     className?: string
-    style?: any
-    label?: string
+    label: string
     activeClassName?: string
   }>,
 ) {
   const currentRoute = useLocation().pathname
   return (
     <Link
-      {...props}
+      to={props.to}
       className={clsx(
+        'inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-violet-700/90 active:bg-violet-800/90',
         props.className,
-        'transition',
         currentRoute === props.to && (props.activeClassName || 'font-bold'),
-        props.label &&
-          'after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:text-transparent after:content-[attr(label)]',
       )}
-      data-label={props.label}
     >
-      {props.label ?? props.children}
+      {props.label}
+    </Link>
+  )
+}
+
+function NavIconButton(
+  props: PropsWithChildren<{ to: string; label: string; title?: string; className?: string }>,
+) {
+  return (
+    <Link
+      to={props.to}
+      aria-label={props.label}
+      title={props.title ?? props.label}
+      className={clsx(
+        'hover:text-purple-hover flex h-9 w-9 items-center justify-center rounded-md text-white transition-colors hover:bg-violet-700/90 active:bg-violet-800/90',
+        props.className,
+      )}
+    >
+      {props.children}
+      <span className="sr-only">{props.label}</span>
     </Link>
   )
 }

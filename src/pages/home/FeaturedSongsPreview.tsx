@@ -5,6 +5,7 @@ import useDelayedFlag from '@/hooks/useDelayedFlag'
 import { Pause, Play } from '@/icons'
 import type { SongSource } from '@/types'
 import clsx from 'clsx'
+import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
 const FEATURED_SONGS: { [id: string]: { source: SongSource; id: string } } = {
@@ -66,11 +67,11 @@ export function FeaturedSongsPreview({
           >
             {playerState.playing ? <Pause size={18} /> : <Play size={18} />}
           </button>
-          <span className="font-mono text-sm text-gray-400">Preview</span>
+          <span className="text-sm text-gray-400">Preview</span>
         </div>
-        <div className="text-white">
+        <div className="relative text-white">
           <select
-            className="rounded bg-gray-700 px-3 py-1.5 text-sm font-medium text-gray-200 transition hover:bg-gray-600"
+            className="appearance-none rounded bg-gray-700 py-1.5 pr-8 pl-3 text-sm font-medium text-gray-200 transition hover:bg-gray-600"
             onChange={(e) => {
               setCurrentSong(e.target.value as any)
             }}
@@ -79,6 +80,9 @@ export function FeaturedSongsPreview({
             <option value="canon">Canon in D</option>
             <option value="gymnopedie">Gymnopédie No.1</option>
           </select>
+          <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-300">
+            <ChevronDown className="h-4 w-4" />
+          </span>
         </div>
       </div>
     </div>
