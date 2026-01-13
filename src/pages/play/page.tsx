@@ -118,7 +118,6 @@ export default function PlaySongPage() {
   const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error, isLoading, mutate } = useSong(id, source)
   let songMeta = useSongMetadata(id, source)
-  const difficultyLabel = getDifficultyLabel(songMeta?.difficulty)
   const range = useAtomValue(player.getRange())
   const selectedRange = useMemo(
     () => (range ? { start: range[0], end: range[1] } : undefined),
@@ -370,7 +369,7 @@ export default function PlaySongPage() {
             getTime={() => player.getTime()}
             enableTouchscroll={songConfig.visualization === 'falling-notes'}
           />
-          {isSettingsOpen ? (
+          {!isRecording && isSettingsOpen ? (
             <div className="absolute top-0 right-0 h-full w-[360px] border-l border-[#2b2a33] bg-[#121016] shadow-2xl">
               <SettingsPanel
                 onChange={setSongConfig}
@@ -383,24 +382,26 @@ export default function PlaySongPage() {
             </div>
           ) : null}
         </div>
-        <div className="bg-[#141419]">
-          <TimelineStrip
-            song={song}
-            rangeSelection={selectedRange}
-            setRange={(range) => player.setRange(range)}
-            isLooping={isLooping}
-          />
-          <TransportBar
-            isPlaying={playerState.playing}
-            isLoading={!playerState.canPlay}
-            onTogglePlaying={() => player.toggle()}
-            onClickRestart={() => player.restart()}
-            isLooping={isLooping}
-            onToggleLoop={() => handleLoopingToggle(!isLooping)}
-            isWaiting={waiting}
-            onToggleWaiting={handleWaitingToggle}
-          />
-        </div>
+        {!isRecording && (
+          <div className="bg-[#141419]">
+            <TimelineStrip
+              song={song}
+              rangeSelection={selectedRange}
+              setRange={(range) => player.setRange(range)}
+              isLooping={isLooping}
+            />
+            <TransportBar
+              isPlaying={playerState.playing}
+              isLoading={!playerState.canPlay}
+              onTogglePlaying={() => player.toggle()}
+              onClickRestart={() => player.restart()}
+              isLooping={isLooping}
+              onToggleLoop={() => handleLoopingToggle(!isLooping)}
+              isWaiting={waiting}
+              onToggleWaiting={handleWaitingToggle}
+            />
+          </div>
+        )}
       </div>
       {!isRecording && (
         <>
@@ -417,13 +418,4 @@ export default function PlaySongPage() {
       )}
     </>
   )
-}
-
-function getDifficultyLabel(value?: number) {
-  if (value === undefined || value === null || Number.isNaN(value)) {
-    return undefined
-  }
-  const labels = ['Easiest', 'Easy', 'Medium', 'Hard', 'Hardest']
-  const index = Math.min(labels.length - 1, Math.max(0, Math.round(value)))
-  return labels[index]
 }

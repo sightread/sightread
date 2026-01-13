@@ -22,6 +22,8 @@ export type SongMetadata = {
   url?: string
   license?: string
   handle?: FileSystemFileHandle
+  lastModified?: number
+  fileSize?: number
 }
 
 export interface Size {

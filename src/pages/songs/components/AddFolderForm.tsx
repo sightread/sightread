@@ -11,32 +11,54 @@ import {
 } from '@/features/persist/persistence'
 import { useAtomValue } from 'jotai'
 import { AlertCircle, Folder, Music, Plus, RefreshCw, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export default function ManageFoldersForm({ onClose }: { onClose: () => void }) {
   const isScanning = useAtomValue<boolean | Promise<void>>(isScanningAtom)
   const folders = useAtomValue(localDirsAtom)
   const localSongs = useAtomValue(localSongsAtom)
   const needsPermission = useAtomValue(requiresPermissionAtom)
-  const [scanState, setScanState] = useState<'idle' | 'scanning'>('idle')
+  const isScanningActive = isScanning !== false
+  const [showSpinner, setShowSpinner] = useState(false)
+  const spinnerStartRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    let isCancelled = false
+    const syncSpinner = async () => {
+      if (isScanningActive) {
+        if (!showSpinner) {
+          spinnerStartRef.current = performance.now()
+          setShowSpinner(true)
+        }
+        return
+      }
+      if (showSpinner) {
+        const start = spinnerStartRef.current ?? performance.now()
+        const elapsed = performance.now() - start
+        const remaining = Math.max(0, 1000 - elapsed)
+        if (remaining > 0) {
+          await new Promise((resolve) => setTimeout(resolve, remaining))
+        }
+        if (!isCancelled) {
+          setShowSpinner(false)
+          spinnerStartRef.current = null
+        }
+      }
+    }
+    void syncSpinner()
+    return () => {
+      isCancelled = true
+    }
+  }, [isScanningActive, showSpinner])
 
   const handleScanFolders = async () => {
-    if (scanState === 'scanning') {
+    if (isScanningActive) {
       return
     }
-    setScanState('scanning')
+    spinnerStartRef.current = performance.now()
+    setShowSpinner(true)
     await new Promise(requestAnimationFrame)
-    const start = performance.now()
-    try {
-      await scanFolders()
-    } finally {
-      const elapsed = performance.now() - start
-      const remaining = Math.max(0, 1000 - elapsed)
-      if (remaining > 0) {
-        await new Promise((resolve) => setTimeout(resolve, remaining))
-      }
-      setScanState('idle')
-    }
+    await scanFolders()
   }
 
   if (!isFileSystemAccessSupported()) {
@@ -81,10 +103,10 @@ export default function ManageFoldersForm({ onClose }: { onClose: () => void }) 
         <div className="flex gap-3">
           <button
             onClick={handleScanFolders}
-            disabled={scanState === 'scanning'}
-            className="flex items-center justify-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={isScanningActive}
+            className="flex items-center justify-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <RefreshCw className={`h-4 w-4 ${scanState === 'scanning' ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${showSpinner ? 'animate-spin' : ''}`} />
             Scan Folders
           </button>
           <button

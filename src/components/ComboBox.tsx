@@ -6,7 +6,6 @@ import {
   Button,
   ListBox,
   ListBoxItemProps,
-  Pressable,
   ValidationResult,
 } from 'react-aria-components'
 import { Description, FieldError, FieldGroup, Input, Label } from './Field'

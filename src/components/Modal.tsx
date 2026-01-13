@@ -47,7 +47,7 @@ export default function Modal({
 }: PropsWithChildren<ModalProps>) {
   return (
     <ModalOverlay
-      className={overlayStyles({ className: overlayClassName })}
+      className={(renderProps) => overlayStyles({ ...renderProps, className: overlayClassName })}
       isOpen={show}
       isDismissable
       onOpenChange={(isOpen) => {
@@ -56,7 +56,10 @@ export default function Modal({
         }
       }}
     >
-      <RACModal className={modalStyles({ className: modalClassName })} isDismissable>
+      <RACModal
+        className={(renderProps) => modalStyles({ ...renderProps, className: modalClassName })}
+        isDismissable
+      >
         <Dialog className={twMerge('relative rounded-md bg-white', className)} aria-label="Modal">
           <Button
             className="absolute top-6 right-5 z-10 cursor-pointer text-gray-400 hover:text-gray-600 active:text-gray-700"
