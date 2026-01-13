@@ -235,7 +235,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
+export function base64ToBytes(base64: string): Uint8Array {
   if ('fromBase64' in Uint8Array) {
     return (Uint8Array as any).fromBase64(base64)
   }
@@ -244,7 +244,7 @@ export function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
 
   // Create a typed array buffer
   const length = binaryString.length
-  const bytes = new Uint8Array(length)
+  const bytes = new globalThis.Uint8Array(length)
   for (let i = 0; i < length; i++) {
     bytes[i] = binaryString.charCodeAt(i)
   }

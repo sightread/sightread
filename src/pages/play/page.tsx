@@ -1,5 +1,4 @@
 import Toast from '@/components/Toast'
-import { SongScrubBar, SongScrubTooltip, useSongScrubTimes } from '@/features/controls'
 import { useSong } from '@/features/data'
 import { useSongMetadata } from '@/features/data/library'
 import midiState from '@/features/midi'
@@ -23,9 +22,11 @@ import { useAtomValue } from 'jotai'
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import { TopBar } from './components'
+import { SettingsPanel, TopBar } from './components'
 import { MidiModal } from './components/MidiModal'
 import { StatsPopup } from './components/StatsPopup'
+import TimelineStrip from './components/TimelineStrip'
+import TransportBar from './components/TransportBar'
 
 function RequiresPermissionPrompt({
   onGrantPermission,
@@ -110,11 +111,10 @@ export default function PlaySongPage() {
   id = decodeURIComponent(id)
 
   const player = usePlayer()
-  const [settingsOpen, setSettingsPanel] = useState(false)
   const [isMidiModalOpen, setMidiModal] = useState(false)
   const [statsVisible, setStatsVisible] = useState(false)
+  const [isSettingsOpen, setSettingsOpen] = useState(false)
   const playerState = usePlayerState()
-  const { currentTime, duration } = useSongScrubTimes()
   const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error, isLoading, mutate } = useSong(id, source)
   let songMeta = useSongMetadata(id, source)
@@ -198,11 +198,10 @@ export default function PlaySongPage() {
       player.seek(player.currentSongTime - 16 / 1000)
     } else if (evt.code === 'Period') {
       player.seek(player.currentSongTime + 16 / 1000)
-    } else if (evt.code === 'Slash') {
+    } else if (evt.code === 'Slash' && !evt.shiftKey) {
       setStatsVisible(!statsVisible)
     } else if (evt.code === 'Semicolon') {
       setSongConfig({ ...songConfig, waiting: !waiting })
-      showToast(`Waiting mode ${waiting ? 'off' : 'on'}`)
     } else if (evt.code === 'KeyP') {
       if (isLooping) {
         handleLoopingToggle(false)
@@ -251,10 +250,8 @@ export default function PlaySongPage() {
       })
     } else if (evt.code === 'Equal') {
       player.increaseBpm()
-      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
     } else if (evt.code === 'Minus') {
       player.decreaseBpm()
-      showToast(`BPM set to ${round(player.getBpmModifierValue() * 100)}%`)
     } else if (evt.code === 'BracketLeft') {
       setSongConfig({ ...songConfig, left: !songConfig.left })
     } else if (evt.code === 'BracketRight') {
@@ -299,6 +296,10 @@ export default function PlaySongPage() {
     }
   }
 
+  const handleWaitingToggle = () => {
+    setSongConfig({ ...songConfig, waiting: !waiting })
+  }
+
   // Handle permission required for local files
   if (source === 'local' && requiresPermission) {
     return (
@@ -332,71 +333,31 @@ export default function PlaySongPage() {
     <>
       <title>Playing</title>
       <div
-        className={clsx(
-          // Enable fixed to remove all scrolling.
-          'fixed',
-          'flex h-screen max-h-screen max-w-screen flex-col outline-none',
-        )}
+        className={clsx('fixed grid h-screen w-screen grid-rows-[auto_1fr_auto] outline-none')}
         {...midiState.getListenerProps()}
         autoFocus
       >
         {!isRecording && (
-          <>
-            <TopBar
-              title={songMeta?.title}
-              isLoading={!playerState.canPlay}
-              isPlaying={playerState.playing}
-              onTogglePlaying={() => player.toggle()}
-              onClickRestart={() => player.restart()}
-              onClickBack={() => {
-                player.stop()
-                navigate('/')
-              }}
-              onClickMidi={(e) => {
-                e.stopPropagation()
-                setMidiModal(!isMidiModalOpen)
-              }}
-              settingsProps={{
-                onChange: setSongConfig,
-                config: songConfig,
-                song: song,
-                onLoopToggled: handleLoopingToggle,
-                isLooping: isLooping,
-              }}
-              onClickStats={() => setStatsVisible(!statsVisible)}
-              statsVisible={statsVisible}
-            />
-            <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
-            <div className="relative min-w-full">
-              <div className="flex h-10 items-center border-b border-b-black bg-gray-300 px-4">
-                <span className="min-w-[80px] self-center text-black">{currentTime}</span>
-                <SongScrubBar
-                  rangeSelection={selectedRange}
-                  setRange={(range: any) => player.setRange(range)}
-                  height={12}
-                  className="mx-4 flex-1"
-                  trackClassName="bg-gray-400"
-                >
-                  <SongScrubTooltip />
-                </SongScrubBar>
-                <span className="min-w-[80px] self-center text-black">{duration}</span>
-              </div>
-            </div>
-            {statsVisible && <StatsPopup />}
-            <Toast
-              open={!!toastMsg}
-              onOpenChange={hideToast}
-              title={toastMsg ? toastMsg : ''}
-              toastKey={toastKey}
-            />
-            <RadixToast.Viewport className="fixed right-4 bottom-4 z-50 flex w-80 max-w-[100vw] flex-col-reverse gap-3 p-4" />
-          </>
+          <TopBar
+            title={songMeta?.title}
+            onClickBack={() => {
+              player.stop()
+              navigate('/')
+            }}
+            onClickMidi={(e) => {
+              e.stopPropagation()
+              setMidiModal(!isMidiModalOpen)
+            }}
+            isSettingsOpen={isSettingsOpen}
+            onToggleSettings={() => setSettingsOpen((prev) => !prev)}
+            onClickStats={() => setStatsVisible(!statsVisible)}
+            statsVisible={statsVisible}
+          />
         )}
         <div
           className={clsx(
-            'fixed -z-10 h-[100vh] w-screen',
-            'h-[100dvh]!',
-            songConfig.visualization === 'sheet' ? 'bg-white' : 'bg-[#2e2e2e]',
+            'relative h-full min-h-0 min-w-0',
+            songConfig.visualization === 'sheet' ? 'bg-white' : 'bg-[#0f1014]',
           )}
         >
           <SongVisualizer
@@ -408,8 +369,53 @@ export default function PlaySongPage() {
             getTime={() => player.getTime()}
             enableTouchscroll={songConfig.visualization === 'falling-notes'}
           />
+          {!isRecording && isSettingsOpen ? (
+            <div className="absolute top-0 right-0 h-full w-[360px] border-l border-[#2b2a33] bg-[#121016] shadow-2xl">
+              <SettingsPanel
+                onChange={setSongConfig}
+                config={songConfig}
+                song={song}
+                onLoopToggled={handleLoopingToggle}
+                isLooping={isLooping}
+                onClose={() => setSettingsOpen(false)}
+              />
+            </div>
+          ) : null}
         </div>
+        {!isRecording && (
+          <div className="bg-[#141419]">
+            <TimelineStrip
+              song={song}
+              rangeSelection={selectedRange}
+              setRange={(range) => player.setRange(range)}
+              isLooping={isLooping}
+            />
+            <TransportBar
+              isPlaying={playerState.playing}
+              isLoading={!playerState.canPlay}
+              onTogglePlaying={() => player.toggle()}
+              onClickRestart={() => player.restart()}
+              isLooping={isLooping}
+              onToggleLoop={() => handleLoopingToggle(!isLooping)}
+              isWaiting={waiting}
+              onToggleWaiting={handleWaitingToggle}
+            />
+          </div>
+        )}
       </div>
+      {!isRecording && (
+        <>
+          <MidiModal isOpen={isMidiModalOpen} onClose={() => setMidiModal(false)} />
+          {statsVisible && <StatsPopup />}
+          <Toast
+            open={!!toastMsg}
+            onOpenChange={hideToast}
+            title={toastMsg ? toastMsg : ''}
+            toastKey={toastKey}
+          />
+          <RadixToast.Viewport className="fixed right-4 bottom-4 z-50 flex w-80 max-w-[100vw] flex-col-reverse gap-3 p-4" />
+        </>
+      )}
     </>
   )
 }

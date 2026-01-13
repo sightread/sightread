@@ -10,6 +10,7 @@ type ModalProps = {
   onClose: () => void
   className?: string
   modalClassName?: string
+  overlayClassName?: string
 }
 
 const overlayStyles = tv({
@@ -42,10 +43,11 @@ export default function Modal({
   onClose,
   className,
   modalClassName,
+  overlayClassName,
 }: PropsWithChildren<ModalProps>) {
   return (
     <ModalOverlay
-      className={overlayStyles}
+      className={(renderProps) => overlayStyles({ ...renderProps, className: overlayClassName })}
       isOpen={show}
       isDismissable
       onOpenChange={(isOpen) => {
@@ -54,10 +56,13 @@ export default function Modal({
         }
       }}
     >
-      <RACModal className={modalStyles({ className: modalClassName })} isDismissable>
+      <RACModal
+        className={(renderProps) => modalStyles({ ...renderProps, className: modalClassName })}
+        isDismissable
+      >
         <Dialog className={twMerge('relative rounded-md bg-white', className)} aria-label="Modal">
           <Button
-            className="absolute top-6 right-5 z-10 cursor-pointer text-violet-600 hover:text-violet-500 active:text-violet-700"
+            className="absolute top-6 right-5 z-10 cursor-pointer text-gray-400 hover:text-gray-600 active:text-gray-700"
             onPress={onClose}
           >
             <XMark height={24} width={24} />

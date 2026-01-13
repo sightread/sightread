@@ -6,12 +6,12 @@ import {
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
 import { getFixedDoNoteFromKey, getKey, isBlack } from '@/features/theory'
-import { palette } from '@/styles/common'
 import type { SongMeasure, SongNote } from '@/types'
 import { clamp } from '@/utils'
 import midiState from '../midi'
 import { getRelativePointerCoordinates } from '../pointer'
 import { GivenState } from './canvas-renderer'
+import { HAND_COLORS } from './handColors'
 import {
   CanvasItem,
   getFontSize,
@@ -23,17 +23,9 @@ import {
 
 const TEXT_FONT = 'monospace'
 const colors = {
-  right: {
-    black: palette.purple.dark,
-    white: palette.purple.primary,
-  },
-  left: {
-    black: palette.orange.dark,
-    white: palette.orange.primary,
-  },
-  measure: 'rgb(60,60,60)',
-  octaveLine: 'rgb(90,90,90)',
-  rangeSelectionFill: '#44b22e',
+  measure: 'rgba(255,255,255,0.06)',
+  octaveLine: 'rgba(255,255,255,0.035)',
+  rangeSelectionFill: '#8b5cf6',
 }
 
 /**
@@ -127,7 +119,7 @@ function getFallingNoteItemsInView<T>(state: State): CanvasItem[] {
 
 export function renderFallingVis(givenState: GivenState): void {
   const state: State = deriveState(givenState)
-  state.ctx.fillStyle = '#2e2e2e' // background color
+  state.ctx.fillStyle = '#0f1014' // background color
   state.ctx.fillRect(0, 0, state.windowWidth, state.height)
 
   const items = getFallingNoteItemsInView(state)
@@ -173,9 +165,9 @@ function getNoteColor(state: State, note: SongNote): string {
 
   let color
   if (hand === 'both' || hand === 'right') {
-    color = colors.right[keyType]
+    color = HAND_COLORS.right[keyType]
   } else {
-    color = colors.left[keyType]
+    color = HAND_COLORS.left[keyType]
   }
   return color
 }
@@ -186,7 +178,7 @@ function renderRedFelt(state: State) {
   const redFeltY = pianoTopY - redFeltHeight
 
   ctx.save()
-  const redFeltColor = 'rgb(159,31,38)'
+  const redFeltColor = '#7f1d2f'
   ctx.fillStyle = redFeltColor
   ctx.fillRect(0, redFeltY, width, redFeltHeight)
   ctx.restore()
@@ -221,8 +213,8 @@ function renderGreyBar(state: State) {
   const { pianoTopY, redFeltHeight, greyBarHeight, ctx } = state
 
   ctx.save()
-  ctx.fillStyle = 'rgb(74,74,74)'
-  ctx.strokeStyle = 'rgb(40,40,40)'
+  ctx.fillStyle = '#1b1d25'
+  ctx.strokeStyle = '#0c0d12'
   const greyBarY = pianoTopY - redFeltHeight - greyBarHeight
   ctx.fillRect(0, greyBarY + 0.2, state.windowWidth, greyBarHeight)
   ctx.strokeRect(0, greyBarY, state.windowWidth, greyBarHeight)

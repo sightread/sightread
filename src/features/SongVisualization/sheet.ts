@@ -153,27 +153,33 @@ const colorMap = {
 }
 
 const coloredNotesMap: { [step: string]: string } = {
-  A: '12,23,141',
-  B: '75,32,139',
-  C: '217,59,38',
-  D: '238,151,56',
-  E: '253,229,65',
-  F: '62,139,38',
-  G: '139,210,250',
+  A: '99,102,241',
+  B: '168,85,247',
+  C: '251,113,133',
+  D: '251,146,60',
+  E: '250,204,21',
+  F: '74,222,128',
+  G: '56,189,248',
 }
 
-function getGameColorPrefix(state: State, note: SongNote, canvasX: number) {
+function getGameColorPrefix(
+  state: State,
+  note: SongNote,
+  canvasX: number,
+  coloredNotes: boolean,
+  step: string,
+) {
   const playNotesLineX = getPlayNotesLineX(state)
   const isPlayingNote = canvasX <= playNotesLineX
 
   if (isHitNote(state.player, note) && midiState.getPressedNotes().has(note.midiNote)) {
-    return colorMap.hover
+    return coloredNotes ? getNoteColor(true, step) : colorMap.hover
   } else if (isMissedNote(state.player, note)) {
     return colorMap.disabled
   } else if (isPlayingNote) {
-    return colorMap.primary
+    return coloredNotes ? getNoteColor(true, step) : colorMap.primary
   }
-  return colorMap.black
+  return coloredNotes ? getNoteColor(true, step) : colorMap.black
 }
 
 function getLearnSongColorPrefix(
@@ -187,7 +193,7 @@ function getLearnSongColorPrefix(
   const isPlayingNote = canvasX <= playNotesLineX
 
   if (isPlayingNote) {
-    return colorMap.primary
+    return coloredNotes ? getNoteColor(true, step) : colorMap.primary
   }
 
   return getNoteColor(coloredNotes, step)
@@ -237,7 +243,7 @@ function renderSheetNote(state: State, note: SongNote): void {
 
   const key = getKey(note.midiNote, state.keySignature)
   const prefix = state.game
-    ? getGameColorPrefix(state, note, canvasX)
+    ? getGameColorPrefix(state, note, canvasX, state.coloredNotes, key[0])
     : getLearnSongColorPrefix(state, note, canvasX, state.coloredNotes, key[0])
 
   const trailLength = length - STAFF_SPACE

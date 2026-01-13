@@ -15,9 +15,9 @@ export function StatsPopup({}) {
 
   return (
     <MovablePopup
-      initialPosition={{ x: '100%', y: 90 }}
+      initialPosition={{ x: '100%', y: 55 }}
       header={
-        <div className="flex h-[40px] w-full cursor-grab items-center gap-2">
+        <div className="flex h-10 w-full cursor-grab items-center gap-2">
           <div className="flex items-center gap-1">
             <BarChart2 className="h-5 w-5 text-white" />
             <span className="font-semibold text-white">Session Stats</span>

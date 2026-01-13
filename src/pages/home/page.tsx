@@ -40,7 +40,7 @@ export default function Home() {
         <div className="bg-background">
           <div className="mx-auto w-full max-w-(--breakpoint-lg) px-6 py-16">
             <h3 className="text-lg font-semibold text-gray-900">Why Sightread</h3>
-            <p className="mt-2 text-sm text-gray-600">A few reasons players keep coming back.</p>
+            <p className="mt-2 text-sm text-gray-600">A few reasons to give it a try.</p>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               <div
                 className="glint-card rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
