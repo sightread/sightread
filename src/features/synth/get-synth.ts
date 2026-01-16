@@ -9,7 +9,14 @@ function isValidInstrument(instrument: InstrumentName | undefined) {
   return instrument && gmInstruments.find((s) => s === instrument)
 }
 
-export async function getSynth(instrument: InstrumentName | number): Promise<Synth> {
+type SynthOptions = {
+  metronome?: boolean
+}
+
+export async function getSynth(
+  instrument: InstrumentName | number,
+  options: SynthOptions = {},
+): Promise<Synth> {
   if (!isBrowser()) {
     return {
       playNote() {},
@@ -30,11 +37,14 @@ export async function getSynth(instrument: InstrumentName | number): Promise<Syn
   }
 
   await loadInstrument(instrument)
-  return new InstrumentSynth(instrument)
+  return new InstrumentSynth(instrument, options)
 }
 
-export function getSynthStub(instrument: InstrumentName | number): Synth {
-  return new SynthStub(instrument)
+export function getSynthStub(
+  instrument: InstrumentName | number,
+  options: SynthOptions = {},
+): Synth {
+  return new SynthStub(instrument, options)
 }
 
 // TODO one synth per instrument
@@ -42,9 +52,9 @@ class SynthStub implements Synth {
   synth: Synth | undefined
   masterVolume: number
 
-  constructor(instrument: InstrumentName | number) {
+  constructor(instrument: InstrumentName | number, options: SynthOptions) {
     this.masterVolume = 1.0
-    getSynth(instrument).then((s) => {
+    getSynth(instrument, options).then((s) => {
       this.synth = s
       this.synth.setMasterVolume(this.masterVolume)
     })
@@ -70,6 +80,7 @@ class InstrumentSynth implements Synth {
   soundfont: SoundFont
   masterVolume: number
   instrument: InstrumentName
+  metronome: boolean
 
   /** Map from note to currently BufferSource */
   playing: Map<
@@ -77,7 +88,7 @@ class InstrumentSynth implements Synth {
     { gainNode: GainNode; velocity: number; sourceNode: AudioBufferSourceNode }
   > = new Map()
 
-  constructor(instrument: InstrumentName) {
+  constructor(instrument: InstrumentName, options: SynthOptions) {
     const soundfont = soundfonts[instrument]
     if (!soundfont) {
       throw new Error('May not instantiate a synth before its instrument has loaded: ' + instrument)
@@ -85,11 +96,14 @@ class InstrumentSynth implements Synth {
     this.instrument = instrument
     this.soundfont = soundfont
     this.masterVolume = 1
+    this.metronome = options.metronome ?? false
   }
 
   playNote(note: number, velocity = 127 / 2) {
-    midi.pressOutput(note, this.masterVolume)
-    if (!isAudioContextEnabled()) {
+    if (!this.metronome) {
+      midi.pressOutput(note, this.masterVolume)
+    }
+    if (!this.metronome && !isAudioContextEnabled()) {
       return
     }
     const key = getKeyForSoundfont(note)
@@ -108,11 +122,13 @@ class InstrumentSynth implements Synth {
   }
 
   stopNote(note: number) {
-    midi.releaseOutput(note)
+    if (!this.metronome) {
+      midi.releaseOutput(note)
+    }
     if (!this.playing.has(note)) {
       return
     }
-    if (!isAudioContextEnabled()) {
+    if (!this.metronome && !isAudioContextEnabled()) {
       return
     }
     const audioContext = getAudioContext()
