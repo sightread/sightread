@@ -28,11 +28,11 @@ import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { SettingsPanel, TopBar } from './components'
+import { CountdownOverlayProps } from './components/CountdownOverlay'
 import { MidiModal } from './components/MidiModal'
 import { StatsPopup } from './components/StatsPopup'
 import TimelineStrip from './components/TimelineStrip'
 import TransportBar from './components/TransportBar'
-import { CountdownOverlayProps } from './CountdownOverlayProps'
 
 function RequiresPermissionPrompt({
   onGrantPermission,
