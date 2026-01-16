@@ -63,6 +63,12 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     left: true,
     right: true,
     waiting: false,
+    metronome: {
+      enabled: false,
+      volume: 0.6,
+      speed: 1,
+      emphasizeFirst: true,
+    },
     noteLabels: 'none',
     coloredNotes: false,
     skipMissedNotes: false,
@@ -91,12 +97,20 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
 
 export function getSongSettings(file: string, song: Song): SongConfig {
   let persisted = getPersistedSongSettings(file)
+  const defaults = getDefaultSongSettings(song)
   if (persisted) {
-    return persisted
+    return {
+      ...defaults,
+      ...persisted,
+      metronome: {
+        ...defaults.metronome,
+        ...persisted.metronome,
+      },
+      tracks: { ...defaults.tracks, ...persisted.tracks },
+    }
   }
-  const songSettings = getDefaultSongSettings(song)
-  setPersistedSongSettings(file, songSettings)
-  return songSettings
+  setPersistedSongSettings(file, defaults)
+  return defaults
 }
 
 function inferHands(song: Song): { left?: number; right?: number } {

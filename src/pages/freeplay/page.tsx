@@ -88,7 +88,18 @@ export default function FreePlay() {
         <div className="relative grow">
           <SongVisualizer
             song={freePlayer.song}
-            config={{ visualization: 'falling-notes', noteLabels: 'none' } as SongConfig}
+            config={
+              {
+                visualization: 'falling-notes',
+                noteLabels: 'none',
+                metronome: {
+                  enabled: false,
+                  volume: 0.6,
+                  speed: 1,
+                  emphasizeFirst: true,
+                },
+              } as SongConfig
+            }
             hand="both"
             handSettings={{ 1: { hand: 'right' } }}
             getTime={() => freePlayer.getTime()}

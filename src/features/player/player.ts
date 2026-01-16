@@ -70,12 +70,17 @@ export class Player {
     return currSongBpm * get(this.bpmModifier)
   })
 
-  metronomeVolume = atom(0)
+  metronomeVolume = atom(0.6)
+  metronomeEnabled = atom(false)
   metronomeSpeed = atom(1)
   metronomeEmphasizeFirst = atom(true)
   metronomeLastPlayedTick: null | number = null
-  metronomeSynth = getSynthStub('woodblock')
-  metronomeAccentedSynth = getSynthStub('agogo')
+  metronomeSynth = getSynthStub('woodblock', {
+    metronome: true,
+  })
+  metronomeAccentedSynth = getSynthStub('agogo', {
+    metronome: true,
+  })
 
   currentIndex: number = 0
   lastIntervalFiredTime = 0
@@ -217,6 +222,7 @@ export class Player {
     this.store.set(this.song, song)
     this.songHands = getHands(songConfig)
     this.store.set(this.state, 'CannotPlay')
+    this.applyMetronomeConfig(songConfig.metronome)
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
@@ -454,13 +460,17 @@ export class Player {
     // Play metronome sounds
     const latestMetronomeTick = this.getLatestMetronomeTick(time)
 
-    if (this.metronomeLastPlayedTick !== latestMetronomeTick) {
-      this.metronomeLastPlayedTick = latestMetronomeTick
-
-      this.metronomeSynth.playNote(
-        this.isMetronomeTickAccented(latestMetronomeTick) ? 90 : 75,
-        this.store.get(this.metronomeVolume) * 127,
-      )
+    if (this.store.get(this.metronomeEnabled)) {
+      if (this.metronomeLastPlayedTick !== latestMetronomeTick) {
+        this.metronomeLastPlayedTick = latestMetronomeTick
+        const metronomeVolume = this.store.get(this.metronomeVolume)
+        if (metronomeVolume > 0) {
+          this.metronomeSynth.playNote(
+            this.isMetronomeTickAccented(latestMetronomeTick) ? 90 : 75,
+            metronomeVolume * 127,
+          )
+        }
+      }
     }
 
     // Update scoring details
@@ -583,9 +593,17 @@ export class Player {
   }
 
   resetMetronome() {
-    this.store.set(this.metronomeVolume, 0)
+    this.store.set(this.metronomeVolume, 0.6)
+    this.store.set(this.metronomeEnabled, false)
     this.store.set(this.metronomeSpeed, 1)
     this.store.set(this.metronomeEmphasizeFirst, true)
+  }
+
+  applyMetronomeConfig(metronome: SongConfig['metronome']) {
+    this.store.set(this.metronomeEnabled, metronome.enabled)
+    this.store.set(this.metronomeVolume, metronome.volume)
+    this.store.set(this.metronomeSpeed, metronome.speed)
+    this.store.set(this.metronomeEmphasizeFirst, metronome.emphasizeFirst)
   }
 
   seek(time: number) {
