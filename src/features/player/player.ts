@@ -654,6 +654,10 @@ export class Player {
   }
 
   applyCountdownConfig(seconds: number) {
+    if (seconds <= 0 && this.isCountingDown()) {
+      this.clearCountdown_(true)
+      this.startPlayback_()
+    }
     this.store.set(this.countdownSeconds, seconds)
   }
 
