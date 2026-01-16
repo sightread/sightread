@@ -12,10 +12,11 @@ export default function MetronomeSettings() {
   const player = usePlayer()
   const [emphasizeFirst, setEmphasizeFirst] = useAtom(player.metronomeEmphasizeFirst)
   const [metronomeSpeed, setMetronomeSpeed] = useAtom(player.metronomeSpeed)
+  const [metronomeEnabled] = useAtom(player.metronomeEnabled)
   const [volume, setVolume] = useAtom(player.metronomeVolume)
 
   const speedIndex = MULTIPLIERS.findIndex((m) => m === metronomeSpeed)
-  const isDisabled = volume === 0
+  const isDisabled = !metronomeEnabled
 
   return (
     <div className="flex flex-col gap-2">

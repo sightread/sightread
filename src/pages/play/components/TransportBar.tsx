@@ -33,10 +33,9 @@ export default function TransportBar({
   const player = usePlayer()
   const { currentTime, duration } = useSongScrubTimes()
   const bpmModifier = useAtomValue(player.getBpmModifier())
-  const [metronomeVolume, setMetronomeVolume] = useAtom(player.metronomeVolume)
+  const [metronomeEnabled, setMetronomeEnabled] = useAtom(player.metronomeEnabled)
   const volume = useAtomValue(player.volume)
   const measure = player.getMeasureForTime(player.getTime())?.number ?? 1
-  const isMetronomeOn = metronomeVolume > 0
   const isBpmModified = Math.abs(bpmModifier - 1) > 0.001
 
   const speedOptions = getSpeedPresetOptions(bpmModifier)
@@ -92,10 +91,10 @@ export default function TransportBar({
         <div className="hidden h-6 w-px bg-[#2a2b32] md:block" />
         <div className="hidden items-center gap-2 md:flex">
           <TogglePill
-            isActive={isMetronomeOn}
+            isActive={metronomeEnabled}
             label="Metronome"
             icon={<Metronome />}
-            onPress={() => setMetronomeVolume(isMetronomeOn ? 0 : 0.6)}
+            onPress={() => setMetronomeEnabled(!metronomeEnabled)}
           />
           <TogglePill
             isActive={isWaiting}

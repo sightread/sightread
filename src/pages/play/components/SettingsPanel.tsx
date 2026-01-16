@@ -28,7 +28,7 @@ import {
   Undo2,
   X,
 } from 'lucide-react'
-import { PropsWithChildren, useMemo, useRef, useState } from 'react'
+import { PropsWithChildren, useMemo, useState } from 'react'
 import { Switch as AriaSwitch, TooltipTrigger } from 'react-aria-components'
 import { getSpeedPresetOptions, SPEED_PRESETS } from './speedPresets'
 
@@ -53,9 +53,9 @@ export default function SettingsPanel(props: SidebarProps) {
   const bpmModifier = useAtomValue(player.getBpmModifier())
   const bpm = useAtomValue(player.getBpm())
   const [metronomeVolume, setMetronomeVolume] = useAtom(player.metronomeVolume)
+  const [metronomeEnabled, setMetronomeEnabled] = useAtom(player.metronomeEnabled)
   const [metronomeSpeed, setMetronomeSpeed] = useAtom(player.metronomeSpeed)
   const [emphasizeFirst, setEmphasizeFirst] = useAtom(player.metronomeEmphasizeFirst)
-  const lastMetronomeVolume = useRef(metronomeVolume || 1)
   const [playingTrack, setPlayingTrack] = useState<number | null>(null)
   const miniPlayerState = useAtomValue(miniPlayer.state, { store: getDefaultStore() })
   const miniPlayerIsPlaying = miniPlayerState === 'Playing'
@@ -66,7 +66,6 @@ export default function SettingsPanel(props: SidebarProps) {
     SPEED_PRESETS.find((value) => Math.abs(bpmModifier - value) < 0.001) ?? bpmModifier
   const metronomePresetValue =
     METRONOME_PRESETS.find((value) => Math.abs(metronomeSpeed - value) < 0.001) ?? 'custom'
-  const isMetronomeOn = metronomeVolume > 0
   const trackCount = useMemo(() => {
     if (props.song?.tracks) {
       return Object.keys(props.song.tracks).length
@@ -133,13 +132,7 @@ export default function SettingsPanel(props: SidebarProps) {
   }
 
   const toggleMetronome = (next: boolean) => {
-    if (next) {
-      const volume = lastMetronomeVolume.current || 1
-      setMetronomeVolume(volume)
-    } else {
-      lastMetronomeVolume.current = metronomeVolume
-      setMetronomeVolume(0)
-    }
+    setMetronomeEnabled(next)
   }
 
   const resetToDefaults = () => {
@@ -258,10 +251,28 @@ export default function SettingsPanel(props: SidebarProps) {
               title="Metronome"
               subtitle="Keep time while playing"
             >
-              <SidebarSwitch isSelected={isMetronomeOn} onChange={toggleMetronome} />
+              <SidebarSwitch isSelected={metronomeEnabled} onChange={toggleMetronome} />
             </SettingRow>
-            {isMetronomeOn && (
+            {metronomeEnabled && (
               <div className="ml-2 space-y-4 border-l border-[#2b2a33] pl-9">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-white">Volume</label>
+                  <SegmentedToggle
+                    className="w-[140px]"
+                    value={
+                      metronomeVolume >= 0.85 ? 'high' : metronomeVolume >= 0.6 ? 'med' : 'low'
+                    }
+                    onChange={(id) => {
+                      const nextVolume = id === 'high' ? 0.85 : id === 'med' ? 0.6 : 0.3
+                      setMetronomeVolume(nextVolume)
+                    }}
+                    options={[
+                      { id: 'low', label: 'low' },
+                      { id: 'med', label: 'med' },
+                      { id: 'high', label: 'high' },
+                    ]}
+                  />
+                </div>
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-medium text-white">Speed</label>
                   <Select
@@ -300,31 +311,16 @@ export default function SettingsPanel(props: SidebarProps) {
             title="Hands"
             subtitle="Select active hands"
           >
-            <div className="relative flex w-[126px] rounded-md bg-black/30 p-0.5 text-[10px] font-semibold text-gray-500 uppercase">
-              <div
-                className={clsx(
-                  'absolute inset-y-0 left-0 w-1/3 rounded-md bg-violet-600 transition-transform duration-200',
-                  handsMode === 'left' && 'translate-x-full',
-                  handsMode === 'right' && 'translate-x-[200%]',
-                )}
-              />
-              {(['both', 'left', 'right'] as const).map((mode) => {
-                const isActive = handsMode === mode
-                return (
-                  <button
-                    key={mode}
-                    type="button"
-                    className={clsx(
-                      'relative z-10 flex-1 rounded px-2 py-1 transition-colors',
-                      isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300',
-                    )}
-                    onClick={() => setHands(mode)}
-                  >
-                    {mode}
-                  </button>
-                )
-              })}
-            </div>
+            <SegmentedToggle
+              className="w-[126px]"
+              value={handsMode}
+              onChange={(value) => setHands(value as typeof handsMode)}
+              options={[
+                { id: 'both', label: 'both' },
+                { id: 'left', label: 'left' },
+                { id: 'right', label: 'right' },
+              ]}
+            />
           </SettingRow>
         </Section>
 
@@ -565,5 +561,58 @@ function SidebarSwitch({ isSelected, onChange, size = 'md' }: SidebarSwitchProps
         </div>
       )}
     </AriaSwitch>
+  )
+}
+
+type SegmentedOption = {
+  id: string
+  label: string
+}
+
+type SegmentedToggleProps = {
+  value: string
+  options: SegmentedOption[]
+  onChange: (id: string) => void
+  className?: string
+}
+
+function SegmentedToggle({ value, options, onChange, className }: SegmentedToggleProps) {
+  const activeIndex = Math.max(
+    0,
+    options.findIndex((option) => option.id === value),
+  )
+  const indicatorWidth = `${100 / options.length}%`
+
+  return (
+    <div
+      className={clsx(
+        'relative flex rounded-md bg-black/30 p-0.5 text-[10px] font-semibold text-gray-500 uppercase',
+        className,
+      )}
+    >
+      <div
+        className="absolute inset-y-0 left-0 rounded-md bg-violet-600 transition-transform duration-200"
+        style={{
+          width: indicatorWidth,
+          transform: `translateX(${activeIndex * 100}%)`,
+        }}
+      />
+      {options.map((option) => {
+        const isActive = option.id === value
+        return (
+          <button
+            key={option.id}
+            type="button"
+            className={clsx(
+              'relative z-10 flex-1 rounded px-2 py-1 transition-colors',
+              isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300',
+            )}
+            onClick={() => onChange(option.id)}
+          >
+            {option.label}
+          </button>
+        )
+      })}
+    </div>
   )
 }
