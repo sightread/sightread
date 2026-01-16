@@ -40,7 +40,10 @@ export async function getSynth(
   return new InstrumentSynth(instrument, options)
 }
 
-export function getSynthStub(instrument: InstrumentName | number, options: SynthOptions = {}): Synth {
+export function getSynthStub(
+  instrument: InstrumentName | number,
+  options: SynthOptions = {},
+): Synth {
   return new SynthStub(instrument, options)
 }
 

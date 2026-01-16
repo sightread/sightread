@@ -158,8 +158,7 @@ export default function PlaySongPage() {
     }
   }, [waiting, left, right, player])
 
-  const metronome =
-    songConfig.metronome ?? getDefaultSongSettings(song ?? undefined).metronome
+  const metronome = songConfig.metronome ?? getDefaultSongSettings(song ?? undefined).metronome
   useEffect(() => {
     if (!songConfig.metronome) {
       setSongConfig({ ...songConfig, metronome })
