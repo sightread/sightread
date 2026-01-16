@@ -4,7 +4,12 @@ import { useSongMetadata } from '@/features/data/library'
 import midiState from '@/features/midi'
 import { requiresPermissionAtom, scanFolders } from '@/features/persist/persistence'
 import { usePlayer } from '@/features/player'
-import { getHandSettings, getSongSettings, SongVisualizer } from '@/features/SongVisualization'
+import {
+  getDefaultSongSettings,
+  getHandSettings,
+  getSongSettings,
+  SongVisualizer,
+} from '@/features/SongVisualization'
 import { getSynthStub } from '@/features/synth'
 import {
   useEventListener,
@@ -153,6 +158,11 @@ export default function PlaySongPage() {
     }
   }, [waiting, left, right, player])
 
+  const metronome = songConfig.metronome ?? getDefaultSongSettings(song).metronome
+  useEffect(() => {
+    player.applyMetronomeConfig(metronome)
+  }, [metronome, player])
+
   useOnUnmount(() => player.stop())
 
   useEffect(() => {
@@ -183,6 +193,19 @@ export default function PlaySongPage() {
         return ''
       }
       return msg
+    })
+  }
+
+  const handleMetronomeToggle = () => {
+    const enabled = !metronome.enabled
+    const nextVolume = songConfig.metronome.volume ?? 0.6
+    setSongConfig({
+      ...songConfig,
+      metronome: {
+        ...songConfig.metronome,
+        enabled,
+        volume: enabled ? nextVolume : songConfig.metronome.volume,
+      },
     })
   }
 
@@ -399,6 +422,8 @@ export default function PlaySongPage() {
               onToggleLoop={() => handleLoopingToggle(!isLooping)}
               isWaiting={waiting}
               onToggleWaiting={handleWaitingToggle}
+              isMetronomeOn={metronome.enabled}
+              onToggleMetronome={handleMetronomeToggle}
             />
           </div>
         )}

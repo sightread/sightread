@@ -4,7 +4,7 @@ import { usePlayer } from '@/features/player'
 import { Check, Gauge, Hourglass, Metronome, Pause, Play, Repeat, SkipBack, Volume2 } from '@/icons'
 import { round } from '@/utils'
 import clsx from 'clsx'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
 import React from 'react'
 import { Button, Menu, MenuItem, MenuTrigger, TooltipTrigger } from 'react-aria-components'
 import { getSpeedPresetOptions } from './speedPresets'
@@ -18,6 +18,8 @@ type TransportBarProps = {
   onToggleLoop: () => void
   isWaiting: boolean
   onToggleWaiting: () => void
+  isMetronomeOn: boolean
+  onToggleMetronome: () => void
 }
 
 export default function TransportBar({
@@ -29,11 +31,12 @@ export default function TransportBar({
   onToggleLoop,
   isWaiting,
   onToggleWaiting,
+  isMetronomeOn,
+  onToggleMetronome,
 }: TransportBarProps) {
   const player = usePlayer()
   const { currentTime, duration } = useSongScrubTimes()
   const bpmModifier = useAtomValue(player.getBpmModifier())
-  const [metronomeEnabled, setMetronomeEnabled] = useAtom(player.metronomeEnabled)
   const volume = useAtomValue(player.volume)
   const measure = player.getMeasureForTime(player.getTime())?.number ?? 1
   const isBpmModified = Math.abs(bpmModifier - 1) > 0.001
@@ -91,10 +94,10 @@ export default function TransportBar({
         <div className="hidden h-6 w-px bg-[#2a2b32] md:block" />
         <div className="hidden items-center gap-2 md:flex">
           <TogglePill
-            isActive={metronomeEnabled}
+            isActive={isMetronomeOn}
             label="Metronome"
             icon={<Metronome />}
-            onPress={() => setMetronomeEnabled(!metronomeEnabled)}
+            onPress={onToggleMetronome}
           />
           <TogglePill
             isActive={isWaiting}

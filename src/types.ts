@@ -91,6 +91,12 @@ export type SongConfig = {
   left: boolean
   right: boolean
   waiting: boolean
+  metronome: {
+    enabled: boolean
+    volume: number
+    speed: number
+    emphasizeFirst: boolean
+  }
   visualization: VisualizationMode
   noteLabels: NOTE_LABELS
   coloredNotes: boolean

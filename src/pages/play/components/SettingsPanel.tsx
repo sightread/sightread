@@ -10,7 +10,7 @@ import { useOnUnmount } from '@/hooks'
 import { Metronome as MetronomeIcon } from '@/icons'
 import { Song, SongConfig, VisualizationMode } from '@/types'
 import clsx from 'clsx'
-import { getDefaultStore, useAtom, useAtomValue } from 'jotai'
+import { getDefaultStore, useAtomValue } from 'jotai'
 import {
   AudioWaveform,
   ChevronDown,
@@ -52,13 +52,15 @@ export default function SettingsPanel(props: SidebarProps) {
   const player = usePlayer()
   const bpmModifier = useAtomValue(player.getBpmModifier())
   const bpm = useAtomValue(player.getBpm())
-  const [metronomeVolume, setMetronomeVolume] = useAtom(player.metronomeVolume)
-  const [metronomeEnabled, setMetronomeEnabled] = useAtom(player.metronomeEnabled)
-  const [metronomeSpeed, setMetronomeSpeed] = useAtom(player.metronomeSpeed)
-  const [emphasizeFirst, setEmphasizeFirst] = useAtom(player.metronomeEmphasizeFirst)
   const [playingTrack, setPlayingTrack] = useState<number | null>(null)
   const miniPlayerState = useAtomValue(miniPlayer.state, { store: getDefaultStore() })
   const miniPlayerIsPlaying = miniPlayerState === 'Playing'
+
+  const metronomeConfig = props.config.metronome ?? getDefaultSongSettings(props.song).metronome
+  const metronomeEnabled = metronomeConfig.enabled
+  const metronomeVolume = metronomeConfig.volume
+  const metronomeSpeed = metronomeConfig.speed
+  const emphasizeFirst = metronomeConfig.emphasizeFirst
 
   useOnUnmount(() => miniPlayer.stop())
 
@@ -132,7 +134,15 @@ export default function SettingsPanel(props: SidebarProps) {
   }
 
   const toggleMetronome = (next: boolean) => {
-    setMetronomeEnabled(next)
+    const nextVolume = metronomeConfig.volume
+    props.onChange({
+      ...props.config,
+      metronome: {
+        ...metronomeConfig,
+        enabled: next,
+        volume: next ? nextVolume : metronomeConfig.volume,
+      },
+    })
   }
 
   const resetToDefaults = () => {
@@ -264,7 +274,10 @@ export default function SettingsPanel(props: SidebarProps) {
                     }
                     onChange={(id) => {
                       const nextVolume = id === 'high' ? 0.85 : id === 'med' ? 0.6 : 0.3
-                      setMetronomeVolume(nextVolume)
+                      props.onChange({
+                        ...props.config,
+                        metronome: { ...metronomeConfig, volume: nextVolume },
+                      })
                     }}
                     options={[
                       { id: 'low', label: 'low' },
@@ -288,7 +301,10 @@ export default function SettingsPanel(props: SidebarProps) {
                       if (key === 'custom') {
                         return
                       }
-                      setMetronomeSpeed(Number(key))
+                      props.onChange({
+                        ...props.config,
+                        metronome: { ...metronomeConfig, speed: Number(key) },
+                      })
                     }}
                     items={metronomePresetItems}
                   >
@@ -299,7 +315,12 @@ export default function SettingsPanel(props: SidebarProps) {
                   <SidebarSwitch
                     size="sm"
                     isSelected={emphasizeFirst}
-                    onChange={setEmphasizeFirst}
+                    onChange={(value) =>
+                      props.onChange({
+                        ...props.config,
+                        metronome: { ...metronomeConfig, emphasizeFirst: value },
+                      })
+                    }
                   />
                 </SettingRow>
               </div>
