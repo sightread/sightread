@@ -655,8 +655,18 @@ export class Player {
     }
 
     const { start, end } = range
-    this.store.set(this.range, [Math.min(start, end), Math.max(start, end)])
-    this.seek(this.getTime())
+
+    const snappedStart = this.getMeasureForTime(start).time
+    const endMeasure = this.getMeasureForTime(end)
+    const snappedEnd =
+      end <= endMeasure.time + 0.005
+        ? endMeasure.time
+        : (this.getNextMeasureTime(end) ?? this.getDuration())
+
+    if (snappedEnd > snappedStart) {
+      this.store.set(this.range, [snappedStart, snappedEnd])
+      this.seek(this.getTime())
+    }
   }
 
   getRange() {
