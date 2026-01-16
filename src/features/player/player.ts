@@ -612,6 +612,12 @@ export class Player {
       return
     }
 
+    const range = this.store.get(this.range)
+    if (range) {
+      const [start, stop] = range
+      time = Math.min(stop, Math.max(time, start))
+    }
+
     this.stopAllSounds()
     this.currentSongTime = time
     if (song.backing) {
@@ -650,6 +656,7 @@ export class Player {
 
     const { start, end } = range
     this.store.set(this.range, [Math.min(start, end), Math.max(start, end)])
+    this.seek(this.getTime())
   }
 
   getRange() {

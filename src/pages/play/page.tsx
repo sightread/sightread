@@ -321,6 +321,8 @@ export default function PlaySongPage() {
         start: duration / 2 - tenth,
         end: duration / 2 + tenth,
       })
+
+      player.seek(player.getTime())
     }
   }
 
