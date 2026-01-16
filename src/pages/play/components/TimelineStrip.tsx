@@ -54,7 +54,8 @@ export default function TimelineStrip({
   }
 
   const pauseForScrub = () => {
-    if (player.isPlaying()) {
+    if (player.isPlaying() || player.isCountingDown()) {
+      if (player.isCountingDown()) player.cancelCountdown()
       wasPlaying.current = true
       player.pause()
     }

@@ -63,6 +63,7 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     left: true,
     right: true,
     waiting: false,
+    countdownSeconds: 3,
     loop: {
       enabled: false,
       range: { start: 0, end: song?.duration ?? 0 },
@@ -106,6 +107,7 @@ export function getSongSettings(file: string, song: Song): SongConfig {
     return {
       ...defaults,
       ...persisted,
+      countdownSeconds: persisted.countdownSeconds ?? defaults.countdownSeconds,
       loop: {
         ...defaults.loop,
         ...persisted.loop,

@@ -1,7 +1,18 @@
 import { Popover, Slider, Tooltip } from '@/components'
 import { useSongScrubTimes } from '@/features/controls'
 import { usePlayer } from '@/features/player'
-import { Check, Gauge, Hourglass, Metronome, Pause, Play, Repeat, SkipBack, Volume2 } from '@/icons'
+import {
+  Check,
+  Gauge,
+  Hourglass,
+  Metronome,
+  Pause,
+  Play,
+  Repeat,
+  SkipBack,
+  Timer,
+  Volume2,
+} from '@/icons'
 import { round } from '@/utils'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
@@ -20,6 +31,8 @@ type TransportBarProps = {
   onToggleWaiting: () => void
   isMetronomeOn: boolean
   onToggleMetronome: () => void
+  isCountdownOn: boolean
+  onToggleCountdown: () => void
 }
 
 export default function TransportBar({
@@ -33,6 +46,8 @@ export default function TransportBar({
   onToggleWaiting,
   isMetronomeOn,
   onToggleMetronome,
+  isCountdownOn,
+  onToggleCountdown,
 }: TransportBarProps) {
   const player = usePlayer()
   const { currentTime, duration } = useSongScrubTimes()
@@ -93,6 +108,13 @@ export default function TransportBar({
         </div>
         <div className="hidden h-6 w-px bg-[#2a2b32] md:block" />
         <div className="hidden items-center gap-2 md:flex">
+          <TogglePill
+            isActive={isCountdownOn}
+            label="Countdown"
+            icon={<Timer />}
+            onPress={onToggleCountdown}
+            showStateText
+          />
           <TogglePill
             isActive={isMetronomeOn}
             label="Metronome"
@@ -176,11 +198,20 @@ type TogglePillProps = {
   icon: React.ReactElement<{ className: string }>
   content?: React.ReactNode
   onPress: () => void
+  showStateText?: boolean
 }
 
-function TogglePill({ isActive, label, icon, content, onPress }: TogglePillProps) {
+function TogglePill({
+  isActive,
+  label,
+  icon,
+  content,
+  onPress,
+  showStateText = true,
+}: TogglePillProps) {
   const iconClasses = isActive ? 'h-3.5 w-3.5 text-violet-200' : 'h-3.5 w-3.5 text-gray-400'
   const styledIcon = React.cloneElement(icon, { className: iconClasses })
+  const showContent = content !== undefined || showStateText
   return (
     <TooltipTrigger>
       <Button
@@ -193,29 +224,30 @@ function TogglePill({ isActive, label, icon, content, onPress }: TogglePillProps
         onMouseDown={(event) => event.preventDefault()}
       >
         {styledIcon}
-        {content ? (
-          <span className="min-w-7 text-center">{content}</span>
-        ) : (
-          <span className="relative inline-flex min-w-7 justify-center">
-            <span className="invisible">OFF</span>
-            <span
-              className={clsx(
-                'absolute inset-0 flex items-center justify-center transition-opacity',
-                isActive ? 'opacity-100' : 'opacity-0',
-              )}
-            >
-              ON
+        {showContent &&
+          (content ? (
+            <span className="min-w-7 text-center">{content}</span>
+          ) : (
+            <span className="relative inline-flex min-w-7 justify-center">
+              <span className="invisible">OFF</span>
+              <span
+                className={clsx(
+                  'absolute inset-0 flex items-center justify-center transition-opacity',
+                  isActive ? 'opacity-100' : 'opacity-0',
+                )}
+              >
+                ON
+              </span>
+              <span
+                className={clsx(
+                  'absolute inset-0 flex items-center justify-center transition-opacity',
+                  isActive ? 'opacity-0' : 'opacity-100',
+                )}
+              >
+                OFF
+              </span>
             </span>
-            <span
-              className={clsx(
-                'absolute inset-0 flex items-center justify-center transition-opacity',
-                isActive ? 'opacity-0' : 'opacity-100',
-              )}
-            >
-              OFF
-            </span>
-          </span>
-        )}
+          ))}
       </Button>
       <Tooltip>{label}</Tooltip>
     </TooltipTrigger>

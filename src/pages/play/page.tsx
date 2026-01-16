@@ -32,6 +32,7 @@ import { MidiModal } from './components/MidiModal'
 import { StatsPopup } from './components/StatsPopup'
 import TimelineStrip from './components/TimelineStrip'
 import TransportBar from './components/TransportBar'
+import { CountdownOverlayProps } from './CountdownOverlayProps'
 
 function RequiresPermissionPrompt({
   onGrantPermission,
@@ -120,6 +121,8 @@ export default function PlaySongPage() {
   const [statsVisible, setStatsVisible] = useState(false)
   const [isSettingsOpen, setSettingsOpen] = useState(false)
   const playerState = usePlayerState()
+  const countdownTotal = useAtomValue(player.countdownSeconds)
+  const countdownRemaining = useAtomValue(player.countdownRemaining)
   const synth = useLazyStableRef(() => getSynthStub('acoustic_grand_piano'))
   let { data: song, error, isLoading, mutate } = useSong(id, source)
   let songMeta = useSongMetadata(id, source)
@@ -135,7 +138,7 @@ export default function PlaySongPage() {
 
   const [songConfig, setSongConfig] = useSongSettings(id)
   const isRecording = !!recording
-  const isLooping = songConfig.loop.enabled
+  const isLooping = songConfig.loop?.enabled ?? false
   useWakeLock()
   const hand =
     songConfig.left && songConfig.right
@@ -160,6 +163,9 @@ export default function PlaySongPage() {
 
   const metronome = songConfig.metronome ?? getDefaultSongSettings(song ?? undefined).metronome
   const loopConfig = songConfig.loop ?? getDefaultSongSettings(song ?? undefined).loop
+  const countdownSeconds =
+    songConfig.countdownSeconds ?? getDefaultSongSettings(song ?? undefined).countdownSeconds
+  const countdownEnabled = countdownSeconds > 0
   useEffect(() => {
     if (!songConfig.metronome) {
       setSongConfig({ ...songConfig, metronome })
@@ -171,8 +177,16 @@ export default function PlaySongPage() {
     }
   }, [loopConfig, setSongConfig, songConfig])
   useEffect(() => {
+    if (songConfig.countdownSeconds == null) {
+      setSongConfig({ ...songConfig, countdownSeconds })
+    }
+  }, [countdownSeconds, setSongConfig, songConfig])
+  useEffect(() => {
     player.applyMetronomeConfig(metronome)
   }, [metronome, player])
+  useEffect(() => {
+    player.applyCountdownConfig(countdownSeconds)
+  }, [countdownSeconds, player])
   useEffect(() => {
     if (loopConfig.enabled) {
       player.setRange(loopConfig.range)
@@ -326,17 +340,26 @@ export default function PlaySongPage() {
   const handleLoopingToggle = (enable: boolean) => {
     const duration = player.getDuration()
     const fallbackRange = { start: 0, end: duration }
+    const range = loopConfig.range ?? fallbackRange
     setSongConfig({
       ...songConfig,
       loop: {
         enabled: enable,
-        range: loopConfig.range ?? fallbackRange,
+        range,
       },
     })
   }
 
   const handleWaitingToggle = () => {
     setSongConfig({ ...songConfig, waiting: !waiting })
+  }
+
+  const handleCountdownToggle = () => {
+    if (countdownEnabled) {
+      setSongConfig({ ...songConfig, countdownSeconds: 0 })
+      return
+    }
+    setSongConfig({ ...songConfig, countdownSeconds: 3 })
   }
 
   // Handle permission required for local files
@@ -408,6 +431,11 @@ export default function PlaySongPage() {
             getTime={() => player.getTime()}
             enableTouchscroll={songConfig.visualization === 'falling-notes'}
           />
+          {playerState.countingDown && countdownTotal > 0 && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <CountdownOverlay total={countdownTotal} remaining={countdownRemaining} />
+            </div>
+          )}
           {!isRecording && isSettingsOpen ? (
             <div className="absolute top-0 right-0 h-full w-[360px] border-l border-[#2b2a33] bg-[#121016] shadow-2xl">
               <SettingsPanel
@@ -449,6 +477,8 @@ export default function PlaySongPage() {
               onToggleWaiting={handleWaitingToggle}
               isMetronomeOn={metronome.enabled}
               onToggleMetronome={handleMetronomeToggle}
+              isCountdownOn={countdownEnabled}
+              onToggleCountdown={handleCountdownToggle}
             />
           </div>
         )}
@@ -467,5 +497,32 @@ export default function PlaySongPage() {
         </>
       )}
     </>
+  )
+}
+
+function CountdownOverlay({ total, remaining }: CountdownOverlayProps) {
+  const safeTotal = Math.max(0, Math.round(total))
+  const safeRemaining = Math.max(0, Math.min(safeTotal, Math.round(remaining)))
+  if (safeTotal === 0 || safeRemaining === 0) {
+    return null
+  }
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-2xl bg-black/50 px-6 py-4 text-white backdrop-blur">
+      <div className="text-4xl font-semibold">{safeRemaining}</div>
+      <div className="flex items-center gap-2">
+        {Array.from({ length: safeTotal }).map((_, index) => {
+          const isActive = index < safeRemaining
+          return (
+            <span
+              key={index}
+              className={clsx(
+                'h-2.5 w-2.5 rounded-full transition',
+                isActive ? 'bg-violet-300 shadow-[0_0_10px_rgba(196,181,253,0.6)]' : 'bg-white/20',
+              )}
+            />
+          )
+        })}
+      </div>
+    </div>
   )
 }

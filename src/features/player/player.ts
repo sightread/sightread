@@ -50,7 +50,7 @@ function getInitialScore(): Score {
   return { perfect, good, missed, error, durationHeld, combined, accuracy, streak }
 }
 
-export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused'
+export type PlayerState = 'CannotPlay' | 'Playing' | 'Paused' | 'CountingDown'
 
 export class Player {
   store: JotaiStore
@@ -74,6 +74,10 @@ export class Player {
   metronomeEnabled = atom(false)
   metronomeSpeed = atom(1)
   metronomeEmphasizeFirst = atom(true)
+  countdownSeconds = atom(3)
+  countdownRemaining = atom(0)
+  countdownTimeout: ReturnType<typeof setTimeout> | null = null
+  countdownInterval: ReturnType<typeof setInterval> | null = null
   metronomeLastPlayedTick: null | number = null
   metronomeSynth = getSynthStub('woodblock', {
     metronome: true,
@@ -216,6 +220,10 @@ export class Player {
     return this.store.get(this.state) === 'Playing'
   }
 
+  isCountingDown() {
+    return this.store.get(this.state) === 'CountingDown'
+  }
+
   async setSong(song: Song, songConfig: SongConfig) {
     this.stop()
     this.resetMetronome()
@@ -223,6 +231,7 @@ export class Player {
     this.songHands = getHands(songConfig)
     this.store.set(this.state, 'CannotPlay')
     this.applyMetronomeConfig(songConfig.metronome)
+    this.applyCountdownConfig(songConfig.countdownSeconds)
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
@@ -333,6 +342,10 @@ export class Player {
     return this.store.get(this.bpmModifier)
   }
 
+  getCountdownSecondsValue() {
+    return this.store.get(this.countdownSeconds)
+  }
+
   setBpmModifier(value: number) {
     this.store.set(this.bpmModifier, round(value, 2))
     const backingTrack = this.getSong()?.backing
@@ -372,10 +385,31 @@ export class Player {
   }
 
   play() {
-    if (this.isPlaying() || this.store.get(this.state) === 'CannotPlay') {
+    const state = this.store.get(this.state)
+    if (this.isPlaying() || state === 'CannotPlay' || state === 'CountingDown') {
       return
     }
 
+    const countdownSeconds = this.store.get(this.countdownSeconds)
+    if (this.shouldCountdown(countdownSeconds)) {
+      this.clearCountdown_()
+      this.startCountdown_(countdownSeconds)
+      return
+    }
+
+    this.startPlayback_()
+  }
+
+  cancelCountdown() {
+    if (!this.isCountingDown()) {
+      return
+    }
+    this.clearCountdown_(true)
+    this.store.set(this.state, 'Paused')
+  }
+
+  startPlayback_() {
+    this.store.set(this.countdownRemaining, 0)
     // If at the end of the song, restart it
     if (this.currentSongTime >= this.getDuration()) {
       this.seek(0)
@@ -445,7 +479,14 @@ export class Player {
     if (range) {
       let [start, stop] = range
       if (prevTime <= stop && stop <= time) {
-        this.seek(start)
+        const countdownSeconds = this.store.get(this.countdownSeconds)
+        if (this.shouldCountdown(countdownSeconds, start)) {
+          this.seek(start)
+          this.pause()
+          this.play()
+        } else {
+          this.seek(start)
+        }
         return
       }
     }
@@ -529,7 +570,7 @@ export class Player {
   }
 
   toggle() {
-    if (this.isPlaying()) {
+    if (this.isPlaying() || this.isCountingDown()) {
       this.pause()
       return
     }
@@ -541,6 +582,11 @@ export class Player {
   }
 
   pause() {
+    this.clearCountdown_(true)
+    if (this.isCountingDown()) {
+      this.store.set(this.state, 'Paused')
+      return
+    }
     if (!this.isPlaying()) {
       return
     }
@@ -569,6 +615,7 @@ export class Player {
   }
 
   reset_() {
+    this.clearCountdown_(true)
     this.currentSongTime = 0
     this.currentIndex = 0
     this.playing = []
@@ -604,6 +651,73 @@ export class Player {
     this.store.set(this.metronomeVolume, metronome.volume)
     this.store.set(this.metronomeSpeed, metronome.speed)
     this.store.set(this.metronomeEmphasizeFirst, metronome.emphasizeFirst)
+  }
+
+  applyCountdownConfig(seconds: number) {
+    this.store.set(this.countdownSeconds, seconds)
+  }
+
+  shouldCountdown(seconds: number, timeOverride?: number) {
+    if (seconds <= 0) {
+      return false
+    }
+    const time = timeOverride ?? this.getTime()
+    const roundedTime = Math.round(time * 1000) / 1000
+    if (roundedTime <= 0) {
+      return true
+    }
+    const range = this.store.get(this.range)
+    if (!range) {
+      return false
+    }
+    return Math.abs(roundedTime - range[0]) < 0.001
+  }
+
+  startCountdown_(seconds: number) {
+    this.clearCountdown_()
+    this.store.set(this.state, 'CountingDown')
+    this.store.set(this.countdownRemaining, seconds)
+    const volume = Math.max(0, this.store.get(this.metronomeVolume))
+    const velocity = Math.min(127, Math.round(volume * 127))
+    const playTick = () => {
+      if (velocity > 0) {
+        this.metronomeSynth.playNote(75, velocity)
+      }
+    }
+    playTick()
+    this.countdownInterval = setInterval(() => {
+      const nextRemaining = Math.max(0, this.store.get(this.countdownRemaining) - 1)
+      this.store.set(this.countdownRemaining, nextRemaining)
+      if (nextRemaining > 0) {
+        playTick()
+      } else if (this.countdownInterval) {
+        clearInterval(this.countdownInterval)
+        this.countdownInterval = null
+      }
+    }, 1000)
+    this.countdownTimeout = setTimeout(() => {
+      this.countdownTimeout = null
+      if (this.countdownInterval) {
+        clearInterval(this.countdownInterval)
+        this.countdownInterval = null
+      }
+      this.store.set(this.countdownRemaining, 0)
+      this.startPlayback_()
+    }, seconds * 1000)
+  }
+
+  clearCountdown_(resetRemaining = false) {
+    if (this.countdownTimeout) {
+      clearTimeout(this.countdownTimeout)
+      this.countdownTimeout = null
+    }
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval)
+      this.countdownInterval = null
+    }
+    if (resetRemaining) {
+      this.store.set(this.countdownRemaining, 0)
+    }
   }
 
   seek(time: number) {
