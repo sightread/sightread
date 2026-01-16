@@ -92,6 +92,10 @@ export type SongConfig = {
   left: boolean
   right: boolean
   waiting: boolean
+  loop: {
+    enabled: boolean
+    range: { start: number; end: number }
+  }
   metronome: {
     enabled: boolean
     volume: number

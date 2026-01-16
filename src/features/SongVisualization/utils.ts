@@ -63,6 +63,10 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     left: true,
     right: true,
     waiting: false,
+    loop: {
+      enabled: false,
+      range: { start: 0, end: song?.duration ?? 0 },
+    },
     metronome: {
       enabled: false,
       volume: 0.6,
@@ -102,6 +106,10 @@ export function getSongSettings(file: string, song: Song): SongConfig {
     return {
       ...defaults,
       ...persisted,
+      loop: {
+        ...defaults.loop,
+        ...persisted.loop,
+      },
       metronome: {
         ...defaults.metronome,
         ...persisted.metronome,

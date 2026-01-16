@@ -128,7 +128,6 @@ export default function PlaySongPage() {
     () => (range ? { start: range[0], end: range[1] } : undefined),
     [range],
   )
-  const isLooping = !!range
   const requiresPermission = useAtomValue(requiresPermissionAtom)
   const [toastMsg, setToastMsg] = useState<string | null>('')
   const [toastKey, setToastKey] = useState<string>('')
@@ -136,6 +135,7 @@ export default function PlaySongPage() {
 
   const [songConfig, setSongConfig] = useSongSettings(id)
   const isRecording = !!recording
+  const isLooping = songConfig.loop.enabled
   useWakeLock()
   const hand =
     songConfig.left && songConfig.right
@@ -159,14 +159,27 @@ export default function PlaySongPage() {
   }, [waiting, left, right, player])
 
   const metronome = songConfig.metronome ?? getDefaultSongSettings(song ?? undefined).metronome
+  const loopConfig = songConfig.loop ?? getDefaultSongSettings(song ?? undefined).loop
   useEffect(() => {
     if (!songConfig.metronome) {
       setSongConfig({ ...songConfig, metronome })
     }
   }, [metronome, setSongConfig, songConfig])
   useEffect(() => {
+    if (!songConfig.loop) {
+      setSongConfig({ ...songConfig, loop: loopConfig })
+    }
+  }, [loopConfig, setSongConfig, songConfig])
+  useEffect(() => {
     player.applyMetronomeConfig(metronome)
   }, [metronome, player])
+  useEffect(() => {
+    if (loopConfig.enabled) {
+      player.setRange(loopConfig.range)
+    } else {
+      player.setRange(undefined)
+    }
+  }, [loopConfig, player])
 
   useOnUnmount(() => player.stop())
 
@@ -237,7 +250,7 @@ export default function PlaySongPage() {
         handleLoopingToggle(true)
       }
     } else if (evt.code === 'KeyO') {
-      if (isLooping) {
+      if (isLooping && range) {
         player.seek(range[0])
       }
     } else if (evt.ctrlKey && evt.code === 'ArrowLeft') {
@@ -311,19 +324,15 @@ export default function PlaySongPage() {
   }, [synth, song, songConfig])
 
   const handleLoopingToggle = (enable: boolean) => {
-    if (!enable) {
-      player.setRange(undefined)
-      return
-    } else {
-      const duration = player.getDuration()
-      const tenth = duration / 10
-      player.setRange({
-        start: duration / 2 - tenth,
-        end: duration / 2 + tenth,
-      })
-
-      player.seek(player.getTime())
-    }
+    const duration = player.getDuration()
+    const fallbackRange = { start: 0, end: duration }
+    setSongConfig({
+      ...songConfig,
+      loop: {
+        enabled: enable,
+        range: loopConfig.range ?? fallbackRange,
+      },
+    })
   }
 
   const handleWaitingToggle = () => {
@@ -417,7 +426,16 @@ export default function PlaySongPage() {
             <TimelineStrip
               song={song}
               rangeSelection={selectedRange}
-              setRange={(range) => player.setRange(range)}
+              setRange={(range) => {
+                if (!range) {
+                  setSongConfig({ ...songConfig, loop: { ...loopConfig, enabled: false } })
+                  return
+                }
+                setSongConfig({
+                  ...songConfig,
+                  loop: { enabled: true, range },
+                })
+              }}
               isLooping={isLooping}
             />
             <TransportBar

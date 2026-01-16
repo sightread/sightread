@@ -445,7 +445,7 @@ export class Player {
     if (range) {
       let [start, stop] = range
       if (prevTime <= stop && stop <= time) {
-        this.seek(start - 0.5)
+        this.seek(start)
         return
       }
     }
@@ -615,7 +615,7 @@ export class Player {
     const range = this.store.get(this.range)
     if (range) {
       const [start, stop] = range
-      time = time <= start ? start - 0.5 : Math.min(time, stop)
+      time = time <= start ? start : Math.min(time, stop)
     }
 
     this.stopAllSounds()
