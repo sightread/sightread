@@ -158,7 +158,13 @@ export default function PlaySongPage() {
     }
   }, [waiting, left, right, player])
 
-  const metronome = songConfig.metronome ?? getDefaultSongSettings(song).metronome
+  const metronome =
+    songConfig.metronome ?? getDefaultSongSettings(song ?? undefined).metronome
+  useEffect(() => {
+    if (!songConfig.metronome) {
+      setSongConfig({ ...songConfig, metronome })
+    }
+  }, [metronome, setSongConfig, songConfig])
   useEffect(() => {
     player.applyMetronomeConfig(metronome)
   }, [metronome, player])
@@ -198,13 +204,13 @@ export default function PlaySongPage() {
 
   const handleMetronomeToggle = () => {
     const enabled = !metronome.enabled
-    const nextVolume = songConfig.metronome.volume ?? 0.6
+    const nextVolume = metronome.volume ?? 0.6
     setSongConfig({
       ...songConfig,
       metronome: {
-        ...songConfig.metronome,
+        ...metronome,
         enabled,
-        volume: enabled ? nextVolume : songConfig.metronome.volume,
+        volume: enabled ? nextVolume : metronome.volume,
       },
     })
   }
