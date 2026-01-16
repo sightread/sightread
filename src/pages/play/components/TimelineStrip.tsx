@@ -31,6 +31,7 @@ export default function TimelineStrip({
   const isDraggingL = useRef(false)
   const isDraggingR = useRef(false)
   const isScrubbing = useRef(false)
+  const wasPlaying = useRef(false)
 
   const duration = player.getDuration()
 
@@ -50,6 +51,20 @@ export default function TimelineStrip({
       return 0
     }
     return clamp((e.clientX - rect.left) / rect.width, { min: 0, max: 1 })
+  }
+
+  const pauseForScrub = () => {
+    if (player.isPlaying()) {
+      wasPlaying.current = true
+      player.pause()
+    }
+  }
+
+  const resumeAfterScrub = () => {
+    if (wasPlaying.current) {
+      wasPlaying.current = false
+      player.play()
+    }
   }
 
   useRAFLoop(() => {
@@ -86,6 +101,7 @@ export default function TimelineStrip({
       return
     }
     isScrubbing.current = true
+    pauseForScrub()
     player.seek(getProgress(e) * duration)
   })
 
@@ -93,6 +109,7 @@ export default function TimelineStrip({
     isDraggingL.current = false
     isDraggingR.current = false
     isScrubbing.current = false
+    resumeAfterScrub()
   })
 
   useEventListener<PointerEvent>('pointermove', (e) => {
@@ -209,6 +226,7 @@ export default function TimelineStrip({
                 event.stopPropagation()
                 isScrubbing.current = false
                 isDraggingL.current = true
+                pauseForScrub()
               }}
             >
               <div className="h-4 w-0.5 rounded-full bg-white/60" />
@@ -225,6 +243,7 @@ export default function TimelineStrip({
                 event.stopPropagation()
                 isScrubbing.current = false
                 isDraggingR.current = true
+                pauseForScrub()
               }}
             >
               <div className="h-4 w-0.5 rounded-full bg-white/60" />

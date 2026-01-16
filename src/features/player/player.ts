@@ -615,7 +615,7 @@ export class Player {
     const range = this.store.get(this.range)
     if (range) {
       const [start, stop] = range
-      time = Math.min(stop, Math.max(time, start))
+      time = time <= start ? start - 0.5 : Math.min(time, stop)
     }
 
     this.stopAllSounds()
