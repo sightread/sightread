@@ -1,0 +1,15 @@
+{
+  "title": "rondo-alla-turca.mid",
+  "duration": 222,
+  "measures": 223,
+  "timesig": "2/4",
+  "tempo": 120,
+  "keysig": 0,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}

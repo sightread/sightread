@@ -1,0 +1,15 @@
+{
+  "title": "sonata-no-11.mid",
+  "duration": 54,
+  "measures": 36,
+  "timesig": "6/8",
+  "tempo": 0,
+  "keysig": 3,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}

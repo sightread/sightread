@@ -1,0 +1,15 @@
+{
+  "title": "the-entertainer.mid",
+  "duration": 72,
+  "measures": 36,
+  "timesig": "4/4",
+  "tempo": 120,
+  "keysig": 0,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}

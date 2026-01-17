@@ -1,0 +1,15 @@
+{
+  "title": "gymnopedie-no1.mid",
+  "duration": 185,
+  "measures": 78,
+  "timesig": "3/4",
+  "tempo": 76,
+  "keysig": 2,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}
