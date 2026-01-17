@@ -1,8 +1,7 @@
 // @ts-nocheck
-
-// Since this is called from Deno as well, we need to use relative paths.
 import { Bpm, Song, SongMeasure, SongNote, Tracks } from '../../types'
 import { getNote } from '../theory'
+import { getKeySignatureFromMidi } from '../theory/key-signature'
 
 export default function parseMusicXml(txt: string): Song {
   /*
@@ -24,9 +23,11 @@ export default function parseMusicXml(txt: string): Song {
   let notes: Array<SongNote> = []
   let measures: Array<SongMeasure> = []
   const bpms: Array<Bpm> = []
+  const timeSignatures: Array<{ time: number; numerator: number; denominator: number }> = []
   const divisions = Number(xml.querySelector('divisions')?.textContent)
   let part = 0
   const timeSignature = { numerator: 4, denominator: 4 }
+  let keySignature = 'C' as const
   let currTrack = 1
 
   function stepTime(duration: number): void {
@@ -96,7 +97,7 @@ export default function parseMusicXml(txt: string): Song {
         time,
         midiNote,
         track,
-        measure: measures.length,
+        measure: currMeasure,
       }
       if (tie) {
         let type = tie.getAttribute('type')
@@ -148,9 +149,10 @@ export default function parseMusicXml(txt: string): Song {
       }
       currMeasure = number
     } else if (curr.tagName === 'key') {
-      // TODO properly parse this..
       const fifth = Number(curr.querySelector('fifths')?.textContent?.trim())
-      const mode = curr.querySelector('mode')?.textContent?.trim() ?? ''
+      if (!isNaN(fifth)) {
+        keySignature = getKeySignatureFromMidi(fifth, 0)
+      }
     } else if (curr.tagName === 'sound') {
       if (curr.hasAttribute('tempo')) {
         const bpm = Number(curr.getAttribute('tempo'))
@@ -162,6 +164,11 @@ export default function parseMusicXml(txt: string): Song {
     } else if (curr.tagName === 'time') {
       timeSignature.numerator = Number(curr.querySelector('beats')?.textContent) ?? 4
       timeSignature.denominator = Number(curr.querySelector('beat-type')?.textContent) ?? 4
+      timeSignatures.push({
+        time: currTime,
+        numerator: timeSignature.numerator,
+        denominator: timeSignature.denominator,
+      })
     } else if (curr.tagName === 'repeat') {
       // TODO: will repeat multiple part's notes. should only be one part.
       if (curr.getAttribute('direction') === 'backward') {
@@ -184,15 +191,26 @@ export default function parseMusicXml(txt: string): Song {
     curr = walker.nextNode() as HTMLElement
   }
 
+  const sortedMeasures = measures.sort((a, b) => a.time - b.time)
+  for (let i = 0; i < sortedMeasures.length; i++) {
+    const measure = sortedMeasures[i]
+    const next = sortedMeasures[i + 1]
+    measure.duration = next ? next.time - measure.time : totalDuration - measure.time
+  }
+
   return {
     tracks,
     duration: totalDuration,
-    measures,
+    measures: sortedMeasures,
     notes,
     bpms,
     // TODO: remove notes/measures separately
-    items: [...notes, ...measures].sort((i1, i2) => i1.time - i2.time),
+    items: [...notes, ...sortedMeasures].sort((i1, i2) => i1.time - i2.time),
     timeSignature,
-    keySignature: 'C',
+    timeSignatures:
+      timeSignatures.length > 0
+        ? timeSignatures
+        : [{ time: 0, numerator: timeSignature.numerator, denominator: timeSignature.denominator }],
+    keySignature,
   }
 }

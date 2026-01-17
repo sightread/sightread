@@ -1,0 +1,15 @@
+{
+  "title": "fur-elise.mid",
+  "duration": 148,
+  "measures": 127,
+  "timesig": "3/8",
+  "tempo": 76,
+  "keysig": 0,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}

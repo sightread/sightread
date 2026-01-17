@@ -1,0 +1,15 @@
+{
+  "title": "minuet-in-g-major.mid",
+  "duration": 91,
+  "measures": 64,
+  "timesig": "3/4",
+  "tempo": 126,
+  "keysig": 0,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "title": "ode-to-joy.mid",
+  "duration": 48,
+  "measures": 34,
+  "timesig": "5/4",
+  "tempo": 170,
+  "keysig": 0,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano, Piano",
+      "program": 0
+    },
+    {
+      "instrumentId": "piano",
+      "name": "Piano, Piano",
+      "program": 0
+    }
+  ]
+}

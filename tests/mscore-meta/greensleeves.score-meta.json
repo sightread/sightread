@@ -1,0 +1,15 @@
+{
+  "title": "greensleeves.mid",
+  "duration": 74,
+  "measures": 49,
+  "timesig": "3/4",
+  "tempo": 120,
+  "keysig": 0,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}
