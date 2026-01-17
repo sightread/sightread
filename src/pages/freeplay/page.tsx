@@ -84,6 +84,7 @@ export default function FreePlay() {
           show={recordingPreview.length > 0}
           onClose={() => setRecordingPreview('')}
           songMeta={{ source: 'base64', id: recordingPreview }}
+          instrument={instrumentName}
         />
         <div className="relative grow">
           <SongVisualizer
