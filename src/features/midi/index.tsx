@@ -171,6 +171,8 @@ class MidiState {
   octaveDiff = 0
   pressedNotes = new Map<number, { time: number; vel: number }>()
   keyPressedNotes = new Set<number>()
+  sustainedNotes = new Set<number>()
+  sustainPedal = false
   listeners: Array<Function> = []
 
   handleKeyDown(e: KeyboardEvent) {
@@ -240,6 +242,7 @@ class MidiState {
 
   press(note: number, velocity: number) {
     const time = Date.now()
+    this.sustainedNotes.delete(note)
     this.pressedNotes.set(note, { time, vel: velocity })
     this.notify({ note, velocity, type: 'down', time })
   }
@@ -252,7 +255,12 @@ class MidiState {
     }
   }
 
-  release(note: number) {
+  release(note: number, options?: { force?: boolean }) {
+    if (this.sustainPedal && !options?.force) {
+      this.sustainedNotes.add(note)
+      return
+    }
+    this.sustainedNotes.delete(note)
     this.pressedNotes.delete(note)
     this.notify({ note, type: 'up', time: Date.now() })
   }
@@ -262,6 +270,18 @@ class MidiState {
     for (const output of enabledOutputDevices) {
       var data = [midiNoteOffCh1, note, 127]
       output[1]?.send(data)
+    }
+  }
+
+  setSustainPedal(enabled: boolean) {
+    if (this.sustainPedal === enabled) {
+      return
+    }
+    this.sustainPedal = enabled
+    if (!enabled) {
+      const sustained = Array.from(this.sustainedNotes)
+      this.sustainedNotes.clear()
+      sustained.forEach((note) => this.release(note, { force: true }))
     }
   }
 
@@ -282,6 +302,16 @@ class MidiState {
 const midiState = new MidiState()
 
 function onMidiMessage(e: MIDIMessageEvent) {
+  const data = e.data!
+  if (data.length === 3) {
+    const status = data[0]
+    const command = status >>> 4
+    if (command === 0x0b && data[1] === 64) {
+      midiState.setSustainPedal(data[2] >= 64)
+      return
+    }
+  }
+
   const msg: MidiEvent | null = parseMidiMessage(e)
   if (!msg) {
     return
