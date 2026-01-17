@@ -13,7 +13,6 @@ import { Hand, Song, SongConfig } from '@/types'
 import { round } from '@/utils'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
-import { atomEffect } from 'jotai-effect'
 import React, { PropsWithChildren, useEffect, useReducer, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { playFailSound } from '../sound-effects'
@@ -64,17 +63,17 @@ export default function Phrases() {
   const score = useAtomValue(player.score.combined)
   const streak = useAtomValue(player.score.streak)
   const bpmModifier = useAtomValue(player.getBpmModifier())
+  const pointlessHitsCount = useAtomValue(player.score.error)
 
   const handMap = { bass: 'left', grand: 'both', treble: 'right' }
   const hand = handMap[clefType]
   player.setHand(hand)
 
-  atomEffect((get) => {
-    const pointlessHitsCount = get(player.score.error)
+  useEffect(() => {
     if (pointlessHitsCount !== 0) {
       playFailSound()
     }
-  })
+  }, [pointlessHitsCount])
 
   useWakeLock()
   useOnUnmount(() => player.stop())
