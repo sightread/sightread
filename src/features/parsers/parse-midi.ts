@@ -2,8 +2,60 @@ import * as tonejs from '@tonejs/midi'
 import type { Bpm, Song, SongMeasure, SongNote, Tracks } from '../../../src/types'
 import { KEY_SIGNATURE } from '../theory'
 
+type TimeSignatureEvent = { ticks: number; timeSignature: [number, number] }
+const DEFAULT_TIME_SIGNATURE: TimeSignatureEvent = { ticks: 0, timeSignature: [4, 4] }
+
 function sort<T extends { time: number }>(arr: T[]): T[] {
   return arr.sort((i1, i2) => i1.time - i2.time)
+}
+
+function getTimeSignatureEvents(parsed: tonejs.Midi): TimeSignatureEvent[] {
+  if (parsed.header.timeSignatures.length > 0) {
+    return [...parsed.header.timeSignatures].sort((a, b) => a.ticks - b.ticks)
+  }
+  return [DEFAULT_TIME_SIGNATURE]
+}
+
+function getTrackEndTicks(parsed: tonejs.Midi): number[] {
+  return parsed.tracks
+    .map((track) => track.endOfTrackTicks)
+    .filter((ticks): ticks is number => typeof ticks === 'number')
+}
+
+function getMeasureDurationTicks(parsed: tonejs.Midi, trackEndTicks: number[]): number {
+  const songDurationTicks = Math.max(parsed.durationTicks, ...trackEndTicks)
+  return parsed.durationTicks > 0 ? parsed.durationTicks : songDurationTicks
+}
+
+function getScoreEndTicks(
+  timeSigEvents: TimeSignatureEvent[],
+  measureDurationTicks: number,
+  ppq: number,
+): number {
+  let scoreEndTicks = 0
+  for (let i = 0; i < timeSigEvents.length; i++) {
+    const event = timeSigEvents[i]
+    const nextEvent = timeSigEvents[i + 1]
+    const startTick = event.ticks
+    const endTick = nextEvent ? nextEvent.ticks : measureDurationTicks
+    const [numerator, denominator] = event.timeSignature
+    const ticksPerMeasure = (numerator / denominator) * (4 * ppq)
+    const segmentTicks = Math.max(0, endTick - startTick)
+    const measureCount = Math.ceil(segmentTicks / ticksPerMeasure)
+    scoreEndTicks = Math.max(scoreEndTicks, startTick + measureCount * ticksPerMeasure)
+  }
+  return scoreEndTicks
+}
+
+// Returns a sheet-music-aligned duration: end time rounded up to the last full measure.
+// This differs from Song.duration, which is the last note end time (musical duration).
+export function getScoreDuration(midiData: Uint8Array): number {
+  const parsed = new tonejs.Midi(midiData)
+  const timeSigEvents = getTimeSignatureEvents(parsed)
+  const trackEndTicks = getTrackEndTicks(parsed)
+  const measureDurationTicks = getMeasureDurationTicks(parsed, trackEndTicks)
+  const scoreEndTicks = getScoreEndTicks(timeSigEvents, measureDurationTicks, parsed.header.ppq)
+  return parsed.header.ticksToSeconds(scoreEndTicks)
 }
 
 export default function parseMidi(midiData: Uint8Array): Song {
@@ -11,10 +63,7 @@ export default function parseMidi(midiData: Uint8Array): Song {
   const bpms: Array<Bpm> = parsed.header.tempos.map((tempo) => {
     return { time: parsed.header.ticksToSeconds(tempo.ticks), bpm: tempo.bpm }
   })
-  const timeSigEvents =
-    parsed.header.timeSignatures.length > 0
-      ? [...parsed.header.timeSignatures].sort((a, b) => a.ticks - b.ticks)
-      : [{ ticks: 0, timeSignature: [4, 4] as [number, number] }]
+  const timeSigEvents = getTimeSignatureEvents(parsed)
   const timeSignatures = timeSigEvents.map((event) => ({
     time: parsed.header.ticksToSeconds(event.ticks),
     numerator: event.timeSignature[0],
@@ -25,11 +74,8 @@ export default function parseMidi(midiData: Uint8Array): Song {
   const measures: Array<SongMeasure> = []
   const measureStartTicks: number[] = []
 
-  const trackEndTicks = parsed.tracks
-    .map((track) => track.endOfTrackTicks)
-    .filter((ticks): ticks is number => typeof ticks === 'number')
-  const songDurationTicks = Math.max(parsed.durationTicks, ...trackEndTicks)
-  const measureDurationTicks = parsed.durationTicks > 0 ? parsed.durationTicks : songDurationTicks
+  const trackEndTicks = getTrackEndTicks(parsed)
+  const measureDurationTicks = getMeasureDurationTicks(parsed, trackEndTicks)
 
   for (let i = 0; i < timeSigEvents.length; i++) {
     const event = timeSigEvents[i]
