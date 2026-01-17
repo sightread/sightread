@@ -1,7 +1,7 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 import { getSynthStub, InstrumentName } from '@/features/synth'
 import { MidiStateEvent, Song, SongConfig, SongMeasure, SongNote } from '@/types'
-import { getHands, round } from '@/utils'
+import { clamp, getHands, round } from '@/utils'
 import { atom, Atom, getDefaultStore, PrimitiveAtom } from 'jotai'
 import midi from '../midi'
 import { getSynth, Synth } from '../synth'
@@ -76,7 +76,6 @@ export class Player {
   metronomeEmphasizeFirst = atom(true)
   countdownSeconds = atom(3)
   countdownRemaining = atom(0)
-  countdownTimeout: ReturnType<typeof setTimeout> | null = null
   countdownInterval: ReturnType<typeof setInterval> | null = null
   metronomeLastPlayedTick: null | number = null
   metronomeSynth = getSynthStub('woodblock', {
@@ -661,8 +660,8 @@ export class Player {
     this.store.set(this.countdownSeconds, seconds)
   }
 
-  shouldCountdown(seconds: number, timeOverride?: number) {
-    if (seconds <= 0) {
+  shouldCountdown(countdownSeconds: number, timeOverride?: number) {
+    if (countdownSeconds <= 0) {
       return false
     }
     const time = timeOverride ?? this.getTime()
@@ -694,27 +693,19 @@ export class Player {
       this.store.set(this.countdownRemaining, nextRemaining)
       if (nextRemaining > 0) {
         playTick()
-      } else if (this.countdownInterval) {
-        clearInterval(this.countdownInterval)
-        this.countdownInterval = null
+        return
       }
-    }, 1000)
-    this.countdownTimeout = setTimeout(() => {
-      this.countdownTimeout = null
       if (this.countdownInterval) {
         clearInterval(this.countdownInterval)
         this.countdownInterval = null
       }
-      this.store.set(this.countdownRemaining, 0)
-      this.startPlayback_()
-    }, seconds * 1000)
+      if (this.isCountingDown()) {
+        this.startPlayback_()
+      }
+    }, 1000)
   }
 
   clearCountdown_(resetRemaining = false) {
-    if (this.countdownTimeout) {
-      clearTimeout(this.countdownTimeout)
-      this.countdownTimeout = null
-    }
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval)
       this.countdownInterval = null
@@ -733,7 +724,7 @@ export class Player {
     const range = this.store.get(this.range)
     if (range) {
       const [start, stop] = range
-      time = time <= start ? start : Math.min(time, stop)
+      time = clamp(time, { min: start, max: stop })
     }
 
     this.stopAllSounds()

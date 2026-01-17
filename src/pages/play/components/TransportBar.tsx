@@ -1,18 +1,7 @@
 import { Popover, Slider, Tooltip } from '@/components'
 import { useSongScrubTimes } from '@/features/controls'
 import { usePlayer } from '@/features/player'
-import {
-  Check,
-  Gauge,
-  Hourglass,
-  Metronome,
-  Pause,
-  Play,
-  Repeat,
-  SkipBack,
-  Timer,
-  Volume2,
-} from '@/icons'
+import { Check, Gauge, Hourglass, Metronome, Pause, Play, Repeat, SkipBack, Volume2 } from '@/icons'
 import { round } from '@/utils'
 import clsx from 'clsx'
 import { useAtomValue } from 'jotai'
@@ -31,8 +20,6 @@ type TransportBarProps = {
   onToggleWaiting: () => void
   isMetronomeOn: boolean
   onToggleMetronome: () => void
-  isCountdownOn: boolean
-  onToggleCountdown: () => void
 }
 
 export default function TransportBar({
@@ -46,8 +33,6 @@ export default function TransportBar({
   onToggleWaiting,
   isMetronomeOn,
   onToggleMetronome,
-  isCountdownOn,
-  onToggleCountdown,
 }: TransportBarProps) {
   const player = usePlayer()
   const { currentTime, duration } = useSongScrubTimes()
@@ -108,13 +93,6 @@ export default function TransportBar({
         </div>
         <div className="hidden h-6 w-px bg-[#2a2b32] md:block" />
         <div className="hidden items-center gap-2 md:flex">
-          <TogglePill
-            isActive={isCountdownOn}
-            label="Countdown"
-            icon={<Timer />}
-            onPress={onToggleCountdown}
-            showStateText
-          />
           <TogglePill
             isActive={isMetronomeOn}
             label="Metronome"

@@ -59,7 +59,6 @@ export default function SettingsPanel(props: SidebarProps) {
   const defaultSongSettings = getDefaultSongSettings(props.song)
   const metronomeConfig = props.config.metronome ?? defaultSongSettings.metronome
   const countdownSeconds = props.config.countdownSeconds ?? defaultSongSettings.countdownSeconds
-  const countdownEnabled = countdownSeconds > 0
   const metronomeEnabled = metronomeConfig.enabled
   const metronomeVolume = metronomeConfig.volume
   const metronomeSpeed = metronomeConfig.speed
@@ -242,41 +241,25 @@ export default function SettingsPanel(props: SidebarProps) {
             </div>
           </SettingRow>
 
-          <div className="space-y-4">
-            <SettingRow
-              icon={<Timer className="h-4 w-4" />}
-              title="Countdown"
-              subtitle="Begin with a countdown"
-            >
-              <SidebarSwitch
-                isSelected={countdownEnabled}
-                onChange={(next) => {
-                  props.onChange({
-                    ...props.config,
-                    countdownSeconds: next ? 3 : 0,
-                  })
-                }}
-              />
-            </SettingRow>
-            {countdownEnabled && (
-              <div className="ml-2 space-y-4 border-l border-[#2b2a33] pl-9">
-                <SettingRow title="Duration" titleClassName="text-[11px] font-medium">
-                  <SegmentedToggle
-                    className="w-[160px]"
-                    value={countdownSeconds === 5 ? '5' : '3'}
-                    onChange={(id) => {
-                      const next = id === '5' ? 5 : 3
-                      props.onChange({ ...props.config, countdownSeconds: next })
-                    }}
-                    options={[
-                      { id: '3', label: '3s' },
-                      { id: '5', label: '5s' },
-                    ]}
-                  />
-                </SettingRow>
-              </div>
-            )}
-          </div>
+          <SettingRow
+            icon={<Timer className="h-4 w-4" />}
+            title="Countdown"
+            subtitle="Begin with a countdown"
+          >
+            <SegmentedToggle
+              className="w-[126px]"
+              value={countdownSeconds <= 0 ? 'off' : countdownSeconds === 5 ? '5' : '3'}
+              onChange={(id) => {
+                const next = id === '5' ? 5 : id === '3' ? 3 : 0
+                props.onChange({ ...props.config, countdownSeconds: next })
+              }}
+              options={[
+                { id: 'off', label: 'Off' },
+                { id: '3', label: '3s' },
+                { id: '5', label: '5s' },
+              ]}
+            />
+          </SettingRow>
           <SettingRow
             icon={<Repeat className="h-4 w-4" />}
             title="Loop Section"
