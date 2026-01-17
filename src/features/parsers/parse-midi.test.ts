@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { Midi } from '@tonejs/midi'
 import { getKeySignatureFromMidi } from '../theory/key-signature'
 import parseMidi from './parse-midi'
 import serializeMidi from './serialize-midi'
@@ -8,13 +9,23 @@ describe('parseMidi (score-meta fixtures)', () => {
   const fixtureDir = path.join(process.cwd(), 'tests/mscore-meta')
   const songDir = path.join(process.cwd(), 'public/music/songs')
   const fixtureFiles = readdirSync(fixtureDir).filter((file) => file.endsWith('.score-meta.json'))
-  const assertDuration = (song: ReturnType<typeof parseMidi>, expectedSeconds?: number) => {
+  const getEndOfTrackDuration = (midiBytes: Uint8Array) => {
+    const midi = new Midi(midiBytes)
+    const trackEndTicks = midi.tracks
+      .map((track) => track.endOfTrackTicks)
+      .filter((ticks): ticks is number => typeof ticks === 'number')
+    const endTicks = Math.max(midi.durationTicks, ...trackEndTicks)
+    return midi.header.ticksToSeconds(endTicks)
+  }
+
+  const assertDuration = (midiBytes: Uint8Array, expectedSeconds?: number) => {
     if (typeof expectedSeconds !== 'number') {
       return
     }
-    // MuseScore duration can include trailing silence; we use last note end time as musical duration.
-    const toleranceSeconds = 4
-    expect(Math.abs(song.duration - expectedSeconds)).toBeLessThan(toleranceSeconds)
+    // MuseScore duration includes trailing silence; compare against end-of-track duration.
+    const toleranceSeconds = 0.5
+    const eotDuration = getEndOfTrackDuration(midiBytes)
+    expect(Math.abs(eotDuration - expectedSeconds)).toBeLessThan(toleranceSeconds)
   }
 
   for (const file of fixtureFiles) {
@@ -34,7 +45,7 @@ describe('parseMidi (score-meta fixtures)', () => {
         const [numerator, denominator] = fixture.timesig.split('/').map(Number)
         expect(song.timeSignature).toEqual({ numerator, denominator })
       }
-      assertDuration(song, fixture.duration)
+      assertDuration(midiBytes, fixture.duration)
       if (typeof fixture.keysig === 'number') {
         expect(song.keySignature).toBe(getKeySignatureFromMidi(fixture.keysig, 0))
       }
