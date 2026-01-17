@@ -1,5 +1,6 @@
 import { Canvas } from '@/components'
 import * as touchscroll from '@/features/SongVisualization/touchscroll'
+import { transposeKeySignature } from '@/features/theory'
 import { useSize } from '@/hooks'
 import { Hand, Song, SongConfig } from '@/types'
 import { LegacyRef, useEffect, useMemo, useRef } from 'react'
@@ -56,11 +57,14 @@ function CanvasRenderer({
       return
     }
 
+    const baseKeySignature = config.keySignature ?? song.keySignature
+    const transpose = config.transpose ?? 0
     const state: GivenState = {
       time: getTime(),
       visualization: config.visualization,
       noteLabels: config.noteLabels,
       coloredNotes: config.coloredNotes,
+      transpose,
       windowWidth: width,
       height,
       pps,
@@ -69,7 +73,7 @@ function CanvasRenderer({
       ctx,
       items: song.items,
       constrictView: !!constrictView,
-      keySignature: config.keySignature ?? song.keySignature,
+      keySignature: transposeKeySignature(baseKeySignature, transpose),
       timeSignature: song.timeSignature,
       canvasRect,
       selectedRange,

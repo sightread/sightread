@@ -82,7 +82,6 @@ export type Song = {
   ppq: number
   secondsToTicks: (seconds: number) => number
   ticksToSeconds: (seconds: number) => number
-  backing?: HTMLAudioElement
 }
 
 export type Clef = 'bass' | 'treble'
@@ -93,6 +92,7 @@ export type SongConfig = {
   right: boolean
   waiting: boolean
   countdownSeconds: number
+  transpose: number
   loop: {
     enabled: boolean
     range: { start: number; end: number }

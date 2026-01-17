@@ -1,5 +1,4 @@
 import { Clef, Song, SongMeasure, SongNote } from '@/types'
-import { Deferred } from '@/utils'
 import { parseMidi } from '../parsers'
 import { getRandomNote } from './key-signature'
 
@@ -207,34 +206,7 @@ async function getMeasuresForChord(
     })
 }
 
-const dMajorBackingTracks = [
-  'DM (Full BPM 120 -2-2) v1.1 DB.mp3',
-  'DM (Full BPM 120) v1.1 DB.mp3',
-  'DM (Light Version BPM 120) v1.1 DB.mp3',
-  'DM (Piano Only BPM 120) v1.1 DB.mp3',
-  'DM (Strings Only BPM 120) v1.1 DB.mp3',
-]
-const eMinorBackingTracks = [
-  'EM (Full BPM 120) v1.0 DB.mp3',
-  'EM (Full Version BPM 120) v1.1 DB.mp3',
-  'EM (Percussion Only BPM 120) v1.1 DB.mp3',
-  'EM (Strings and Plucked BPM 120) v1.1 DB.mp3',
-  'EM (Strings Perc Choir BPM 120) v1.1 DB.mp3',
-  'EM (Strings Piano Plucked BPM 120) v1.1 DB.mp3',
-]
-
 type ChordProgression = 'eMinor' | 'dMajor' | 'random'
-
-async function getBackingTrack(type: ChordProgression): Promise<HTMLAudioElement> {
-  const filename = randomChoice(type === 'eMinor' ? eMinorBackingTracks : dMajorBackingTracks)!
-  const url = `/music/irish/Backing Tracks/${filename}`
-  const track = new Audio(url)
-  const deferred: Deferred<HTMLAudioElement> = new Deferred()
-  track.addEventListener('canplaythrough', () => deferred.resolve(track))
-  track.addEventListener('error', (err) => deferred.reject(err as any))
-
-  return deferred.promise
-}
 
 type StaffOptions = { bass: boolean; treble: boolean }
 export async function getGeneratedSong(
@@ -246,7 +218,6 @@ export async function getGeneratedSong(
     return getRandomSong(level, staffs)
   }
 
-  const backingTrackPromise = getBackingTrack(type)
   const progression = type === 'eMinor' ? dMajorChordProgression : dMinorChordProgression
   const progressionMeasures = await Promise.all(
     progression.map(async (chord) => {
@@ -270,7 +241,6 @@ export async function getGeneratedSong(
     timeSignature: { numerator: 6, denominator: 8 },
     keySignature: 'C',
     items: sort([...measures, ...notes]),
-    backing: await backingTrackPromise,
     ppq: 480, // Standard MIDI resolution
     ticksToSeconds: (ticks: number) => ticks / 480 / 2, // Assuming 120 bpm
     secondsToTicks: (seconds: number) => seconds * 480 * 2,

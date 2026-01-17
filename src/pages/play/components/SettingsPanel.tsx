@@ -42,11 +42,15 @@ type SidebarProps = {
 }
 
 const METRONOME_PRESETS = [0.25, 0.5, 1, 2, 4]
+const TRANSPOSE_OPTIONS = Array.from({ length: 25 }, (_, index) => index - 12).map((value) => ({
+  id: value.toString(),
+  name: value === 0 ? '0' : value > 0 ? `+${value}` : value.toString(),
+}))
 
 const miniPlayer = new Player(getDefaultStore())
 
 export default function SettingsPanel(props: SidebarProps) {
-  const { left, right, visualization, waiting, noteLabels, coloredNotes, keySignature } =
+  const { left, right, visualization, waiting, noteLabels, coloredNotes, keySignature, transpose } =
     props.config
   const { onClose, onLoopToggled, isLooping } = props
   const player = usePlayer()
@@ -242,25 +246,6 @@ export default function SettingsPanel(props: SidebarProps) {
           </SettingRow>
 
           <SettingRow
-            icon={<Timer className="h-4 w-4" />}
-            title="Countdown"
-            subtitle="Begin with a countdown"
-          >
-            <SegmentedToggle
-              className="w-[126px]"
-              value={countdownSeconds <= 0 ? 'off' : countdownSeconds === 5 ? '5' : '3'}
-              onChange={(id) => {
-                const next = id === '5' ? 5 : id === '3' ? 3 : 0
-                props.onChange({ ...props.config, countdownSeconds: next })
-              }}
-              options={[
-                { id: 'off', label: 'Off' },
-                { id: '3', label: '3s' },
-                { id: '5', label: '5s' },
-              ]}
-            />
-          </SettingRow>
-          <SettingRow
             icon={<Repeat className="h-4 w-4" />}
             title="Loop Section"
             subtitle="Repeat selected bars"
@@ -363,6 +348,45 @@ export default function SettingsPanel(props: SidebarProps) {
                 { id: 'right', label: 'right' },
               ]}
             />
+          </SettingRow>
+
+          <SettingRow
+            icon={<Timer className="h-4 w-4" />}
+            title="Countdown"
+            subtitle="Begin with a countdown"
+          >
+            <SegmentedToggle
+              className="w-[126px]"
+              value={countdownSeconds <= 0 ? 'off' : countdownSeconds === 5 ? '5' : '3'}
+              onChange={(id) => {
+                const next = id === '5' ? 5 : id === '3' ? 3 : 0
+                props.onChange({ ...props.config, countdownSeconds: next })
+              }}
+              options={[
+                { id: 'off', label: 'Off' },
+                { id: '3', label: '3s' },
+                { id: '5', label: '5s' },
+              ]}
+            />
+          </SettingRow>
+
+          <SettingRow
+            icon={<Key className="h-4 w-4" />}
+            title="Transpose"
+            subtitle="Shift semitones"
+          >
+            <Select
+              aria-label="Transpose"
+              className="w-16"
+              size="sm"
+              selectedKey={(transpose ?? 0).toString()}
+              onSelectionChange={(key) => {
+                props.onChange({ ...props.config, transpose: Number(key) })
+              }}
+              items={TRANSPOSE_OPTIONS}
+            >
+              {(item) => <SelectItem>{item.name}</SelectItem>}
+            </Select>
           </SettingRow>
         </Section>
 
