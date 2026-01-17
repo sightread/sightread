@@ -1,5 +1,6 @@
 import { Midi } from '@tonejs/midi'
 import { parseMidi as parseMidiFile, writeMidi } from 'midi-file'
+import type { MidiData, MidiEvent, MidiKeySignatureEvent } from 'midi-file'
 import type { Song } from '../../../src/types'
 
 function defaultSecondsToTicks(seconds: number, ppq: number, bpm = 120): number {
@@ -121,17 +122,18 @@ export default function serializeMidi(song: Song): Uint8Array {
       'C#': 7,
     }
     const fifths = keyToFifths[song.keySignature] ?? 0
-    const midiData = parseMidiFile(output)
+    const midiData = parseMidiFile(output) as MidiData
     const track0 = midiData.tracks[0]
     if (track0) {
-      const filtered = track0.filter((event) => event.type !== 'keySignature')
-      filtered.unshift({
+      const filtered = track0.filter((event): event is MidiEvent => event.type !== 'keySignature')
+      const keySignatureEvent: MidiKeySignatureEvent = {
         deltaTime: 0,
         meta: true,
         type: 'keySignature',
         key: fifths,
         scale: 0,
-      })
+      }
+      filtered.unshift(keySignatureEvent)
       midiData.tracks[0] = filtered
       output = new Uint8Array(writeMidi(midiData))
     }
