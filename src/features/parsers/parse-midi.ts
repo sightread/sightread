@@ -9,9 +9,19 @@ function sort<T extends { time: number }>(arr: T[]): T[] {
   return arr.sort((i1, i2) => i1.time - i2.time)
 }
 
+function normalizeTimeSignature(timeSignature: number[]): [number, number] {
+  const [numerator = 4, denominator = 4] = timeSignature
+  return [numerator, denominator]
+}
+
 function getTimeSignatureEvents(parsed: tonejs.Midi): TimeSignatureEvent[] {
   if (parsed.header.timeSignatures.length > 0) {
-    return [...parsed.header.timeSignatures].sort((a, b) => a.ticks - b.ticks)
+    return [...parsed.header.timeSignatures]
+      .sort((a, b) => a.ticks - b.ticks)
+      .map((event) => ({
+        ticks: event.ticks,
+        timeSignature: normalizeTimeSignature(event.timeSignature),
+      }))
   }
   return [DEFAULT_TIME_SIGNATURE]
 }
