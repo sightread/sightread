@@ -48,7 +48,8 @@ export function handleDown(player: Player, e: PointerEvent) {
   isDragging_ = true
   const target = e.target as HTMLDivElement
   target.setPointerCapture(e.pointerId)
-  if (player.isPlaying()) {
+  if (player.isPlaying() || player.isCountingDown()) {
+    if (player.isCountingDown()) player.cancelCountdown()
     wasPlaying = true
     player.pause()
   }

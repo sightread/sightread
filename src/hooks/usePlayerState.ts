@@ -2,7 +2,12 @@ import { usePlayer } from '@/features/player'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 
-type PlayerStateHookReturn = { canPlay: boolean; playing: boolean; paused: boolean }
+type PlayerStateHookReturn = {
+  canPlay: boolean
+  playing: boolean
+  paused: boolean
+  countingDown: boolean
+}
 
 export default function usePlayerState(): PlayerStateHookReturn {
   const player = usePlayer()
@@ -11,8 +16,9 @@ export default function usePlayerState(): PlayerStateHookReturn {
   return useMemo(() => {
     return {
       canPlay: state !== 'CannotPlay',
-      playing: state === 'Playing',
+      playing: state === 'Playing' || state === 'CountingDown',
       paused: state === 'Paused',
+      countingDown: state === 'CountingDown',
     }
   }, [state])
 }

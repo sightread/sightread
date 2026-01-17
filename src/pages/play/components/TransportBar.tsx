@@ -176,11 +176,20 @@ type TogglePillProps = {
   icon: React.ReactElement<{ className: string }>
   content?: React.ReactNode
   onPress: () => void
+  showStateText?: boolean
 }
 
-function TogglePill({ isActive, label, icon, content, onPress }: TogglePillProps) {
+function TogglePill({
+  isActive,
+  label,
+  icon,
+  content,
+  onPress,
+  showStateText = true,
+}: TogglePillProps) {
   const iconClasses = isActive ? 'h-3.5 w-3.5 text-violet-200' : 'h-3.5 w-3.5 text-gray-400'
   const styledIcon = React.cloneElement(icon, { className: iconClasses })
+  const showContent = content !== undefined || showStateText
   return (
     <TooltipTrigger>
       <Button
@@ -193,29 +202,30 @@ function TogglePill({ isActive, label, icon, content, onPress }: TogglePillProps
         onMouseDown={(event) => event.preventDefault()}
       >
         {styledIcon}
-        {content ? (
-          <span className="min-w-7 text-center">{content}</span>
-        ) : (
-          <span className="relative inline-flex min-w-7 justify-center">
-            <span className="invisible">OFF</span>
-            <span
-              className={clsx(
-                'absolute inset-0 flex items-center justify-center transition-opacity',
-                isActive ? 'opacity-100' : 'opacity-0',
-              )}
-            >
-              ON
+        {showContent &&
+          (content ? (
+            <span className="min-w-7 text-center">{content}</span>
+          ) : (
+            <span className="relative inline-flex min-w-7 justify-center">
+              <span className="invisible">OFF</span>
+              <span
+                className={clsx(
+                  'absolute inset-0 flex items-center justify-center transition-opacity',
+                  isActive ? 'opacity-100' : 'opacity-0',
+                )}
+              >
+                ON
+              </span>
+              <span
+                className={clsx(
+                  'absolute inset-0 flex items-center justify-center transition-opacity',
+                  isActive ? 'opacity-0' : 'opacity-100',
+                )}
+              >
+                OFF
+              </span>
             </span>
-            <span
-              className={clsx(
-                'absolute inset-0 flex items-center justify-center transition-opacity',
-                isActive ? 'opacity-0' : 'opacity-100',
-              )}
-            >
-              OFF
-            </span>
-          </span>
-        )}
+          ))}
       </Button>
       <Tooltip>{label}</Tooltip>
     </TooltipTrigger>

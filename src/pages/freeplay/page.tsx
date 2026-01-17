@@ -93,6 +93,11 @@ export default function FreePlay() {
               {
                 visualization: 'falling-notes',
                 noteLabels: 'none',
+                countdownSeconds: 0,
+                loop: {
+                  enabled: false,
+                  range: { start: 0, end: 0 },
+                },
                 metronome: {
                   enabled: false,
                   volume: 0.6,
