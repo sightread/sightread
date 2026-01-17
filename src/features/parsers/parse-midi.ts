@@ -13,15 +13,25 @@ export default function parseMidi(midiData: Uint8Array): Song {
     return { time: parsed.header.ticksToSeconds(tempo.ticks), bpm: tempo.bpm }
   })
   let notes: Array<SongNote> = parsed.tracks.flatMap((track, i) => {
-    return track.notes.map((note) => ({
-      type: 'note',
-      midiNote: note.midi,
-      track: i,
-      time: note.time,
-      duration: note.duration,
-      velocity: note.velocity * 127,
-      measure: Math.floor(parsed.header.ticksToMeasures(note.ticks)),
-    }))
+    const sustainWindows = getSustainWindows(track.controlChanges?.[64] ?? [], parsed.duration)
+    return track.notes.map((note) => {
+      const noteEnd = note.time + note.duration
+      const sustainWindow = sustainWindows.find(
+        (window) => window.start <= noteEnd && noteEnd <= window.end,
+      )
+      const sustainedDuration = sustainWindow
+        ? Math.max(note.duration, sustainWindow.end - note.time)
+        : note.duration
+      return {
+        type: 'note',
+        midiNote: note.midi,
+        track: i,
+        time: note.time,
+        duration: sustainedDuration,
+        velocity: note.velocity * 127,
+        measure: Math.floor(parsed.header.ticksToMeasures(note.ticks)),
+      }
+    })
   })
   const tracks: Tracks = Object.fromEntries(
     parsed.tracks.map((track, i) => {
@@ -79,4 +89,28 @@ export default function parseMidi(midiData: Uint8Array): Song {
     secondsToTicks: (n) => parsed.header.secondsToTicks(n),
     ticksToSeconds: (n) => parsed.header.ticksToSeconds(n),
   }
+}
+
+function getSustainWindows(
+  controlChanges: Array<{ time: number; value: number }>,
+  songDuration: number,
+) {
+  const windows: Array<{ start: number; end: number }> = []
+  let currentStart: number | null = null
+  const sorted = [...controlChanges].sort((a, b) => a.time - b.time)
+  for (const event of sorted) {
+    const isSustainOn = event.value >= 0.5
+    if (isSustainOn && currentStart === null) {
+      currentStart = event.time
+      continue
+    }
+    if (!isSustainOn && currentStart !== null) {
+      windows.push({ start: currentStart, end: event.time })
+      currentStart = null
+    }
+  }
+  if (currentStart !== null) {
+    windows.push({ start: currentStart, end: songDuration })
+  }
+  return windows
 }
