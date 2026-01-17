@@ -1,13 +1,17 @@
 import { Modal } from '@/components'
+import { renderMidiToMp3 } from '@/features/audio/render-midi'
 import { SongScrubBar, useSongScrubTimes } from '@/features/controls'
 import { usePlayer } from '@/features/player'
 import { SongPreview } from '@/features/SongPreview/SongPreview'
+import { loadInstrument, soundfonts } from '@/features/synth/loadInstrument'
+import { InstrumentName } from '@/features/synth/types'
 import { useEventListener, usePlayerState } from '@/hooks'
 import { Download, Loader, Share } from '@/icons'
 import { SongSource } from '@/types'
 import { base64ToBytes, formatInstrumentName } from '@/utils'
 import { useAtomValue } from 'jotai'
 import { Pause, Play } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Button } from 'react-aria-components'
 
 // A function to copy a string to the clipboard
@@ -18,31 +22,69 @@ function copyToClipboard(text: string) {
 function downloadBase64Midi(midiBase64: string) {
   const midiBytes: Uint8Array = base64ToBytes(midiBase64)
   const midiBlob = new Blob([midiBytes as BlobPart], { type: 'audio/midi' })
+  downloadBlob(midiBlob, 'recording.mid')
+}
+
+function downloadBlob(blob: Blob, filename: string) {
   const downloadLink = document.createElement('a')
-  downloadLink.href = URL.createObjectURL(midiBlob)
-  downloadLink.download = 'recording.mid'
+  downloadLink.href = URL.createObjectURL(blob)
+  downloadLink.download = filename
   downloadLink.click()
+  URL.revokeObjectURL(downloadLink.href)
 }
 
 type ModalProps = {
   show: boolean
   onClose: () => void
   songMeta?: { source: SongSource; id: string }
+  instrument?: InstrumentName
 }
 export default function SongPreviewModal({
   show = true,
   onClose = () => {},
   songMeta = undefined,
+  instrument,
 }: ModalProps) {
   const { id, source } = songMeta ?? {}
   const player = usePlayer()
   const playerState = usePlayerState()
   const { currentTime, duration } = useSongScrubTimes()
   const song = useAtomValue(player.song)
+  const [isMp3Rendering, setIsMp3Rendering] = useState(false)
+  const [isSoundfontLoading, setIsSoundfontLoading] = useState(false)
+  const [isSoundfontReady, setIsSoundfontReady] = useState(false)
   const noteCount = song?.notes.length
-  const instrument = player.synths?.[0]?.getInstrument?.()
-  const instrumentLabel = instrument ? formatInstrumentName(instrument) : '--'
+  const previewInstrument = player.synths?.[0]?.getInstrument?.()
+  const instrumentLabel = previewInstrument ? formatInstrumentName(previewInstrument) : '--'
   const noteCountLabel = noteCount === undefined ? '--' : noteCount.toLocaleString()
+
+  useEffect(() => {
+    if (!show || !instrument) {
+      setIsSoundfontReady(false)
+      setIsSoundfontLoading(false)
+      return
+    }
+
+    let active = true
+    const hasSoundfont = !!soundfonts[instrument]
+    setIsSoundfontReady(hasSoundfont)
+    if (!hasSoundfont) {
+      setIsSoundfontLoading(true)
+      loadInstrument(instrument)
+        .then(() => {
+          if (!active) return
+          setIsSoundfontReady(!!soundfonts[instrument])
+        })
+        .finally(() => {
+          if (!active) return
+          setIsSoundfontLoading(false)
+        })
+    }
+
+    return () => {
+      active = false
+    }
+  }, [instrument, show])
 
   useEventListener<KeyboardEvent>('keydown', (event) => {
     if (!show) return
@@ -144,6 +186,38 @@ export default function SongPreviewModal({
               >
                 <Download />
                 Download MIDI
+              </Button>
+            </div>
+            <div className="mt-3 flex w-full">
+              <Button
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 active:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                isDisabled={
+                  !instrument || isMp3Rendering || isSoundfontLoading || !isSoundfontReady
+                }
+                onPress={async () => {
+                  if (!instrument) return
+                  setIsMp3Rendering(true)
+                  try {
+                    const midiBytes = base64ToBytes(id)
+                    const mp3Blob = await renderMidiToMp3(midiBytes, instrument)
+                    downloadBlob(mp3Blob, 'recording.mp3')
+                  } catch (error) {
+                    console.error('Failed to render MP3', error)
+                  } finally {
+                    setIsMp3Rendering(false)
+                  }
+                }}
+              >
+                {isMp3Rendering || isSoundfontLoading ? (
+                  <Loader width={16} height={16} className="animate-spin" />
+                ) : (
+                  <Download />
+                )}
+                {isSoundfontLoading
+                  ? 'Loading Soundfont'
+                  : isMp3Rendering
+                    ? 'Rendering MP3'
+                    : 'Download MP3'}
               </Button>
             </div>
           </div>
