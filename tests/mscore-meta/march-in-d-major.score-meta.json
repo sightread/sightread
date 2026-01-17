@@ -1,0 +1,15 @@
+{
+  "title": "march-in-d-major.mid",
+  "duration": 73,
+  "measures": 48,
+  "timesig": "2/2",
+  "tempo": 144,
+  "keysig": 0,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}

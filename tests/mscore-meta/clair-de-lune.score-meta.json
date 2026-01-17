@@ -1,0 +1,15 @@
+{
+  "title": "clair-de-lune.mid",
+  "duration": 247,
+  "measures": 72,
+  "timesig": "9/8",
+  "tempo": 50,
+  "keysig": 0,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano, Piano",
+      "program": 0
+    }
+  ]
+}

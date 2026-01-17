@@ -1,0 +1,15 @@
+{
+  "title": "la-cucaracha.mid",
+  "duration": 48,
+  "measures": 24,
+  "timesig": "2/2",
+  "tempo": 120,
+  "keysig": 2,
+  "parts": [
+    {
+      "instrumentId": "piano",
+      "name": "Piano",
+      "program": 0
+    }
+  ]
+}

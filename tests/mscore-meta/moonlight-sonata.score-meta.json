@@ -1,0 +1,15 @@
+{
+  "title": "moonlight-sonata.mid",
+  "duration": 294,
+  "measures": 69,
+  "timesig": "2/2",
+  "tempo": 54,
+  "keysig": 4,
+  "parts": [
+    {
+      "instrumentId": "grand-piano",
+      "name": "Grand Piano, Piano",
+      "program": 0
+    }
+  ]
+}
