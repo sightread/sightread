@@ -1,11 +1,11 @@
 // TODO: handle when users don't have an AudioContext supporting browser
 import { getSynthStub, InstrumentName } from '@/features/synth'
+import { transposeMidi } from '@/features/theory'
 import { MidiStateEvent, Song, SongConfig, SongMeasure, SongNote } from '@/types'
 import { clamp, getHands, round } from '@/utils'
 import { atom, Atom, getDefaultStore, PrimitiveAtom } from 'jotai'
 import midi from '../midi'
 import { getSynth, Synth } from '../synth'
-import { getAudioContext } from '../synth/utils'
 
 function increment(x: number) {
   return x + 1
@@ -75,6 +75,7 @@ export class Player {
   metronomeSpeed = atom(1)
   metronomeEmphasizeFirst = atom(true)
   countdownSeconds = atom(3)
+  transpose = atom(0)
   countdownRemaining = atom(0)
   countdownInterval: ReturnType<typeof setInterval> | null = null
   metronomeLastPlayedTick: null | number = null
@@ -170,7 +171,9 @@ export class Player {
     }
 
     // Now handle if the note is upcoming, aka it was hit early
-    const nextNote = this.getUpcomingNotes()?.find((note) => note.midiNote === midiNote)
+    const nextNote = this.getUpcomingNotes()?.find(
+      (note) => this.getTransposedMidi(note.midiNote) === midiNote,
+    )
     if (nextNote && !isHitNote(this, nextNote)) {
       const diff = this.calcDiff(nextNote.time, this.currentSongTime)
       if (diff < GOOD_RANGE) {
@@ -231,6 +234,7 @@ export class Player {
     this.store.set(this.state, 'CannotPlay')
     this.applyMetronomeConfig(songConfig.metronome)
     this.applyCountdownConfig(songConfig.countdownSeconds)
+    this.applyTransposeConfig(songConfig.transpose)
 
     const synths: Promise<Synth>[] = []
     Object.entries(song.tracks).forEach(async ([trackId, config]) => {
@@ -256,11 +260,6 @@ export class Player {
     this.synths?.forEach((synth) => {
       synth?.setMasterVolume(vol)
     })
-
-    const backingTrack = this.getSong()?.backing
-    if (backingTrack) {
-      backingTrack.volume = 0.15 * vol
-    }
   }
 
   setTrackVolume(track: number | string, vol: number) {
@@ -294,10 +293,6 @@ export class Player {
       return 0
     }
 
-    if (song?.backing) {
-      return song.backing.currentTime
-    }
-
     if (!this.isPlaying()) {
       return Math.max(0, this.currentSongTime - offset)
     }
@@ -318,19 +313,11 @@ export class Player {
   increaseBpm() {
     const delta = 0.05
     this.store.set(this.bpmModifier, round(this.store.get(this.bpmModifier) + delta, 2))
-    const backingTrack = this.getSong()?.backing
-    if (backingTrack) {
-      backingTrack.playbackRate = this.store.get(this.bpmModifier)
-    }
   }
 
   decreaseBpm() {
     const delta = 0.05
     this.store.set(this.bpmModifier, round(this.store.get(this.bpmModifier) - delta, 2))
-    const backingTrack = this.getSong()?.backing
-    if (backingTrack) {
-      backingTrack.playbackRate = this.store.get(this.bpmModifier)
-    }
   }
 
   getBpmModifier() {
@@ -347,10 +334,6 @@ export class Player {
 
   setBpmModifier(value: number) {
     this.store.set(this.bpmModifier, round(value, 2))
-    const backingTrack = this.getSong()?.backing
-    if (backingTrack) {
-      backingTrack.playbackRate = this.store.get(this.bpmModifier)
-    }
   }
 
   setHand(hand: any) {
@@ -413,12 +396,6 @@ export class Player {
     if (this.currentSongTime >= this.getDuration()) {
       this.seek(0)
     }
-
-    const backingTrack = this.getSong()?.backing
-    if (backingTrack) {
-      backingTrack.volume = 0.15
-      backingTrack.play()
-    }
     this.store.set(this.state, 'Playing')
 
     this.lastIntervalFiredTime = performance.now()
@@ -428,7 +405,7 @@ export class Player {
   }
 
   playNote(note: SongNote) {
-    this.synths[note.track].playNote(note.midiNote, note.velocity)
+    this.synths[note.track].playNote(this.getTransposedMidi(note.midiNote), note.velocity)
   }
 
   stopNotes(notes: Array<SongNote>) {
@@ -436,17 +413,11 @@ export class Player {
       return
     }
     for (let note of notes) {
-      this.synths[note.track].stopNote(note.midiNote)
+      this.synths[note.track].stopNote(this.getTransposedMidi(note.midiNote))
     }
   }
 
   updateTime_() {
-    const backingTrack = this.getSong()?.backing
-    if (backingTrack) {
-      const newTime = backingTrack.currentTime + getAudioContext().outputLatency
-      this.currentSongTime = newTime
-    }
-
     let dt = 0
     if (this.isPlaying()) {
       const now = performance.now()
@@ -516,7 +487,7 @@ export class Player {
     // Update scoring details
     this.clearMissedNotes_()
     const heldNotes = this.playing.filter(
-      (n) => this.midiPressedNotes.has(n.midiNote) && this.hitNotes.has(n),
+      (n) => this.midiPressedNotes.has(this.getTransposedMidi(n.midiNote)) && this.hitNotes.has(n),
     ).length
     if (heldNotes > 0) {
       this.store.set(this.score.durationHeld, (duration) => duration + heldNotes)
@@ -531,7 +502,7 @@ export class Player {
           return
         } else if (!this.hitNotes.has(note) && prevTime < note.time) {
           // Only mark as late during the tick in which it is first played.
-          this.lateNotes.set(note.midiNote, note)
+          this.lateNotes.set(this.getTransposedMidi(note.midiNote), note)
         }
       }
       this.playing.push(note)
@@ -591,7 +562,6 @@ export class Player {
     }
     this.store.set(this.state, 'Paused')
     clearInterval(this.playInterval)
-    this.store.get(this.song)?.backing?.pause()
     this.playInterval = null
     this.stopAllSounds()
   }
@@ -620,10 +590,6 @@ export class Player {
     this.playing = []
     this.lateNotes.clear()
     this.store.set(this.range, null)
-    const backingTrack = this.store.get(this.song)?.backing
-    if (backingTrack) {
-      backingTrack.currentTime = 0
-    }
     this.resetStats_()
   }
 
@@ -658,6 +624,14 @@ export class Player {
       this.startPlayback_()
     }
     this.store.set(this.countdownSeconds, seconds)
+  }
+
+  applyTransposeConfig(semitones: number) {
+    this.store.set(this.transpose, semitones)
+  }
+
+  getTransposedMidi(midiNote: number) {
+    return transposeMidi(midiNote, this.store.get(this.transpose))
   }
 
   shouldCountdown(countdownSeconds: number, timeOverride?: number) {
@@ -729,9 +703,6 @@ export class Player {
 
     this.stopAllSounds()
     this.currentSongTime = time
-    if (song.backing) {
-      song.backing.currentTime = time
-    }
     this.playing = song.notes.filter((note) => {
       return note.time < this.currentSongTime && this.currentSongTime < note.time + note.duration
     })

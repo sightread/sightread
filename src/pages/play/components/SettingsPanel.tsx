@@ -44,11 +44,15 @@ type SidebarProps = {
 }
 
 const METRONOME_PRESETS = [0.25, 0.5, 1, 2, 4]
+const TRANSPOSE_OPTIONS = Array.from({ length: 25 }, (_, index) => index - 12).map((value) => ({
+  id: value.toString(),
+  name: value === 0 ? '0' : value > 0 ? `+${value}` : value.toString(),
+}))
 
 const miniPlayer = new Player(getDefaultStore())
 
 export default function SettingsPanel(props: SidebarProps) {
-  const { left, right, visualization, waiting, noteLabels, coloredNotes, keySignature } =
+  const { left, right, visualization, waiting, noteLabels, coloredNotes, keySignature, transpose } =
     props.config
   const { onClose, onLoopToggled, isLooping } = props
   const player = usePlayer()
@@ -135,6 +139,14 @@ export default function SettingsPanel(props: SidebarProps) {
 
   const handleKeySignature = (keySignature: KEY_SIGNATURE) => {
     props.onChange({ ...props.config, keySignature })
+  }
+
+  const handleKeySignatureSelection = (key: string) => {
+    if (key === 'unknown') {
+      props.onChange({ ...props.config, keySignature: undefined })
+      return
+    }
+    handleKeySignature(key as KEY_SIGNATURE)
   }
 
   const toggleMetronome = (next: boolean) => {
@@ -264,25 +276,6 @@ export default function SettingsPanel(props: SidebarProps) {
           </SettingRow>
 
           <SettingRow
-            icon={<Timer className="h-4 w-4" />}
-            title="Countdown"
-            subtitle="Begin with a countdown"
-          >
-            <SegmentedToggle
-              className="w-[126px]"
-              value={countdownSeconds <= 0 ? 'off' : countdownSeconds === 5 ? '5' : '3'}
-              onChange={(id) => {
-                const next = id === '5' ? 5 : id === '3' ? 3 : 0
-                props.onChange({ ...props.config, countdownSeconds: next })
-              }}
-              options={[
-                { id: 'off', label: 'Off' },
-                { id: '3', label: '3s' },
-                { id: '5', label: '5s' },
-              ]}
-            />
-          </SettingRow>
-          <SettingRow
             icon={<Repeat className="h-4 w-4" />}
             title="Loop Section"
             subtitle="Repeat selected bars"
@@ -386,6 +379,45 @@ export default function SettingsPanel(props: SidebarProps) {
               ]}
             />
           </SettingRow>
+
+          <SettingRow
+            icon={<Timer className="h-4 w-4" />}
+            title="Countdown"
+            subtitle="Begin with a countdown"
+          >
+            <SegmentedToggle
+              className="w-[126px]"
+              value={countdownSeconds <= 0 ? 'off' : countdownSeconds === 5 ? '5' : '3'}
+              onChange={(id) => {
+                const next = id === '5' ? 5 : id === '3' ? 3 : 0
+                props.onChange({ ...props.config, countdownSeconds: next })
+              }}
+              options={[
+                { id: 'off', label: 'Off' },
+                { id: '3', label: '3s' },
+                { id: '5', label: '5s' },
+              ]}
+            />
+          </SettingRow>
+
+          <SettingRow
+            icon={<Key className="h-4 w-4" />}
+            title="Transpose"
+            subtitle="Shift semitones"
+          >
+            <Select
+              aria-label="Transpose"
+              className="w-16"
+              size="sm"
+              selectedKey={(transpose ?? 0).toString()}
+              onSelectionChange={(key) => {
+                props.onChange({ ...props.config, transpose: Number(key) })
+              }}
+              items={TRANSPOSE_OPTIONS}
+            >
+              {(item) => <SelectItem>{item.name}</SelectItem>}
+            </Select>
+          </SettingRow>
         </Section>
 
         <Section title="Display" icon={<SlidersHorizontal className="h-4 w-4 text-violet-300" />}>
@@ -414,9 +446,12 @@ export default function SettingsPanel(props: SidebarProps) {
                   aria-label="Key signature"
                   className="w-16"
                   size="sm"
-                  selectedKey={keySignature ?? props.song?.keySignature}
-                  onSelectionChange={(key) => handleKeySignature(key as KEY_SIGNATURE)}
-                  items={getKeySignatures().map((keySig) => ({ id: keySig, name: keySig }))}
+                  selectedKey={keySignature ?? props.song?.keySignature ?? 'unknown'}
+                  onSelectionChange={(key) => handleKeySignatureSelection(key as string)}
+                  items={[
+                    { id: 'unknown', name: 'Unknown' },
+                    ...getKeySignatures().map((keySig) => ({ id: keySig, name: keySig })),
+                  ]}
                 >
                   {(item) => <SelectItem>{item.name}</SelectItem>}
                 </Select>

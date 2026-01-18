@@ -3,21 +3,26 @@ import { gmInstruments, InstrumentName } from '@/features/synth'
 import { Hand, Song, SongConfig, SongMeasure, SongNote, Track, TrackSetting } from '@/types'
 import { clamp, mapValues } from '@/utils'
 import { parserInferHands } from '../parsers'
-import { isBlack } from '../theory'
+import { isBlack, transposeMidi } from '../theory'
 import { GivenState } from './canvas-renderer'
 
 // TODO: Precompute and cache optimal font sizes and widths for the small, fixed set of note‐label strings (e.g. “A”–“G” or “Do”–“Ti”) outside of the per‐note render loop.
 //  - Build a tiny lookup (label → { fontPx, measuredWidth }), with a cache-bust on window size
 //  - In renderFallingNote, replace repeated getOptimalFontSize calls with O(1) lookups
 
-export function getSongRange(song: { notes: SongNote[] } | undefined, minNotes: number) {
+export function getSongRange(
+  song: { notes: SongNote[] } | undefined,
+  minNotes: number,
+  transpose = 0,
+) {
   const notes = song?.notes ?? []
-  let startNote = notes[0]?.midiNote ?? 21
-  let endNote = notes[0]?.midiNote ?? 108
+  let startNote = transposeMidi(notes[0]?.midiNote ?? 21, transpose)
+  let endNote = transposeMidi(notes[0]?.midiNote ?? 108, transpose)
 
   for (let { midiNote } of notes) {
-    startNote = Math.min(startNote, midiNote)
-    endNote = Math.max(endNote, midiNote)
+    const transposed = transposeMidi(midiNote, transpose)
+    startNote = Math.min(startNote, transposed)
+    endNote = Math.max(endNote, transposed)
   }
 
   // Ensure we show at least a minNotes just so it doesn't look ridiculous
@@ -64,6 +69,7 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     right: true,
     waiting: false,
     countdownSeconds: 3,
+    transpose: 0,
     loop: {
       enabled: false,
       range: { start: 0, end: song?.duration ?? 0 },

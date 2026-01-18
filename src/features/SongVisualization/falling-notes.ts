@@ -5,7 +5,7 @@ import {
   handlePianoRollMousePress,
   PianoRollMeasurements,
 } from '@/features/drawing/piano'
-import { getFixedDoNoteFromKey, getKey, isBlack } from '@/features/theory'
+import { getFixedDoNoteFromKey, getKey, isBlack, transposeMidi } from '@/features/theory'
 import type { SongMeasure, SongNote } from '@/types'
 import { clamp } from '@/utils'
 import midiState from '../midi'
@@ -38,7 +38,8 @@ function getActiveNotes(state: State, inViewNotes: SongNote[]): Map<number, stri
   }
   for (let note of inViewNotes) {
     if (isPlayingNote(state, note)) {
-      activeNotes.set(note.midiNote, getNoteColor(state, note))
+      const transposed = getTransposedMidi(state, note)
+      activeNotes.set(transposed, getNoteColor(state, note))
     }
   }
   return activeNotes
@@ -90,7 +91,7 @@ function deriveState(state: GivenState): State {
     }
   }
 
-  const { startNote, endNote } = getSongRange({ notes }, minNotes)
+  const { startNote, endNote } = getSongRange({ notes }, minNotes, state.transpose)
   const pianoMeasurements = getPianoRollMeasurements(state.windowWidth, { startNote, endNote })
   const { whiteHeight } = pianoMeasurements
   const pianoTopY = state.height - whiteHeight - 5
@@ -161,7 +162,7 @@ export function renderFallingVis(givenState: GivenState): void {
 
 function getNoteColor(state: State, note: SongNote): string {
   const hand = state.hands[note.track]?.hand ?? 'both'
-  const keyType = isBlack(note.midiNote) ? 'black' : 'white'
+  const keyType = isBlack(getTransposedMidi(state, note)) ? 'black' : 'white'
 
   let color
   if (hand === 'both' || hand === 'right') {
@@ -240,12 +241,13 @@ function renderOctaveRuler(state: State) {
 }
 
 export function renderFallingNote(note: SongNote, state: State): void {
-  if (!(note.midiNote in state.pianoMeasurements.lanes)) {
+  const transposed = getTransposedMidi(state, note)
+  if (!(transposed in state.pianoMeasurements.lanes)) {
     return
   }
 
   const { ctx, pps, noteLabels } = state
-  const lane = state.pianoMeasurements.lanes[note.midiNote]
+  const lane = state.pianoMeasurements.lanes[transposed]
   const posY = getItemStartEnd(note, state).end - (state.height - state.noteHitY)
   const posX = Math.floor(lane.left + 1)
   const width = lane.width - 2
@@ -264,7 +266,7 @@ export function renderFallingNote(note: SongNote, state: State): void {
     ctx.fillStyle = 'white'
     ctx.strokeStyle = 'black'
     ctx.textBaseline = 'bottom'
-    const key = getKey(note.midiNote, state.keySignature)
+    const key = getKey(transposed, state.keySignature)
     const noteText = noteLabels === 'alphabetical' ? key : getFixedDoNoteFromKey(key)
     const padding = 1
     const maxWidth = width - padding * 2
@@ -279,6 +281,10 @@ export function renderFallingNote(note: SongNote, state: State): void {
   }
 
   ctx.restore()
+}
+
+function getTransposedMidi(state: GivenState, note: SongNote) {
+  return transposeMidi(note.midiNote, state.transpose)
 }
 
 function renderMeasure(measure: SongMeasure, state: State): void {

@@ -1,6 +1,6 @@
 import * as tonejs from '@tonejs/midi'
 import type { Bpm, Song, SongMeasure, SongNote, Tracks } from '../../../src/types'
-import { KEY_SIGNATURE } from '../theory'
+import { isBlack, KEY_SIGNATURE } from '../theory'
 
 type TimeSignatureEvent = { ticks: number; timeSignature: [number, number] }
 const DEFAULT_TIME_SIGNATURE: TimeSignatureEvent = { ticks: 0, timeSignature: [4, 4] }
@@ -157,14 +157,21 @@ export default function parseMidi(midiData: Uint8Array): Song {
   const timeSignature = primaryTimeSigEvent?.timeSignature ?? [4, 4]
 
   const keySignatureEvents = parsed.header.keySignatures ?? []
-  let keySignature: KEY_SIGNATURE = 'C'
+  let keySignature: KEY_SIGNATURE | undefined
   if (keySignatureEvents.length > 0) {
     const minTick = Math.min(...keySignatureEvents.map((event) => event.ticks ?? 0))
-    if (minTick === 0) {
-      const lastAtMinTick = [...keySignatureEvents]
-        .reverse()
-        .find((event) => event.ticks === minTick)
-      keySignature = (lastAtMinTick?.key as KEY_SIGNATURE) ?? 'C'
+    const lastAtMinTick = [...keySignatureEvents].reverse().find((event) => event.ticks === minTick)
+    keySignature = lastAtMinTick?.key as KEY_SIGNATURE
+  }
+  // MIDI files often emit keysig=0 ("C") even when the score's key is unknown.
+  // Treat C as unknown unless it passes the "all white keys" heuristic below.
+  if (keySignature === 'C') {
+    keySignature = undefined
+  }
+  if (!keySignature) {
+    const hasBlackNotes = notes.some((note) => isBlack(note.midiNote))
+    if (!hasBlackNotes) {
+      keySignature = 'C'
     }
   }
 

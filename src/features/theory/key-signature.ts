@@ -105,6 +105,74 @@ export function getKeyDetails(key: KEY_SIGNATURE): KeyDetails {
   return keyDetailsMap[key]
 }
 
+const keySignatureToPitchClass: Record<KEY_SIGNATURE, number> = {
+  C: 0,
+  G: 7,
+  D: 2,
+  A: 9,
+  E: 4,
+  B: 11,
+  'F#': 6,
+  'C#': 1,
+  F: 5,
+  Bb: 10,
+  Eb: 3,
+  Ab: 8,
+  Db: 1,
+  Gb: 6,
+  Cb: 11,
+}
+
+const pitchClassToSignature: Record<
+  number,
+  { sharp?: KEY_SIGNATURE; flat?: KEY_SIGNATURE; default: KEY_SIGNATURE }
+> = {
+  0: { default: 'C' },
+  1: { sharp: 'C#', flat: 'Db', default: 'C#' },
+  2: { default: 'D' },
+  3: { flat: 'Eb', default: 'Eb' },
+  4: { default: 'E' },
+  5: { flat: 'F', default: 'F' },
+  6: { sharp: 'F#', flat: 'Gb', default: 'F#' },
+  7: { default: 'G' },
+  8: { flat: 'Ab', default: 'Ab' },
+  9: { default: 'A' },
+  10: { flat: 'Bb', default: 'Bb' },
+  11: { sharp: 'B', flat: 'Cb', default: 'B' },
+}
+
+export function transposeKeySignature(
+  keySignature: KEY_SIGNATURE,
+  semitones: number,
+): KEY_SIGNATURE {
+  if (semitones === 0) {
+    return keySignature
+  }
+  const pitchClass = keySignatureToPitchClass[keySignature]
+  const shifted = (((pitchClass + semitones) % 12) + 12) % 12
+  const preference = getKeyDetails(keySignature).type
+  const options = pitchClassToSignature[shifted]
+
+  if (preference === 'sharp' && options.sharp) {
+    return options.sharp
+  }
+  if (preference === 'flat' && options.flat) {
+    return options.flat
+  }
+  return options.default
+}
+
+export function transposeMidi(midiNote: number, semitones: number): number {
+  const transposed = midiNote + semitones
+  if (transposed < 0) {
+    return 0
+  }
+  if (transposed > 127) {
+    return 127
+  }
+  return transposed
+}
+
 export function getKeySignatureFromMidi(key: number, scale: number): KEY_SIGNATURE {
   return midiToSigMap[key]
 }

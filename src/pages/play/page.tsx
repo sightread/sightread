@@ -165,6 +165,7 @@ export default function PlaySongPage() {
   const loopConfig = songConfig.loop ?? getDefaultSongSettings(song ?? undefined).loop
   const countdownSeconds =
     songConfig.countdownSeconds ?? getDefaultSongSettings(song ?? undefined).countdownSeconds
+  const transpose = songConfig.transpose ?? getDefaultSongSettings(song ?? undefined).transpose
   useEffect(() => {
     if (!songConfig.metronome) {
       setSongConfig({ ...songConfig, metronome })
@@ -181,11 +182,19 @@ export default function PlaySongPage() {
     }
   }, [countdownSeconds, setSongConfig, songConfig])
   useEffect(() => {
+    if (songConfig.transpose == null) {
+      setSongConfig({ ...songConfig, transpose })
+    }
+  }, [transpose, setSongConfig, songConfig])
+  useEffect(() => {
     player.applyMetronomeConfig(metronome)
   }, [metronome, player])
   useEffect(() => {
     player.applyCountdownConfig(countdownSeconds)
   }, [countdownSeconds, player])
+  useEffect(() => {
+    player.applyTransposeConfig(transpose)
+  }, [transpose, player])
   useEffect(() => {
     if (loopConfig.enabled) {
       player.setRange(loopConfig.range)

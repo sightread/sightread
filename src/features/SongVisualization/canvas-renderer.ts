@@ -10,6 +10,7 @@ export type GivenState = {
   noteLabels: NOTE_LABELS
   coloredNotes: boolean
   visualization: 'falling-notes' | 'sheet'
+  transpose: number
   windowWidth: number
   height: number
   pps: number // pixels per second
@@ -19,6 +20,7 @@ export type GivenState = {
   items: CanvasItem[]
   constrictView?: boolean
   keySignature: KEY_SIGNATURE
+  displayKeySignature?: KEY_SIGNATURE
   timeSignature?: { numerator: number; denominator: number }
   canvasRect: DOMRect
   // TODO: snap to measures
