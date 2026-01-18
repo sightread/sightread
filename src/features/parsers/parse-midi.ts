@@ -160,9 +160,7 @@ export default function parseMidi(midiData: Uint8Array): Song {
   let keySignature: KEY_SIGNATURE | undefined
   if (keySignatureEvents.length > 0) {
     const minTick = Math.min(...keySignatureEvents.map((event) => event.ticks ?? 0))
-    const lastAtMinTick = [...keySignatureEvents]
-      .reverse()
-      .find((event) => event.ticks === minTick)
+    const lastAtMinTick = [...keySignatureEvents].reverse().find((event) => event.ticks === minTick)
     keySignature = lastAtMinTick?.key as KEY_SIGNATURE
   }
   // MIDI files often emit keysig=0 ("C") even when the score's key is unknown.
