@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Bpm, Song, SongMeasure, SongNote, Tracks } from '../../types'
-import { getNote } from '../theory'
+import { getNote, isBlack } from '../theory'
 import { getKeySignatureFromMidi } from '../theory/key-signature'
 
 export default function parseMusicXml(txt: string): Song {
@@ -197,6 +197,13 @@ export default function parseMusicXml(txt: string): Song {
     const measure = sortedMeasures[i]
     const next = sortedMeasures[i + 1]
     measure.duration = next ? next.time - measure.time : totalDuration - measure.time
+  }
+
+  if (!keySignature) {
+    const hasBlackNotes = notes.some((note) => isBlack(note.midiNote))
+    if (!hasBlackNotes) {
+      keySignature = 'C'
+    }
   }
 
   return {
