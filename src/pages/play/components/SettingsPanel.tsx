@@ -150,7 +150,13 @@ export default function SettingsPanel(props: SidebarProps) {
   }
 
   const resetToDefaults = () => {
-    props.onChange(getDefaultSongSettings(props.song))
+    const defaults = getDefaultSongSettings(props.song)
+    props.onChange(defaults)
+
+    Object.keys(defaults.tracks).forEach((id) => {
+      const trackSound = defaults.tracks[+id]?.sound
+      player.setTrackVolume(+id, trackSound === false ? 0 : 1)
+    })
   }
 
   const updateTrack = (trackId: number, track: SongConfig['tracks'][number]) => {
