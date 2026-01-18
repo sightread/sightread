@@ -2,7 +2,7 @@ import { useSong } from '@/features/data'
 import { usePlayer } from '@/features/player'
 import { getHandSettings, SongVisualizer } from '@/features/SongVisualization'
 import { SongSource } from '@/types'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { getDefaultSongSettings } from '../SongVisualization/utils'
 
 interface SongPreviewProps {
@@ -14,15 +14,22 @@ interface SongPreviewProps {
 function SongPreview({ songId, source }: SongPreviewProps) {
   const { data: song, error } = useSong(songId, source)
   const player = usePlayer()
+  const songConfig = useMemo(() => {
+    const defaults = getDefaultSongSettings(song)
+    return {
+      ...defaults,
+      countdownSeconds: 0,
+      metronome: { ...defaults.metronome, enabled: false, volume: 0 },
+    }
+  }, [song])
 
   useEffect(() => {
     if (!song) {
       return
     }
-    player.setSong(song, getDefaultSongSettings(song))
-  }, [song, player])
+    player.setSong(song, songConfig)
+  }, [song, player, songConfig])
 
-  const songConfig = getDefaultSongSettings(song)
   return (
     <SongVisualizer
       song={song}
