@@ -77,7 +77,7 @@ export type Song = {
   bpms: Array<Bpm>
   timeSignature?: { numerator: number; denominator: number }
   timeSignatures?: Array<{ time: number; numerator: number; denominator: number }>
-  keySignature: KEY_SIGNATURE
+  keySignature?: KEY_SIGNATURE
   items: Array<SongNote | SongMeasure>
   ppq: number
   secondsToTicks: (seconds: number) => number

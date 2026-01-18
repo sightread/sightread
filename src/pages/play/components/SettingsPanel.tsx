@@ -139,6 +139,14 @@ export default function SettingsPanel(props: SidebarProps) {
     props.onChange({ ...props.config, keySignature })
   }
 
+  const handleKeySignatureSelection = (key: string) => {
+    if (key === 'unknown') {
+      props.onChange({ ...props.config, keySignature: undefined })
+      return
+    }
+    handleKeySignature(key as KEY_SIGNATURE)
+  }
+
   const toggleMetronome = (next: boolean) => {
     const nextVolume = metronomeConfig.volume
     props.onChange({
@@ -416,9 +424,12 @@ export default function SettingsPanel(props: SidebarProps) {
                   aria-label="Key signature"
                   className="w-16"
                   size="sm"
-                  selectedKey={keySignature ?? props.song?.keySignature}
-                  onSelectionChange={(key) => handleKeySignature(key as KEY_SIGNATURE)}
-                  items={getKeySignatures().map((keySig) => ({ id: keySig, name: keySig }))}
+                  selectedKey={keySignature ?? props.song?.keySignature ?? 'unknown'}
+                  onSelectionChange={(key) => handleKeySignatureSelection(key as string)}
+                  items={[
+                    { id: 'unknown', name: 'Unknown' },
+                    ...getKeySignatures().map((keySig) => ({ id: keySig, name: keySig })),
+                  ]}
                 >
                   {(item) => <SelectItem>{item.name}</SelectItem>}
                 </Select>

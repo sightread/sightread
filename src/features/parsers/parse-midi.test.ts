@@ -37,7 +37,9 @@ describe('parseMidi (score-meta fixtures)', () => {
       }
       assertDuration(midiBytes, fixture.duration)
       if (typeof fixture.keysig === 'number') {
-        expect(song.keySignature).toBe(getKeySignatureFromMidi(fixture.keysig, 0))
+        const parsed = getKeySignatureFromMidi(fixture.keysig, 0)
+        const expected = parsed === 'C' ? undefined : parsed
+        expect(song.keySignature).toBe(expected)
       }
     })
 

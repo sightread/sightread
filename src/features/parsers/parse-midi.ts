@@ -157,15 +157,16 @@ export default function parseMidi(midiData: Uint8Array): Song {
   const timeSignature = primaryTimeSigEvent?.timeSignature ?? [4, 4]
 
   const keySignatureEvents = parsed.header.keySignatures ?? []
-  let keySignature: KEY_SIGNATURE = 'C'
+  let keySignature: KEY_SIGNATURE | undefined
   if (keySignatureEvents.length > 0) {
     const minTick = Math.min(...keySignatureEvents.map((event) => event.ticks ?? 0))
-    if (minTick === 0) {
-      const lastAtMinTick = [...keySignatureEvents]
-        .reverse()
-        .find((event) => event.ticks === minTick)
-      keySignature = (lastAtMinTick?.key as KEY_SIGNATURE) ?? 'C'
-    }
+    const lastAtMinTick = [...keySignatureEvents]
+      .reverse()
+      .find((event) => event.ticks === minTick)
+    keySignature = lastAtMinTick?.key as KEY_SIGNATURE
+  }
+  if (keySignature === 'C') {
+    keySignature = undefined
   }
 
   const noteEndTimes = notes.map((note) => note.time + note.duration)

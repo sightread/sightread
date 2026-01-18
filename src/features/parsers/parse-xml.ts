@@ -27,7 +27,7 @@ export default function parseMusicXml(txt: string): Song {
   const divisions = Number(xml.querySelector('divisions')?.textContent)
   let part = 0
   const timeSignature = { numerator: 4, denominator: 4 }
-  let keySignature = 'C' as const
+  let keySignature: Song['keySignature']
   let currTrack = 1
 
   function stepTime(duration: number): void {
@@ -151,7 +151,8 @@ export default function parseMusicXml(txt: string): Song {
     } else if (curr.tagName === 'key') {
       const fifth = Number(curr.querySelector('fifths')?.textContent?.trim())
       if (!isNaN(fifth)) {
-        keySignature = getKeySignatureFromMidi(fifth, 0)
+        const parsedSignature = getKeySignatureFromMidi(fifth, 0)
+        keySignature = parsedSignature === 'C' ? undefined : parsedSignature
       }
     } else if (curr.tagName === 'sound') {
       if (curr.hasAttribute('tempo')) {

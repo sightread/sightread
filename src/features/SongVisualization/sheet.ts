@@ -82,7 +82,7 @@ function getSheetItemsInView(state: State): CanvasItem[] {
 }
 
 function drawStaticsOverlay(state: State) {
-  const { ctx, keySignature } = state
+  const { ctx, displayKeySignature } = state
   const overlayEnd = getPlayNotesLineX(state) - STAFF_SPACE * 2
   ctx.clearRect(0, 0, overlayEnd, state.height)
   ctx.fillStyle = 'black'
@@ -105,8 +105,10 @@ function drawStaticsOverlay(state: State) {
 
   drawGClef(ctx, getClefX(), trebleTopY)
   drawFClef(ctx, getClefX(), bassTopY)
-  drawKeySignature(ctx, getKeySignatureX(), trebleTopY, keySignature, 'treble')
-  drawKeySignature(ctx, getKeySignatureX(), bassTopY, keySignature, 'bass')
+  if (displayKeySignature) {
+    drawKeySignature(ctx, getKeySignatureX(), trebleTopY, displayKeySignature, 'treble')
+    drawKeySignature(ctx, getKeySignatureX(), bassTopY, displayKeySignature, 'bass')
+  }
 
   if (state.timeSignature) {
     const x = getTimeSignatureX(state)
@@ -144,7 +146,9 @@ function getKeySignatureX() {
 }
 
 function getTimeSignatureX(state: State) {
-  const fifths = getKeyDetails(state.keySignature).notes.length
+  const fifths = state.displayKeySignature
+    ? getKeyDetails(state.displayKeySignature).notes.length
+    : 0
   return getKeySignatureX() + fifths * STAFF_SPACE + STAFF_SPACE
 }
 

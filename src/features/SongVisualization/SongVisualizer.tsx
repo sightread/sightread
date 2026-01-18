@@ -59,6 +59,7 @@ function CanvasRenderer({
 
     const baseKeySignature = config.keySignature ?? song.keySignature
     const transpose = config.transpose ?? 0
+    const effectiveKeySignature = baseKeySignature ?? 'C'
     const state: GivenState = {
       time: getTime(),
       visualization: config.visualization,
@@ -73,7 +74,10 @@ function CanvasRenderer({
       ctx,
       items: song.items,
       constrictView: !!constrictView,
-      keySignature: transposeKeySignature(baseKeySignature, transpose),
+      keySignature: transposeKeySignature(effectiveKeySignature, transpose),
+      displayKeySignature: baseKeySignature
+        ? transposeKeySignature(baseKeySignature, transpose)
+        : undefined,
       timeSignature: song.timeSignature,
       canvasRect,
       selectedRange,

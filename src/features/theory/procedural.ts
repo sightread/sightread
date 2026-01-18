@@ -239,7 +239,7 @@ export async function getGeneratedSong(
     tracks: { 0: {}, 1: {} },
     bpms: [],
     timeSignature: { numerator: 6, denominator: 8 },
-    keySignature: 'C',
+    keySignature: undefined,
     items: sort([...measures, ...notes]),
     ppq: 480, // Standard MIDI resolution
     ticksToSeconds: (ticks: number) => ticks / 480 / 2, // Assuming 120 bpm
@@ -290,7 +290,7 @@ function getRandomSong(level: number, options: { bass: boolean; treble: boolean 
     tracks: { 0: {}, 1: {} },
     bpms: [],
     timeSignature: { numerator: 4, denominator: 4 },
-    keySignature: 'C',
+    keySignature: undefined,
     items: sort([...measures, ...notes]),
     ppq: 480, // Standard MIDI resolution
     ticksToSeconds: (ticks: number) => ticks / 480 / 2, // Assuming 120 bpm
