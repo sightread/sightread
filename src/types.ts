@@ -77,12 +77,11 @@ export type Song = {
   bpms: Array<Bpm>
   timeSignature?: { numerator: number; denominator: number }
   timeSignatures?: Array<{ time: number; numerator: number; denominator: number }>
-  keySignature: KEY_SIGNATURE
+  keySignature?: KEY_SIGNATURE
   items: Array<SongNote | SongMeasure>
   ppq: number
   secondsToTicks: (seconds: number) => number
   ticksToSeconds: (seconds: number) => number
-  backing?: HTMLAudioElement
 }
 
 export type Clef = 'bass' | 'treble'
@@ -93,6 +92,7 @@ export type SongConfig = {
   right: boolean
   waiting: boolean
   countdownSeconds: number
+  transpose: number
   loop: {
     enabled: boolean
     range: { start: number; end: number }

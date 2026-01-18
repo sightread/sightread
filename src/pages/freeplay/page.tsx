@@ -94,6 +94,7 @@ export default function FreePlay() {
                 visualization: 'falling-notes',
                 noteLabels: 'none',
                 countdownSeconds: 0,
+                transpose: 0,
                 loop: {
                   enabled: false,
                   range: { start: 0, end: 0 },

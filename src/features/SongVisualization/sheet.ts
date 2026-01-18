@@ -20,7 +20,14 @@ import {
 } from '../drawing/sheet'
 import midiState from '../midi'
 import { isHitNote, isMissedNote } from '../player'
-import { getFixedDoNoteFromKey, getKey, getKeyDetails, getNote, glyphs } from '../theory'
+import {
+  getFixedDoNoteFromKey,
+  getKey,
+  getKeyDetails,
+  getNote,
+  glyphs,
+  transposeMidi,
+} from '../theory'
 import { GivenState } from './canvas-renderer'
 import { CanvasItem, getItemsInView, Viewport } from './utils'
 
@@ -75,7 +82,7 @@ function getSheetItemsInView(state: State): CanvasItem[] {
 }
 
 function drawStaticsOverlay(state: State) {
-  const { ctx, keySignature } = state
+  const { ctx, displayKeySignature } = state
   const overlayEnd = getPlayNotesLineX(state) - STAFF_SPACE * 2
   ctx.clearRect(0, 0, overlayEnd, state.height)
   ctx.fillStyle = 'black'
@@ -98,8 +105,10 @@ function drawStaticsOverlay(state: State) {
 
   drawGClef(ctx, getClefX(), trebleTopY)
   drawFClef(ctx, getClefX(), bassTopY)
-  drawKeySignature(ctx, getKeySignatureX(), trebleTopY, keySignature, 'treble')
-  drawKeySignature(ctx, getKeySignatureX(), bassTopY, keySignature, 'bass')
+  if (displayKeySignature) {
+    drawKeySignature(ctx, getKeySignatureX(), trebleTopY, displayKeySignature, 'treble')
+    drawKeySignature(ctx, getKeySignatureX(), bassTopY, displayKeySignature, 'bass')
+  }
 
   if (state.timeSignature) {
     const x = getTimeSignatureX(state)
@@ -137,7 +146,9 @@ function getKeySignatureX() {
 }
 
 function getTimeSignatureX(state: State) {
-  const fifths = getKeyDetails(state.keySignature).notes.length
+  const fifths = state.displayKeySignature
+    ? getKeyDetails(state.displayKeySignature).notes.length
+    : 0
   return getKeySignatureX() + fifths * STAFF_SPACE + STAFF_SPACE
 }
 
@@ -172,7 +183,10 @@ function getGameColorPrefix(
   const playNotesLineX = getPlayNotesLineX(state)
   const isPlayingNote = canvasX <= playNotesLineX
 
-  if (isHitNote(state.player, note) && midiState.getPressedNotes().has(note.midiNote)) {
+  if (
+    isHitNote(state.player, note) &&
+    midiState.getPressedNotes().has(getTransposedMidi(state, note))
+  ) {
     return coloredNotes ? getNoteColor(true, step) : colorMap.hover
   } else if (isMissedNote(state.player, note)) {
     return colorMap.disabled
@@ -206,6 +220,7 @@ function renderLedgerLines(state: State, note: SongNote): void {
   const staffTopY = staff === 'treble' ? getTrebleStaffTopY(state) : getBassStaffTopY(state)
   const playNotesLineX = getPlayNotesLineX(state)
   let canvasX = posX + playNotesLineX + PLAY_NOTES_WIDTH / 2
+  const transposed = getTransposedMidi(state, note)
 
   const ledgerGradient = ctx.createLinearGradient(
     playNotesLineX - STAFF_SPACE * 2,
@@ -223,7 +238,7 @@ function renderLedgerLines(state: State, note: SongNote): void {
     canvasX - STAFF_SPACE,
     STAFF_SPACE * 2,
     staffTopY,
-    note.midiNote,
+    transposed,
     staff,
     state.keySignature,
   )
@@ -239,9 +254,10 @@ function renderSheetNote(state: State, note: SongNote): void {
   const staffTopY = staff === 'treble' ? getTrebleStaffTopY(state) : getBassStaffTopY(state)
   const playNotesLineX = getPlayNotesLineX(state)
   let canvasX = posX + playNotesLineX + PLAY_NOTES_WIDTH / 2
-  let canvasY = getNoteY(note.midiNote, staff, staffTopY, keySignature)
+  const transposed = getTransposedMidi(state, note)
+  let canvasY = getNoteY(transposed, staff, staffTopY, keySignature)
 
-  const key = getKey(note.midiNote, state.keySignature)
+  const key = getKey(transposed, state.keySignature)
   const prefix = state.game
     ? getGameColorPrefix(state, note, canvasX, state.coloredNotes, key[0])
     : getLearnSongColorPrefix(state, note, canvasX, state.coloredNotes, key[0])
@@ -306,9 +322,9 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
   const pressed = midiState.getPressedNotes()
   for (let note of pressed.keys()) {
     let staff: Clef = note < getNote('C4') ? 'bass' : 'treble'
-    const inRangeNote = inRange.find((n) => n.type === 'note' && n.midiNote === +note) as
-      | SongNote
-      | undefined
+    const inRangeNote = inRange.find(
+      (n) => n.type === 'note' && getTransposedMidi(state, n) === +note,
+    ) as SongNote | undefined
     if (inRangeNote) {
       staff = state.hands?.[inRangeNote.track].hand === 'right' ? 'treble' : 'bass'
     }
@@ -342,6 +358,10 @@ function renderMidiPressedKeys(state: State, inRange: (SongNote | SongMeasure)[]
       ctx.fillText(noteText, canvasX, canvasY + 3)
     }
   }
+}
+
+function getTransposedMidi(state: State, note: SongNote) {
+  return transposeMidi(note.midiNote, state.transpose)
 }
 
 function fadeColorToWhite(color: string, gradient: any) {
