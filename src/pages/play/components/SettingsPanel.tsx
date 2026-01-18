@@ -26,6 +26,8 @@ import {
   SlidersHorizontal,
   Timer,
   Type,
+  Volume2,
+  VolumeX,
   X,
 } from 'lucide-react'
 import { PropsWithChildren, useMemo, useState } from 'react'
@@ -148,7 +150,13 @@ export default function SettingsPanel(props: SidebarProps) {
   }
 
   const resetToDefaults = () => {
-    props.onChange(getDefaultSongSettings(props.song))
+    const defaults = getDefaultSongSettings(props.song)
+    props.onChange(defaults)
+
+    Object.keys(defaults.tracks).forEach((id) => {
+      const trackSound = defaults.tracks[+id]?.sound
+      player.setTrackVolume(+id, trackSound === false ? 0 : 1)
+    })
   }
 
   const updateTrack = (trackId: number, track: SongConfig['tracks'][number]) => {
@@ -175,11 +183,25 @@ export default function SettingsPanel(props: SidebarProps) {
     updateTrack(trackId, { ...current, instrument })
   }
 
+  const handleToggleTrackSound = (trackId: number, enabled: boolean) => {
+    const current = props.config.tracks[trackId]
+    if (!current) {
+      return
+    }
+    player.setTrackVolume(trackId, enabled ? 1 : 0)
+    updateTrack(trackId, { ...current, sound: enabled })
+  }
+
   const playTrack = async (trackId: number) => {
     if (!props.song) {
       return
     }
-    const songConfig: SongConfig = { ...props.config, waiting: false }
+    const songConfig: SongConfig = {
+      ...props.config,
+      waiting: false,
+      countdownSeconds: 0,
+      metronome: { ...metronomeConfig, enabled: false },
+    }
     await miniPlayer.setSong(props.song, songConfig)
     setPlayingTrack(trackId)
     Object.keys(props.song.tracks).forEach((id) =>
@@ -461,6 +483,21 @@ export default function SettingsPanel(props: SidebarProps) {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="flex items-center justify-center rounded-md p-1 text-gray-400 transition hover:text-white"
+                          aria-label={`Toggle sound for track ${index + 1}`}
+                          title="Toggle Sound"
+                          onClick={() =>
+                            handleToggleTrackSound(entry.id, entry.track.sound === false)
+                          }
+                        >
+                          {entry.track.sound === false ? (
+                            <VolumeX className="h-4 w-4" />
+                          ) : (
+                            <Volume2 className="h-4 w-4" />
+                          )}
+                        </button>
                         <div className="flex rounded-md bg-black/40 p-0.5">
                           <button
                             type="button"
