@@ -27,15 +27,11 @@ export const isInitializedAtom = jotai.atom<boolean>(false)
 
 const store = jotai.getDefaultStore()
 
-function isPersistenceSupported(): boolean {
-  return typeof globalThis.window !== 'undefined' && typeof globalThis.indexedDB !== 'undefined'
-}
-
 export async function initialize() {
   if (store.get(isInitializedAtom)) {
     return Promise.resolve()
   }
-  if (!isPersistenceSupported()) {
+  if (typeof globalThis.window === 'undefined' || typeof globalThis.indexedDB !== 'undefined') {
     store.set(isInitializedAtom, true)
     return Promise.resolve()
   }
@@ -158,9 +154,7 @@ export async function getSongHandle(id: string): Promise<FileSystemFileHandle | 
   return dirSongs?.find((s) => s.handle?.name === basename)?.handle
 }
 
-if (isPersistenceSupported()) {
-  initialize()
-}
+initialize()
 
 async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
   const songs: SongMetadata[] = []
