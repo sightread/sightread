@@ -31,7 +31,7 @@ export async function initialize() {
   if (store.get(isInitializedAtom)) {
     return Promise.resolve()
   }
-  if (typeof globalThis.window === 'undefined' || typeof globalThis.indexedDB !== 'undefined') {
+  if (typeof globalThis.indexedDB === 'undefined') {
     store.set(isInitializedAtom, true)
     return Promise.resolve()
   }
