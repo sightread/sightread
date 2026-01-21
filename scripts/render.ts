@@ -13,7 +13,7 @@ const outputDir = '/Users/jake/Movies/sightread-recordings'
 const cpus = 2
 const fps = 60
 const viewport = { width: 1920, height: 1080 }
-const density = 2
+const density = 1
 const maxSeconds = Infinity
 
 /**
