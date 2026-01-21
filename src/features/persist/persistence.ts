@@ -153,7 +153,6 @@ export async function getSongHandle(id: string): Promise<FileSystemFileHandle | 
   const dirSongs = localSongs.get(dir?.id)
   return dirSongs?.find((s) => s.handle?.name === basename)?.handle
 }
-
 initialize()
 
 async function scanFolder(dir: LocalDir): Promise<SongMetadata[]> {
