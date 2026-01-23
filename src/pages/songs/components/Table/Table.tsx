@@ -22,7 +22,7 @@ export default function Table({ rows, search, onSelectRow }: SongsTableProps) {
   const { contains } = useFilter({ sensitivity: 'base' })
   const collator = useCollator({ numeric: true, sensitivity: 'base' })
   const [sortDescriptor, setSortDescriptor] = useState<SortState>({
-    column: 'title',
+    column: 'duration',
     direction: 'ascending',
   })
 
@@ -38,6 +38,9 @@ export default function Table({ rows, search, onSelectRow }: SongsTableProps) {
       let cmp = 0
       if (column === 'duration') {
         cmp = a.duration - b.duration
+        if (cmp === 0) {
+          cmp = collator.compare(a.title, b.title)
+        }
       } else {
         cmp = collator.compare(a.title, b.title)
       }

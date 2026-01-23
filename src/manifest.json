@@ -22,7 +22,7 @@
     "title": "Clair de Lune - Claude Debussy",
     "source": "builtin",
     "id": "clair-de-lune.mid",
-    "duration": 212,
+    "duration": 245,
     "url": "https://musescore.com/user/36583375/scores/6502523",
     "license": "https://creativecommons.org/licenses/by/4.0/"
   },
@@ -103,9 +103,9 @@
     "title": "Ode to Joy - Christian Petzold",
     "source": "builtin",
     "id": "ode-to-joy.mid",
-    "duration": 48,
-    "url": "https://musescore.com/user/27897310/scores/7473839",
-    "license": "https://creativecommons.org/licenses/by/4.0/"
+    "duration": 31,
+    "url": "https://musescore.com/user/20805137/scores/4603207",
+    "license": "https://creativecommons.org/publicdomain/mark/1.0/"
   },
   {
     "file": "music/songs/sonata-no-11.mid",
@@ -142,5 +142,14 @@
     "duration": 71,
     "url": "https://musescore.com/arw-music/scores/98457",
     "license": "https://creativecommons.org/publicdomain/mark/1.0/"
+  },
+  {
+    "file": "music/songs/twinkle-twinkle-little-star.mid",
+    "title": "Twinkle Twinkle Little Star",
+    "source": "builtin",
+    "id": "twinkle-twinkle-little-star.mid",
+    "duration": 23,
+    "url": "https://musescore.com/user/29786779/scores/5246287",
+    "license": "https://creativecommons.org/licenses/by-sa/4.0/"
   }
 ]
