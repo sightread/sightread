@@ -31,6 +31,10 @@ export async function initialize() {
   if (store.get(isInitializedAtom)) {
     return Promise.resolve()
   }
+  if (typeof globalThis.window === 'undefined') {
+    store.set(isInitializedAtom, true)
+    return Promise.resolve()
+  }
   try {
     const dirs: LocalDir[] = (await idb.get(storageKeys.OBSERVED_DIRECTORIES)) ?? []
     store.set(localDirsAtom, dirs)
