@@ -68,7 +68,7 @@ export function getDefaultSongSettings(song?: Song): SongConfig {
     left: true,
     right: true,
     waiting: false,
-    countdownSeconds: 3,
+    countdownEnabled: true,
     transpose: 0,
     loop: {
       enabled: false,
@@ -113,7 +113,7 @@ export function getSongSettings(file: string, song: Song): SongConfig {
     return {
       ...defaults,
       ...persisted,
-      countdownSeconds: persisted.countdownSeconds ?? defaults.countdownSeconds,
+      countdownEnabled: persisted.countdownEnabled ?? defaults.countdownEnabled,
       loop: {
         ...defaults.loop,
         ...persisted.loop,

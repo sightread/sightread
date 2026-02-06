@@ -8,7 +8,7 @@ export type CountdownOverlayProps = {
 export default function CountdownOverlay({ total, remaining }: CountdownOverlayProps) {
   const safeTotal = Math.max(0, Math.round(total))
   const safeRemaining = Math.max(0, Math.min(safeTotal, Math.round(remaining)))
-  if (safeTotal === 0 || safeRemaining === 0) {
+  if (safeRemaining === 0) {
     return null
   }
   return (

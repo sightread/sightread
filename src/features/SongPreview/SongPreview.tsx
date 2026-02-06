@@ -18,7 +18,7 @@ function SongPreview({ songId, source }: SongPreviewProps) {
     const defaults = getDefaultSongSettings(song)
     return {
       ...defaults,
-      countdownSeconds: 0,
+      countdownEnabled: false,
       metronome: { ...defaults.metronome, enabled: false, volume: 0 },
     }
   }, [song])

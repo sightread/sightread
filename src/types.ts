@@ -91,7 +91,7 @@ export type SongConfig = {
   left: boolean
   right: boolean
   waiting: boolean
-  countdownSeconds: number
+  countdownEnabled: boolean
   transpose: number
   loop: {
     enabled: boolean

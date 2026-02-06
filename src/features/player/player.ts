@@ -14,6 +14,8 @@ function increment(x: number) {
 type JotaiStore = ReturnType<typeof getDefaultStore>
 const GOOD_RANGE = 300
 const PERFECT_RANGE = 50
+const DEFAULT_BPM = 120
+const DEFAULT_TIME_SIGNATURE = { numerator: 4, denominator: 4 }
 
 interface Score {
   perfect: PrimitiveAtom<number>
@@ -74,7 +76,8 @@ export class Player {
   metronomeEnabled = atom(false)
   metronomeSpeed = atom(1)
   metronomeEmphasizeFirst = atom(true)
-  countdownSeconds = atom(3)
+  countdownEnabled = atom(true)
+  countdownTotal = atom(0)
   transpose = atom(0)
   countdownRemaining = atom(0)
   countdownInterval: ReturnType<typeof setInterval> | null = null
@@ -233,7 +236,7 @@ export class Player {
     this.songHands = getHands(songConfig)
     this.store.set(this.state, 'CannotPlay')
     this.applyMetronomeConfig(songConfig.metronome)
-    this.applyCountdownConfig(songConfig.countdownSeconds)
+    this.applyCountdownConfig(songConfig.countdownEnabled)
     this.applyTransposeConfig(songConfig.transpose)
 
     const synths: Promise<Synth>[] = []
@@ -328,10 +331,6 @@ export class Player {
     return this.store.get(this.bpmModifier)
   }
 
-  getCountdownSecondsValue() {
-    return this.store.get(this.countdownSeconds)
-  }
-
   setBpmModifier(value: number) {
     this.store.set(this.bpmModifier, round(value, 2))
   }
@@ -353,6 +352,46 @@ export class Player {
     return index
   }
 
+  getBpmForTime(time: number): number {
+    const index = this.getBpmIndexForTime(time)
+    const bpmModifier = this.store.get(this.bpmModifier)
+
+    return (this.getSong()?.bpms[index]?.bpm ?? DEFAULT_BPM) * bpmModifier
+  }
+
+  getTimeSignatureForTime(time: number): { numerator: number; denominator: number } {
+    const song = this.getSong()
+    const timeSignatures = song?.timeSignatures
+
+    if (timeSignatures && timeSignatures.length > 0) {
+      const index = timeSignatures.findIndex((sig) => sig.time > time) - 1
+      if (index >= 0) {
+        return timeSignatures[index]
+      }
+      return timeSignatures[0] ?? DEFAULT_TIME_SIGNATURE
+    }
+
+    return song?.timeSignature ?? DEFAULT_TIME_SIGNATURE
+  }
+
+  getCountdownTimeReference_(time: number) {
+    const song = this.getSong()
+    if (!song) {
+      return time
+    }
+    let index = song.measures.findIndex((m) => m.time > time) - 1
+    if (index < 0) {
+      index = song.measures.length - 1
+    }
+    const firstMeasure = song.measures[index]
+    const secondMeasure = song.measures[index + 1]
+    if (!firstMeasure || !secondMeasure) {
+      return time
+    }
+    const isPickup = firstMeasure.duration < secondMeasure.duration * 0.75
+    return isPickup ? secondMeasure.time : time
+  }
+
   getMeasureForTime(time: number): SongMeasure {
     const song = this.getSong()
     if (!song) {
@@ -372,10 +411,9 @@ export class Player {
       return
     }
 
-    const countdownSeconds = this.store.get(this.countdownSeconds)
-    if (this.shouldCountdown(countdownSeconds)) {
+    if (this.shouldCountdown()) {
       this.clearCountdown_()
-      this.startCountdown_(countdownSeconds)
+      this.startCountdown_()
       return
     }
 
@@ -392,6 +430,7 @@ export class Player {
 
   startPlayback_() {
     this.store.set(this.countdownRemaining, 0)
+    this.store.set(this.countdownTotal, 0)
     // If at the end of the song, restart it
     if (this.currentSongTime >= this.getDuration()) {
       this.seek(0)
@@ -449,8 +488,7 @@ export class Player {
     if (range) {
       let [start, stop] = range
       if (prevTime <= stop && stop <= time) {
-        const countdownSeconds = this.store.get(this.countdownSeconds)
-        if (this.shouldCountdown(countdownSeconds, start)) {
+        if (this.shouldCountdown(start)) {
           this.seek(start)
           this.pause()
           this.play()
@@ -618,12 +656,12 @@ export class Player {
     this.store.set(this.metronomeEmphasizeFirst, metronome.emphasizeFirst)
   }
 
-  applyCountdownConfig(seconds: number) {
-    if (seconds <= 0 && this.isCountingDown()) {
+  applyCountdownConfig(enabled: boolean) {
+    if (!enabled && this.isCountingDown()) {
       this.clearCountdown_(true)
       this.startPlayback_()
     }
-    this.store.set(this.countdownSeconds, seconds)
+    this.store.set(this.countdownEnabled, enabled)
   }
 
   applyTransposeConfig(semitones: number) {
@@ -634,8 +672,8 @@ export class Player {
     return transposeMidi(midiNote, this.store.get(this.transpose))
   }
 
-  shouldCountdown(countdownSeconds: number, timeOverride?: number) {
-    if (countdownSeconds <= 0) {
+  shouldCountdown(timeOverride?: number) {
+    if (!this.store.get(this.countdownEnabled)) {
       return false
     }
     const time = timeOverride ?? this.getTime()
@@ -650,10 +688,29 @@ export class Player {
     return Math.abs(roundedTime - range[0]) < 0.001
   }
 
-  startCountdown_(seconds: number) {
+  getCountdownConfig_(time: number) {
+    const referenceTime = this.getCountdownTimeReference_(time)
+
+    let { numerator, denominator } = this.getTimeSignatureForTime(referenceTime)
+    numerator = Math.max(Math.round(numerator), 1)
+    denominator = denominator > 0 ? denominator : DEFAULT_TIME_SIGNATURE.denominator
+
+    const bpm = Math.max(this.getBpmForTime(referenceTime), 1)
+
+    const beatSeconds = (60 / bpm) * (4 / denominator)
+    return { total: numerator, intervalMs: Math.max(1, beatSeconds * 1000) }
+  }
+
+  startCountdown_() {
     this.clearCountdown_()
     this.store.set(this.state, 'CountingDown')
-    this.store.set(this.countdownRemaining, seconds)
+    const { total, intervalMs } = this.getCountdownConfig_(this.getTime())
+    if (total <= 0) {
+      this.startPlayback_()
+      return
+    }
+    this.store.set(this.countdownTotal, total)
+    this.store.set(this.countdownRemaining, total)
     const volume = Math.max(0, this.store.get(this.metronomeVolume))
     const velocity = Math.min(127, Math.round(volume * 127))
     const playTick = () => {
@@ -676,7 +733,7 @@ export class Player {
       if (this.isCountingDown()) {
         this.startPlayback_()
       }
-    }, 1000)
+    }, intervalMs)
   }
 
   clearCountdown_(resetRemaining = false) {
@@ -686,6 +743,7 @@ export class Player {
     }
     if (resetRemaining) {
       this.store.set(this.countdownRemaining, 0)
+      this.store.set(this.countdownTotal, 0)
     }
   }
 

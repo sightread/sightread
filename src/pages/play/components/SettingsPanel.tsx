@@ -64,7 +64,7 @@ export default function SettingsPanel(props: SidebarProps) {
 
   const defaultSongSettings = getDefaultSongSettings(props.song)
   const metronomeConfig = props.config.metronome ?? defaultSongSettings.metronome
-  const countdownSeconds = props.config.countdownSeconds ?? defaultSongSettings.countdownSeconds
+  const countdownEnabled = props.config.countdownEnabled ?? defaultSongSettings.countdownEnabled
   const metronomeEnabled = metronomeConfig.enabled
   const metronomeVolume = metronomeConfig.volume
   const metronomeSpeed = metronomeConfig.speed
@@ -211,7 +211,7 @@ export default function SettingsPanel(props: SidebarProps) {
     const songConfig: SongConfig = {
       ...props.config,
       waiting: false,
-      countdownSeconds: 0,
+      countdownEnabled: false,
       metronome: { ...metronomeConfig, enabled: false },
     }
     await miniPlayer.setSong(props.song, songConfig)
@@ -369,7 +369,7 @@ export default function SettingsPanel(props: SidebarProps) {
             subtitle="Select active hands"
           >
             <SegmentedToggle
-              className="w-[126px]"
+              className="w-[160px]"
               value={handsMode}
               onChange={(value) => setHands(value as typeof handsMode)}
               options={[
@@ -385,18 +385,14 @@ export default function SettingsPanel(props: SidebarProps) {
             title="Countdown"
             subtitle="Begin with a countdown"
           >
-            <SegmentedToggle
-              className="w-[126px]"
-              value={countdownSeconds <= 0 ? 'off' : countdownSeconds === 5 ? '5' : '3'}
-              onChange={(id) => {
-                const next = id === '5' ? 5 : id === '3' ? 3 : 0
-                props.onChange({ ...props.config, countdownSeconds: next })
-              }}
-              options={[
-                { id: 'off', label: 'Off' },
-                { id: '3', label: '3s' },
-                { id: '5', label: '5s' },
-              ]}
+            <SidebarSwitch
+              isSelected={countdownEnabled}
+              onChange={(value) =>
+                props.onChange({
+                  ...props.config,
+                  countdownEnabled: value,
+                })
+              }
             />
           </SettingRow>
 
