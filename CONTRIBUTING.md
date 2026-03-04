@@ -2,6 +2,13 @@
 
 Thanks for your interest in contributing to **sightread**.
 
+## Policy Update: March 2026
+
+Sightread is in a private development phase.
+
+- GitHub Issues are open, actively reviewed, and feedback will be incorporated into ongoing development, so please keep the feature requests and bug reports coming!
+- Pull requests are disabled.
+
 ## Development Setup
 
 We use [Bun](https://bun.sh/) for package management, dev server, and testing.

@@ -168,16 +168,13 @@ function RoadmapSection() {
   return (
     <Article header="Roadmap">
       <p>
-        We have so many exciting ideas, but we have full time jobs so progress is slow. Things we
-        plan to implement in future releases:
+        We have so many exciting ideas. Things we plan to implement in future releases:
       </p>
       <ul className="list-disc px-12">
         <li>iOS App</li>
         <li>MusicXML file upload and full Sheet Music display.</li>
         <li>Progress tracking and song scoring to see improvement over time.</li>
-        <li>
-          Difficulty scaling for algorithmically scaling the difficulty of a song up and down.
-        </li>
+        <li>Difficulty scaling for algorithmically scaling the difficulty of a song up and down.</li>
         <li>Record a performance in free play and share it with a link.</li>
         <li>Small training tools and games.</li>
       </ul>
@@ -228,6 +225,7 @@ function ProductRecommendations() {
 
       <p>
         These are affiliate links, so we earn from purchases. This is our only form of monetization.
+        We are actively exploring sustainable ways to support continued development.
       </p>
     </Article>
   )
