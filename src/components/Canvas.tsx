@@ -1,4 +1,9 @@
-import { handlePointerCancel, handlePointerDown, handlePointerUp } from '@/features/pointer'
+import {
+  handlePointerCancel,
+  handlePointerDown,
+  handlePointerMove,
+  handlePointerUp,
+} from '@/features/pointer'
 import { useRAFLoop, useSize } from '@/hooks'
 import { ForwardedRef, forwardRef, ForwardRefRenderFunction, Ref, useCallback, useRef } from 'react'
 
@@ -67,6 +72,31 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
           handlePointerCancel()
         }}
         onPointerLeave={() => {
+          handlePointerCancel()
+        }}
+        onTouchStart={(event) => {
+          const touch = event.touches[0]
+          if (!touch) {
+            return
+          }
+          handlePointerDown({ clientX: touch.clientX, clientY: touch.clientY })
+        }}
+        onTouchMove={(event) => {
+          const touch = event.touches[0]
+          if (!touch) {
+            return
+          }
+          handlePointerMove({ clientX: touch.clientX, clientY: touch.clientY })
+        }}
+        onTouchEnd={(event) => {
+          const touch = event.changedTouches[0]
+          if (!touch) {
+            handlePointerCancel()
+            return
+          }
+          handlePointerUp({ clientX: touch.clientX, clientY: touch.clientY })
+        }}
+        onTouchCancel={() => {
           handlePointerCancel()
         }}
       >
