@@ -34,6 +34,10 @@ export function handlePointerDown(e: PointerLikeEvent) {
   setPointerLocation(e)
 }
 
+export function handlePointerMove(e: PointerLikeEvent) {
+  setPointerLocation(e)
+}
+
 export function handlePointerUp(e: PointerLikeEvent) {
   isPointerDown_ = false
   setPointerLocation(e)
