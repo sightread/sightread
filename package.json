@@ -63,6 +63,9 @@
     "check-fmt": "prettier --check '**/*.{ts,tsx}'",
     "fmt": "prettier --write '**/*.{ts,tsx}'",
     "render": "bun scripts/render.ts",
+    "download-soundfonts": "bun scripts/download-soundfonts.ts",
+    "prebuild": "bun run download-soundfonts",
+    "predev": "bun run download-soundfonts",
     "test": "bun test",
     "test:watch": "bun test --watch"
   },

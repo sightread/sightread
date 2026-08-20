@@ -21,3 +21,6 @@ tsconfig.tsbuildinfo
 
 # vercel cli files
 .vercel
+
+# downloaded soundfonts (see scripts/download-soundfonts.ts)
+public/soundfonts/
